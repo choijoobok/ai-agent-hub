@@ -233,11 +233,13 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const body = empty ? `<tr><td class="empty" colspan="${table.rows.length+1+(multiple?1:0)+(showState?1:0)+(showDelete?1:0)}">${escape(contextEmpty?'선택한 문맥에 해당하지 않는 목록입니다.':figure.notice)}</td></tr>` : rows.map(renderRow).join('');
     const excel=figure.buttons.includes('엑셀 다운로드')?`<details data-excel-menu><summary>엑셀 다운로드 ▾${badge('엑셀 다운로드','현재 페이지 또는 전체를 선택한다. 현재 표시한 열과 순서, 반출 권한을 적용하며 숨긴 열은 자동 포함하지 않는다.','common:excel')}</summary><span>현재 페이지 · 전체</span></details>`:'';
     const settings=`<details data-grid-settings><summary>그리드 설정${badge('그리드 설정','표시할 열을 선택한다. 선택 표시 열도 여기에서 켜며 저장 데이터 자체는 변경하지 않는다.','common:grid-settings')}</summary><div class="notes">${table.rows.map((r,i)=>`<label style="display:block"><input type="checkbox" data-grid-column="${i}" ${optional(r)?'':'checked'}>${escape(plain(r[0]))}</label>`).join('')}</div></details>`;
-    const createDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/추가$/.test(name))||(table===model.columns[0]&&figure.buttons.includes('신규'));
+    const commandDeclared=name=>(model.commandFields?.rows??[]).some(row=>plain(row[0])===name);
+    const rowAction=name=>/추가$|제거$/.test(name)&&!commandDeclared(name);
+    const createDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/추가$/.test(name)&&rowAction(name))||(table===model.columns[0]&&figure.buttons.includes('신규'));
     const canAdd=createDeclared&&(editableHere||table.rows.some(r=>editableNow(r,model.masterEditRule?Object.fromEntries([model.masterEditRule.split('=')]):{},true)))&&supportsValueMode(label)&&writable&&!figure.disabledButtons?.some(name=>/추가$/.test(name));
     const surface=surfaceOf(model,label);
-    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|추가$|제거$|^엑셀 다운로드$/.test(name));
-    const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|추가$|제거$|^엑셀 다운로드$/.test(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
+    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name));
+    const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
     const saveButtons=surface?.buttons??figure.buttons;
     const approvalSave=saveButtons.includes('승인 요청')&&!saveButtons.includes('저장')&&figure.buttons.includes('승인 요청');
     const actions=[...new Set([...surfaceButtons,...globalButtons])].filter(name=>name!=='승인 요청'||(figure.buttons.includes('승인 요청')&&!approvalSave)).map(name=>button(name,label)).join('');

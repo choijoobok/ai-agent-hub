@@ -118,6 +118,7 @@
 | `/menu-doc` | `requirements-trace.mjs` | `node .claude/skills/menu-doc/requirements-trace.mjs` |
 | `/menu-doc` | `requirements-trace.test.mjs` | `node .claude/skills/menu-doc/requirements-trace.test.mjs` |
 | `/menu-doc` | `screens.mjs` | `node .claude/skills/menu-doc/screens.mjs` |
+| `/mockup` | `admin-direct-management.test.mjs` | `node .claude/skills/mockup/admin-direct-management.test.mjs` |
 | `/mockup` | `declared-layout.mjs` | `node .claude/skills/mockup/declared-layout.mjs` |
 | `/mockup` | `declared-layout.test.mjs` | `node .claude/skills/mockup/declared-layout.test.mjs` |
 | `/mockup` | `generic-layout.mjs` | `node .claude/skills/mockup/generic-layout.mjs` |

@@ -34,6 +34,7 @@ export function menuReviewMarkdown(spec,exists){
  const requests=base.filter(s=>s.view_kind==='change_request');
  if(requests.length){lines.push('### 자산별 변경 요청 처리 메뉴','','통합 목록은 조회와 상세 이동을 맡고, 작성·검토·승인/반려는 자산별 전용 화면에서 처리합니다. 복합 요청은 같은 요청번호의 전체 대상으로 한 번 판정합니다.','','| 원 관리 화면 | 전용 변경 요청 | 상세 경로 |','|---|---|---|',...requests.map(s=>`| ${s.source_screen} ${byId.get(s.source_screen)?.title??''} | ${s.id} ${s.title} | ${s.route} |`),'');}
  if(tree.request_workflow)lines.push(`통합 조회 화면: ${tree.request_workflow.index_screen}`,'',tree.request_workflow.source,'',tree.request_workflow.rule,'');
+ if(tree.portal_requests)lines.push('### Portal 신청 승인','',tree.portal_requests.rule,'',...(tree.portal_requests.screens??[]).map(id=>`- ${id} ${byId.get(id)?.title??''}`),'');
  lines.push('### 이번 대상에서 제외','',...tree.excluded.map(x=>`- ${x.screen}: ${x.reason}`),'','### 적용 규칙','',...tree.rules.map(x=>'- '+x));
  return lines.join('\n');
 }

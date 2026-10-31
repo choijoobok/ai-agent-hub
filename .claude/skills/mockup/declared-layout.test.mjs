@@ -405,3 +405,11 @@ test('목록 연동만 있고 추가 잠금 조건이 없으면 편집 가능한
  assert.match(render(figure,fixture),/data-master-locked="false"/);
  assert.match(render({...figure,editable:false},fixture),/data-master-locked="true"/);
 });
+
+test('그룹 추가 입력창 명령은 일반 행 추가로 치환하거나 숨기지 않는다',()=>{
+ const fixture={...model,columns:[columns('사용자',[['사용자','조회','읽기전용','','portal.user']]),columns('그룹',[['그룹명','조회','읽기전용','','물류']])],actions:[...model.actions,['그룹 추가','','','','','선택 사용자에 직접 그룹 부여']],surfaces:[{name:'사용자',buttons:['조회'],disabled:[]},{name:'그룹',buttons:['조회','그룹 추가'],disabled:[]}],commandFields:{header:['명령 입력창','영역','필드','메시지 키','입력방식','필수','최대 길이','예시','후보 예시','검증','설명'],rows:[['그룹 추가','기본','그룹','','선택','필수','—','물류','물류·재무','현재 부여 권한 검사','선택 그룹']]}};
+ const [figure]=declaredFigures(stateTable([['main','관리','그룹','','조회·그룹 추가','가능','없음']]),plain);
+ const html=render(figure,fixture);
+ assert.match(html,/data-open-command="그룹 추가">그룹 추가<\/button>/);
+ assert.doesNotMatch(html,/data-grid-add/);
+});
