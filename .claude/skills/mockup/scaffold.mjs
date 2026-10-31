@@ -237,6 +237,7 @@ function screenModel(md, type, allowInheritance = true) {
     rowExamples: findTable(composition, /^그리드 예시$/),
     popups: findTable(composition, /^선택창$/),
     commandFields: findTable(composition, /^명령 입력창$/),
+    addChoices: findTable(composition, /^추가 방식$/),
     figureNavigation: findTable(composition, /^목업 이동$/),
     masterLink: composition?.body.match(/^목록 연동:\s*(.+)$/m)?.[1]?.trim(),
     masterEditRule: composition?.body.match(/^대상 편집 조건:\s*(.+)$/m)?.[1]?.trim(),

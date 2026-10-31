@@ -1,5 +1,6 @@
 /** 요건서에 명시한 상태·상세 폼을 공통 템플릿의 어휘로 렌더링한다. */
 import {snapshotView} from './snapshot-view.mjs';
+import {addChoiceFor,lookupAddDialog} from './add-choice.mjs';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
@@ -93,7 +94,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const note=n.badge(description+(locations.length?`<p>배치: ${escape(locations.map(s=>s.name).join(' · '))}</p><p>저장 범위: ${escape(saveScopes.join(' / '))}</p>`:''),`action:${name}`);
     const command=(model.commandFields?.rows??[]).some(r=>plain(r[0])===name);
     const destination=(model.figureNavigation?.rows??[]).find(r=>plain(r[0])===name);
-    const displayName=actionTable ? plain(cell(actionTable,row,'표시명'))||name : name;
+    const displayName=/추가$|^신규$/.test(name)?'추가':actionTable ? plain(cell(actionTable,row,'표시명'))||name : name;
     const nav=model.screenNavigation?.rows.find(r=>plain(r[0])===name);
     if(nav&&!disabled){
       const href=plain(nav[1]);
@@ -133,6 +134,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const contextEmpty = figure.emptyGrids?.includes(label);
     empty = empty || contextEmpty;
     const gridId = `${figure.key}-grid-${model.columns.indexOf(table)}`;
+    const addChoice=addChoiceFor(model,label,figure);
     const writable=!table.readonly&&table.rows.some(r=>editableColumn(plain(cell(table,r,'편집'))));
     const showState=writable&&figure.editable;
     const multiple=model.selectionModes?.[label]==='다중';
@@ -178,7 +180,8 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         return !values.join('=').split('·').includes(String(actual));
       });
       const editable = (!conditionLocked || rowConditional) && !table.readonly && figure.editable && (/가능|조건부/.test(editMode) || (/신규/.test(editMode) && (figure.key==='new'||rowIndex>=rows.length)));
-      const referenceMap=plain(cell(table,r,'후보 값 매핑'));
+      const choiceCandidates=addChoice?.mode==='기준정보 콤보'&&plain(r[0])===addChoice.key?addChoice.records.filter(v=>v['선택 가능']!==false).map(v=>({label:addChoice.columns.map(k=>String(v[k]??'')).join(' / '),key:v[addChoice.key]})):null;
+      const referenceMap=choiceCandidates?JSON.stringify(Object.fromEntries(choiceCandidates.map(v=>[v.label,v.key]))):plain(cell(table,r,'후보 값 매핑'));
       const references=referenceMap&&referenceMap!=='—'?JSON.parse(referenceMap):{};
       const value = Object.entries(references).find(([,stored])=>stored===valueOf(r))?.[0] || valueOf(r) || '—';
       const mode=plain(cell(table,r,'입력방식'));
@@ -186,7 +189,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       const candidateMap=plain(cell(table,r,'후보 매핑'));
       const rowParent=parentField && parentField!=='—' ? parentField : '';
       if(rowParent && !table.rows.some(row=>plain(row[0])===rowParent))throw new Error('상위 선택 필드가 같은 그리드에 없다');
-      const rowCandidates=rowParent ? (JSON.parse(candidateMap)[valueOf(table.rows.find(row=>plain(row[0])===rowParent))]??[]).join('·') : plain(cell(table,r,'후보 예시'));
+      const rowCandidates=choiceCandidates?choiceCandidates.map(v=>v.label).join('·'):rowParent ? (JSON.parse(candidateMap)[valueOf(table.rows.find(row=>plain(row[0])===rowParent))]??[]).join('·') : plain(cell(table,r,'후보 예시'));
       let content=escape(value),switchKnown=true;
       const isSnapshot=/스냅샷 뷰어/.test(mode);
       const isLargeText=/셀 위 텍스트영역/.test(mode);
@@ -205,9 +208,9 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         const formatRow=table.rows.find(row=>plain(cell(table,row,'필드명'))==='snapshotVersion');
         const control=isSnapshot?snapshotView(valueOf(r)||'',Number(formatRow?valueOf(formatRow):0),labels)
           : /설정 팝업/.test(mode) ? popup(plain(r[0]), controlId, !editable)
-          : /검색콤보|팝업 선택/.test(mode) ? searchCombo(controlId,plain(r[0]),valueOf(r)||'',rowCandidates,!editable,rowParent,rowParent?candidateMap:'',/다중/.test(mode),plain(cell(table,r,'후보 값 매핑')))
+          : /검색콤보|팝업 선택/.test(mode) ? searchCombo(controlId,plain(r[0]),valueOf(r)||'',rowCandidates,!editable,rowParent,rowParent?candidateMap:'',/다중/.test(mode),referenceMap)
           : /장문/.test(mode) ? `<textarea data-edit-value id="${controlId}" rows="5" ${editable?'':'readonly'}>${escape(valueOf(r)||'')}</textarea>`
-          : /선택|셀렉트/.test(mode) ? selectControl(controlId,plain(r[0]),valueOf(r)||'',plain(cell(table,r,'후보 예시')),referenceMap)
+          : /선택|셀렉트/.test(mode) ? selectControl(controlId,plain(r[0]),valueOf(r)||'',rowCandidates,referenceMap)
           : `<input data-edit-value id="${controlId}" aria-label="${escape(plain(r[0]))}" value="${escape(valueOf(r)||'')}" ${editable?'':'readonly'}>`;
         const inline=editable&&!/장문|설정 팝업|검색콤보|팝업 선택|스냅샷/.test(mode);
         content=inline?inlineEditor(value,control):`<details data-cell-editor${editable?' data-cell-popup':''}${isSnapshot?' data-snapshot-viewer':''}${figure.cellEditor===plain(r[0])&&rowIndex===0?' data-auto-editor':''}><summary title="${editable?'더블 클릭으로 셀 편집':isSnapshot?'전체 스냅샷 보기':escape(value)}" style="overflow:hidden;text-overflow:ellipsis">${isSnapshot?'보기':escape(value)+(editable?' ✎':' 보기')}</summary><div class="modal" style="position:fixed;top:8%;left:50%;transform:translateX(-50%);width:min(${isSnapshot?'800':'520'}px,90vw);z-index:20;white-space:normal"><div class="mh">${escape(plain(r[0]))}<button type="button" class="btn ghost sm" data-close-editor>닫기${badge('닫기','셀 상세/설정 창을 닫는다. 후보 전체 저장은 수행하지 않는다.','common:close-editor')}</button></div><div class="mb${isSnapshot?'':' f'}" style="max-height:75vh;overflow:auto">${control}${editable?`<button type="button" class="btn sm" data-apply-cell>선택 적용${badge('선택 적용','설정 창의 입력을 로컬 후보 셀에 반영한다. 서버 저장은 별도 저장 버튼으로 수행한다.','common:apply-cell')}</button>`:''}</div></div></details>`;
@@ -234,24 +237,28 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const excel=figure.buttons.includes('엑셀 다운로드')?`<details data-excel-menu><summary>엑셀 다운로드 ▾${badge('엑셀 다운로드','현재 페이지 또는 전체를 선택한다. 현재 표시한 열과 순서, 반출 권한을 적용하며 숨긴 열은 자동 포함하지 않는다.','common:excel')}</summary><span>현재 페이지 · 전체</span></details>`:'';
     const settings=`<details data-grid-settings><summary>그리드 설정${badge('그리드 설정','표시할 열을 선택한다. 선택 표시 열도 여기에서 켜며 저장 데이터 자체는 변경하지 않는다.','common:grid-settings')}</summary><div class="notes">${table.rows.map((r,i)=>`<label style="display:block"><input type="checkbox" data-grid-column="${i}" ${optional(r)?'':'checked'}>${escape(plain(r[0]))}</label>`).join('')}</div></details>`;
     const commandDeclared=name=>(model.commandFields?.rows??[]).some(row=>plain(row[0])===name);
-    const rowAction=name=>/추가$|제거$/.test(name)&&!commandDeclared(name);
+    const rowAction=name=>(/추가$|제거$|^신규$/.test(name))&&!commandDeclared(name);
     const createDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/추가$/.test(name)&&rowAction(name))||(table===model.columns[0]&&figure.buttons.includes('신규'));
-    const canAdd=createDeclared&&(editableHere||table.rows.some(r=>editableNow(r,model.masterEditRule?Object.fromEntries([model.masterEditRule.split('=')]):{},true)))&&supportsValueMode(label)&&writable&&!figure.disabledButtons?.some(name=>/추가$/.test(name));
+    const allowedAdd=!model.strictButtons||figure.buttons.some(name=>/추가$|^신규$/.test(name)&&(!surfaceOf(model,label)||surfaceOf(model,label).buttons.includes(name)))||(model.requestScreen&&figure.editable&&(model.addRowTabs??[]).includes(label));
+    const canAdd=createDeclared&&allowedAdd&&(editableHere||table.rows.some(r=>editableNow(r,model.masterEditRule?Object.fromEntries([model.masterEditRule.split('=')]):{},true)))&&supportsValueMode(label)&&writable&&!figure.disabledButtons?.some(name=>/추가$/.test(name))&&(!addChoice||addChoice.mode==='조회 팝업'||(addChoice.state==='정상'&&addChoice.records.length>0));
     const surface=surfaceOf(model,label);
-    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name));
+    const commandAdd=(surface?.buttons??[]).find(name=>/추가$/.test(name)&&commandDeclared(name));
+    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&name!==commandAdd);
     const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
     const saveButtons=surface?.buttons??figure.buttons;
     const approvalSave=saveButtons.includes('승인 요청')&&!saveButtons.includes('저장')&&figure.buttons.includes('승인 요청');
     const actions=[...new Set([...surfaceButtons,...globalButtons])].filter(name=>name!=='승인 요청'||(figure.buttons.includes('승인 요청')&&!approvalSave)).map(name=>button(name,label)).join('');
     const approvalControl=approvalSave?'<span data-grid-save data-native-save>'+button('승인 요청',label)+'</span>':'';
-    const addControl=standardButton('행 추가','add',!canAdd,'같은 저장 단위에 신규 행 추가').replace('data-grid-add',table===model.columns[0]&&model.independentButtons?.includes('행 추가')?'data-grid-add data-selection-independent':'data-grid-add');
+    const newNavigation=table===model.columns[0]&&figure.buttons.includes('신규')&&model.figureNavigation?.rows.some(row=>plain(row[0])==='신규');
+    const wantsAdd=(writable&&createDeclared)||Boolean(commandAdd);
+    const addControl=!wantsAdd?'':commandAdd?button(commandAdd,label):newNavigation?button('신규',label):standardButton('추가','add',!canAdd,'같은 저장 단위에 신규 행 추가').replace('data-grid-add',table===model.columns[0]&&model.independentButtons?.includes('행 추가')?'data-grid-add data-selection-independent':'data-grid-add');
     const addRefRow=model.addReferences?.rows.find(row=>plain(row[0])===label);
     const addRef=addRefRow?{search:plain(addRefRow[1]),key:plain(addRefRow[2]),rate:plain(addRefRow[3]),values:JSON.parse(addRefRow[4])}:null;
-    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:writable?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?standardButton('저장','save',(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장'),'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.'):'') ,actions,tools:excel+settings});
+    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?standardButton('저장','save',(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장'),'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.'):'') ,actions,tools:excel+settings});
     const [contextField,contextValue]=(model.masterEditRule??'').split('=');
-    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow(model.masterLink?{[contextField]:contextValue}:{},rows.length)}</template>`:''}
+    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
       <div class="grid" style="overflow:auto"><table style="width:100%;table-layout:fixed;min-width:${table.rows.filter(r=>!optional(r)).reduce((n,r)=>n+width(r),systemWidth(showState,multiple,showDelete))}px"><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>
-      <div class="pg">총 ${empty ? '0' : rows.length}건 · 1 페이지</div></div>`;
+      <div class="pg">총 ${empty ? '0' : rows.length}건 · 1 페이지</div>${addChoice?lookupAddDialog(addChoice,badge):''}</div>`;
   };
   const formView = (table) => table.rows.map((r, i) => {
     const label = plain(r[0]);

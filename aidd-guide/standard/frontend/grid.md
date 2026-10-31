@@ -5,7 +5,7 @@ category: standard/frontend
 type: operation
 class: policy
 created: 2026-05-04
-updated: 2026-09-07
+updated: 2026-10-31
 status: active
 sources: ["sources/frontend/src/shared/grid/", "sources/frontend/src/shared/components/", "sources/backend/core/grid/"]
 tier: 1
@@ -51,7 +51,7 @@ tags: [frontend, grid, ag-grid, crud, save]
 ### 크롬 — 모든 그리드가 같은 자리에 같은 것을 둔다
 
 ```
-┌ 사용자 목록      [조회] [행 추가] [저장] [잠금 해제]      [⤓▾] [⚙] ┐
+┌ 사용자 목록      [조회] [추가] [저장] [잠금 해제]         [⤓▾] [⚙] ┐
 │  ↑ 제목           ↑ api 선언이 채운다                      ↑ 도구  │
 ├────────────────────────────────────────────────────────────────────┤
 │  그리드 본문                                                        │
@@ -91,8 +91,8 @@ tags: [frontend, grid, ag-grid, crud, save]
 
 | | |
 |---|---|
-| 순서 | **조회 → 행 추가 → 저장 → `actions` 선언 순서** |
-| 라벨 | `label` 메시지 키. 없으면 `read`·`save` 는 표준 라벨 |
+| 순서 | **조회 → 추가 → 저장 → `actions` 선언 순서** |
+| 라벨 | 추가의 표시는 **추가**로 통일한다. `label` 메시지 키를 쓰고, 없으면 `read`·`save`는 표준 라벨 |
 | **권한** | 각 URL 의 액션을 유효 권한과 대조해 **없으면 감춘다** |
 | 비활성 | 실행 중 잠금 · 마스터-디테일 상태 · 대상 없음 |
 
@@ -101,6 +101,7 @@ tags: [frontend, grid, ag-grid, crud, save]
 > 경로가 열린다.
 
 **행 추가는 `addRow` 가 정한다 — 선언하지 않으면 버튼이 없다.**
+추가의 방식이 빈 행·조회 팝업 선택·기준정보 콤보 중 무엇인지는 화면 요건을 따른다. 기본 추가와 별도 추가 명령을 중복 표시하지 않는다.
 **엑셀 다운로드와 그리드 설정은 `api` 에 없다** — 프론트가 자기 데이터로 만들고,
 설정은 개인화다. **서버가 만드는 엑셀만** `actions` 의 하나가 된다.
 

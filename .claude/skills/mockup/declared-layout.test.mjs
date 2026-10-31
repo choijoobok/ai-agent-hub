@@ -271,7 +271,7 @@ test('사용 중인 행은 제거 보호 근거를 갖고 신규 미참조 행�
 
 
 test('조회조건 밖 버튼 띠를 만들지 않고 그리드별 조회·편집 크롬을 둔다',()=>{
- const fixture={...model,columns:[columns('목록',[['이름','텍스트','가능','','기존']]),columns('세부',[['값','텍스트','읽기전용','','조회값']])],interactive:true};
+ const fixture={...model,columns:[columns('목록',[['이름','텍스트','가능','','기존']]),columns('세부',[['값','텍스트','읽기전용','','조회값']])],surfaces:[{name:'목록',buttons:['조회','추가','저장']}],interactive:true};
  const [figure]=declaredFigures(stateTable([['edit','편집','세부','','조회·저장','가능','없음']]),plain);
  const html=render(figure,fixture);
  assert.equal((html.match(/data-grid-read/g)||[]).length,2);
@@ -288,7 +288,7 @@ test('판정 입력이 편집 가능해도 제출된 업무 스냅샷의 추가�
  const fixture={...model,columns:[{heading:'제출 업무',header:['컬럼','입력방식','편집','예시','편집 조건'],rows:[['업무값','텍스트','가능','제출값','draft']]},model.columns[1]],interactive:true,requestScreen:true};
  const [figure]=declaredFigures(stateTable([['approval','판정','상세','','조회·저장','가능','없음']]),plain);
  const html=render(figure,fixture).split('<section data-pane="detail">')[0];
- assert.match(html,/data-grid-add disabled/);
+ assert.doesNotMatch(html,/data-grid-add/);
  assert.match(html,/data-grid-save disabled/);
  assert.doesNotMatch(html,/data-grid-delete(?:>|\s)/);
  assert.doesNotMatch(html,/class="edit"/);
@@ -410,6 +410,20 @@ test('그룹 추가 입력창 명령은 일반 행 추가로 치환하거나 숨
  const fixture={...model,columns:[columns('사용자',[['사용자','조회','읽기전용','','portal.user']]),columns('그룹',[['그룹명','조회','읽기전용','','물류']])],actions:[...model.actions,['그룹 추가','','','','','선택 사용자에 직접 그룹 부여']],surfaces:[{name:'사용자',buttons:['조회'],disabled:[]},{name:'그룹',buttons:['조회','그룹 추가'],disabled:[]}],commandFields:{header:['명령 입력창','영역','필드','메시지 키','입력방식','필수','최대 길이','예시','후보 예시','검증','설명'],rows:[['그룹 추가','기본','그룹','','선택','필수','—','물류','물류·재무','현재 부여 권한 검사','선택 그룹']]}};
  const [figure]=declaredFigures(stateTable([['main','관리','그룹','','조회·그룹 추가','가능','없음']]),plain);
  const html=render(figure,fixture);
- assert.match(html,/data-open-command="그룹 추가">그룹 추가<\/button>/);
+ assert.match(html,/data-open-command="그룹 추가">추가<\/button>/);
  assert.doesNotMatch(html,/data-grid-add/);
+});
+
+test('상태의 허용 목록에서 빠진 추가는 영역이 편집 가능해도 잠기며 템플릿을 만들지 않는다',()=>{
+ const fixture={...model,strictButtons:true,columns:[model.columns[0],columns('상세',[['값','텍스트','가능','','기존값']])],surfaces:[{name:'상세',buttons:['조회','추가','저장']}]};
+ const [figure]=declaredFigures(stateTable([['main','조회만','상세','','조회','가능','없음']]),plain);
+ const html=render(figure,fixture);assert.match(html,/data-grid-add disabled/);assert.doesNotMatch(html,/template data-row-template/);
+ assert.match(render({...figure,buttons:['조회','추가']},fixture),/data-grid-add title=/);
+});
+
+test('기준정보 콤보 추가는 한 슬롯에서 표시명과 안정 저장 키를 구분한다',()=>{
+ const fixture={...model,columns:[columns('사용자',[['사용자','조회','읽기전용','','u1']]),columns('상세',[['사용자','조회','읽기전용','','u1'],['그룹','선택','신규행만','',''],['활성','설정 스위치','가능','','true']])],surfaces:[{name:'상세',buttons:['조회','추가','저장']}],masterLink:'사용자',addChoices:{header:['추가 방식','방식','원천','상위 필드','고정 필드','선택 키','활성 필드','조회 조건','표시 컬럼','후보 예시(JSON)','기본값(JSON)'],rows:[['상세','기준정보 콤보','그룹 기준정보','사용자','사용자','그룹','활성','그룹명','그룹명·그룹','[{"그룹":"g1","그룹명":"물류"}]','{"활성":true}']]}};
+ const [figure]=declaredFigures(stateTable([['main','편집','상세','','조회·추가·저장','가능','없음']]),plain);const html=render(figure,fixture);
+ assert.equal((html.match(/data-grid-add /g)||[]).length,1);assert.match(html,/>추가<\/button>/);assert.doesNotMatch(html,/>행 추가<\/button>/);
+ assert.match(html,/<option value="g1">물류 \/ g1<\/option>/);assert.doesNotMatch(html,/<option value="물류 \/ g1"/);
 });

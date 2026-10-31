@@ -10,7 +10,7 @@ export function genericScreen(title, model, figure, {annotator, manualKey, compa
     const row=table?.rows.find(r=>cell(table,r,table.header[0])===name);
     const surface=surfaceOf(model,scope);
     const desc=row?actionExplanation(table,row,scope):`<b>${esc(scope)} › ${esc(name)}</b><p>${esc(surface?.workflow||'요건서의 버튼 동작을 따른다.')}</p>`;
-    return `<button type="button" class="btn ghost sm">${esc(name)}${badge(desc+`<p>조회: ${esc(surface?.trigger||'화면 조회 조건')} / 저장: ${esc(surface?.save||'해당 없음')}</p>`,`action:${scope}:${name}`)}</button>`;
+    return `<button type="button" class="btn ghost sm">${esc(/추가$|^신규$/.test(name)?'추가':name)}${badge(desc+`<p>조회: ${esc(surface?.trigger||'화면 조회 조건')} / 저장: ${esc(surface?.save||'해당 없음')}</p>`,`action:${scope}:${name}`)}</button>`;
   };
   const renderArea=table=>{
     const name=areaTitle(table), surface=surfaceOf(model,name);
@@ -22,8 +22,8 @@ export function genericScreen(title, model, figure, {annotator, manualKey, compa
     const showState=writable&&!locked;
     const multiple=model.selectionModes?.[name]==='다중';
     const showDelete=showState&&deleteDeclared;
-    const toolbar=(surface?.buttons??[]).filter(b=>!/^조회$|^저장$|추가$|삭제$|제거$/.test(b)).map(b=>action(b,name)).join('');
-    const controls=chrome({title:name,count:'1건',read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)),add:writable&&createDeclared?standardButton('행 추가','add',locked):'',save:writable?standardButton('저장','save',locked):'',actions:toolbar});
+    const toolbar=(surface?.buttons??[]).filter(b=>!/^조회$|^저장$|추가$|삭제$|제거$|^신규$/.test(b)).map(b=>action(b,name)).join('');
+    const controls=chrome({title:name,count:'1건',read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)),add:writable&&createDeclared?standardButton('추가','add',locked):'',save:writable?standardButton('저장','save',locked):'',actions:toolbar});
     const columns=table.rows.map(row=>({row,label:cell(table,row,table.header[0]),note:badge(columnExplanation(table,row),`column:${name}:${cell(table,row,table.header[0])}`)}));
     if(form)return `${controls}<div class="form-fields">${columns.map(({row,label,note})=>{
       const mode=cell(table,row,'입력방식'),editable=cell(table,row,'편집');
