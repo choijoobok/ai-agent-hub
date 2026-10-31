@@ -82,7 +82,7 @@ tags: [artifact, template, screen]
 | 메뉴코드 | `{USER_MGMT}` — `menu-tree.yaml` 의 `code` |
 | 프론트 폴더 | `sources/frontend/src/modules/{모듈}/features/{user}/` |
 | 백엔드 패키지 | `sources/backend/modules/{모듈}/src/main/java/com/aiagent/{모듈}/` |
-| 화면 유형 | {단일 그리드 / 마스터-디테일(상하·하단 탭, 기본) / 마스터-디테일(좌우, 예외 사유) / 트리-그리드 / 폼 / 대시보드} |
+| 화면 유형 | {단일 그리드 / 마스터-디테일(상하, 하단 1개는 탭 없음·복수는 탭) / 마스터-디테일(좌우, 예외 사유) / 트리-그리드 / 폼 / 대시보드} |
 | 처리 유형 | {조회 전용 / CRUD / 실행} |
 | 쓰는 액션 | {R · S · E · X 중 실제로 쓰는 것} — `EXPORT_YN` = {Y/N} |
 | 페이징 | {offset / cursor / 없음} |

@@ -295,9 +295,9 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     return `<label>${escape(label)}${n.badge(searchExplanation(model.searchTable,r),`search:${label}`)}</label>${control}`;
   }).join('');
   const master = compact ? '' : tableView(model.columns[0],!showData);
-  const tabMarkup=compact?'':tabs();
+  const tabMarkup=compact||tabNames.length<2?'':tabs();
   const panels = interactive && showData ? tabNames.map(name=>`<div data-detail-panel="${escape(name)}"${name===figure.detail?'':' hidden'}>${surfaceIntroduction(surfaceOf(model,name))}<div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detailSearch(name)}${details.filter(t=>tabOf(t)===name).map(detailTable).join('')}</div>`).join('') : compact?'':detail();
-  const lower = `<div class="tabs" style="flex-wrap:wrap"${interactive?' role="tablist"':''}>${tabMarkup}</div>${panels}`;
+  const lower = (tabMarkup?`<div class="tabs" style="flex-wrap:wrap"${interactive?' role="tablist"':''}>${tabMarkup}</div>`:'')+panels;
   const panes = singleGrid
     ? `<div data-layout="single-grid" style="margin-top:12px">${master}</div>`
     : model.vertical!==false

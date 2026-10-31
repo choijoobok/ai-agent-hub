@@ -87,16 +87,22 @@ test('조회 입력방식은 열 이름으로 읽고 결과 불명 중 조회 �
   assert.match(render(figure, fixture), /<select aria-label="상태" ><option>전체<\/option><option>사용<\/option><option>미사용/);
   assert.match(render({...figure, buttons:[]}, fixture), /<select aria-label="상태" disabled/);
 });
-test('이력 직접 조회와 과거 구성은 같은 탭에 남고 입력 ID가 겹치지 않는다', () => {
+test('이력 직접 조회와 과거 구성은 같은 상세 영역에 남고 입력 ID가 겹치지 않는다', () => {
   const fixture = {...model, columns:[...model.columns, columns('상세 / 이전 값 — 폼',[['과거값','텍스트','읽기전용','','과거 예시']])],
     detailSearchTables:[{heading:'2-1. 상세',header:['조건','기본값'],rows:[['원 대상 ID','직접 입력']]}]};
   const [figure] = declaredFigures(stateTable([['history','과거','상세','이력','조회','잠금','없음']]), plain);
   const html = render(figure, fixture);
   assert.match(html, /aria-label="원 대상 ID"/);
   assert.match(html, /과거 예시/);
-  assert.equal((html.match(/<span class="on">/g) || []).length,1);
+  assert.doesNotMatch(html,/class="tabs"|role="tablist"/);
   const ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);
   assert.equal(ids.length,new Set(ids).size);
+});
+test('하단 그리드 하나는 탭 없이 상하 그리드와 스플리터를 유지한다',()=>{
+ const fixture={...model,interactive:true,columns:[columns('목록',[['키','조회','읽기전용','','A']]),columns('상세',[['값','텍스트','가능','','수정 값']])]};
+ const [figure]=declaredFigures(stateTable([['main','현재값','상세','','조회·저장','가능','없음']]),plain);const html=render(figure,fixture);
+ assert.match(html,/data-layout="top-bottom"/);assert.match(html,/data-pane="master"[\s\S]*class="split"[\s\S]*data-pane="detail"/);
+ assert.match(html,/data-grid-name="상세"/);assert.doesNotMatch(html,/class="tabs"|role="tablist"|data-detail-tab=/);
 });
 test('검색콤보는 미지정·중복 제거·조회 전용·목록 밖 기존값 보존을 표현한다', () => {
   const table={heading:'상세 — 폼',header:['컬럼','입력방식','편집','검증','예시','후보 예시'],rows:[['시간대','검색콤보','가능','','','Asia/Seoul·Asia/Tokyo·Asia/Seoul']]};

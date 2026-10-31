@@ -19,6 +19,11 @@ test('일반 목업도 초기 화면의 모든 탭 패널과 실제 버튼을 �
   assert.equal([...html.matchAll(/data-grid-state-column/g)].length,2);
   assert.equal([...html.matchAll(/data-grid-delete-column/g)].length,0);
 });
+test('일반 목업도 하단 그리드 하나는 스플리터 아래 직접 표시한다',()=>{
+ const html=render({...model,columns:model.columns.slice(0,2),surfaces:surfaces.slice(0,2)});
+ assert.match(html,/class="split"/);assert.match(html,/data-grid-role="master"[\s\S]*data-grid-role="detail"/);
+ assert.doesNotMatch(html,/class="tabs"|role="tablist"|data-detail-tab=/);
+});
 
 test('탭별 설명 그림에는 탭바를 반복하지 않고 지정한 영역만 보여준다',()=>{
   const html=render(model,{compact:true,surfaceName:'설정'});

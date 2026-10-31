@@ -7,7 +7,7 @@ features:
     screen: SCR-101
     roadmap: RM-P1
     title: "채팅하기"
-    detail: "멀티 세션 · 세션 제목 설정 · REQ-602의 모든 유효 텍스트 생성 조합(공급사·모델·effort) 선택(**주 추론 역할에만 적용되고 실행 시도 시작에 고정되며 중단 후 새 시도에서는 변경할 수 있다 — ARCH-040**) · 모델 사용 불가 응답 뒤 선택 목록 복구는 REQ-602.model_selection_recovery 참조 · **레거시 딥링크 팝업 진입과 초기 문맥 파라미터 수신**"
+    detail: "멀티 세션 · 세션 제목 설정 · REQ-602의 Portal 선택이 켜진 유효 텍스트 생성 조합(공급사·모델·effort) 선택(**주 추론 역할에만 적용되고 실행 시도 시작에 고정되며 중단 후 새 시도에서는 변경할 수 있다 — ARCH-040**) · 모델 사용 불가 응답 뒤 선택 목록 복구는 REQ-602.model_selection_recovery 참조 · **레거시 딥링크 팝업 진입과 초기 문맥 파라미터 수신**"
     model_failure: "REQ-602.primary_availability_recovery의 주 추론 일시 장애 안내·유효 선택 유지·명시적 새 시도, auxiliary_fallback의 보조 대체 진행/소진 안내와 REQ-106.consent.auxiliary_candidates의 경로 안내·동의 확인을 제공한다. 보조 모델 선택기를 사용자에게 만들거나 후보 소진을 주 추론 재선택으로 해결하도록 안내하지 않는다"
     reqs: [REQ-001, REQ-002, REQ-020, REQ-040, REQ-116, REQ-602, REQ-106, REQ-041]
     nfrs: [NFR-028]

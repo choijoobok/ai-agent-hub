@@ -44,7 +44,7 @@ export function genericScreen(title, model, figure, {annotator, manualKey, compa
   const tabs=model.surfaces.filter(s=>/^탭(?: 폼)?$/.test(s.kind));
   const interactive=!compact&&tabs.length>0;
   const selectedTab=tabs.find(s=>s.name===areaTitle(selected||first||{heading:''}))?.name??tabs[0]?.name;
-  const tabBar=tabs.length&&!compact?`<div class="tabs" role="tablist" style="flex-wrap:wrap">${tabs.map(s=>`<button type="button" role="tab" aria-selected="${s.name===selectedTab}" data-detail-tab="${esc(s.name)}" class="btn ghost sm ${s.name===selectedTab?'on':''}">${esc(s.name)}${badge(`<b>${esc(s.name)} 탭</b><p>${esc(s.purpose)}</p>`,`tab:${s.name}`)}</button>`).join('')}</div>`:'';
+  const tabBar=tabs.length>1&&!compact?`<div class="tabs" role="tablist" style="flex-wrap:wrap">${tabs.map(s=>`<button type="button" role="tab" aria-selected="${s.name===selectedTab}" data-detail-tab="${esc(s.name)}" class="btn ghost sm ${s.name===selectedTab?'on':''}">${esc(s.name)}${badge(`<b>${esc(s.name)} 탭</b><p>${esc(s.purpose)}</p>`,`tab:${s.name}`)}</button>`).join('')}</div>`:'';
   const attached=table=>model.columns.filter(t=>areaTitle(t).startsWith(areaTitle(table)+' / ')).map(renderArea).join('');
   const secondary=selected&&selected!==first?[selected,...model.columns.slice(model.columns.indexOf(selected)+1).filter(t=>surfaceOf(model,areaTitle(t))?.kind==='영역')]:[];
   const panels=interactive?tabs.map(s=>{
