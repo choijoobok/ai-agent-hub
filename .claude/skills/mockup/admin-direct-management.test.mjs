@@ -32,6 +32,22 @@ test('Portal 추가 토큰·승급 신청의 관리자 판정은 유지한다',(
   const names=controls(read(name));assert.ok(names.includes(approve));assert.ok(names.includes(reject));
  }
 });
+test('사용자 기준·그룹 기준 소속 탭은 같은 8항목과 소속 감사값을 표시한다',()=>{
+ const fields=['사용자 아이디','사용자 그룹 식별자','활성화 여부','등록자','등록일시','수정자','수정일시','메모'];
+ const examples=[];
+ for(const [file,title]of[['user-group','사용자'],['portal-user','사용자 그룹']]){
+  const md=read(file),section=md.match(new RegExp(`### 4-2\\. ${title}\\r?\\n([\\s\\S]*?)(?=\\r?\\n### )`))?.[1];
+  assert.ok(section,file);
+  const rows=section.split('\n').filter(line=>line.startsWith('| ')).map(line=>line.split('|').slice(1,-1).map(c=>c.trim())).filter(c=>fields.includes(c[0]));
+  assert.deepEqual(rows.map(c=>c[0]),fields);
+  assert.equal(section.split('\n').filter(line=>/^\| [^|-][^|]* \|/.test(line)).length,9,'업무 컬럼은 8개와 헤더 하나');
+  for(const row of rows.filter(c=>/^(등록|수정)/.test(c[0])))assert.equal(row[7],'읽기전용');
+  assert.equal(rows.find(c=>c[0]==='활성화 여부')[4],'설정 스위치');
+  const row=md.split('\n').find(line=>line.startsWith(`| ${title} | {`)&&line.includes('"사용자 아이디":"portal.user"')&&line.includes('"사용자 그룹 식별자":"GRP-LOGISTICS"'));
+  const data=JSON.parse(row.split('|')[2]);examples.push(Object.fromEntries(fields.map(key=>[key,data[key]])));
+ }
+ assert.deepEqual(examples[0],examples[1]);
+});
 test('사용자 그룹의 자산 네 탭은 현재 매핑 조회만 제공한다',()=>{
  const md=read('user-group');
  const assertReadOnly=section=>{
