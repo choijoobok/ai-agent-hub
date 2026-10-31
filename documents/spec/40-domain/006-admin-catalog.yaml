@@ -440,7 +440,7 @@ entities:
       - "FEAT-003"
     reqs:
       - "REQ-304"
-    description: "공개 범위 변경 검토의 입력 근거. 기술 관측·관리자 의미 변경과 지식 검토 작업의 판정/종결은 별도다"
+    description: "원천 구조 관측 또는 담당자 통지의 사실·출처·대상·기준/관측 시각을 보존한다. 지식 업무 의미 영향 판정/보완 작업 원장이 아니다."
     attributes:
       - name: "변경 근거 식별자"
         physical_name: "EVIDENCE_ID"

@@ -3,7 +3,7 @@ meta:
   status: in_progress
   baselined: null
   workstreams: { system: reviewed, admin: design_draft }
-  physical_policy: "ARCH-024 — 기존 현재 데이터의 이름·스키마·컬럼·제약 유지, 현재 테이블 복제/이중 운영 금지. ADR-035·CR-029의 admin의 _SNP 요청 스냅샷과 append 전용 _HIST는 REQ-601.management_storage의 별도 저장 예외"
+  physical_policy: "ARCH-024 — 기존 현재 데이터의 이름·스키마·컬럼·제약 유지, 현재 테이블 복제/이중 운영 금지. admin의 append 전용 _HIST는 ADR-035·REQ-601.management_storage를 따른다. 관리자 요청 원장/_SNP 설계는 ADR-037로 철회했으며 과거 적용 이력과 결정 근거는 보존한다"
 
 spec_set:
   version: 1
