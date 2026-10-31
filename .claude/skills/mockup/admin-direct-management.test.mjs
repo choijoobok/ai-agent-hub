@@ -32,6 +32,23 @@ test('Portal 추가 토큰·승급 신청의 관리자 판정은 유지한다',(
   const names=controls(read(name));assert.ok(names.includes(approve));assert.ok(names.includes(reject));
  }
 });
+test('사용자 그룹의 자산 네 탭은 현재 매핑 조회만 제공한다',()=>{
+ const md=read('user-group');
+ const assertReadOnly=section=>{
+  assert.doesNotMatch(section,/^\| (변경 사유|매핑 변경 가능) \|/m);
+  assert.doesNotMatch(section,/\| (설정 스위치|가능|조건부) \|/);
+  assert.match(section,/\| 매핑 활성 \|[^\n]*\| 스위치 \|[^\n]*\| 읽기전용 \|/);
+ };
+ for(const name of ['지식','스키마 카탈로그','API','커스텀 도구']){
+  const row=md.split('\n').find(line=>line.startsWith(`| ${name} | 탭 |`)).split('|').slice(1,-1).map(x=>x.trim());
+  assert.equal(row[4],'조회',name+'의 쓰기 버튼 금지');
+  const section=md.match(new RegExp(`### 4-\\d+\\. ${name}\\r?\\n([\\s\\S]*?)(?=\\r?\\n### |\\r?\\n## )`))?.[1];
+  assert.ok(section,name);assertReadOnly(section);
+  assert.throws(()=>assertReadOnly(section.replace('| 스위치 |','| 설정 스위치 |')));
+ }
+ const membership=md.match(/### 4-2\. 사용자\r?\n([\s\S]*?)(?=\r?\n### )/)?.[1];
+ assert.match(membership,/\| 설정 스위치 \|/);
+});
 test('연결 지식은 참조 조회이며 본문 일괄 수집·보완 판정 컬럼을 제공하지 않는다',()=>{
  for(const name of ['business-api','business-tool','knowledge-tag','query-example','catalog-relation']){
   const md=read(name);const section=md.match(/### 4-\d+\. 연결 지식\r?\n([\s\S]*?)(?=\r?\n### |\r?\n## )/)?.[1];
