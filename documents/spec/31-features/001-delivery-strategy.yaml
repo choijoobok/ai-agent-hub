@@ -25,7 +25,7 @@ delivery_strategy:
         counterexample: "내용 리비전이나 과거 허용 결과가 고정됐다는 이유로 회수된 현재 권한을 계속 허용하거나, 조회 권한으로 조사/복원 처리를 수행하면 실패해야 한다"
       change_path:
         title: "직접 변경·승인·실제 효력"
-        rules_from: ["REQ-601.approval_policy", "REQ-601.request_integrity", "UC-002", "UC-003", "UC-004.domain_paths", "UC-005", "UC-006", "ARCH-029.target_contract"]
+        rules_from: ["REQ-601.direct_management", "REQ-601.request_integrity", "UC-002", "UC-003", "UC-004.domain_paths", "UC-005", "UC-006", "ARCH-029.target_contract"]
         owners: [admin, system, integration]
         specify:
           - "작업별 직접 관리/승인 대상, 승인 설정의 조회 주체·확정 시점, 요청·전결·반영·예약 결과를 소유 기능의 계약으로 구분한다. 자산·접근 부여·승급·추가 토큰의 단계와 처리 결과는 UC-004의 해당 경로를 참조한다"

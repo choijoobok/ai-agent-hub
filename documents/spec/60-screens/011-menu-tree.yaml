@@ -1,118 +1,109 @@
-menu_tree:
-  status: "screen_review_draft"
-  scope: "RM-P1 admin 모듈만 대상으로 한다. system 모듈은 이번 목업·메뉴 재정리 및 새 변경 이력 저장 대상에서 제외한다. 메뉴 코드/경로는 목업 검토안이며 제품 소스 반영은 화면 합의 뒤다."
-  admin_groups:
-    - code: "HUB_FOUNDATION"
-      title: "공통 기반"
-      screens:
-        - SCR-015
-        - SCR-062
-        - SCR-016
-        - SCR-064
-        - SCR-021
-        - SCR-006
-        - SCR-005
-    - code: "HUB_INTEGRATION"
-      title: "연동 관리"
-      screens:
-        - SCR-001
-        - SCR-002
-        - SCR-003
-        - SCR-039
-        - SCR-004
-        - SCR-019
-    - code: "HUB_ACCESS"
-      title: "권한 관리"
-      screens:
-        - SCR-007
-        - SCR-009
-        - SCR-008
-    - code: "HUB_KNOWLEDGE"
-      title: "업무 지식 관리"
-      screens:
-        - SCR-010
-        - SCR-012
-        - SCR-011
-        - SCR-014
-        - SCR-013
-        - SCR-034
-    - code: "HUB_REQUEST_APPROVAL"
-      title: "요청·승인"
-      screens:
-        - SCR-036
-        - SCR-056
-        - SCR-057
-        - SCR-058
-        - SCR-059
-        - SCR-061
-        - SCR-060
-        - SCR-037
-        - SCR-022
-        - SCR-035
-    - code: "HUB_OPERATION"
-      title: "AI 운영"
-      screens:
-        - SCR-017
-        - SCR-020
-    - code: "HUB_COST"
-      title: "비용 관리"
-      screens:
-        - SCR-023
-        - SCR-067
-        - SCR-066
-    - code: "HUB_CHANGE_HISTORY"
-      title: "변경 이력"
-      screens:
-        - SCR-031
-        - SCR-051
-        - SCR-063
-        - SCR-052
-        - SCR-065
-        - SCR-055
-        - SCR-045
-        - SCR-044
-        - SCR-040
-        - SCR-041
-        - SCR-042
-        - SCR-043
-        - SCR-054
-        - SCR-046
-        - SCR-047
-        - SCR-049
-        - SCR-048
-        - SCR-050
-    - code: "HUB_AUDIT"
-      title: "감사·이력"
-      screens:
-        - SCR-027
-        - SCR-028
-        - SCR-029
-        - SCR-030
-        - SCR-032
-    - code: "HUB_QUALITY"
-      title: "품질 관리"
-      screens:
-        - SCR-024
-        - SCR-033
-        - SCR-026
-  excluded:
-    - screen: SCR-025
-      reason: "REQ-615 유예 후보. 전체 개발 후 재검토한다."
-    - screen: SCR-038
-      reason: "RM-P3 자동화 후속 화면. 이번 목업 대상에서 제외한다."
-  rules:
+"menu_tree":
+  "status": "screen_review_draft"
+  "scope": "RM-P1 admin 모듈만 대상으로 한다. system 모듈은 이번 목업·메뉴 재정리 및 새 변경 이력 저장 대상에서 제외한다. 메뉴 코드/경로는 목업 검토안이며 제품 소스 반영은 화면 합의 뒤다."
+  "admin_groups":
+    - "code": "HUB_FOUNDATION"
+      "title": "공통 기반"
+      "screens":
+        - "SCR-015"
+        - "SCR-062"
+        - "SCR-016"
+        - "SCR-064"
+        - "SCR-021"
+        - "SCR-006"
+        - "SCR-005"
+    - "code": "HUB_INTEGRATION"
+      "title": "연동 관리"
+      "screens":
+        - "SCR-001"
+        - "SCR-002"
+        - "SCR-003"
+        - "SCR-039"
+        - "SCR-004"
+        - "SCR-019"
+    - "code": "HUB_ACCESS"
+      "title": "권한 관리"
+      "screens":
+        - "SCR-007"
+        - "SCR-009"
+        - "SCR-008"
+    - "code": "HUB_KNOWLEDGE"
+      "title": "업무 지식 관리"
+      "screens":
+        - "SCR-010"
+        - "SCR-012"
+        - "SCR-011"
+        - "SCR-014"
+        - "SCR-013"
+    - "code": "HUB_REQUEST_APPROVAL"
+      "title": "Portal 신청 승인"
+      "screens":
+        - "SCR-022"
+        - "SCR-035"
+    - "code": "HUB_OPERATION"
+      "title": "AI 운영"
+      "screens":
+        - "SCR-017"
+        - "SCR-020"
+    - "code": "HUB_COST"
+      "title": "비용 관리"
+      "screens":
+        - "SCR-023"
+        - "SCR-067"
+        - "SCR-066"
+    - "code": "HUB_CHANGE_HISTORY"
+      "title": "변경 이력"
+      "screens":
+        - "SCR-031"
+        - "SCR-051"
+        - "SCR-063"
+        - "SCR-052"
+        - "SCR-065"
+        - "SCR-055"
+        - "SCR-045"
+        - "SCR-044"
+        - "SCR-040"
+        - "SCR-041"
+        - "SCR-042"
+        - "SCR-043"
+        - "SCR-054"
+        - "SCR-046"
+        - "SCR-047"
+        - "SCR-049"
+        - "SCR-048"
+        - "SCR-050"
+    - "code": "HUB_AUDIT"
+      "title": "감사·이력"
+      "screens":
+        - "SCR-027"
+        - "SCR-028"
+        - "SCR-029"
+        - "SCR-030"
+        - "SCR-032"
+    - "code": "HUB_QUALITY"
+      "title": "품질 관리"
+      "screens":
+        - "SCR-024"
+        - "SCR-033"
+        - "SCR-026"
+  "excluded":
+    - "screen": "SCR-025"
+      "reason": "REQ-615 유예 후보. 전체 개발 후 재검토한다."
+    - "screen": "SCR-038"
+      "reason": "RM-P3 자동화 후속 화면. 이번 목업 대상에서 제외한다."
+  "rules":
     - "운영 설정은 기존 system 시스템 환경설정(SCR-515)을 수정 없이 재사용한다. admin 설정 메뉴·설정 저장소·별도 설정 변경 이력을 추가하지 않는다. 설정 항목은 기능 요건에서 정의하고 제품 반영은 구현 단계에서 기존 YAML/속성 등록 방식을 따른다."
     - "메뉴 영역과 화면의 표시 순서는 admin_groups의 배열 순서를 정본으로 삼는다. 생성 화면정의서와 설계 사이트의 목업 목차도 같은 순서를 따른다. 파일명·화면 ID 순으로 다시 정렬하지 않는다."
     - "공통 기반을 최상단에 두고 모델→단가→쿼터 등급 기준→월별 쿼터 기준→사용자 그룹→Portal 사용자 순으로 준비한다. 이후 연동 자산→접근 권한→업무 지식→요청·승인→AI 운영→비용 관리→변경 이력→감사·이력→품질 관리로 내려간다."
     - "선행 기반을 먼저 준비하는 업무 탐색 순서이며 모든 참조를 단방향으로 제한하지 않는다. 자산 등록 뒤 대상별 권한을 연결하고, 월 운영 결과는 다음 월 기준 보완으로 되돌아올 수 있다."
     - "관리 화면과 공유 편집면은 업무 영역에 두고, 변경 이력은 변경 이력 영역에 모은다. SCR-031 통합 검색을 먼저 두고 상속 이력17개를 원 관리 화면의 업무 순서로 배치한다. 상속 연결과 별도 열람 권한은 유지하며 독립 목업을 복제하지 않는다."
-    - "관리 화면은 실제 적용본만 표시하고 요청/승인/반려는 소유 요청 화면에서 처리한다."
-    - "현재/요청/실행 감사의 의미가 다른 이력을 한 관리 _HIST 화면으로 합치지 않는다."
     - "원 화면별 상속 이력은 목록에 포함하지만 독립 목업 작성 수에는 포함하지 않는다."
     - "메뉴별 독립 이동과 읽기/처리/반출 권한을 유지한다. 구조 노드는 URL을 갖지 않고 리프만 화면에 연결한다."
     - "전체 화면 요건/목업 합의 후 물리/API·트랜잭션 설계를 진행한다. 지금의 경로·코드는 구현 완료나 G3 승인을 뜻하지 않는다."
-    - "요청·승인 영역에 SCR-036 자산 변경 통합 조회, 자산별 전용 변경 요청6개, 사용자 접근 권한·초과 사용·쿼터 승급 승인3개를 모은다. SCR-036은 기존 자산6종의 검색/상세 이동 범위를 유지하고 직접 판정하지 않는다. 관계·그룹 매핑·도움말은 소유 자산의 요청 화면을 사용하며 직접 관리 항목에 새 승인을 추가하지 않는다."
-  request_workflow:
-    index_screen: SCR-036
-    source: "각 승인 대상 원 화면의 request_view와 전용 요청 화면의 source_screen이 서로 연결된다."
-    rule: "통합 조회→자산별 요청 상세/판정→원 관리 화면의 실제 적용본과 별도 변경 이력으로 이어진다. 복합 요청은 메뉴가 달라도 한 요청번호의 전체 판정/반영을 유지한다."
+    - "관리자 권한/자산 변경은 현재 변경 권한자의 직접 저장과 전체 이력을 사용한다. Portal 신청 승인 영역에는 SCR-022 추가 토큰과 SCR-035 쿼터 승급만 둔다. 관리자 간 요청/승인과 업무 의미 영향 검토 작업 메뉴는 제공하지 않는다."
+    - "현재 적용 관리 이력과 Portal 신청/실행 감사는 업무 의미를 구분한다."
+  "portal_requests":
+    "screens":
+      - "SCR-022"
+      - "SCR-035"
+    "rule": "Portal 사용자가 접수한 원 신청을 현재 처리 권한의 관리자가 승인/반려한다. admin 관리 변경이나 전결 설정으로 대체하지 않는다."

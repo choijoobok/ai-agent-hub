@@ -456,7 +456,7 @@ usecases:
       - "REQ-306.knowledge_impact"
     pending:
       - "@defer P3 — 입력/응답 편집·코드명 참조·상속/반출 정책·계약 리비전·조건부 반영과 실패 상태의 물리/API/화면 계약을 설계한다"
-    storage_context: "REQ-601.approval_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-057 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-057 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
   - id: UC-019
     name: "업무 도구의 구현·계약·노출 후보를 검수한다"
     workstream: "admin"
@@ -511,7 +511,7 @@ usecases:
       - "REQ-306.knowledge_impact"
     pending:
       - "@defer P3 — 구현 레지스트리·계약 버전·역참조·가이드 편집과 반영/호출 시 검증의 계약·시험을 설계한다"
-    storage_context: "REQ-601.approval_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-058 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-058 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
   - id: UC-020
     name: "공통 자연어 지침을 검토하고 리비전으로 반영한다"
     workstream: admin

@@ -42,7 +42,7 @@ identity:
     creation: "자체 모드는 Portal 원장에 등록하고 외부 모드는 검증된 SSO/대상 계정 신원을 연결한다. 미완료 등록을 활성화하거나 재요청으로 같은 Portal 계정을 중복 생성하지 않는다. 관리자 계정의 존재/상태는 Portal 등록의 선행 조건이 아니다"
     local_mode: "Portal 자체 비밀번호·초기화·잠금 해제는 admin Portal 계정 관리 공개 계약으로, 본인 로그인·비밀번호 변경·로그아웃은 portal 인증 계약으로 제공한다. system 관리자 계정 명령을 호출하지 않는다"
     external_mode: "SSO·대상 시스템 계정 인증 연동은 Portal에 한정한다. 외부 신원/기본 프로필은 원천 소유·읽기 전용이며 인증 성공과 Portal 이용 활성은 별개다. 사용자 개인의 레거시 비밀번호 저장·대리 사용 금지는 trusted_subsystem을 따른다. 실제 프로토콜과 비밀정보 비보관 수락 방식은 integration 상세 설계에서 정한다"
-    access: "Portal 인증 주체와 현재 Portal 등록/활성·승인된 활성 그룹·쿼터·매핑 및 기능별 접근 조건을 확인한다. Portal 업무 API를 SYS_USER 관리자 메뉴 권한이나 전역 빈 권한 허용 설정으로 열지 않는다. agent·admin으로 전달하는 Portal 주체는 서버가 인증 영역과 본인 범위를 검증한다"
+    access: "Portal 인증 주체와 현재 Portal 등록/활성·활성 그룹·쿼터·매핑 및 기능별 접근 조건을 확인한다. Portal 업무 API를 SYS_USER 관리자 메뉴 권한이나 전역 빈 권한 허용 설정으로 열지 않는다. agent·admin으로 전달하는 Portal 주체는 서버가 인증 영역과 본인 범위를 검증한다"
     revocation: "Portal 비활성화·퇴직·그룹/매핑 회수는 Portal 접근과 agent의 다음 접근/실행 검사에 반영한다. system 관리자 계정·세션·권한은 변경하지 않는다. 외부 인사 이벤트도 검증된 Portal 외부 연결에만 적용한다"
     audit_and_ui_state: "관리자 처리자는 system 계정, Portal 요청자/대상은 Portal 계정으로 식별한다. system 로그·알림·개인 설정의 SYS_USER FK/이름 조인을 Portal ID에 재사용하지 않는다. 통합 조회/발송에는 인증 영역·소유 계정·당시 표시 근거를 구별하는 공개 계약이 필요하며 물리 구조는 후속이다"
     pending: "@defer P3 admin/portal/integration — 별도 Portal 원장/인증정보 저장·본인/관리 명령·SSO/대상 인증·원천 충돌/재요청·세션 저장/쿠키·로그인 URL·CSRF·리다이렉트/복구·로그아웃·영역별 권한/설정과 감사·삭제/보존 계약 및 SCR-005/113~115 요건/목업을 설계한다. PC·모바일·딥링크는 같은 Portal 보안 경계를 따른다. 구현·이행/롤백과 실제 경계 시험은 별도다"

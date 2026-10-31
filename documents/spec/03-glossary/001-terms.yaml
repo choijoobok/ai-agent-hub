@@ -149,7 +149,7 @@ terms:
     term: 사용자 그룹
     key: userGroup
     group: 정책
-    definition: "지식·스키마 카탈로그 등 Hub 업무 자산 접근 통제의 기본 단위. system의 메뉴·기능 역할과 별개인 전역 개념으로 업무상 직무 단위로 정의한다(예: 급여담당·평가관리자). 사용자는 여러 그룹에 속할 수 있고, 현재 승인된 활성 그룹들이 허용하는 접근 범위의 합집합을 적용한다(REQ-103·605·609)"
+    definition: "지식·스키마 카탈로그 등 Hub 업무 자산 접근 통제의 기본 단위. system의 메뉴·기능 역할과 별개인 전역 개념으로 업무상 직무 단위로 정의한다(예: 급여담당·평가관리자). 사용자는 여러 그룹에 속할 수 있고, 현재 활성 그룹들이 허용하는 접근 범위의 합집합을 적용한다(REQ-103·605·609)"
   - id: TRM-046
     term: 쿼터 등급
     key: quotaGrade
@@ -511,7 +511,7 @@ terms:
     term: 관리 승인 절차 사용
     key: managementApprovalRequired
     group: 정책
-    definition: "관리 승인 대상 업무별로 별도 요청·사람의 검토/책임자 승인을 사용할지 선택하는 독립 설정. 업무 목록·전결·혼합 세트·설정 전환·권한 경계의 정본은 REQ-601.approval_policy다"
+    definition: "관리 승인 대상 업무별로 별도 요청·사람의 검토/책임자 승인을 사용할지 선택하는 독립 설정. 업무 목록·전결·혼합 세트·설정 전환·권한 경계의 정본은 REQ-601.direct_management다"
     not: "실제 업무 상태 변경 실행에서 요청 사용자의 명시적 확인을 끄는 설정이 아니다"
   - id: TRM-164
     term: 전결
@@ -1017,7 +1017,7 @@ terms:
     term: "Portal 이용 자격"
     key: portalEligibility
     group: "정책"
-    definition: "Hub 이용 등록·활성 상태·승인된 활성 그룹·쿼터 등급 등 필수 조건을 갖춰 질의를 요청할 수 있는 자격"
+    definition: "Hub 이용 등록·활성 상태·활성 그룹·쿼터 등급 등 필수 조건을 갖춰 질의를 요청할 수 있는 자격"
     relation: "REQ-103·116·616. 외부 로그인 성공이나 관리자 역할만으로 생기지 않으며 개별 자산 접근 권한은 별도로 검사한다"
   - id: TRM-247
     db_token: QUERY_CONSTRAINT

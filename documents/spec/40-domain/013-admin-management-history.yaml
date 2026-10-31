@@ -1,0 +1,2064 @@
+# 현재/요청/이력 동형 저장 — 물리 구현 전 논리 계약
+entities:
+  - id: ENT-051
+    name: "카탈로그 항목 적용 이력"
+    term: TRM-223
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-603
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-005 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "카탈로그 안정 식별자"
+        physical_name: "CATALOG_ID"
+        pk: false
+        description: "카탈로그 안정 식별자"
+      - name: "Hub 데이터소스 참조. 과거 보존을 위해 현재 행 FK를 두지 않는다"
+        physical_name: "DATA_SOURCE_ID"
+        description: "Hub 데이터소스 참조. 과거 보존을 위해 현재 행 FK를 두지 않는다"
+        pk: false
+      - name: "원천 서버 한정자. 해당 없음은 null"
+        physical_name: "SERVER_NAME"
+        description: "원천 서버 한정자. 해당 없음은 null"
+        pk: false
+      - name: "실제 DB/카탈로그명. 해당 없음은 null"
+        physical_name: "DATABASE_NAME"
+        description: "실제 DB/카탈로그명. 해당 없음은 null"
+        pk: false
+      - name: "실제 스키마명. 해당 없음은 null"
+        physical_name: "SCHEMA_NAME"
+        description: "실제 스키마명. 해당 없음은 null"
+        pk: false
+      - name: "원천 객체명"
+        physical_name: "OBJECT_NAME"
+        description: "원천 객체명"
+        pk: false
+      - name: "DBMS 식별 해석 규칙의 버전. 이름 변환을 임의 적용하지 않는다"
+        physical_name: "IDENTITY_PROFILE"
+        description: "DBMS 식별 해석 규칙의 버전. 이름 변환을 임의 적용하지 않는다"
+        pk: false
+      - name: "전체 물리 식별의 SHA-256 비교 키. 전체 원문과 함께 대조한다"
+        physical_name: "OBJECT_KEY"
+        description: "전체 물리 식별의 SHA-256 비교 키. 전체 원문과 함께 대조한다"
+        pk: false
+      - name: "ACTIVE/RETIRED. 미적용 신규는 요청 SNP에만 존재한다"
+        physical_name: "LIFECYCLE_CD"
+        description: "ACTIVE/RETIRED. 미적용 신규는 요청 SNP에만 존재한다"
+        pk: false
+      - name: "세트 소유 기능의 실제 반영 결과 참조"
+        physical_name: "APPLY_RESULT_REF"
+        description: "세트 소유 기능의 실제 반영 결과 참조"
+        pk: false
+      - name: "실제 반영 시각"
+        physical_name: "APPLIED_DTM"
+        description: "실제 반영 시각"
+        pk: false
+      - name: "최초 작성 주체"
+        physical_name: "REG_ID"
+        description: "최초 작성 주체"
+        pk: false
+      - name: "최초 등록 시각"
+        physical_name: "REG_DTM"
+        description: "최초 등록 시각"
+        pk: false
+      - name: "REVISION"
+        physical_name: "REVISION"
+        description: "실제 적용 성공마다 한 번 증가하는 마스터 업무 리비전. 신규 적용은 1"
+        pk: false
+      - name: "HIST_DTM"
+        physical_name: "HIST_DTM"
+      - name: "CHANGE_SUMMARY"
+        physical_name: "CHANGE_SUMMARY"
+      - name: "HIST_ACTION_CD"
+        physical_name: "HIST_ACTION_CD"
+      - name: "HIST_ACTOR_ID"
+        physical_name: "HIST_ACTOR_ID"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_COMMAND_KEY"
+        physical_name: "HIST_COMMAND_KEY"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_REASON"
+        physical_name: "HIST_REASON"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_SCHEMA_VERSION"
+        physical_name: "HIST_SCHEMA_VERSION"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "REQUEST_NO"
+        physical_name: "REQUEST_NO"
+        description: "적용 근거 요청번호. 직접 관리이면 없음"
+    relations:
+      - entity: ENT-005
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-005
+  - id: ENT-053
+    name: "카탈로그 현재 내용 적용 이력"
+    term: TRM-252
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+      - FEAT-011
+      - FEAT-014
+      - FEAT-033
+    reqs:
+      - REQ-301
+      - REQ-103
+      - REQ-305
+      - REQ-306
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-006 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "소유 카탈로그 안정 식별자"
+        physical_name: "CATALOG_ID"
+        description: "소유 카탈로그 안정 식별자"
+        pk: false
+      - name: "원천 서버 한정자. 해당 없음은 null"
+        physical_name: "SERVER_NAME"
+        description: "원천 서버 한정자. 해당 없음은 null"
+        pk: false
+      - name: "실제 DB/카탈로그명. 해당 없음은 null"
+        physical_name: "DATABASE_NAME"
+        description: "실제 DB/카탈로그명. 해당 없음은 null"
+        pk: false
+      - name: "실제 스키마명. 해당 없음은 null"
+        physical_name: "SCHEMA_NAME"
+        description: "실제 스키마명. 해당 없음은 null"
+        pk: false
+      - name: "원천 객체명"
+        physical_name: "OBJECT_NAME"
+        description: "원천 객체명"
+        pk: false
+      - name: "DBMS 식별 해석 규칙의 버전. 이름 변환을 임의 적용하지 않는다"
+        physical_name: "IDENTITY_PROFILE"
+        description: "DBMS 식별 해석 규칙의 버전. 이름 변환을 임의 적용하지 않는다"
+        pk: false
+      - name: "전체 물리 식별의 SHA-256 비교 키. 전체 원문과 함께 대조한다"
+        physical_name: "OBJECT_KEY"
+        description: "전체 물리 식별의 SHA-256 비교 키. 전체 원문과 함께 대조한다"
+        pk: false
+      - name: "객체 유형"
+        physical_name: "OBJECT_TYPE"
+        description: "TABLE/VIEW"
+        pk: false
+      - name: "업무 명칭. 미완성은 null"
+        physical_name: "BUSINESS_NAME"
+        description: "업무 명칭. 미완성은 null"
+        pk: false
+      - name: "업무 설명"
+        physical_name: "DESCRIPTION"
+        description: "업무 설명"
+        pk: false
+      - name: "PUBLISH/RETIRE. 현재 효력이 아니라 후보 의도"
+        physical_name: "INTENT_CD"
+        description: "PUBLISH/RETIRE. 현재 효력이 아니라 후보 의도"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수자"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수자"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        pk: false
+      - name: "이름 변경 시 동일 객체 확인 근거"
+        physical_name: "IDENTITY_EVIDENCE"
+        description: "이름 변경 시 동일 객체 확인 근거"
+        pk: false
+      - name: "변경 사유"
+        physical_name: "CHANGE_REASON"
+        description: "변경 사유"
+        pk: false
+      - name: "당시 직접 정책 참조 형식 버전"
+        physical_name: "POLICY_REF_FORMAT"
+        description: "당시 직접 정책 참조 형식 버전"
+        pk: false
+      - name: "정책 소유자가 제공한 당시 정책 식별/판 참조 목록의 v1 JSON 문자열. 현재 정책 사본이 아니다"
+        physical_name: "POLICY_REFERENCES"
+        description: "정책 소유자가 제공한 당시 정책 식별/판 참조 목록의 v1 JSON 문자열. 현재 정책 사본이 아니다"
+        pk: false
+      - name: "작성 주체"
+        physical_name: "REG_ID"
+        description: "작성 주체"
+        pk: false
+      - name: "작성 시각"
+        physical_name: "REG_DTM"
+        description: "작성 시각"
+        pk: false
+      - name: "최종 초안 편집 주체"
+        physical_name: "MOD_ID"
+        description: "최종 초안 편집 주체"
+        pk: false
+      - name: "최종 초안 편집 시각"
+        physical_name: "MOD_DTM"
+        description: "최종 초안 편집 시각"
+        pk: false
+    relations:
+      - entity: ENT-006
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-006
+    history_parent: ENT-051
+  - id: ENT-055
+    name: "카탈로그 컬럼 적용 이력"
+    term: TRM-253
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-111
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-007 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "소유 카탈로그"
+        physical_name: "CATALOG_ID"
+        description: "소유 카탈로그"
+        pk: false
+      - name: "안정 구성 식별자 중 COLUMN"
+        physical_name: "COLUMN_ID"
+        pk: false
+        description: "안정 구성 식별자 중 COLUMN"
+      - name: "구성 종류"
+        physical_name: "MEMBER_KIND"
+        description: "안정 식별의 종류 COLUMN"
+        pk: false
+      - name: "당시 원천 컬럼명. 미확인 초안은 null"
+        physical_name: "COLUMN_NAME"
+        description: "당시 원천 컬럼명. 미확인 초안은 null"
+        pk: false
+      - name: "원천 식별 규칙으로 비교한 이름 키. 원문도 대조"
+        physical_name: "COLUMN_KEY"
+        description: "원천 식별 규칙으로 비교한 이름 키. 원문도 대조"
+        pk: false
+      - name: "확인한 원천 자료형. 구조화 치수는 REQ-301.source_dimensions의 후속 저장 설계"
+        physical_name: "SOURCE_TYPE"
+        description: "확인한 원천 자료형. 구조화 치수는 REQ-301.source_dimensions의 후속 저장 설계"
+        pk: false
+      - name: "선택한 DBMS 자료형 코드"
+        physical_name: "SOURCE_TYPE_CD"
+        description: "DBMS_DATA_TYPE 상세 코드. 미확인은 null이며 SOURCE_TYPE 원문과 별도 보존"
+        pk: false
+      - name: "UNKNOWN/YES/NO"
+        physical_name: "NULLABLE_CD"
+        description: "UNKNOWN/YES/NO"
+        pk: false
+      - name: "컬럼 업무 명칭"
+        physical_name: "BUSINESS_NAME"
+        description: "컬럼 업무 명칭"
+        pk: false
+      - name: "컬럼 업무 의미"
+        physical_name: "DESCRIPTION"
+        description: "컬럼 업무 의미"
+        pk: false
+      - name: "UNKNOWN/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER/TEXT"
+        physical_name: "SEMANTIC_TYPE"
+        description: "UNKNOWN/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER/TEXT"
+        pk: false
+      - name: "검수한 날짜 등 해석 형식"
+        physical_name: "VALUE_FORMAT"
+        description: "검수한 날짜 등 해석 형식"
+        pk: false
+      - name: "필요한 원천 시간대"
+        physical_name: "TIME_ZONE_ID"
+        description: "필요한 원천 시간대"
+        pk: false
+      - name: "금액·수량 등 단위"
+        physical_name: "UNIT_CD"
+        description: "금액·수량 등 단위"
+        pk: false
+      - name: "UNKNOWN/NONE/CODE/INLINE"
+        physical_name: "VALUE_MODE"
+        description: "UNKNOWN/NONE/CODE/INLINE"
+        pk: false
+      - name: "코드 조회 안정 정의"
+        physical_name: "CODE_QUERY_ID"
+        description: "같은 데이터소스의 ENT-041 참조"
+        pk: false
+      - name: "코드 조회 정확 버전"
+        physical_name: "CODE_QUERY_REVISION_ID"
+        description: "ENT-042의 검수/활성 버전을 고정하며 최신판으로 치환하지 않음"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수자"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수자"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        pk: false
+      - name: "값 도메인 검수 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "VALUE_REVIEW_STATUS"
+        description: "값 도메인 검수 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "값 도메인 실제 검수자"
+        physical_name: "VALUE_REVIEWER_ID"
+        description: "값 도메인 실제 검수자"
+        pk: false
+      - name: "값 도메인 검수 시각"
+        physical_name: "VALUE_REVIEWED_DTM"
+        description: "값 도메인 검수 시각"
+        pk: false
+      - name: "값 도메인 검수 근거"
+        physical_name: "VALUE_REVIEW_EVIDENCE"
+        description: "값 도메인 검수 근거"
+        pk: false
+      - name: "컬럼 이름 변경의 동일 객체 확인 근거"
+        physical_name: "IDENTITY_EVIDENCE"
+        description: "컬럼 이름 변경의 동일 객체 확인 근거"
+        pk: false
+    relations:
+      - entity: ENT-007
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-007
+    history_parent: ENT-051
+  - id: ENT-057
+    name: "권장 조인 관계 적용 이력"
+    term: TRM-254
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-011
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-306
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-008 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "작성 시 고정한 관리 카탈로그"
+        physical_name: "CATALOG_ID"
+        description: "작성 시 고정한 관리 카탈로그"
+        pk: false
+      - name: "안정 구성 식별자 중 RELATION"
+        physical_name: "RELATION_ID"
+        pk: false
+        description: "안정 구성 식별자 중 RELATION"
+      - name: "구성 종류"
+        physical_name: "MEMBER_KIND"
+        description: "안정 식별의 종류 RELATION"
+        pk: false
+      - name: "왼쪽 역할 객체"
+        physical_name: "LEFT_CATALOG_ID"
+        description: "왼쪽 역할 객체"
+        pk: false
+      - name: "왼쪽 역할 내용 판"
+        physical_name: "LEFT_REVISION_ID"
+        description: "왼쪽 역할 내용 판"
+        pk: false
+      - name: "왼쪽 업무 역할. SQL 별칭이 아니다"
+        physical_name: "LEFT_ROLE_NAME"
+        description: "왼쪽 업무 역할. SQL 별칭이 아니다"
+        pk: false
+      - name: "오른쪽 역할 객체"
+        physical_name: "RIGHT_CATALOG_ID"
+        description: "오른쪽 역할 객체"
+        pk: false
+      - name: "오른쪽 역할 내용 판"
+        physical_name: "RIGHT_REVISION_ID"
+        description: "오른쪽 역할 내용 판"
+        pk: false
+      - name: "오른쪽 업무 역할"
+        physical_name: "RIGHT_ROLE_NAME"
+        description: "오른쪽 업무 역할"
+        pk: false
+      - name: "양쪽 대응 수"
+        physical_name: "CARDINALITY_CD"
+        description: "UNKNOWN/ONE_ONE/ONE_MANY/MANY_ONE"
+        pk: false
+      - name: "방향·관계의 업무 설명"
+        physical_name: "DESCRIPTION"
+        description: "방향·관계의 업무 설명"
+        pk: false
+      - name: "관계 근거 유형"
+        physical_name: "ORIGIN_KIND"
+        description: "UNKNOWN/PHYSICAL_FK/LOGICAL"
+        pk: false
+      - name: "원천 FK 또는 논리 관계 근거"
+        physical_name: "ORIGIN_EVIDENCE"
+        description: "원천 FK 또는 논리 관계 근거"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수자"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수자"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        pk: false
+    relations:
+      - entity: ENT-008
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-008
+    history_parent: ENT-051
+  - id: ENT-059
+    name: "업무 API 적용 이력"
+    term: TRM-199
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+      - FEAT-021
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-011 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "안정 식별자"
+        physical_name: "API_ID"
+        pk: false
+        description: "안정 식별자"
+      - name: "DRAFT/ACTIVE/DISABLED/RETIRED"
+        physical_name: "LIFECYCLE_CD"
+        description: "DRAFT/ACTIVE/DISABLED/RETIRED"
+        pk: false
+      - name: "공통 세트 실제 반영 결과 참조"
+        physical_name: "APPLY_RESULT_REF"
+        description: "공통 세트 실제 반영 결과 참조"
+        pk: false
+      - name: "실제 반영 시각"
+        physical_name: "APPLIED_DTM"
+        description: "실제 반영 시각"
+        pk: false
+      - name: "최초 작성 주체"
+        physical_name: "REG_ID"
+        description: "최초 작성 주체"
+        pk: false
+      - name: "최초 작성 시각"
+        physical_name: "REG_DTM"
+        description: "최초 작성 시각"
+        pk: false
+      - name: "REVISION"
+        physical_name: "REVISION"
+        description: "실제 적용 성공마다 한 번 증가하는 마스터 업무 리비전. 신규 적용은 1"
+        pk: false
+      - name: "HIST_DTM"
+        physical_name: "HIST_DTM"
+      - name: "CHANGE_SUMMARY"
+        physical_name: "CHANGE_SUMMARY"
+      - name: "HIST_ACTION_CD"
+        physical_name: "HIST_ACTION_CD"
+      - name: "HIST_ACTOR_ID"
+        physical_name: "HIST_ACTOR_ID"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_COMMAND_KEY"
+        physical_name: "HIST_COMMAND_KEY"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_REASON"
+        physical_name: "HIST_REASON"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_SCHEMA_VERSION"
+        physical_name: "HIST_SCHEMA_VERSION"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "REQUEST_NO"
+        physical_name: "REQUEST_NO"
+        description: "적용 근거 요청번호. 직접 관리이면 없음"
+    relations:
+      - entity: ENT-011
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-011
+  - id: ENT-061
+    name: "업무 API 현재 내용 적용 이력"
+    term: TRM-256
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+      - FEAT-008
+      - FEAT-014
+      - FEAT-021
+      - FEAT-033
+    reqs:
+      - REQ-608
+      - REQ-105
+      - REQ-111
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-012 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "소유 안정 API"
+        physical_name: "API_ID"
+        description: "소유 안정 API"
+        pk: false
+      - name: "업무 명칭"
+        physical_name: "BUSINESS_NAME"
+        description: "업무 명칭"
+        pk: false
+      - name: "업무 설명"
+        physical_name: "DESCRIPTION"
+        description: "업무 설명"
+        pk: false
+      - name: "PUBLISH/DISABLE/RETIRE. 현재 효력과 별개"
+        physical_name: "INTENT_CD"
+        description: "PUBLISH/DISABLE/RETIRE. 현재 효력과 별개"
+        pk: false
+      - name: "변경 사유"
+        physical_name: "CHANGE_REASON"
+        description: "변경 사유"
+        pk: false
+      - name: "UNKNOWN/QUERY/EXECUTE"
+        physical_name: "OPERATION_TYPE"
+        description: "UNKNOWN/QUERY/EXECUTE"
+        pk: false
+      - name: "제공 대상 시스템. 과거 보존을 위해 현재 행 FK 없음"
+        physical_name: "TARGET_SYSTEM_ID"
+        description: "제공 대상 시스템. 과거 보존을 위해 현재 행 FK 없음"
+        pk: false
+      - name: "UNKNOWN/DEFAULT/EXPLICIT"
+        physical_name: "CONNECTION_MODE"
+        description: "UNKNOWN/DEFAULT/EXPLICIT"
+        pk: false
+      - name: "EXPLICIT일 때 허용 연결 식별자. 주소/비밀 아님"
+        physical_name: "CONNECTION_ID"
+        description: "EXPLICIT일 때 허용 연결 식별자. 주소/비밀 아님"
+        pk: false
+      - name: "검수한 HTTP 메서드"
+        physical_name: "HTTP_METHOD"
+        description: "검수한 HTTP 메서드"
+        pk: false
+      - name: "등록 연결 기준의 상대 경로 템플릿"
+        physical_name: "RELATIVE_PATH"
+        description: "등록 연결 기준의 상대 경로 템플릿"
+        pk: false
+      - name: "UNKNOWN/NONE/REQUIRED"
+        physical_name: "IDENTITY_MODE"
+        description: "UNKNOWN/NONE/REQUIRED"
+        pk: false
+      - name: "개별 전체 호출 제한 초. null이면 공통값"
+        physical_name: "TIMEOUT_SECONDS"
+        description: "개별 전체 호출 제한 초. null이면 공통값"
+        pk: false
+      - name: "UNKNOWN/NOT_GUARANTEED/GUARANTEED"
+        physical_name: "IDEMPOTENCY_CD"
+        description: "UNKNOWN/NOT_GUARANTEED/GUARANTEED"
+        pk: false
+      - name: "보장하는 전체 효과·동일 키 조건·적용 범위"
+        physical_name: "IDEMPOTENCY_SCOPE"
+        description: "보장하는 전체 효과·동일 키 조건·적용 범위"
+        pk: false
+      - name: "제공자 보장 기간 초"
+        physical_name: "IDEMPOTENCY_SECONDS"
+        description: "제공자 보장 기간 초"
+        pk: false
+      - name: "제공자 멱등성 계약/검수 근거"
+        physical_name: "IDEMPOTENCY_EVIDENCE"
+        description: "제공자 멱등성 계약/검수 근거"
+        pk: false
+      - name: "UNKNOWN/NONE/CONTRACT"
+        physical_name: "RETRY_MODE"
+        description: "UNKNOWN/NONE/CONTRACT"
+        pk: false
+      - name: "검수한 자동/수동 재시도 조건. 실행 엔진 정책을 우회하지 않음"
+        physical_name: "RETRY_CONTRACT"
+        description: "검수한 자동/수동 재시도 조건. 실행 엔진 정책을 우회하지 않음"
+        pk: false
+      - name: "UNKNOWN/COMPLETE/ACCEPTED/MAPPED"
+        physical_name: "SUCCESS_MEANING"
+        description: "UNKNOWN/COMPLETE/ACCEPTED/MAPPED"
+        pk: false
+      - name: "UNKNOWN/NONE/API"
+        physical_name: "RESULT_CHECK_MODE"
+        description: "UNKNOWN/NONE/API"
+        pk: false
+      - name: "권장 재확인 시간 초. 자동 폴링 지시 아님"
+        physical_name: "RECHECK_SECONDS"
+        description: "권장 재확인 시간 초. 자동 폴링 지시 아님"
+        pk: false
+      - name: "수동 확인·종료 안내"
+        physical_name: "MANUAL_CHECK_GUIDE"
+        description: "수동 확인·종료 안내"
+        pk: false
+      - name: "자연어 공통 결과 안내. 실행 스크립트 아님"
+        physical_name: "RESULT_GUIDE"
+        description: "자연어 공통 결과 안내. 실행 스크립트 아님"
+        pk: false
+      - name: "고객사 릴리스 식별자"
+        physical_name: "RELEASE_REF"
+        description: "고객사 릴리스 식별자"
+        pk: false
+      - name: "고객사 계약 버전"
+        physical_name: "EXTERNAL_VERSION"
+        description: "고객사 계약 버전"
+        pk: false
+      - name: "고객사 책임자 근거. Hub 승인자와 별개"
+        physical_name: "EXTERNAL_OWNER"
+        description: "고객사 책임자 근거. Hub 승인자와 별개"
+        pk: false
+      - name: "고객사 공동 시험·검수 자료 참조"
+        physical_name: "OPEN_EVIDENCE"
+        description: "고객사 공동 시험·검수 자료 참조"
+        pk: false
+      - name: "검수된 고객사 적용 시점. 시간대 포함 입력"
+        physical_name: "OPEN_AT"
+        description: "검수된 고객사 적용 시점. 시간대 포함 입력"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수 주체"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수 주체"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        pk: false
+      - name: "작성 주체"
+        physical_name: "REG_ID"
+        description: "작성 주체"
+        pk: false
+      - name: "작성 시각"
+        physical_name: "REG_DTM"
+        description: "작성 시각"
+        pk: false
+      - name: "최종 초안 편집 주체"
+        physical_name: "MOD_ID"
+        description: "최종 초안 편집 주체"
+        pk: false
+      - name: "최종 초안 편집 시각"
+        physical_name: "MOD_DTM"
+        description: "최종 초안 편집 시각"
+        pk: false
+    relations:
+      - entity: ENT-012
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-012
+    history_parent: ENT-059
+  - id: ENT-063
+    name: "업무 API 필드 명세 적용 이력"
+    term: TRM-257
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+      - FEAT-008
+    reqs:
+      - REQ-608
+      - REQ-111
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-013 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "소유 안정 API"
+        physical_name: "API_ID"
+        description: "소유 안정 API"
+        pk: false
+      - name: "ENT-029의 안정 필드"
+        physical_name: "FIELD_ID"
+        pk: false
+        description: "ENT-029의 안정 필드"
+      - name: "REQUEST/RESPONSE"
+        physical_name: "DIRECTION_CD"
+        description: "REQUEST/RESPONSE"
+        pk: false
+      - name: "PATH/QUERY/HEADER/BODY"
+        physical_name: "LOCATION_CD"
+        description: "PATH/QUERY/HEADER/BODY"
+        pk: false
+      - name: "형식 1의 정적 PROPERTY/ITEM 토큰 목록 JSON 문자열. 경로 원문이며 실행식 아님"
+        physical_name: "PATH_TOKENS"
+        description: "형식 1의 정적 PROPERTY/ITEM 토큰 목록 JSON 문자열. 경로 원문이며 실행식 아님"
+        pk: false
+      - name: "방향·위치·정규 경로의 SHA-256. 전체 경로도 비교"
+        physical_name: "PATH_KEY"
+        description: "방향·위치·정규 경로의 SHA-256. 전체 경로도 비교"
+        pk: false
+      - name: "UNKNOWN/STRING/NUMBER/INTEGER/BOOLEAN/OBJECT/ARRAY"
+        physical_name: "WIRE_TYPE"
+        description: "UNKNOWN/STRING/NUMBER/INTEGER/BOOLEAN/OBJECT/ARRAY"
+        pk: false
+      - name: "필드 업무 명칭"
+        physical_name: "BUSINESS_NAME"
+        description: "필드 업무 명칭"
+        pk: false
+      - name: "필드 업무 의미"
+        physical_name: "DESCRIPTION"
+        description: "필드 업무 의미"
+        pk: false
+      - name: "UNKNOWN/TEXT/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER"
+        physical_name: "SEMANTIC_TYPE"
+        description: "UNKNOWN/TEXT/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER"
+        pk: false
+      - name: "해석 형식"
+        physical_name: "VALUE_FORMAT"
+        description: "해석 형식"
+        pk: false
+      - name: "필요한 시간대"
+        physical_name: "TIME_ZONE_ID"
+        description: "필요한 시간대"
+        pk: false
+      - name: "단위"
+        physical_name: "UNIT_CD"
+        description: "단위"
+        pk: false
+      - name: "UNKNOWN/YES/NO. 경로 존재 필수"
+        physical_name: "REQUIRED_CD"
+        description: "UNKNOWN/YES/NO. 경로 존재 필수"
+        pk: false
+      - name: "UNKNOWN/YES/NO. 값 null 허용"
+        physical_name: "NULLABLE_CD"
+        description: "UNKNOWN/YES/NO. 값 null 허용"
+        pk: false
+      - name: "UNKNOWN/NONE/INLINE/REFERENCE"
+        physical_name: "VALUE_MODE"
+        description: "UNKNOWN/NONE/INLINE/REFERENCE"
+        pk: false
+      - name: "UNKNOWN/YES/NO"
+        physical_name: "PRIVACY_CD"
+        description: "UNKNOWN/YES/NO"
+        pk: false
+      - name: "검수한 개인정보 분류 참조"
+        physical_name: "PRIVACY_TYPE"
+        description: "검수한 개인정보 분류 참조"
+        pk: false
+      - name: "UNKNOWN/YES/NO. 정보주체 식별 용도"
+        physical_name: "SUBJECT_ID_CD"
+        description: "UNKNOWN/YES/NO. 정보주체 식별 용도"
+        pk: false
+      - name: "공통 마스킹 변환 원천 참조. 현재 정책 사본 아님"
+        physical_name: "MASK_RULE_REF"
+        description: "공통 마스킹 변환 원천 참조. 현재 정책 사본 아님"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수 주체"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수 주체"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        pk: false
+    relations:
+      - entity: ENT-013
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-013
+    history_parent: ENT-059
+  - id: ENT-065
+    name: "API 코드명 제공 규칙 적용 이력"
+    term: TRM-258
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-014 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "소유 응답 코드 필드"
+        physical_name: "FIELD_ID"
+        pk: false
+        description: "소유 응답 코드 필드"
+      - name: "UNKNOWN/RESPONSE/INLINE/CATALOG/API"
+        physical_name: "METHOD_CD"
+        description: "UNKNOWN/RESPONSE/INLINE/CATALOG/API"
+        pk: false
+      - name: "RESPONSE 방식의 같은 응답 명칭 필드"
+        physical_name: "NAME_FIELD_ID"
+        description: "RESPONSE 방식의 같은 응답 명칭 필드"
+        pk: false
+      - name: "CATALOG/API 방식의 ENT-032 참조"
+        physical_name: "REFERENCE_NO"
+        description: "CATALOG/API 방식의 ENT-032 참조"
+        pk: false
+      - name: "UNKNOWN/SAME_ITEM/KEYS"
+        physical_name: "MATCH_MODE"
+        description: "UNKNOWN/SAME_ITEM/KEYS"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수 주체"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수 주체"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        pk: false
+    relations:
+      - entity: ENT-014
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-014
+    history_parent: ENT-059
+  - id: ENT-067
+    name: "등록 업무 도구 적용 이력"
+    term: TRM-259
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-021
+      - FEAT-004
+      - FEAT-014
+    reqs:
+      - REQ-612
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-015 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "안정 식별자"
+        physical_name: "TOOL_ID"
+        pk: false
+        description: "안정 식별자"
+      - name: "DRAFT/ACTIVE/DISABLED/RETIRED"
+        physical_name: "LIFECYCLE_CD"
+        description: "DRAFT/ACTIVE/DISABLED/RETIRED"
+        pk: false
+      - name: "공통 세트 실제 반영 결과 참조"
+        physical_name: "APPLY_RESULT_REF"
+        description: "공통 세트 실제 반영 결과 참조"
+        pk: false
+      - name: "실제 반영 시각"
+        physical_name: "APPLIED_DTM"
+        description: "실제 반영 시각"
+        pk: false
+      - name: "최초 작성 주체"
+        physical_name: "REG_ID"
+        description: "최초 작성 주체"
+        pk: false
+      - name: "최초 작성 시각"
+        physical_name: "REG_DTM"
+        description: "최초 작성 시각"
+        pk: false
+      - name: "REVISION"
+        physical_name: "REVISION"
+        description: "실제 적용 성공마다 한 번 증가하는 마스터 업무 리비전. 신규 적용은 1"
+        pk: false
+      - name: "HIST_DTM"
+        physical_name: "HIST_DTM"
+      - name: "CHANGE_SUMMARY"
+        physical_name: "CHANGE_SUMMARY"
+      - name: "HIST_ACTION_CD"
+        physical_name: "HIST_ACTION_CD"
+      - name: "HIST_ACTOR_ID"
+        physical_name: "HIST_ACTOR_ID"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_COMMAND_KEY"
+        physical_name: "HIST_COMMAND_KEY"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_REASON"
+        physical_name: "HIST_REASON"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "HIST_SCHEMA_VERSION"
+        physical_name: "HIST_SCHEMA_VERSION"
+        description: "REQ-601.change_history의 마스터 이력 메타데이터"
+      - name: "REQUEST_NO"
+        physical_name: "REQUEST_NO"
+        description: "적용 근거 요청번호. 직접 관리이면 없음"
+    relations:
+      - entity: ENT-015
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-015
+  - id: ENT-069
+    name: "업무 도구 현재 내용 적용 이력"
+    term: TRM-260
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-021
+      - FEAT-014
+      - FEAT-033
+    reqs:
+      - REQ-612
+      - REQ-114
+      - REQ-105
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-016 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "소유 안정 도구"
+        physical_name: "TOOL_ID"
+        description: "소유 안정 도구"
+        pk: false
+      - name: "업무 명칭"
+        physical_name: "BUSINESS_NAME"
+        description: "업무 명칭"
+        pk: false
+      - name: "업무 설명"
+        physical_name: "DESCRIPTION"
+        description: "업무 설명"
+        pk: false
+      - name: "PUBLISH/DISABLE/RETIRE. 현재 효력과 별개"
+        physical_name: "INTENT_CD"
+        description: "PUBLISH/DISABLE/RETIRE. 현재 효력과 별개"
+        pk: false
+      - name: "변경 사유"
+        physical_name: "CHANGE_REASON"
+        description: "변경 사유"
+        pk: false
+      - name: "UNKNOWN/API/INTERNAL"
+        physical_name: "SOURCE_KIND"
+        description: "UNKNOWN/API/INTERNAL"
+        pk: false
+      - name: "API 기반의 원천 안정 API"
+        physical_name: "API_ID"
+        description: "API 기반의 원천 안정 API"
+        pk: false
+      - name: "선택한 API 계약 판. 가이드도 같은 판 참조"
+        physical_name: "API_REVISION_ID"
+        description: "선택한 API 계약 판. 가이드도 같은 판 참조"
+        pk: false
+      - name: "배포 레지스트리의 검증된 구현 식별자"
+        physical_name: "IMPLEMENTATION_ID"
+        description: "배포 레지스트리의 검증된 구현 식별자"
+        pk: false
+      - name: "검증된 내부 구현 계약 버전"
+        physical_name: "CONTRACT_VERSION"
+        description: "검증된 내부 구현 계약 버전"
+        pk: false
+      - name: "검수한 배포 근거"
+        physical_name: "DEPLOYMENT_REF"
+        description: "검수한 배포 근거"
+        pk: false
+      - name: "UNKNOWN/QUERY/EXECUTE. 원천과 일치"
+        physical_name: "OPERATION_TYPE"
+        description: "UNKNOWN/QUERY/EXECUTE. 원천과 일치"
+        pk: false
+      - name: "Y/N. 노출 의도이며 현재 실행 허가 아님"
+        physical_name: "EXPOSE_YN"
+        description: "Y/N. 노출 의도이며 현재 실행 허가 아님"
+        pk: false
+      - name: "INTERNAL 전용 공통 자연어 가이드. API 방식은 null"
+        physical_name: "RESULT_GUIDE"
+        description: "INTERNAL 전용 공통 자연어 가이드. API 방식은 null"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수 주체"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수 주체"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 비밀과 실제 업무 원값은 제외"
+        pk: false
+      - name: "작성 주체"
+        physical_name: "REG_ID"
+        description: "작성 주체"
+        pk: false
+      - name: "작성 시각"
+        physical_name: "REG_DTM"
+        description: "작성 시각"
+        pk: false
+      - name: "최종 초안 편집 주체"
+        physical_name: "MOD_ID"
+        description: "최종 초안 편집 주체"
+        pk: false
+      - name: "최종 초안 편집 시각"
+        physical_name: "MOD_DTM"
+        description: "최종 초안 편집 시각"
+        pk: false
+    relations:
+      - entity: ENT-016
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-067
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-016
+    history_parent: ENT-067
+  - id: ENT-071
+    name: "카탈로그 식별키 적용 이력"
+    term: TRM-265
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-021 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "판 안의 키 번호"
+        physical_name: "KEY_NO"
+        pk: false
+        description: "판 안의 키 번호"
+      - name: "식별키 종류"
+        physical_name: "KEY_KIND"
+        description: "PRIMARY/UNIQUE"
+        pk: false
+      - name: "확인한 원천 키 이름. 논리 유일성 근거는 null 가능"
+        physical_name: "SOURCE_NAME"
+        description: "확인한 원천 키 이름. 논리 유일성 근거는 null 가능"
+        pk: false
+      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        physical_name: "REVIEW_STATUS"
+        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
+        pk: false
+      - name: "실제 검수자"
+        physical_name: "REVIEWER_ID"
+        description: "실제 검수자"
+        pk: false
+      - name: "실제 검수 시각"
+        physical_name: "REVIEWED_DTM"
+        description: "실제 검수 시각"
+        pk: false
+      - name: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        pk: false
+    relations:
+      - entity: ENT-021
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-021
+    history_parent: ENT-051
+  - id: ENT-073
+    name: "카탈로그 식별키 컬럼 적용 이력"
+    term: TRM-266
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-022 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "소유 키"
+        physical_name: "KEY_NO"
+        pk: false
+        description: "소유 키"
+      - name: "키 안의 컬럼 순서"
+        physical_name: "POSITION_NO"
+        pk: false
+        description: "키 안의 컬럼 순서"
+      - name: "같은 판의 안정 컬럼"
+        physical_name: "COLUMN_ID"
+        description: "같은 판의 안정 컬럼"
+        pk: false
+    relations:
+      - entity: ENT-022
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-022
+    history_parent: ENT-051
+  - id: ENT-075
+    name: "카탈로그 인라인 값 적용 이력"
+    term: TRM-267
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-023 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "소유 컬럼"
+        physical_name: "COLUMN_ID"
+        pk: false
+        description: "소유 컬럼"
+      - name: "열거 값 번호"
+        physical_name: "VALUE_NO"
+        pk: false
+        description: "열거 값 번호"
+      - name: "값 자료형"
+        physical_name: "VALUE_TYPE"
+        description: "STRING/NUMBER/BOOLEAN/DATE/DATETIME"
+        pk: false
+      - name: "명시한 형식의 값. 숫자 0·문자열 빈값·NULL 혼동 금지"
+        physical_name: "VALUE_TEXT"
+        description: "명시한 형식의 값. 숫자 0·문자열 빈값·NULL 혼동 금지"
+        pk: false
+      - name: "값의 업무 의미"
+        physical_name: "VALUE_MEANING"
+        description: "값의 업무 의미"
+        pk: false
+    relations:
+      - entity: ENT-023
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-023
+    history_parent: ENT-051
+  - id: ENT-077
+    name: "카탈로그 코드 바인딩 적용 이력"
+    term: TRM-268
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-301
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-024 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "소유 컬럼"
+        physical_name: "COLUMN_ID"
+        pk: false
+        description: "ENT-007 CODE 컬럼"
+      - name: "파라미터명"
+        physical_name: "PARAMETER_NAME"
+        pk: false
+        description: "정확 CODE_QUERY_REVISION_ID의 선언 이름"
+      - name: "정형 값 자료형"
+        physical_name: "VALUE_TYPE"
+        description: "STRING/NUMBER/BOOLEAN/DATE/DATETIME. 선언 타입과 일치"
+        pk: false
+      - name: "정형 바인딩 값"
+        physical_name: "VALUE_TEXT"
+        description: "원문 코드 01/공백/타입을 임의 숫자 변환하지 않는 정형 값. NULL 허용은 정의를 따름"
+        pk: false
+    relations:
+      - entity: ENT-024
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-024
+    history_parent: ENT-051
+  - id: ENT-079
+    name: "권장 조인 컬럼 쌍 적용 이력"
+    term: TRM-269
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-003
+      - FEAT-011
+    reqs:
+      - REQ-301
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-025 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "관계 안정 식별자"
+        physical_name: "RELATION_ID"
+        pk: false
+        description: "관계 안정 식별자"
+      - name: "전체 조인 쌍 안의 순서"
+        physical_name: "PAIR_NO"
+        pk: false
+        description: "전체 조인 쌍 안의 순서"
+      - name: "왼쪽 역할 판"
+        physical_name: "LEFT_REVISION_ID"
+        description: "왼쪽 역할 판"
+        pk: false
+      - name: "왼쪽 역할 컬럼"
+        physical_name: "LEFT_COLUMN_ID"
+        description: "왼쪽 역할 컬럼"
+        pk: false
+      - name: "오른쪽 역할 판"
+        physical_name: "RIGHT_REVISION_ID"
+        description: "오른쪽 역할 판"
+        pk: false
+      - name: "오른쪽 역할 컬럼"
+        physical_name: "RIGHT_COLUMN_ID"
+        description: "오른쪽 역할 컬럼"
+        pk: false
+    relations:
+      - entity: ENT-025
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-051
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-025
+    history_parent: ENT-051
+  - id: ENT-081
+    name: "API 필드 정의 값 적용 이력"
+    term: TRM-274
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-030 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "소유 필드"
+        physical_name: "FIELD_ID"
+        pk: false
+        description: "소유 필드"
+      - name: "필드 안의 정의 순서"
+        physical_name: "VALUE_NO"
+        pk: false
+        description: "필드 안의 정의 순서"
+      - name: "ENUM/FIXED/DEFAULT"
+        physical_name: "VALUE_ROLE"
+        description: "ENUM/FIXED/DEFAULT"
+        pk: false
+      - name: "STRING/NUMBER/BOOLEAN/NULL"
+        physical_name: "VALUE_TYPE"
+        description: "STRING/NUMBER/BOOLEAN/NULL"
+        pk: false
+      - name: "정형 스칼라 값. NULL 타입만 null"
+        physical_name: "VALUE_TEXT"
+        description: "정형 스칼라 값. NULL 타입만 null"
+        pk: false
+      - name: "역할·타입·정형 값 SHA-256"
+        physical_name: "VALUE_KEY"
+        description: "역할·타입·정형 값 SHA-256"
+        pk: false
+      - name: "열거 값의 의미/코드 표시명"
+        physical_name: "MEANING"
+        description: "열거 값의 의미/코드 표시명"
+        pk: false
+    relations:
+      - entity: ENT-030
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-030
+    history_parent: ENT-059
+  - id: ENT-083
+    name: "API 필드 검증 조건 적용 이력"
+    term: TRM-275
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-031 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "검증 필드"
+        physical_name: "FIELD_ID"
+        pk: false
+        description: "검증 필드"
+      - name: "필드 안의 조건 순서"
+        physical_name: "CHECK_NO"
+        pk: false
+        description: "필드 안의 조건 순서"
+      - name: "MIN/MAX/MIN_LENGTH/MAX_LENGTH/MIN_ITEMS/MAX_ITEMS/FORMAT"
+        physical_name: "CHECK_KIND"
+        description: "MIN/MAX/MIN_LENGTH/MAX_LENGTH/MIN_ITEMS/MAX_ITEMS/FORMAT"
+        pk: false
+      - name: "NUMBER/STRING"
+        physical_name: "OPERAND_TYPE"
+        description: "NUMBER/STRING"
+        pk: false
+      - name: "정형 기준값 또는 검증기 형식 식별자"
+        physical_name: "OPERAND_TEXT"
+        description: "정형 기준값 또는 검증기 형식 식별자"
+        pk: false
+      - name: "MIN/MAX의 경계 포함 Y/N. 그 외 null"
+        physical_name: "INCLUSIVE_YN"
+        description: "MIN/MAX의 경계 포함 Y/N. 그 외 null"
+        pk: false
+    relations:
+      - entity: ENT-031
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-031
+    history_parent: ENT-059
+  - id: ENT-085
+    name: "API 계약 참조 적용 이력"
+    term: TRM-276
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-032 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "판 안의 참조 번호"
+        physical_name: "REFERENCE_NO"
+        pk: false
+        description: "판 안의 참조 번호"
+      - name: "입력/값/코드명의 소유 필드. API 전체 후속이면 null"
+        physical_name: "OWNER_FIELD_ID"
+        description: "입력/값/코드명의 소유 필드. API 전체 후속이면 null"
+        pk: false
+      - name: "INPUT_LOOKUP/FIELD_CODE/CODE_NAME/RESULT_CHECK/FOLLOWUP"
+        physical_name: "ROLE_CD"
+        description: "INPUT_LOOKUP/FIELD_CODE/CODE_NAME/RESULT_CHECK/FOLLOWUP"
+        pk: false
+      - name: "API/CATALOG/TOOL"
+        physical_name: "TARGET_KIND"
+        description: "API/CATALOG/TOOL"
+        pk: false
+      - name: "참조 안정 API"
+        physical_name: "API_ID"
+        description: "참조 안정 API"
+        pk: false
+      - name: "선택 API 내용 판"
+        physical_name: "API_REVISION_ID"
+        description: "선택 API 내용 판"
+        pk: false
+      - name: "참조 공개 카탈로그"
+        physical_name: "CATALOG_ID"
+        description: "참조 공개 카탈로그"
+        pk: false
+      - name: "선택 카탈로그 내용 판"
+        physical_name: "CATALOG_REVISION_ID"
+        description: "선택 카탈로그 내용 판"
+        pk: false
+      - name: "참조 안정 도구"
+        physical_name: "TOOL_ID"
+        description: "참조 안정 도구"
+        pk: false
+      - name: "선택 도구 내용 판"
+        physical_name: "TOOL_REVISION_ID"
+        description: "선택 도구 내용 판"
+        pk: false
+      - name: "업무 역할·선택 조건 설명"
+        physical_name: "PURPOSE"
+        description: "업무 역할·선택 조건 설명"
+        pk: false
+      - name: "소유 안정 식별자"
+        physical_name: "OWNER_API_ID"
+        pk: false
+        description: "원본 소유 키. 요청/이력 세트와 함께 부모를 검증한다."
+    relations:
+      - entity: ENT-032
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-032
+    history_parent: ENT-059
+    ownership:
+      owner_key: "OWNER_API_ID"
+      parent_key: "API_ID"
+  - id: ENT-087
+    name: "API 값 대응 적용 이력"
+    term: TRM-277
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-033 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "판 안의 대응 번호"
+        physical_name: "BINDING_NO"
+        pk: false
+        description: "판 안의 대응 번호"
+      - name: "이 대응을 사용하는 입력/코드 필드. 결과 확인 전체이면 null"
+        physical_name: "OWNER_FIELD_ID"
+        description: "이 대응을 사용하는 입력/코드 필드. 결과 확인 전체이면 null"
+        pk: false
+      - name: "외부 조회/결과 확인 참조. 순수 내부 대응이면 null"
+        physical_name: "REFERENCE_NO"
+        description: "외부 조회/결과 확인 참조. 순수 내부 대응이면 null"
+        pk: false
+      - name: "ENT-032가 선택한 API 판"
+        physical_name: "REFERENCE_API_REVISION_ID"
+        description: "ENT-032가 선택한 API 판"
+        pk: false
+      - name: "ENT-032가 선택한 카탈로그 판"
+        physical_name: "REFERENCE_CATALOG_REVISION_ID"
+        description: "ENT-032가 선택한 카탈로그 판"
+        pk: false
+      - name: "LOOKUP_INPUT/MATCH_KEY/CODE_VALUE/DISPLAY_NAME/INPUT_VALUE/REQUEST_KEY/IDENTITY"
+        physical_name: "PURPOSE_CD"
+        description: "LOOKUP_INPUT/MATCH_KEY/CODE_VALUE/DISPLAY_NAME/INPUT_VALUE/REQUEST_KEY/IDENTITY"
+        pk: false
+      - name: "LOCAL_FIELD/API_FIELD/CATALOG_COL/FIXED/SERVER"
+        physical_name: "SOURCE_KIND"
+        description: "LOCAL_FIELD/API_FIELD/CATALOG_COL/FIXED/SERVER"
+        pk: false
+      - name: "같은 소유 판의 원 요청/응답 필드"
+        physical_name: "SOURCE_FIELD_ID"
+        description: "같은 소유 판의 원 요청/응답 필드"
+        pk: false
+      - name: "참조 API 판의 원 필드"
+        physical_name: "SOURCE_API_FIELD_ID"
+        description: "참조 API 판의 원 필드"
+        pk: false
+      - name: "참조 카탈로그 판의 원 컬럼"
+        physical_name: "SOURCE_COLUMN_ID"
+        description: "참조 카탈로그 판의 원 컬럼"
+        pk: false
+      - name: "신뢰된 서버 문맥 계약의 허용 키"
+        physical_name: "CONTEXT_KEY"
+        description: "신뢰된 서버 문맥 계약의 허용 키"
+        pk: false
+      - name: "고정 값 타입 STRING/NUMBER/BOOLEAN/NULL"
+        physical_name: "FIXED_TYPE"
+        description: "고정 값 타입 STRING/NUMBER/BOOLEAN/NULL"
+        pk: false
+      - name: "비밀 아닌 정형 고정값. NULL만 null"
+        physical_name: "FIXED_TEXT"
+        description: "비밀 아닌 정형 고정값. NULL만 null"
+        pk: false
+      - name: "LOCAL_FIELD/API_FIELD/CATALOG_COL/RESULT"
+        physical_name: "TARGET_KIND"
+        description: "LOCAL_FIELD/API_FIELD/CATALOG_COL/RESULT"
+        pk: false
+      - name: "같은 소유 판의 받는 필드"
+        physical_name: "TARGET_FIELD_ID"
+        description: "같은 소유 판의 받는 필드"
+        pk: false
+      - name: "참조 API 판의 받는 필드"
+        physical_name: "TARGET_API_FIELD_ID"
+        description: "참조 API 판의 받는 필드"
+        pk: false
+      - name: "참조 카탈로그 판의 받는 컬럼"
+        physical_name: "TARGET_COLUMN_ID"
+        description: "참조 카탈로그 판의 받는 컬럼"
+        pk: false
+      - name: "동일 항목/전체 키·선택·추출의 검수 안내. 실행식 아님"
+        physical_name: "EXTRACTION_GUIDE"
+        description: "동일 항목/전체 키·선택·추출의 검수 안내. 실행식 아님"
+        pk: false
+    relations:
+      - entity: ENT-033
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-033
+    history_parent: ENT-059
+  - id: ENT-089
+    name: "API 결과 상태 대응 적용 이력"
+    term: TRM-278
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-034 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "판 안의 상태 규칙 번호"
+        physical_name: "MAPPING_NO"
+        pk: false
+        description: "판 안의 상태 규칙 번호"
+      - name: "결과 확인 API 참조. 원 응답이면 null"
+        physical_name: "REFERENCE_NO"
+        description: "결과 확인 API 참조. 원 응답이면 null"
+        pk: false
+      - name: "결과 확인 대상의 정확 판"
+        physical_name: "REFERENCE_API_REVISION_ID"
+        description: "결과 확인 대상의 정확 판"
+        pk: false
+      - name: "원 API의 등록 응답 상태 필드"
+        physical_name: "LOCAL_FIELD_ID"
+        description: "원 API의 등록 응답 상태 필드"
+        pk: false
+      - name: "결과 확인 API의 응답 상태 필드"
+        physical_name: "REFERENCE_FIELD_ID"
+        description: "결과 확인 API의 응답 상태 필드"
+        pk: false
+      - name: "STRING/NUMBER/BOOLEAN/NULL"
+        physical_name: "VALUE_TYPE"
+        description: "STRING/NUMBER/BOOLEAN/NULL"
+        pk: false
+      - name: "대응할 정형 값"
+        physical_name: "VALUE_TEXT"
+        description: "대응할 정형 값"
+        pk: false
+      - name: "COMPLETE/ACCEPTED/PROCESSING/FAILED/UNKNOWN"
+        physical_name: "OUTCOME_CD"
+        description: "COMPLETE/ACCEPTED/PROCESSING/FAILED/UNKNOWN"
+        pk: false
+      - name: "제공자가 검수한 상태 의미"
+        physical_name: "DESCRIPTION"
+        description: "제공자가 검수한 상태 의미"
+        pk: false
+    relations:
+      - entity: ENT-034
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-034
+    history_parent: ENT-059
+  - id: ENT-091
+    name: "API 입력 출처 적용 이력"
+    term: TRM-281
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-608
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-037 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "API_ID"
+        physical_name: "API_ID"
+        description: "현재 소유 마스터의 안정 식별자"
+        pk: false
+      - name: "요청 필드"
+        physical_name: "FIELD_ID"
+        pk: false
+        description: "요청 필드"
+      - name: "필드 안의 출처 번호"
+        physical_name: "SOURCE_NO"
+        pk: false
+        description: "필드 안의 출처 번호"
+      - name: "USER/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
+        physical_name: "SOURCE_KIND"
+        description: "USER/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
+        pk: false
+      - name: "LOOKUP의 정형 조회 참조"
+        physical_name: "REFERENCE_NO"
+        description: "LOOKUP의 정형 조회 참조"
+        pk: false
+      - name: "FIXED/DEFAULT 정의 값"
+        physical_name: "VALUE_NO"
+        description: "FIXED/DEFAULT 정의 값"
+        pk: false
+      - name: "추출/서버 주입 대응"
+        physical_name: "BINDING_NO"
+        description: "추출/서버 주입 대응"
+        pk: false
+      - name: "이 출처를 선택할 검수된 조건"
+        physical_name: "SELECTION_GUIDE"
+        description: "이 출처를 선택할 검수된 조건"
+        pk: false
+      - name: "질문·추출·계산/형식 변환 안내. 코드 아님"
+        physical_name: "FILL_GUIDE"
+        description: "질문·추출·계산/형식 변환 안내. 코드 아님"
+        pk: false
+      - name: "부족/모호성의 추가 확인 또는 실패 안내"
+        physical_name: "MISSING_GUIDE"
+        description: "부족/모호성의 추가 확인 또는 실패 안내"
+        pk: false
+    relations:
+      - entity: ENT-037
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-059
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-037
+    history_parent: ENT-059
+  - id: ENT-093
+    name: "도구 가이드 참조 적용 이력"
+    term: TRM-282
+    domain: "연동 자산"
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features:
+      - FEAT-021
+    reqs:
+      - REQ-612
+      - REQ-114
+      - REQ-601
+    description: "REQ-601.management_storage의 ENT-038 동형 전체 복사"
+    attributes:
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "표별 시퀀스 방식의 단일 서로게이트 PK"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "요청 또는 이력 세트 연결 키"
+      - name: "판 안의 후속 참조 번호"
+        physical_name: "REFERENCE_NO"
+        pk: false
+        description: "판 안의 후속 참조 번호"
+      - name: "API/TOOL"
+        physical_name: "TARGET_KIND"
+        description: "API/TOOL"
+        pk: false
+      - name: "후속 안정 API"
+        physical_name: "API_ID"
+        description: "후속 안정 API"
+        pk: false
+      - name: "선택 API 판"
+        physical_name: "API_REVISION_ID"
+        description: "선택 API 판"
+        pk: false
+      - name: "후속 안정 도구"
+        physical_name: "TOOL_ID"
+        description: "후속 안정 도구"
+        pk: false
+      - name: "선택 도구 판"
+        physical_name: "TOOL_REVISION_ID"
+        description: "선택 도구 판"
+        pk: false
+      - name: "후속 선택/종료 조건과 필요한 입력 안내"
+        physical_name: "PURPOSE"
+        description: "후속 선택/종료 조건과 필요한 입력 안내"
+        pk: false
+      - name: "소유 안정 식별자"
+        physical_name: "OWNER_TOOL_ID"
+        pk: false
+        description: "원본 소유 키. 요청/이력 세트와 함께 부모를 검증한다."
+    relations:
+      - entity: ENT-038
+        cardinality: "원본 키를 값으로 보존"
+        description: "현재 원본에 삭제 연쇄 FK 없음"
+      - entity: ENT-067
+        cardinality: "HISTORY_NO+원 부모 키로 같은 마스터"
+        description: "HIST_DTM은 마스터에서 참조"
+    rules_from:
+      - "REQ-601.management_storage"
+      - "REQ-601.change_history"
+    naming_rule: "원본 물리 테이블명_HIST"
+    storage_role: "history"
+    pending:
+      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
+    history_copy_of: ENT-038
+    history_parent: ENT-067
+    ownership:
+      owner_key: "OWNER_TOOL_ID"
+      parent_key: "TOOL_ID"

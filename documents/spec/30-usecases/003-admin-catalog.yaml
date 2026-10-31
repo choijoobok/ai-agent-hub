@@ -72,7 +72,7 @@ usecases:
       - "REQ-301.business_rules"
       - "REQ-301.quality_management"
       - "REQ-304.note"
-      - "REQ-601.approval_policy"
+      - "REQ-601.direct_management"
     sequence_design:
       contracts_from:
         - "FEAT-003.identity_contract"
@@ -220,7 +220,7 @@ usecases:
         - "@defer P3 — 화면 상세 승인·소유 후속 계약·구체 DTO/오류 메시지·제품 DB/동시 요청 및 사용자 시험을 완료한다"
     pending:
       - "@defer P3 — 입력 필드·원천 조회/샘플링 계약·미완성 표시·버전과 공개 범위 검증을 데이터/API/화면·시험으로 구체화한다. DB 기본값과 원천 DDL은 제외한다. 2026-10-29 사용자 결정에 따른 치수·인덱스 메타데이터는 REQ-301.source_dimensions/index_metadata의 후속 저장 설계를 따른다"
-    storage_context: "REQ-601.approval_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-056 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-056 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
   - id: UC-008
     name: "공개 객체 사이의 권장 조인 관계 후보를 검수한다"
     workstream: "admin"
@@ -342,7 +342,7 @@ usecases:
             - "1:N 중복 의미를 일괄 DISTINCT로 감추거나 관계가 불필요한 독립 컬럼에도 관계를 강제하면 실패해야 한다"
     pending:
       - "@defer P3 — SCR-039 별도 화면의 요건/목업·경로/권한·SCR-003 요약 이동/미저장 입력 보존·동일 전체 후보의 경합을 설계한다. 관계·복합 컬럼 쌍·검수 근거와 공통 관계 조회의 참조 무효/집합 밖/집계 중복 반례를 함께 검증한다"
-    storage_context: "REQ-601.approval_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-056 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-056 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
   - id: UC-009
     name: "인증 예제 후보와 SQL에서 추출한 카탈로그 참조를 검수한다"
     workstream: admin
