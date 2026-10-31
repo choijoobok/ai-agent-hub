@@ -392,21 +392,20 @@ usecases:
     name: "업무 API의 계약·연결·필드 통제 후보를 검수하고 반영한다"
     workstream: "admin"
     design_status: "draft"
-    feature_contract: FEAT-004
+    feature_contract: "FEAT-004"
     entities:
-      - ENT-011
-      - ENT-012
-      - ENT-013
-      - ENT-014
-      - ENT-015
+      - "ENT-011"
+      - "ENT-012"
+      - "ENT-013"
+      - "ENT-014"
+      - "ENT-015"
     reqs:
-      - REQ-608
+      - "REQ-608"
     actors:
       primary:
-        - ACT-003
-        - ACT-002
-      secondary:
-        - ACT-013
+        - "ACT-003"
+        - "ACT-002"
+      secondary: []
     process_step: "PRC-11-02"
     precondition: "해당 후보 작성 권한이 있다. 초안의 미완성은 표시하고 정상 운영 반영 전 고객사 공동 개발·시험·오픈 근거와 계약을 검수한다. 실제 호출은 적용일과 현재 조건을 별도로 확인한다"
     trigger: "업무 API를 등록하거나 계약·연결·입출력 가이드·응답 통제·상태를 변경한다"
@@ -414,9 +413,9 @@ usecases:
       - "제공 시스템과 그 허용 목록 안의 기본/특정 연결, 메서드·상대 경로·조회/실행 유형을 확인한다"
       - "입력 확보 방법과 요청/응답 필드의 경로·타입·의미·필수/NULL·형식·코드·개인정보를 검수한다. 서버 신원·보호 헤더를 업무 인자로 대체하지 않는다"
       - "코드명 제공 방법과 전체 대응 조건·결과/후속 가이드·공통/개별 호출 제한을 검수하고 지식·정책·도구 참조 영향을 확인한다"
-      - "전체 API 후보·자기 기준본·외부 검수와 기술적 계약 근거를 고정해 UC-012의 실제 자산 변경 세트에 인계한다. 관리 승인/전결은 업무 실행 승인을 대신하지 않는다"
       - "실제 반영 상태와 고객사 공동 오픈 적용일을 확인한다. 승인만으로 적용일 전 호출을 허용하지 않으며 승인 뒤 실제 목적지/실행 주체 변경은 REQ-105의 재확인 경계를 유지한다"
-      - "기술 검토·승인에서 REQ-306.knowledge_impact로 연결 지식 목록·현재 본문·해당 매핑 사용 설명을 확인하고 보완 필요 여부·판단 근거·별도 지식 요청 연결을 기록한다. 단순 리비전 상승으로 지식 요청을 반려하거나 지식 매핑을 자동 변경하지 않는다"
+      - "원 소유 전체 구성·현재 변경 권한·기대 버전·필수 참조/기술 계약을 UC-003/012로 직접 저장해 전체 이력과 함께 확정한다."
+      - "사용처의 안정 ID/경로·현재 참조 여부는 조회하되 연결 지식 본문 수집·의미 영향 판정/보완 작업은 만들지 않는다."
     alternative_flows:
       - id: "A1"
         condition: "업무별 사용 방법만 변경"
@@ -443,7 +442,7 @@ usecases:
         condition: "반려 또는 검증/반영 실패"
         flow:
           - "기존 유효본을 유지하고 실패 근거를 남긴다. 후보나 부분 반영을 새 유효 계약으로 사용하지 않는다"
-    postcondition: "검수 근거와 후보/유효본이 구분되고 실제 반영된 계약만 현재 통제 아래 사용된다"
+    postcondition: "전체 직접 저장과 현재값/이력은 일관되며 실제 노출/호출은 현재 그룹·계약/원천 유효성과 실행 사용자 확인을 별도 검사한다."
     rules_from:
       - "REQ-608.business_rules"
       - "REQ-608.field_metadata"
@@ -453,28 +452,26 @@ usecases:
       - "REQ-608.approval_target"
       - "REQ-608.lifecycle"
       - "REQ-303.reference_mapping"
-      - "REQ-306.knowledge_impact"
     pending:
       - "@defer P3 — 입력/응답 편집·코드명 참조·상속/반출 정책·계약 리비전·조건부 반영과 실패 상태의 물리/API/화면 계약을 설계한다"
-    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-057 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
   - id: UC-019
     name: "업무 도구의 구현·계약·노출 후보를 검수한다"
     workstream: "admin"
     design_status: "draft"
-    feature_contract: FEAT-021
+    feature_contract: "FEAT-021"
     entities:
-      - ENT-011
-      - ENT-012
-      - ENT-015
-      - ENT-016
+      - "ENT-011"
+      - "ENT-012"
+      - "ENT-015"
+      - "ENT-016"
     reqs:
-      - REQ-612
+      - "REQ-612"
     actors:
       primary:
-        - ACT-003
-        - ACT-004
-      secondary:
-        - ACT-013
+        - "ACT-003"
+        - "ACT-004"
+      secondary: []
     process_step: "PRC-13-02"
     precondition: "도구 후보 작성 권한이 있다. 미완성 초안은 누락을 표시하고 정상 등록/노출 전 등록 API 또는 배포 내부 서비스의 계약·검증 근거를 확인한다. 호출 시 현재 유효성을 다시 검사한다"
     trigger: "도구를 등록·수정·비활성화·삭제하거나 허용 그룹·노출 상태를 변경한다"
@@ -482,8 +479,8 @@ usecases:
       - "REST API 원천과 내부 서비스 빈의 계약/검증 근거를 구분해 참조한다. API 기반은 REQ-612.api_tool_mapping에 따라 기존 대응 도구를 확인하고 API당 하나를 유지한다"
       - "현재 도구를 참조하는 지식의 매핑과 업무별 사용 설명을 역조회하고 변경 영향을 확인한다"
       - "전체 후보·작업 종류·사유·기준 버전·공통 결과 가이드를 검수한다. API 계약은 원천을 참조하고 내부 구현 가이드는 해당 정본에서 관리한다"
-      - "UC-012로 승인/전결과 일괄 반영을 처리하고 반영 전 후보는 노출·권한 판정에 사용하지 않는다"
-      - "기술 검토·승인에서 REQ-306.knowledge_impact로 연결 지식 목록·현재 본문·해당 매핑 사용 설명을 확인하고 보완 필요 여부·판단 근거·별도 지식 요청 연결을 기록한다. 단순 리비전 상승으로 지식 요청을 반려하거나 지식 매핑을 자동 변경하지 않는다"
+      - "원 소유 전체 구성·현재 변경 권한·기대 버전·필수 참조/기술 계약을 UC-003/012로 직접 저장해 전체 이력과 함께 확정한다."
+      - "사용처의 안정 ID/경로·현재 참조 여부는 조회하되 연결 지식 본문 수집·의미 영향 판정/보완 작업은 만들지 않는다."
     alternative_flows:
       - id: "A1"
         condition: "도구 폐지와 지식 연결 제거를 함께 수행"
@@ -502,16 +499,15 @@ usecases:
         condition: "같은 API의 별도 도구 중복 등록·접수"
         flow:
           - "기존 대응과 후보를 권한 범위 안에서 안내하고 중복을 거부한다. 폐지 후 재등록·복원도 새 도구 ID로 중복을 우회하지 않는다"
-    postcondition: "유효한 도구만 지식 연결·현재 권한·실행 승인 조건 아래 사용된다. 폐지는 이미 외부에서 접수/완료된 실행을 소급 취소하지 않는다"
+    postcondition: "전체 직접 저장과 현재값/이력은 일관되며 실제 노출/호출은 현재 그룹·계약/원천 유효성과 실행 사용자 확인을 별도 검사한다."
     rules_from:
       - "REQ-612.business_rules"
       - "REQ-612.result_handling_guide"
       - "REQ-612.permissions"
       - "REQ-303.reference_mapping"
-      - "REQ-306.knowledge_impact"
     pending:
       - "@defer P3 — 구현 레지스트리·계약 버전·역참조·가이드 편집과 반영/호출 시 검증의 계약·시험을 설계한다"
-    storage_context: "REQ-601.management_storage. 관리 조회/변경 입력은 현재 적용본, 초안 편집/제출/검토/반려는 SCR-058 요청 문맥, 과거 적용본은 별도 HIST 문맥이다. 후보는 _SNP의 전체 요청 내용이며 업무 REVISION 증가는 실제 반영 성공 때만 발생한다."
+    storage_context: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
   - id: UC-020
     name: "공통 자연어 지침을 검토하고 리비전으로 반영한다"
     workstream: admin
@@ -537,11 +533,15 @@ usecases:
 
   - id: UC-021
     name: "사용 안내 지식을 관리하고 초기 안내와의 경계를 확인한다"
-    workstream: admin
-    design_status: draft
-    reqs: [REQ-308]
-    actors: { primary: ACT-003, secondary: [ACT-002] }
-    process_step: PRC-09-05
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
+      - "REQ-308"
+    actors:
+      primary: "ACT-003"
+      secondary:
+        - "ACT-002"
+    process_step: "PRC-09-05"
     precondition: "사용 안내 지식의 후보 작성·관리 권한이 있다"
     trigger: "사용 목적·가능한 업무·질의 예시·주의사항·사용 한계 안내를 변경한다"
     main_flow:
@@ -550,14 +550,27 @@ usecases:
       - "UC-010·012의 지식 관리·세트 반영 경로로 처리하고 후보/반려본을 운영 검색에 쓰지 않는다"
       - "활성·현재 허용 안내만 사용되고 무결과 안내·전체 열거 거절은 REQ-308의 원래 계약을 따르는지 확인한다"
     alternative_flows:
-      - { id: A1, condition: "아직 상세 접근 목록 화면이 제공되지 않음", flow: ["현재 차수의 요약 안내를 유지하고 후속 차수의 화면으로 이동시키지 않는다"] }
+      - id: "A1"
+        condition: "아직 상세 접근 목록 화면이 제공되지 않음"
+        flow:
+          - "현재 차수의 요약 안내를 유지하고 후속 차수의 화면으로 이동시키지 않는다"
     exception_flows:
-      - { id: E1, condition: "안내에 권한 밖 객체·물리명·전체 지식 목록 노출", flow: ["안내로 접근 통제를 우회하지 않도록 후보를 보완한다"] }
-      - { id: E2, condition: "고정 초기 안내를 모델 호출이나 Portal 자체 생성으로 대체", flow: ["agent 계약의 정적 안내 경계를 유지한다"] }
+      - id: "E1"
+        condition: "안내에 권한 밖 객체·물리명·전체 지식 목록 노출"
+        flow:
+          - "안내로 접근 통제를 우회하지 않도록 후보를 보완한다"
+      - id: "E2"
+        condition: "고정 초기 안내를 모델 호출이나 Portal 자체 생성으로 대체"
+        flow:
+          - "agent 계약의 정적 안내 경계를 유지한다"
     postcondition: "사용 안내 지식의 유효 리비전과 반영 근거가 유지되며 초기 안내만으로 새 턴·모델 호출이 생기지 않는다"
-    rules_from: ["REQ-308.detail", "REQ-308.hard_rule", "REQ-308.approval_policy", "REQ-308.permissions"]
-    pending: ["@defer P3 — 안내 원천/지식 관리 연결, 차수별 표시·권한·무결과 사례를 화면 요건과 계약 시험으로 구체화한다"]
-
+    rules_from:
+      - "REQ-308.detail"
+      - "REQ-308.hard_rule"
+      - "REQ-308.direct_management"
+      - "REQ-308.permissions"
+    pending:
+      - "@defer P3 — 안내 원천/지식 관리 연결, 차수별 표시·권한·무결과 사례를 화면 요건과 계약 시험으로 구체화한다"
   - id: UC-022
     name: "월별 USD 단가와 메모를 저장하고 쿼터 기준의 고정 상태를 확인한다"
     workstream: admin

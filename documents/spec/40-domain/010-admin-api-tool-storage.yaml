@@ -2,15 +2,15 @@
 entities:
   - id: ENT-029
     name: "API 필드 안정 식별"
-    term: TRM-273
+    term: "TRM-273"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API 안의 안정 필드 식별자"
         physical_name: "FIELD_ID"
@@ -30,18 +30,18 @@ entities:
       - "새 후보는 같은 필드 ID와 새 판의 경로/의미를 보존한다. 제거된 필드 ID는 과거 조회 때문에 남고 새 판에서 자동 복구하지 않는다"
     delete_policy: "고정 내용/과거 판은 불변이며 현재 쓰기 API로 제거하지 않는다. 점유는 FEAT-021의 명시 해제 조건에서만 제거하고 편집 결과는 보존 경계를 따른다"
     pending:
-      - "@defer G3 전 — 새 current/SNP/HIST 소유 마스터와 업무 키/FK의 물리 계약 확정"
+      - "@defer G3 전 — 새 current/HIST 소유 마스터와 업무 키/FK의 물리 계약 확정"
   - id: ENT-030
     name: "API 필드 정의 값"
-    term: TRM-274
+    term: "TRM-274"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API_ID"
         physical_name: "API_ID"
@@ -72,31 +72,30 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-080
-      history: ENT-081
+      history: "ENT-081"
   - id: ENT-031
     name: "API 필드 검증 조건"
-    term: TRM-275
+    term: "TRM-275"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API_ID"
         physical_name: "API_ID"
@@ -124,31 +123,30 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-082
-      history: ENT-083
+      history: "ENT-083"
   - id: ENT-032
     name: "API 계약 참조"
-    term: TRM-276
+    term: "TRM-276"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "소유 안정 식별자"
         physical_name: "OWNER_API_ID"
@@ -192,34 +190,33 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-084
-      history: ENT-085
+      history: "ENT-085"
     ownership:
       owner_key: "OWNER_API_ID"
       parent_key: "API_ID"
   - id: ENT-033
     name: "API 값 대응"
-    term: TRM-277
+    term: "TRM-277"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API_ID"
         physical_name: "API_ID"
@@ -282,31 +279,30 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-086
-      history: ENT-087
+      history: "ENT-087"
   - id: ENT-034
     name: "API 결과 상태 대응"
-    term: TRM-278
+    term: "TRM-278"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API_ID"
         physical_name: "API_ID"
@@ -342,33 +338,32 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-088
-      history: ENT-089
+      history: "ENT-089"
   - id: ENT-035
     name: "API 도구 대응 점유"
-    term: TRM-279
+    term: "TRM-279"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-021
-      - FEAT-014
+      - "FEAT-021"
+      - "FEAT-014"
     reqs:
-      - REQ-612
-      - REQ-601
+      - "REQ-612"
+      - "REQ-601"
     attributes:
       - name: "대응 중복을 막는 안정 API"
         physical_name: "API_ID"
@@ -381,26 +376,26 @@ entities:
         physical_name: "CLAIMED_DTM"
         description: "최초 확보 시각"
     rules:
-      - "API_ID 유일키는 서로 다른 도구의 신규·변경 후보 경합도 차단한다. TOOL_ID에는 유일키를 두지 않아 현재 A와 변경 후보 B를 같은 도구가 함께 확보할 수 있다"
-      - "현재 대응·작업 중 후보·폐지된 마지막 대응의 합집합으로 점유를 유지한다. 단순 과거 판·종결된 후보는 근거가 아니다. API 변경의 실제 반영/후보 종료 뒤 모든 근거가 없어야 해제한다"
-      - "조회 시 이 점유를 현재 노출 대응으로 사용하지 않는다. 현재 적용값·내용·효력은 ENT-015/016에서 확인한다"
+      - "API_ID 유일키로 서로 다른 도구의 현재/폐지 마지막 대응을 차단한다. 관리자 요청/서버 초안을 점유 근거로 만들지 않는다."
+      - "API A→B 직접 저장은 같은 잠금 경계에서 B 유일성·현재 권한/기준본을 검증하고 현재 포인터·전체 이력/명령 결과와 함께 전환한다. A의 현재/폐지 마지막 대응 근거가 없으면 해제하며 단순 과거 이력만으로 점유하지 않는다."
+      - "점유 행은 현재 호출/노출 권한이 아니다. 실제 적용된 API/도구 계약·효력·그룹/지식 연결을 별도 검사한다."
     delete_policy: "고정 내용/과거 판은 불변이며 현재 쓰기 API로 제거하지 않는다. 점유는 FEAT-021의 명시 해제 조건에서만 제거하고 편집 결과는 보존 경계를 따른다"
     pending:
-      - "@defer G3 전 — 새 current/SNP/HIST 소유 마스터와 업무 키/FK의 물리 계약 확정"
+      - "@defer G3 전 — 새 current/HIST 소유 마스터와 업무 키/FK의 물리 계약 확정"
   - id: ENT-036
     name: "API 도구 편집 처리"
-    term: TRM-280
+    term: "TRM-280"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
-      - FEAT-021
+      - "FEAT-004"
+      - "FEAT-021"
     reqs:
-      - REQ-608
-      - REQ-612
-      - REQ-601
+      - "REQ-608"
+      - "REQ-612"
+      - "REQ-601"
     attributes:
       - name: "전체 편집 명령 UUID"
         physical_name: "COMMAND_KEY"
@@ -440,19 +435,19 @@ entities:
       - "원 성공 결과를 재생한다. 승인/전결/운영 반영 원장은 공통 세트가 소유하며 이 행으로 대신하지 않는다"
     delete_policy: "고정 내용/과거 판은 불변이며 현재 쓰기 API로 제거하지 않는다. 점유는 FEAT-021의 명시 해제 조건에서만 제거하고 편집 결과는 보존 경계를 따른다"
     pending:
-      - "@defer G3 전 — current/SNP/HIST 문맥의 참조·키·타입 물리 확정"
+      - "@defer G3 전 — current/HIST 문맥의 참조·키·타입 물리 확정"
     storage_contract: "REQ-601.management_storage. 요청 문맥은 REQUEST_NO+대상키, 적용 판 문맥은 자산ID+적용 REVISION 또는 HISTORY_NO다. 기존 판별 물리 FK는 새 저장 문맥의 물리 설계에서 대체한다."
   - id: ENT-037
     name: "API 입력 출처"
-    term: TRM-281
+    term: "TRM-281"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-004
+      - "FEAT-004"
     reqs:
-      - REQ-608
+      - "REQ-608"
     attributes:
       - name: "API_ID"
         physical_name: "API_ID"
@@ -489,32 +484,31 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-011
+      - entity: "ENT-011"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-090
-      history: ENT-091
+      history: "ENT-091"
   - id: ENT-038
     name: "도구 가이드 참조"
-    term: TRM-282
+    term: "TRM-282"
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
     features:
-      - FEAT-021
+      - "FEAT-021"
     reqs:
-      - REQ-612
-      - REQ-114
+      - "REQ-612"
+      - "REQ-114"
     attributes:
       - name: "소유 안정 식별자"
         physical_name: "OWNER_TOOL_ID"
@@ -546,20 +540,19 @@ entities:
     rules:
       - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
       - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 세트 후보 참조는 REQUEST_NO+대상 종류/안정 ID+구성 ID로 표현한다. 반영 트랜잭션에서 모든 대상의 새 적용 리비전으로 함께 확정하고 외부 참조를 자동 최신화하지 않는다."
-    delete_policy: "운영 삭제도 요청/전결 검증·전체 이력과 원자 처리한다. 요청 제출본·과거 이력은 현재 삭제로 연쇄 제거하지 않는다."
+      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     pending:
-      - "@defer G3 전 — 변경된 current/SNP/HIST 논리 모델의 타입·업무키/내부 FK·복사 스키마와 Liquibase 물리를 확정한다. 기존 판별 PK/FK 물리 초안은 철회했으며 구현된 것으로 보지 않는다."
-    description: "소유 마스터의 현재 적용 구성. 현재값은 한 세트이며 요청/과거 구성은 별도 동형 _SNP/_HIST에서 읽는다."
+      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     relations:
-      - entity: ENT-015
+      - entity: "ENT-015"
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    storage_contract: "REQ-601.management_storage. 본 테이블=현재값, 원본별 _SNP=요청 전체 구성, _HIST=성공 적용 전체 구성. 현재 업무 속성은 두 복사에 동형 보존한다. 저장·승인·반려 상태는 요청 원장 소유다."
-    audit: "원 등록/수정 감사값을 보존하고 현재/요청/이력의 작성·처리 근거를 구분한다. 정확 적용 리비전은 마스터 _HIST의 HISTORY_NO로 해석한다."
+    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
+    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     copy_mapping:
-      snapshot: ENT-092
-      history: ENT-093
+      history: "ENT-093"
     ownership:
       owner_key: "OWNER_TOOL_ID"
       parent_key: "TOOL_ID"

@@ -1,41 +1,41 @@
 # 영역: admin 공통 관리 승인·오류 접수
 features:
-  - "id": "FEAT-040"
-    "module": "admin"
-    "roadmap": "RM-P1"
-    "design_status": "draft"
-    "title": "관리 직접 저장·전체 이력 무결성 공통 처리"
-    "type": "transaction"
-    "reqs":
+  - id: FEAT-040
+    module: "admin"
+    roadmap: "RM-P1"
+    design_status: "draft"
+    title: "관리 직접 저장·전체 이력 무결성 공통 처리"
+    type: "transaction"
+    reqs:
       - "REQ-601"
-    "usecases":
+    usecases:
       - "UC-001"
       - "UC-003"
       - "UC-004"
       - "UC-005"
       - "UC-006"
-    "traces_to":
+    traces_to:
       - "ARCH-029"
-    "trigger": "admin 관리 기능이 자산·권한·그룹 전체 변경을 직접 저장할 때 내부에서 사용한다"
-    "detail": "현재 변경 권한·전체 입력·참조/기술 계약·기대 버전을 검증하고 적용값·전체 이력·리비전·원 명령 결과를 같은 성공 단위로 확정한다. 관리자 승인 단계·원장·SNP·전결 모드는 제공하지 않는다."
-    "inputs":
+    trigger: "admin 관리 기능이 자산·권한·그룹 전체 변경을 직접 저장할 때 내부에서 사용한다"
+    detail: "현재 변경 권한·전체 입력·참조/기술 계약·기대 버전을 검증하고 적용값·전체 이력·리비전·원 명령 결과를 같은 성공 단위로 확정한다. 관리자 승인 단계·원장·SNP·전결 모드는 제공하지 않는다."
+    inputs:
       - "실제 변경 대상 종류·안정 ID·기대 버전·전체 편집 구성·변경 사유·원 명령키"
       - "현재 변경 권한·참조/기술 검증 결과와 원 소유 저장/효력 계약"
-    "outputs":
+    outputs:
       - "직접 반영 현재값·결과 리비전·HISTORY_NO·행위자/시각·원 명령 결과"
       - "권한·기준본·참조 충돌 또는 실패/결과 불명 근거"
-    "rules_from":
+    rules_from:
       - "REQ-601.direct_management"
       - "REQ-601.management_storage"
       - "REQ-601.change_history"
-    "boundaries":
+    boundaries:
       - "전용 관리자 승인 UI/요청 원장/SNP를 만들지 않는다. 각 소유 관리 화면이 공통 저장 검증을 소비한다."
       - "조회/영향만 확인하는 외부 자산은 실제 변경 대상으로 선점하지 않고 명시 복합 변경은 일부만 반영하지 않는다."
       - "Portal 사용자 신청 승인·실제 실행 사용자 확인·외부 코드/배포 검수는 소유 계약을 유지한다."
-    "pending":
+    pending:
       - "@defer P3 — 현재 권한·기대 버전/부모 잠금·전체 이력·리비전·멱등 결과/불명 복구를 소유 데이터/API에 연결한다."
-    "entities": []
-    "storage_contract": "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
+    entities: []
+    storage_contract: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
   - id: FEAT-041
     module: admin
     roadmap: RM-P1

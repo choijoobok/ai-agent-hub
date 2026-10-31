@@ -25,129 +25,129 @@ usecases:
     rules_from: ["REQ-616.business_rules", "REQ-616.lifecycle", "REQ-116.business_rules", "REQ-116.empty_population"]
     pending: ["@defer P3 — CR-028의 별도 Portal 원장·admin 관리/portal 인증 계약·SSO/자체 비밀번호·등록/배정 재처리·세션/삭제/보존·활성화 경합을 설계한다. 현재 구현 완료로 간주하지 않는다"]
 
-  - "id": "UC-024"
-    "name": "대상 신원과 사용자 그룹 소속을 직접 설정한다"
-    "workstream": "admin"
-    "design_status": "draft"
-    "reqs":
+  - id: UC-024
+    name: "대상 신원과 사용자 그룹 소속을 직접 설정한다"
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
       - "REQ-609"
-    "actors":
-      "primary": "ACT-002"
-      "secondary": []
-    "process_step": "PRC-13-04"
-    "precondition": "Portal 사용자·대상/그룹의 현재 열람/변경 권한이 있다."
-    "trigger": "데이터소스/대상 시스템 아이디를 직접 설정하거나 그룹 소속을 부여/회수한다"
-    "main_flow":
+    actors:
+      primary: "ACT-002"
+      secondary: []
+    process_step: "PRC-13-04"
+    precondition: "Portal 사용자·대상/그룹의 현재 열람/변경 권한이 있다."
+    trigger: "데이터소스/대상 시스템 아이디를 직접 설정하거나 그룹 소속을 부여/회수한다"
+    main_flow:
       - "Portal 사용자와 데이터소스/대상 시스템 기준정보·현재 신원/그룹 소속을 확인한다."
       - "필요한 신원 아이디/활성·근거/사유와 그룹 소속 추가/재부여/중지를 각각 원 소유 전체 구성으로 편집한다."
       - "UC-002의 현재 권한·기대 버전·참조 검증 후 현재값과 전후 전체 이력을 직접 저장한다."
       - "마지막 활성 그룹 회수는 이용자 비활성화와 원자 처리하고 UC-006에서 결과/감사를 확인한다."
-    "alternative_flows":
-      - "id": "A1"
-        "condition": "대량 등록/동기화"
-        "flow":
+    alternative_flows:
+      - id: "A1"
+        condition: "대량 등록/동기화"
+        flow:
           - "같은 현재 권한·기대 버전·감사/회수 조건을 적용하고 다른 사용자/대상 설정을 보존한다."
-    "exception_flows":
-      - "id": "E1"
-        "condition": "현재 변경 권한·대상/아이디 근거·기준 버전 오류"
-        "flow":
+    exception_flows:
+      - id: "E1"
+        condition: "현재 변경 권한·대상/아이디 근거·기준 버전 오류"
+        flow:
           - "기존 적용본을 유지하고 입력/원 명령 결과를 확인한다."
-      - "id": "E2"
-        "condition": "과거 승인 요청/콜백"
-        "flow":
+      - id: "E2"
+        condition: "과거 승인 요청/콜백"
+        flow:
           - "읽기 전용 과거 근거로 보존하고 현재 신원/소속을 변경하지 않는다."
-    "postcondition": "직접 저장된 현재 신원/그룹 소속과 감사만 유효하다. 중지/미설정·과거 미반영 요청은 접근 권한이 아니다."
-    "rules_from":
+    postcondition: "직접 저장된 현재 신원/그룹 소속과 감사만 유효하다. 중지/미설정·과거 미반영 요청은 접근 권한이 아니다."
+    rules_from:
       - "REQ-609.identity_management"
       - "REQ-609.business_rules"
       - "REQ-601.direct_management"
-    "pending":
+    pending:
       - "@defer P3 — 신원/소속 직접 저장의 공개 계약·현재 권한/기대 버전·감사/회수/동기화 경합을 상세 설계한다."
-  - "id": "UC-025"
-    "name": "Hub 사용자 그룹의 정의와 참조를 관리한다"
-    "workstream": "admin"
-    "design_status": "draft"
-    "reqs":
+  - id: UC-025
+    name: "Hub 사용자 그룹의 정의와 참조를 관리한다"
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
       - "REQ-605"
-    "actors":
-      "primary": "ACT-002"
-      "secondary": []
-    "process_step": "PRC-13-01"
-    "precondition": "Hub 그룹 정의 관리 권한이 있다"
-    "trigger": "그룹을 생성·변경·비활성화하거나 미사용 그룹을 삭제하려 한다"
-    "main_flow":
+    actors:
+      primary: "ACT-002"
+      secondary: []
+    process_step: "PRC-13-01"
+    precondition: "Hub 그룹 정의 관리 권한이 있다"
+    trigger: "그룹을 생성·변경·비활성화하거나 미사용 그룹을 삭제하려 한다"
+    main_flow:
       - "선택 그룹의 사용자·지식/예제·카탈로그·API·도구 다섯 탭 현재 매핑/허용 후보를 확인한다."
       - "스위치·사유를 그룹/탭별 로컬 편집본으로 유지하고 상단 그룹 정의 저장과 하단 원 소유 전체 매핑 저장을 분리한다."
       - "소속은 UC-024, 자산은 UC-003의 현재 권한·기대 버전·전체 구성·이력으로 직접 저장한다."
       - "그룹 안정 참조와 현재 결과/변경 이력은 UC-006에서 확인한다."
-    "alternative_flows":
-      - "id": "A1"
-        "condition": "매핑 활성/중지"
-        "flow":
+    alternative_flows:
+      - id: "A1"
+        condition: "매핑 활성/중지"
+        flow:
           - "원 소유의 전체 구성·현재 권한·기대 버전·참조 보호/최소 그룹 조건을 검증하고 직접 저장한다. 다른 그룹/탭 구성은 보존한다."
-    "exception_flows":
-      - "id": "E1"
-        "condition": "사용 중 그룹 삭제 또는 참조 조회 실패"
-        "flow":
+    exception_flows:
+      - id: "E1"
+        condition: "사용 중 그룹 삭제 또는 참조 조회 실패"
+        flow:
           - "사용처 없음으로 처리하지 않고 참조를 안내해 삭제를 차단한다"
-      - "id": "E2"
-        "condition": "그룹 생성으로 메뉴 역할·쿼터 등급·자산 권한을 자동 부여"
-        "flow":
+      - id: "E2"
+        condition: "그룹 생성으로 메뉴 역할·쿼터 등급·자산 권한을 자동 부여"
+        flow:
           - "독립 관리 대상임을 안내하고 해당 업무의 별도 판정 경로를 유지한다"
-    "postcondition": "그룹 정의와 안정 참조가 유지되며 그룹 자체 관리가 사용자/자산 권한 부여를 대신하지 않는다"
-    "rules_from":
+    postcondition: "그룹 정의와 안정 참조가 유지되며 그룹 자체 관리가 사용자/자산 권한 부여를 대신하지 않는다"
+    rules_from:
       - "REQ-605.mapping_workbench"
       - "REQ-605.business_rules"
       - "REQ-605.lifecycle"
       - "REQ-601.business_rules"
-    "pending":
+    pending:
       - "@defer P3 — 그룹 참조/사용 상태·허용 비활성화/삭제·식별자 보호와 영향 표시를 상세화한다"
-  - "id": "UC-026"
-    "name": "자산 접근 매핑과 직접 보안 정책을 정해진 경로로 변경한다"
-    "workstream": "admin"
-    "design_status": "draft"
-    "reqs":
+  - id: UC-026
+    name: "자산 접근 매핑과 직접 보안 정책을 정해진 경로로 변경한다"
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
       - "REQ-611"
-    "actors":
-      "primary": "ACT-002"
-      "secondary":
+    actors:
+      primary: "ACT-002"
+      secondary:
         - "ACT-003"
-    "process_step": "PRC-09-03"
-    "precondition": "정책 종류별 관리 권한과 현재 대상·그룹·신원/필터 근거가 있다"
-    "trigger": "카탈로그/API 접근 매핑·열람/마스킹·행 스코프·기본 필터·필수 조회 제약를 변경한다"
-    "main_flow":
+    process_step: "PRC-09-03"
+    precondition: "정책 종류별 관리 권한과 현재 대상·그룹·신원/필터 근거가 있다"
+    trigger: "카탈로그/API 접근 매핑·열람/마스킹·행 스코프·기본 필터·필수 조회 제약를 변경한다"
+    main_flow:
       - "SCR-009에서 대상 테이블·규칙 종류를 정하고, 조회 제약이면 입력 파라미터·조건 템플릿·차이/범위 검증식과 질문 안내를 정의한다. 입력값 검증과 실제 SQL 조건 적용을 각각 검수한다"
       - "정책 종류·소유 원천·전체 현재 값과 참조·적용 영향을 확인한다"
       - "카탈로그 테이블 허용 그룹과 REQ-103.column_group_exclusions의 컬럼별 숨김/마스킹 예외와 개인정보 분류·마스킹 참조는 같은 카탈로그 전체 후보, API 허용 그룹·응답 통제는 API 전체 후보로 UC-012에 인계한다"
       - "직접 관리인 공통 마스킹 변환 정의·행 스코프·기본 필터·필수 조회 제약는 UC-002로 처리한다. 별도 관리자 승인 단계를 만들지 않는다"
       - "그룹 허용 합집합·원본/마스킹/차단 판정과 행 스코프·기본 필터·필수 조회 제약의 전체 AND 조건, 해제 가능 여부·신원 출처를 검수한다"
       - "불변 전체 스냅샷·사유·실제 적용과 기존 알림 근거를 남기고 현재 상태·정책 이력으로 확인한다"
-    "alternative_flows":
-      - "id": "A1"
-        "condition": "기본 필터의 명시적 제외 요청"
-        "flow":
+    alternative_flows:
+      - id: "A1"
+        condition: "기본 필터의 명시적 제외 요청"
+        flow:
           - "REQ-103·611의 대상·규칙/리비전·사유·요청 근거를 검사한다. 행 스코프·해제 불가 필터·필수 조회 제약은 제외로 해제하지 않는다"
-      - "id": "A2"
-        "condition": "과거 정책 복원"
-        "flow":
+      - id: "A2"
+        condition: "과거 정책 복원"
+        flow:
           - "과거 이력을 덮지 않고 현재 권한·참조를 다시 검증하는 새 변경으로 처리한다"
-    "exception_flows":
-      - "id": "E1"
-        "condition": "권한 테이블 중복으로 행/집계 증가 또는 일부 행 스코프 생략"
-        "flow":
+    exception_flows:
+      - id: "E1"
+        condition: "권한 테이블 중복으로 행/집계 증가 또는 일부 행 스코프 생략"
+        flow:
           - "정상 정책으로 반영하지 않는다. REQ-103의 모든 규칙 결합과 중복 방지 조건을 검증한다"
-      - "id": "E2"
-        "condition": "현재 신원·참조·기준 리비전·변경 이력 저장 실패"
-        "flow":
+      - id: "E2"
+        condition: "현재 신원·참조·기준 리비전·변경 이력 저장 실패"
+        flow:
           - "부분 적용이나 확인되지 않은 정책 복원을 성공으로 표시하지 않는다"
-    "postcondition": "현재 변경 권한에 따른 직접 반영과 소유 원천/전체 전후 이력을 추적한다. 과거 정책 이력은 현재 접근 권한/동의를 대체하지 않는다."
-    "rules_from":
+    postcondition: "현재 변경 권한에 따른 직접 반영과 소유 원천/전체 전후 이력을 추적한다. 과거 정책 이력은 현재 접근 권한/동의를 대체하지 않는다."
+    rules_from:
       - "REQ-611.business_rules"
       - "REQ-611.query_constraint_boundary"
       - "REQ-611.consent_policy_link"
       - "REQ-103.business_rules"
       - "REQ-608.business_rules"
-    "pending":
+    pending:
       - "@defer P3 — 정책별 원천·입력 모델·AND/합집합·제외 명세와 조건부 반영/알림의 원자성·실행 시 검증을 설계한다"
   - id: UC-027
     name: "월별 쿼터 기준을 저장하고 미래 예정 배분을 조회·재생성한다"
@@ -175,96 +175,96 @@ usecases:
     rules_from: ["REQ-116.business_rules", "REQ-116.empty_population", "REQ-116.hard_rule", "REQ-118.business_rules", "REQ-118.lifecycle", "REQ-606.business_rules"]
     pending: ["@defer P3 — 월 확정/승계·0명 첫 활성·일할/최초 정정·동시 배정의 저장 구조와 원자성, 산식 경계 시험을 설계한다"]
 
-  - "id": "UC-028"
-    "name": "승급 요청을 판정하고 미래 적용 월을 예약한다"
-    "workstream": "admin"
-    "design_status": "draft"
-    "reqs":
+  - id: UC-028
+    name: "승급 요청을 판정하고 미래 적용 월을 예약한다"
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
       - "REQ-117"
-    "actors":
-      "primary": "ACT-004"
-      "secondary":
+    actors:
+      primary: "ACT-004"
+      secondary:
         - "ACT-001"
-    "process_step": "PRC-12-02"
-    "precondition": "유효한 승급 후보/요청과 현재 처리 권한이 있다. Portal 접수 화면은 해당 작업흐름이 소유한다"
-    "trigger": "Portal 승급 신청을 승인/반려한다."
-    "main_flow":
+    process_step: "PRC-12-02"
+    precondition: "유효한 승급 후보/요청과 현재 처리 권한이 있다. Portal 접수 화면은 해당 작업흐름이 소유한다"
+    trigger: "Portal 승급 신청을 승인/반려한다."
+    main_flow:
       - "희망 등급·사유·현재 등급과 고정 제출본, 사용자당 미종결 요청을 확인한다"
       - "UC-004의 현재 처리 권한으로 판정하고 처리 결과·사유를 기록한다"
       - "승인 시점과 대상 월 시작 마감으로 미래 효력 월을 정한다. 첫 수동 예정 배분 앞뒤로 적용 월을 미루지 않고 월말 배치가 다음 달 승인 효력 등급을 사용한다"
       - "적용 예약을 확정하고 완료 결과·이력·기존 알림 계약으로 안내한다. 예약 완료를 발효일까지 미반영 상태로 두지 않는다"
-    "alternative_flows":
-      - "id": "A1"
-        "condition": "요청이 월을 넘김"
-        "flow":
+    alternative_flows:
+      - id: "A1"
+        condition: "요청이 월을 넘김"
+        flow:
           - "사용자당 미종결 1건을 유지한다. 당월 추가 토큰 신청처럼 월말 자동 만료시키지 않는다"
-      - "id": "A2"
-        "condition": "당월 토큰 부족·희망 내용 변경"
-        "flow":
+      - id: "A2"
+        condition: "당월 토큰 부족·희망 내용 변경"
+        flow:
           - "당월 부족은 UC-029, 제출본 변경은 UC-005의 취소 후 새 요청으로 연결한다"
-    "exception_flows":
-      - "id": "E1"
-        "condition": "강등 신청·중복 요청·현재 등급/기준 버전 불일치"
-        "flow":
+    exception_flows:
+      - id: "E1"
+        condition: "강등 신청·중복 요청·현재 등급/기준 버전 불일치"
+        flow:
           - "잘못된 승급으로 반영하지 않고 관리자 직접 변경 또는 보완 경로를 안내한다"
-      - "id": "E2"
-        "condition": "승인/취소 경합·전결 재전송"
-        "flow":
+      - id: "E2"
+        condition: "승인/취소 경합·전결 재전송"
+        flow:
           - "같은 요청을 중복 예약하거나 당월 한도로 소급 반영하지 않는다"
-    "postcondition": "승급 판정과 미래 적용 예약이 추적되며 당월 부족분이나 다른 사용자의 쿼터를 임의 변경하지 않는다"
-    "rules_from":
+    postcondition: "승급 판정과 미래 적용 예약이 추적되며 당월 부족분이나 다른 사용자의 쿼터를 임의 변경하지 않는다"
+    rules_from:
       - "REQ-117.business_rules"
       - "REQ-117.request_guard"
       - "REQ-117.lifecycle"
       - "REQ-117.permissions"
       - "REQ-601.request_integrity.domain_results"
-    "pending":
+    pending:
       - "@defer P3 — 승인 시 월 확정 경합·예약 고유성·취소 재요청과 권한별 처리 계약을 설계한다"
-  - "id": "UC-029"
-    "name": "당월 추가 토큰을 판정하고 중복 없이 반영한다"
-    "workstream": "admin"
-    "design_status": "draft"
-    "reqs":
+  - id: UC-029
+    name: "당월 추가 토큰을 판정하고 중복 없이 반영한다"
+    workstream: "admin"
+    design_status: "draft"
+    reqs:
       - "REQ-119"
-    "actors":
-      "primary": "ACT-004"
-      "secondary":
+    actors:
+      primary: "ACT-004"
+      secondary:
         - "ACT-001"
-    "process_step": "PRC-12-03"
-    "precondition": "당월 확정 기본 한도가 있는 이용자의 신청과 현재 처리 권한이 있다"
-    "trigger": "Portal 당월 추가 토큰 신청의 승인/반려 또는 월말 만료를 처리한다."
-    "main_flow":
+    process_step: "PRC-12-03"
+    precondition: "당월 확정 기본 한도가 있는 이용자의 신청과 현재 처리 권한이 있다"
+    trigger: "Portal 당월 추가 토큰 신청의 승인/반려 또는 월말 만료를 처리한다."
+    main_flow:
       - "사용자·대상 월·신청량·업무 사유·고정 제출본과 미종결 중복 여부를 확인한다"
       - "일반 배정·미배정 계획량·실제 사용·예외 승인 현황을 구분해 확인한다"
       - "UC-004로 신청량 이하의 승인량 또는 반려를 판정한다. 전결은 검증된 신청량을 승인량으로 기록한다"
       - "승인량을 당월 한도에 한 번만 반영하고 승인자·양·시각·사유와 결과 알림을 남긴다"
       - "월말에는 승인분과 미처리 요청을 각각 만료 처리하며 다음 달로 이월하지 않는다"
-    "alternative_flows":
-      - "id": "A1"
-        "condition": "부분 승인"
-        "flow":
+    alternative_flows:
+      - id: "A1"
+        condition: "부분 승인"
+        flow:
           - "제출본은 유지하고 승인량을 별도 결과로 기록한다. 나머지 양을 같은 요청에서 다시 승인하지 않으며 필요하면 종결 후 새로 신청한다"
-      - "id": "A2"
-        "condition": "총 풀을 넘는 예외 승인"
-        "flow":
+      - id: "A2"
+        condition: "총 풀을 넘는 예외 승인"
+        flow:
           - "총 풀을 절대 차단선으로 바꾸지 않는다. 정해진 권한과 업무 근거를 확인하고 예외 승인 내역을 분리한다"
-    "exception_flows":
-      - "id": "E1"
-        "condition": "월말 만료·취소·승인 경합 또는 중복 전송"
-        "flow":
+    exception_flows:
+      - id: "E1"
+        condition: "월말 만료·취소·승인 경합 또는 중복 전송"
+        flow:
           - "종결 요청의 중복 지급·부활을 막고 실제 상태를 확인한다"
-      - "id": "E2"
-        "condition": "사용량이 한도 초과 또는 과거 월 요청"
-        "flow":
+      - id: "E2"
+        condition: "사용량이 한도 초과 또는 과거 월 요청"
+        flow:
           - "실제 사용량을 삭제/축소하거나 과거 한도를 소급 변경하지 않는다. 새 시작/호출 재검사는 NFR-012의 원래 집행 계약에 맡긴다"
-    "postcondition": "당월 유효 한도·실제 사용량·일반/예외 승인 근거가 구분되며 동일 신청은 한 번만 반영된다"
-    "rules_from":
+    postcondition: "당월 유효 한도·실제 사용량·일반/예외 승인 근거가 구분되며 동일 신청은 한 번만 반영된다"
+    rules_from:
       - "REQ-119.business_rules"
       - "REQ-119.request_guard"
       - "REQ-119.lifecycle"
       - "REQ-119.permissions"
       - "REQ-601.request_integrity.domain_results"
-    "pending":
+    pending:
       - "@defer P3 — 월말 만료·승인/취소·부분 승인·예외 승인·중복 반영 방지와 알림의 데이터/API/시험을 설계한다"
   - id: UC-039
     name: 시작월별 쿼터 등급 기준을 관리한다
