@@ -149,10 +149,10 @@ features:
     complexity: medium
 
   - id: FEAT-510
-    module: system
-    workstream: system
-    roadmap: RM-P1
-    type: transaction
+    module: "system"
+    workstream: "system"
+    roadmap: "RM-P1"
+    type: "transaction"
     title: "관리 콘솔 공통 사용자 상태 저장"
     detail: "관리자 계정의 즐겨찾기·그리드 설정·저장 조회조건·관리 메뉴 통계를 system 공개 계약과 기존 테이블에 저장한다. Portal 계정/세션의 개인 상태를 같은 USER_ID로 연결하지 않는다"
     hard_rule: "소유자는 현재 관리자 세션 계정으로 고정한다. Portal의 계정·대화·개인 상태와 platform 테이블은 포함하지 않는다"
@@ -162,5 +162,8 @@ features:
     apis: [API-589, API-590, API-591, API-592, API-593, API-594, API-595, API-596, API-597, API-598, API-599]
     screens: [SCR-525]
     actors: [ACT-012]
-    complexity: medium
-
+    complexity: "medium"
+    configuration_warning_widget:
+      status: "CR-030 사용자 승인 설계 확장·미구현. 기존 위젯 슬롯/관리자 개인 상태 구현은 유지한다."
+      owner: "현재 경고/ID 참조의 원천은 admin FEAT-001(API-071)이다. system은 관리자 셸에서 허용된 요약/링크만 소비하며 admin DB/비밀 설정을 직접 읽지 않는다."
+      display: "SCR-525에 연결 설정 오류 위젯을 추가한다. 원인별 묶음·영향 건수/점검 범위·최초/최근 확인·해소 상태와 현재 권한으로 원 관리 목록에 이동한다. 권한 없음/장애/미지원은 0건 정상으로 표시하지 않는다."

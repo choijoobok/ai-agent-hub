@@ -1,6 +1,11 @@
 /** 정본에서 생성한 목업의 탐색·선택 시연. 서버 저장이나 권한 판정을 수행하지 않는다. */
 function applyRequestContext(root, query) {
   const params=new URLSearchParams(query), requestNo=params.get('requestNo');
+  const targetId=params.get('targetId');
+  if(targetId&&/^[a-zA-Z0-9_-]+$/.test(targetId))root.querySelectorAll('[data-master-link="시스템 식별자"]').forEach(screen=>{
+    const rows=[...screen.querySelectorAll('[data-grid-role="master"] tbody tr')],row=rows.find(row=>row.querySelector('[data-row-field="시스템 식별자"]')?.dataset.rowValue===targetId);
+    if(row){screen.dataset.masterInitial=targetId;row.click();}
+  });
   if(!requestNo||!/^[a-zA-Z0-9_-]+$/.test(requestNo))return;
   root.querySelectorAll('[data-request-number]').forEach(e=>{e.textContent=requestNo;});
   root.querySelectorAll('[data-request-navigation]').forEach(a=>{
@@ -266,6 +271,18 @@ function bindDeclaredMockup(root) {
     });
   };
   root.addEventListener('click', event => {
+    const rowAction=event.target.closest?.('[data-row-action]');
+    if(rowAction){
+      if(rowAction.disabled||rowAction.closest('tr')?.dataset.gridRowState==='D')return;
+      const doc=root.ownerDocument||root,dialog=doc.createElement('dialog');
+      dialog.className='command-dialog';dialog.setAttribute('data-row-action-dialog','');dialog.style.width='min(560px,90vw)';
+      const title=doc.createElement('h3');title.textContent=rowAction.dataset.rowAction+' — 검토용 예시';dialog.append(title);
+      const notice=doc.createElement('p');notice.textContent='정적 목업 결과입니다. 실제 접속 테스트나 외부 요청을 전송하지 않았습니다.';dialog.append(notice);
+      const list=doc.createElement('dl');
+      for(const [key,value]of Object.entries(JSON.parse(rowAction.dataset.rowActionResult||'{}'))){const term=doc.createElement('dt'),description=doc.createElement('dd');term.textContent=key;description.textContent=String(value??'확인 필요');list.append(term,description);}
+      dialog.append(list);const actions=doc.createElement('div');actions.className='row actions';const close=doc.createElement('button');close.type='button';close.className='btn ghost';close.textContent='닫기';close.setAttribute('data-close-row-action','');close.addEventListener('click',()=>dialog.close());actions.append(close);dialog.append(actions);
+      dialog.addEventListener('close',()=>dialog.remove(),{once:true});(root.body||root).append(dialog);dialog.showModal();return;
+    }
     const target = event.target;
     const cellSummary=target.closest('[data-cell-inline] > summary,[data-cell-popup] > summary,[data-cell-large-view] > summary');
     if(cellSummary)event.preventDefault();
@@ -419,16 +436,17 @@ function bindDeclaredMockup(root) {
             if(box.dataset.parentField!==cell.dataset.rowField || box.closest('[data-row-field]')===cell)return;
             const child=box.closest('[data-row-field]');
             const candidates=JSON.parse(box.dataset.candidateMap||'{}')[cell.dataset.rowValue]||[];
+            const references=JSON.parse(box.dataset.referenceMap||'{}');
             const select=box.querySelector('select');
             select.replaceChildren();
-            ['',...candidates].forEach(value=>{const option=doc.createElement('option');option.value=value;option.textContent=value||'미지정';select.append(option);});
+            ['',...candidates].forEach(label=>{const option=doc.createElement('option');option.value=String(references[label]??label);option.textContent=label||'미지정';select.append(option);});
             select.value='';
             box.querySelector('[data-combo-filter]').value='';
             box.querySelector('[data-combo-value]').textContent='현재 선택: 미지정';
             box.querySelector('[data-combo-empty]').hidden=candidates.length!==0;
             child.dataset.rowValue='';
             child.querySelector('summary').textContent='미선택 ✎';
-            child.title='모델 변경 — 지원값을 다시 선택하세요';
+            child.title='상위 값 변경 — 지원값을 다시 선택하세요';
           });
         }
       }

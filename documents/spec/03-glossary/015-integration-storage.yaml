@@ -1,11 +1,12 @@
 terms:
   - id: TRM-261
     term: "대상 시스템 허용 연결"
-    key: targetSystemConnection
-    db_token: TARGET_SYSTEM_CONN
+    key: "targetSystemConnection"
+    db_token: "TARGET_SYSTEM_CONN"
     db_token_reason: "30자 테이블 제한에 맞춰 connection을 기존 의미가 명확한 CONN으로 축약한 물리 설계 초안"
     group: "정책"
-    definition: "대상 시스템에서 선택 가능한 배포 API 연결 식별자의 집합 원소. 실제 연결 정의와 비밀을 소유하지 않는다"
+    definition: "대상 시스템에 YAML로 소속된 정확 연결 ID와 비밀 없는 기본 표시 메타/DB 보완. 기본 연결·화면 허용 집합 편집은 두지 않는다."
+    relation: "REQ-604·ADR-038. 현재 로드 정의의 안전한 표시·존재/소속과 관리자 표시 재정의를 구분하며 제거 참조는 보존·차단·경고한다."
   - id: TRM-262
     term: "데이터소스 적용 가능 그룹"
     key: dataSourceGroup

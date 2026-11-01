@@ -1,6 +1,7 @@
 /** 요건서에 명시한 상태·상세 폼을 공통 템플릿의 어휘로 렌더링한다. */
 import {snapshotView} from './snapshot-view.mjs';
 import {addChoiceFor,lookupAddDialog} from './add-choice.mjs';
+import {rowActionCell,rowNavigationCell} from './row-actions.mjs';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
@@ -25,8 +26,9 @@ function searchCombo(id, label, value, examples, locked, parent = '', mapping = 
   const references=referenceMap&&referenceMap!=='—'?JSON.parse(referenceMap):{};
   const values = [...new Set(examples.split('·').map((s) => s.trim()).filter((s) => s && s !== '—'))];
   const options = ['', ...values].map((v) => `<option value="${escape(references[v]??v)}"${v === value || references[v] === value ? ' selected' : ''}>${escape(v || '미지정')}</option>`).join('');
-  const missing = value && !values.includes(value) ? `<option value="${escape(value)}" selected disabled>${escape(value)} (지원 확인 필요)</option>` : '';
-  return `<div data-search-combo${parent ? ` data-parent-field="${escape(parent)}" data-candidate-map="${escape(mapping)}"` : ''}><input type="search" aria-label="${escape(label)} 검색" placeholder="검색어로 후보 좁히기" data-combo-filter ${locked ? 'readonly' : ''}>
+  const selected=String(references[value]??value);
+  const missing = value && !values.some(text=>String(references[text]??text)===selected) ? `<option value="${escape(value)}" selected disabled>${escape(value)} (지원 확인 필요)</option>` : '';
+  return `<div data-search-combo data-reference-map="${escape(JSON.stringify(references))}"${parent ? ` data-parent-field="${escape(parent)}" data-candidate-map="${escape(mapping)}"` : ''}><input type="search" aria-label="${escape(label)} 검색" placeholder="검색어로 후보 좁히기" data-combo-filter ${locked ? 'readonly' : ''}>
     <select id="${id}" aria-label="${escape(label)}" size="4" ${multiple?'multiple':''} data-combo-select data-edit-value data-field-name="${escape(label)}" ${locked ? 'disabled' : ''}>${options}${missing}</select>
     <div class="hint" data-combo-value>현재 선택: ${escape(value || '미지정')}</div><div class="hint" data-combo-empty hidden>일치하는 후보가 없습니다.</div></div>`;
 }
@@ -67,6 +69,7 @@ export function declaredFigures(table, plain) {
 export function declaredScreen(title, model, figure, { annotator, plain, searchControl, manualKey, compact = false }) {
   if ((figure.emptyGrids ?? []).some(name=>!model.columns.some(t=>titleOf(t)===name&&!/—\s*폼$/.test(t.heading)))) throw new Error('목업 상태의 빈 그리드 이름이 §4에 없다');
   const n = annotator(figure.key);
+  const cellActionNames=new Set(model.columns.flatMap(table=>table.rows.filter(row=>plain(cell(table,row,'입력방식'))==='버튼 액션').map(row=>plain(row[0]))));
   const interactive = model.interactive && !compact && figure.detail !== '없음';
   const supportsValueMode = scope => {
     const required = scope==='코드 값'?'INLINE':['코드 조건','코드 바인딩','조회 코드 값'].includes(scope)?'CODE':null;
@@ -193,7 +196,11 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       let content=escape(value),switchKnown=true;
       const isSnapshot=/스냅샷 뷰어/.test(mode);
       const isLargeText=/셀 위 텍스트영역/.test(mode);
-      if(switchColumn(mode)){
+      if(mode==='버튼 액션'){
+        content=rowActionCell(table,r,{...Object.fromEntries(table.rows.map(row=>[plain(row[0]),valueOf(row)])),...record,...figure.examples},{buttons:figure.buttons,disabledButtons:figure.disabledButtons,locked:['saving','unknown','conflict','denied'].includes(figure.key)});
+      }else if(mode==='화면 이동'){
+        content=rowNavigationCell(table,r,{...record,[plain(r[0])]:valueOf(r)},model);
+      }else if(switchColumn(mode)){
         if(mode==='스위치'&&editable)throw new Error('조회 결과 스위치는 읽기 전용으로 선언한다');
         switchKnown=switchState(valueOf(r))!==null;
         content=switchCell(valueOf(r),plain(r[0]),{configurable:mode!=='스위치',editable,locked:conditionLocked,description:plain(cell(table,r,'설명'))});
@@ -241,8 +248,8 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const canAdd=createDeclared&&allowedAdd&&(editableHere||table.rows.some(r=>editableNow(r,model.masterEditRule?Object.fromEntries([model.masterEditRule.split('=')]):{},true)))&&supportsValueMode(label)&&writable&&!figure.disabledButtons?.some(name=>/추가$/.test(name))&&(!addChoice||addChoice.mode==='조회 팝업'||(addChoice.state==='정상'&&addChoice.records.length>0));
     const surface=surfaceOf(model,label);
     const commandAdd=(surface?.buttons??[]).find(name=>/추가$/.test(name)&&commandDeclared(name));
-    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&name!==commandAdd);
-    const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
+    const surfaceButtons=(surface?.buttons??[]).filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&name!==commandAdd&&!cellActionNames.has(name));
+    const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&!cellActionNames.has(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
     const saveButtons=surface?.buttons??figure.buttons;
     const approvalSave=saveButtons.includes('승인 요청')&&!saveButtons.includes('저장')&&figure.buttons.includes('승인 요청');
     const actions=[...new Set([...surfaceButtons,...globalButtons])].filter(name=>name!=='승인 요청'||(figure.buttons.includes('승인 요청')&&!approvalSave)).map(name=>button(name,label)).join('');
@@ -263,6 +270,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const ro = table.readonly || !figure.editable || plain(cell(table, r, '편집')) === '읽기전용';
     const input = plain(cell(table, r, '입력방식'));
     const value = example(table, r) || '';
+    if(input==='요약 카드')return `<div class="notes" data-summary-card style="display:inline-flex;flex-direction:column;min-width:180px;margin:0 8px 8px 0"><span data-field-label="${escape(label)}">${escape(label)}${n.badge(columnExplanation(table,r),`column:${titleOf(table)}:${label}`)}</span><strong style="font-size:24px">${escape(value)}</strong></div>`;
     const fieldId = `${figure.key}-table-${model.columns.indexOf(table)}-field-${i}`;
     const control = /검색콤보/.test(input)
       ? searchCombo(fieldId, label, value, plain(cell(table, r, '후보 예시')), ro)
@@ -292,7 +300,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       : `<input aria-label="${escape(label)}" placeholder="${escape(label)}" ${locked ? 'readonly' : ''}>`;
     return `<label>${escape(label)}${n.badge(searchExplanation(model.searchTable,r),`search:${label}`)}</label>${control}`;
   }).join('');
-  const master = compact ? '' : tableView(model.columns[0],!showData);
+  const master = compact ? '' : /—\s*폼$/.test(model.columns[0]?.heading??'') ? `<div data-summary-panel>${formView(model.columns[0])}</div>` : tableView(model.columns[0],!showData);
   const tabMarkup=compact||tabNames.length<2?'':tabs();
   const panels = interactive && showData ? tabNames.map(name=>`<div data-detail-panel="${escape(name)}"${name===figure.detail?'':' hidden'}>${surfaceIntroduction(surfaceOf(model,name))}<div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detailSearch(name)}${details.filter(t=>tabOf(t)===name).map(detailTable).join('')}</div>`).join('') : compact?'':detail();
   const lower = (tabMarkup?`<div class="tabs" style="flex-wrap:wrap"${interactive?' role="tablist"':''}>${tabMarkup}</div>`:'')+panels;
@@ -304,7 +312,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
   const requestNav=!compact&&showData&&model.requestTargets&&!['unknown','denied','readonly','partial-permission'].includes(figure.stateKey??figure.key)
     ? `<div class="tb" style="flex-wrap:wrap"><span class="ttl">복합 요청 이동 예시</span><span class="hint">같은 요청번호 · 도착 시 현재 권한 재검사</span><span class="sp"></span>${model.requestTargets.map(t=>`<a class="btn ghost sm" data-request-navigation data-request-screen="${escape(t.id)}" href="${escape(t.href)}">${escape(t.label)}</a>`).join('')}</div>`:'';
   const selectedLabel = model.columns[0].rows.filter(r=>/현재 객체명|현재 업무명/.test(plain(r[0]))).map(r=>example(model.columns[0],r)).join(' / ');
-  const main = compact ? `<div class="hint">${escape(figure.detail)} · 같은 상위 행의 상세 영역</div><div class="notes" role="status">${escape(figure.notice)}</div><div data-detail-panel="${escape(figure.detail)}"><div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detail()}</div>` : `<div class="sf">${search}${search?`<button type="button" class="btn ghost sm" data-search-reset${['saving','unknown','denied'].includes(figure.key)?' disabled':''}>초기화</button>`:''}</div>${interactive&&showData&&selectedLabel?`<div class="hint">선택 테이블: ${escape(selectedLabel)}</div>`:''}
+  const main = compact ? `<div class="hint">${escape(figure.detail)} · 같은 상위 행의 상세 영역</div><div class="notes" role="status">${escape(figure.notice)}</div><div data-detail-panel="${escape(figure.detail)}"><div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detail()}</div>` : `${search?`<div class="sf">${search}<button type="button" class="btn ghost sm" data-search-reset${['saving','unknown','denied'].includes(figure.key)?' disabled':''}>초기화</button></div>`:''}${interactive&&showData&&selectedLabel?`<div class="hint">선택 테이블: ${escape(selectedLabel)}</div>`:''}
        <div class="notes" role="status">${escape(figure.notice)}</div>${requestNav}${panes}`;
   const commandTable=model.commandFields;
   const commands=[...new Set((commandTable?.rows??[]).map(r=>plain(r[0])))].map(name=>{

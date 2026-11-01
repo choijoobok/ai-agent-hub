@@ -362,29 +362,36 @@ requirements:
     maturity: {"level":"confirmed","at":"2026-10-26","by":"AI — 현재 소스 대조와 기존 회귀 검사","confirmed_by":"사용자 (2026-10-26 system 요구사항을 소스와 비교해 구현과 차이가 없으면 모두 확정 처리하도록 명시 승인)"}
 
   - id: REQ-510
-    type: functional
-    priority: should
+    type: "functional"
+    priority: "should"
     priority_reason: "공통 사용자 상태의 단일 소유는 중복 저장을 막지만 핵심 인증·인가·운영 기능이 먼저 성립할 수 있어 should로 둔다"
-    workstream: system
+    workstream: "system"
     actors: [ACT-001, ACT-012]
-    process_step: PRC-08-04
+    process_step: "PRC-08-04"
     title: "모듈 공통 사용자 상태는 system이 한 번만 소유한다"
     detail: "즐겨찾기·그리드 설정·저장 조회조건·메뉴 사용 통계처럼 관리 콘솔과 portal에서 함께 쓰는 사용자 상태는 특정 화면 모듈에 복제하지 않아야 한다"
     hard_rule: "portal 전용 대화·개인화 상태는 이 범위에 포함하지 않는다. `SYS_SEQUENCE`·`SYS_DATA_LOCK`·`SYS_JOB_PROGRESS`·Spring Session은 업무 기능이 아니라 platform 기반이다"
     acceptance: "같은 관리자 계정이 system/admin 관리 콘솔에서 접근할 때 공통 상태는 하나이며 system 공개 계약으로 읽고 쓴다. Portal 계정·세션·개인 설정은 같은 문자열 ID라도 관리자 상태와 연결하지 않는다"
     source: "현재 구현 역추적 — 공통 즐겨찾기·그리드·검색조건·메뉴 통계 저장소"
     evidence:
-      frontend: ["shared/favorite","shared/grid","shared/searchform","shared/menustat"]
-      backend: ["sources/backend/modules/system/src/main/java/com/aiagent/system/api/favorite/FavoriteController.java","sources/backend/modules/system/src/main/java/com/aiagent/system/api/gridpref/GridPrefController.java","sources/backend/modules/system/src/main/java/com/aiagent/system/api/searchcond/SearchCondController.java","sources/backend/modules/system/src/main/java/com/aiagent/system/api/menustat/MenuStatController.java","sources/backend/domain/src/main/java/com/aiagent/domain/favorite/service/FavoriteService.java","sources/backend/domain/src/main/java/com/aiagent/domain/gridpref/service/GridPrefService.java","sources/backend/domain/src/main/java/com/aiagent/domain/searchcond/service/SearchCondService.java","sources/backend/domain/src/main/java/com/aiagent/domain/menustat/service/MenuStatService.java"]
-      tables: [SYS_USER_FAVORITE, SYS_USER_GRID_PREF, SYS_USER_SEARCH_COND, SYS_USER_MENU_STAT]
+      frontend: ["shared/favorite", "shared/grid", "shared/searchform", "shared/menustat"]
+      backend: ["sources/backend/modules/system/src/main/java/com/aiagent/system/api/favorite/FavoriteController.java", "sources/backend/modules/system/src/main/java/com/aiagent/system/api/gridpref/GridPrefController.java", "sources/backend/modules/system/src/main/java/com/aiagent/system/api/searchcond/SearchCondController.java", "sources/backend/modules/system/src/main/java/com/aiagent/system/api/menustat/MenuStatController.java", "sources/backend/domain/src/main/java/com/aiagent/domain/favorite/service/FavoriteService.java", "sources/backend/domain/src/main/java/com/aiagent/domain/gridpref/service/GridPrefService.java", "sources/backend/domain/src/main/java/com/aiagent/domain/searchcond/service/SearchCondService.java", "sources/backend/domain/src/main/java/com/aiagent/domain/menustat/service/MenuStatService.java"]
+      tables: ["SYS_USER_FAVORITE", "SYS_USER_GRID_PREF", "SYS_USER_SEARCH_COND", "SYS_USER_MENU_STAT"]
       screens: ["/admin/system/dashboard"]
-    roadmap: RM-P1
+    roadmap: "RM-P1"
     summary: "모듈 공통 사용자 상태는 system이 한 번만 소유한다"
-    intent: {"problem":"화면 모듈마다 공통 사용자 상태를 복제하면 같은 사용자의 저장값과 소유권이 갈린다","goal":"공통 사용자 상태를 system 공개 계약과 기존 테이블 한 곳에서 관리한다","not":["이번 기록은 기존 구현의 대조·개별 확정이며 새 기능·권한·보존 정책을 추가하지 않는다"]}
-    goal_trace: ["IN-07"]
+    intent:
+      problem: "화면 모듈마다 공통 사용자 상태를 복제하면 같은 사용자의 저장값과 소유권이 갈린다"
+      goal: "공통 사용자 상태를 system 공개 계약과 기존 테이블 한 곳에서 관리한다"
+      not: ["이번 기록은 기존 구현의 대조·개별 확정이며 새 기능·권한·보존 정책을 추가하지 않는다"]
+    goal_trace: [IN-07]
     decider: "제품 오너(사용자)"
     preconditions: ["기존 system 작업흐름 승인과 UC-510·FEAT-510 및 해당 화면 요건을 전제로 현재 소스에 대조한다"]
-    data: [{"item":"SYS_USER_FAVORITE·SYS_USER_GRID_PREF·SYS_USER_SEARCH_COND·SYS_USER_MENU_STAT","origin":"기존 system 기능의 관리 입력과 서버 처리","sensitivity":"기존 행위별 권한과 데이터 보호 규칙 적용","retention":"기존 엔티티·화면·운영 보존 규칙을 따른다. 이번 확정으로 기간을 변경하지 않는다"}]
+    data:
+      - item: "SYS_USER_FAVORITE·SYS_USER_GRID_PREF·SYS_USER_SEARCH_COND·SYS_USER_MENU_STAT"
+        origin: "기존 system 기능의 관리 입력과 서버 처리"
+        sensitivity: "기존 행위별 권한과 데이터 보호 규칙 적용"
+        retention: "기존 엔티티·화면·운영 보존 규칙을 따른다. 이번 확정으로 기간을 변경하지 않는다"
     business_rules: ["업무 범위와 판정은 이 카드의 detail·acceptance·hard_rule 및 UC-510를 따른다"]
     exceptions: ["정상·예외 판정은 examples와 기존 UC-510·TC의 거부/실패 기준을 적용한다"]
     lifecycle: "사용자별 저장·변경·삭제와 메뉴 유효성은 UC-510의 기존 계약을 따른다"
@@ -393,13 +400,35 @@ requirements:
     volume: "현재 화면·API의 조회/처리 범위와 기존 제한을 유지한다. 새로운 용량·성능 목표를 부여하지 않는다"
     config: "기존 사용자 상태의 메뉴·그리드·조회조건 식별을 사용하고 별도 모듈별 저장소를 추가하지 않는다"
     risk: "이번 소스 대조·기존 회귀 시험 범위에서 수용 기준 차이를 발견하지 않았다. 새 실환경·다중 인스턴스 시험 완료를 뜻하지 않는다"
-    relations: {"depends_on":[],"constrains":[],"conflicts_with":[],"nfr":[],"interfaces":[]}
-    realization: {"features":["FEAT-510"],"screens":["SCR-525"]}
-    examples: [{"kind":"정상","case":"user01이 화면 영역을 바꿔 같은 메뉴의 저장 조회조건 조회","result":"세션 사용자를 기준으로 동일한 공통 저장소의 값을 읽는다"},{"kind":"예외","case":"클라이언트가 다른 사용자 ID를 지정해 공통 상태에 접근 시도","result":"요청 형식은 소유자 ID를 받지 않고 서버 세션의 사용자로 처리한다"}]
-    volatility: {"level":"low","what":"이미 구현된 system 기준선이다. 향후 업무 규칙·범위 변경은 기존 변경 절차를 따른다"}
-    source_review: {"at":"2026-10-26","result":"기존 구현과 일치 — 사용자 조건부 승인에 따라 확정","scope":"detail·hard_rule·acceptance의 현재 백엔드·프런트 구현과 기존 테스트를 대조했다","tests":["sources/backend/modules/system/src/test/java/com/aiagent/system/api/userstate/UserStateMigrationContractTest.java","sources/backend/domain/src/test/java/com/aiagent/domain/favorite/FavoriteServiceTest.java","sources/backend/domain/src/test/java/com/aiagent/domain/gridpref/GridPrefServiceTest.java","sources/backend/domain/src/test/java/com/aiagent/domain/searchcond/SearchCondServiceTest.java","sources/backend/domain/src/test/java/com/aiagent/domain/menustat/MenuStatServiceTest.java"],"findings":[]}
+    relations:
+      depends_on: []
+      constrains: []
+      conflicts_with: []
+      nfr: []
+      interfaces: []
+    realization:
+      features: [FEAT-510]
+      screens: [SCR-525]
+    examples:
+      - kind: "정상"
+        case: "user01이 화면 영역을 바꿔 같은 메뉴의 저장 조회조건 조회"
+        result: "세션 사용자를 기준으로 동일한 공통 저장소의 값을 읽는다"
+      - kind: "예외"
+        case: "클라이언트가 다른 사용자 ID를 지정해 공통 상태에 접근 시도"
+        result: "요청 형식은 소유자 ID를 받지 않고 서버 세션의 사용자로 처리한다"
+    volatility:
+      level: "low"
+      what: "이미 구현된 system 기준선이다. 향후 업무 규칙·범위 변경은 기존 변경 절차를 따른다"
+    source_review:
+      at: "2026-10-26"
+      result: "기존 구현과 일치 — 사용자 조건부 승인에 따라 확정"
+      scope: "detail·hard_rule·acceptance의 현재 백엔드·프런트 구현과 기존 테스트를 대조했다"
+      tests: ["sources/backend/modules/system/src/test/java/com/aiagent/system/api/userstate/UserStateMigrationContractTest.java", "sources/backend/domain/src/test/java/com/aiagent/domain/favorite/FavoriteServiceTest.java", "sources/backend/domain/src/test/java/com/aiagent/domain/gridpref/GridPrefServiceTest.java", "sources/backend/domain/src/test/java/com/aiagent/domain/searchcond/SearchCondServiceTest.java", "sources/backend/domain/src/test/java/com/aiagent/domain/menustat/MenuStatServiceTest.java"]
+      findings: []
     open: []
-    maturity: {"level":"confirmed","at":"2026-10-26","by":"AI — 현재 소스 대조와 기존 회귀 검사","confirmed_by":"사용자 (2026-10-26 system 요구사항을 소스와 비교해 구현과 차이가 없으면 모두 확정 처리하도록 명시 승인)"}
-
-# ── 요구사항 모순 검사 ─────────────────────────────────────────────
-# 별도 현황 문서를 만들지 않는다. 판정은 요구사항 정본의 충돌하기 쉬운 쌍 옆에서 관리한다.
+    maturity:
+      level: "confirmed"
+      at: "2026-10-26"
+      by: "AI — 현재 소스 대조와 기존 회귀 검사"
+      confirmed_by: "사용자 (2026-10-26 system 요구사항을 소스와 비교해 구현과 차이가 없으면 모두 확정 처리하도록 명시 승인)"
+    configuration_warning_widget: "2026-11-01 사용자 승인 CR-030: 현재 서버 호출 없는 SCR-525 위젯 슬롯에 admin API-071의 연결 설정 오류 요약·목록 이동을 추가 설계한다. 원천 소유/판정은 REQ-601.configuration_alerts이며 system은 공개 소비자다. 현재 소스 완료와 설계 확장을 구분하고 기존 관리자 개인 상태/권한 계약은 유지한다."

@@ -1,34 +1,139 @@
 # 첫 물리 묶음의 집합·명령 처리 — 제품 구현 전 설계 초안
 entities:
   - id: ENT-017
-    name: "대상 시스템 허용 연결"
+    name: "대상 시스템 연결 메타와 표시 보완"
     term: TRM-261
     domain: "연동 자산"
-    module: admin
-    implementation: planned
-    design_stage: physical
-    table: AI_ADMIN_TARGET_SYSTEM_CONN
-    features: ["FEAT-001"]
-    reqs: ["REQ-604"]
+    module: "admin"
+    implementation: "planned"
+    design_stage: "physical"
+    table: "AI_ADMIN_TARGET_SYSTEM_CONN"
+    features: [FEAT-001]
+    reqs: [REQ-604]
     attributes:
-      - {"name":"대상 시스템 식별자","physical_name":"TARGET_SYSTEM_ID","pk":true,"description":"허용 집합의 소유 시스템"}
-      - {"name":"배포 API 연결 식별자","physical_name":"CONNECTION_ID","pk":true,"description":"현재 로드 정의에서 선택한 비밀 없는 참조. 주소/인증/헤더 사본이 아니다"}
+      - name: "대상 시스템 식별자"
+        physical_name: "TARGET_SYSTEM_ID"
+        pk: true
+        description: "허용 집합의 소유 시스템"
+      - name: "배포 API 연결 식별자"
+        physical_name: "CONNECTION_ID"
+        pk: true
+        description: "현재 로드 정의에서 선택한 비밀 없는 참조. 주소/인증/헤더 사본이 아니다"
+      - name: "연결명 재정의"
+        physical_name: "CONNECTION_NM"
+        description: "관리자 이름 재정의; null은 YAML 기본/키"
+        origin: "서버"
+      - name: "연결 설명 재정의"
+        physical_name: "DESCRIPTION"
+        description: "관리자 설명; null은 기본, 빈 문자열은 명시 공란"
+        origin: "서버"
+      - name: "YAML 기본 연결명"
+        physical_name: "YAML_CONNECTION_NM"
+        description: "비밀 없는 기본 표시명"
+        origin: "YAML"
+      - name: "YAML 기본 연결 설명"
+        physical_name: "YAML_DESCRIPTION"
+        description: "비밀 없는 기본 설명"
+        origin: "YAML"
+      - name: "정상 확인 설정 세대"
+        physical_name: "SYNC_CONFIG_ID"
+        description: "현재 적용 세대와 소속/존재 대조"
+        origin: "서버"
+      - name: "REG_ID"
+        physical_name: "REG_ID"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
+      - name: "REG_DTM"
+        physical_name: "REG_DTM"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
+      - name: "MOD_ID"
+        physical_name: "MOD_ID"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
+      - name: "MOD_DTM"
+        physical_name: "MOD_DTM"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
+      - name: "REG_SOURCE_CD"
+        physical_name: "REG_SOURCE_CD"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
+      - name: "MOD_SOURCE_CD"
+        physical_name: "MOD_SOURCE_CD"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "서버"
     relations:
-      - {"entity":"ENT-001","cardinality":"허용 연결마다 시스템 하나","description":"부모 변경과 같은 트랜잭션으로 전체 집합 저장"}
-    rules:
-      - "연결 없는 등록 초안은 자식 0개다. 같은 시스템/연결 중복은 기본키가 거부한다"
-      - "기본 연결의 집합 소속은 ENT-001의 지연 FK로 커밋 시 검증한다. 실제 사용 중 참조 제거 보호는 FEAT-001 계약이 추가로 검사한다"
-    delete_policy: "부모의 참조 검증을 통과한 집합 교체/허용 삭제에서 같은 트랜잭션으로 제거한다. 별도 독립 삭제 기능은 없다"
+      - entity: ENT-001
+        cardinality: "허용 연결마다 시스템 하나"
+        description: "YAML 소속과 표시 보완 저장의 부모 잠금/세대를 공유한다."
+    rules: ["YAML에 선언된 시스템/연결 키만 추가/갱신한다. 기본 연결 소속 FK·화면 집합 교체는 없다.", "YAML 제거도 현재 행/참조와 표시 재정의를 보존하고 정확 현재 관측으로 불일치를 알린다.", "Base URL/인증 표시·접속 테스트는 현재 YAML 정의에서 얻으며 비밀/주소 원문을 이 테이블이나 이력에 복제하지 않는다."]
+    delete_policy: "UI/관리 API 삭제 없음. YAML 제거 행도 보존하고 현재 유효 후보에서만 제외한다."
     physical:
       attributes:
-        - {"name":"TARGET_SYSTEM_ID","type":"bigint","nullable":false,"default":null}
-        - {"name":"CONNECTION_ID","type":"character varying(100)","nullable":false,"default":null}
+        - name: "TARGET_SYSTEM_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "CONNECTION_ID"
+          type: "character varying(100)"
+          nullable: false
+          default: null
+        - name: "CONNECTION_NM"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "DESCRIPTION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "YAML_CONNECTION_NM"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "YAML_DESCRIPTION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "SYNC_CONFIG_ID"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "REG_ID"
+          type: "character varying(50)"
+          nullable: true
+          default: null
+        - name: "REG_DTM"
+          type: "timestamp with time zone"
+          nullable: false
+          default: null
+        - name: "MOD_ID"
+          type: "character varying(50)"
+          nullable: true
+          default: null
+        - name: "MOD_DTM"
+          type: "timestamp with time zone"
+          nullable: false
+          default: null
+        - name: "REG_SOURCE_CD"
+          type: "character varying(30)"
+          nullable: false
+          default: null
+        - name: "MOD_SOURCE_CD"
+          type: "character varying(30)"
+          nullable: false
+          default: null
       constraints:
-        - {"name":"PK_ADM_TARGET_SYSTEM_CONN","definition":"PRIMARY KEY (TARGET_SYSTEM_ID, CONNECTION_ID)"}
-        - {"name":"FK_ADM_CONN_TARGET","definition":"FOREIGN KEY (TARGET_SYSTEM_ID) REFERENCES AI_ADMIN_TARGET_SYSTEM (TARGET_SYSTEM_ID) DEFERRABLE INITIALLY DEFERRED"}
+        - name: "PK_ADM_TARGET_SYSTEM_CONN"
+          definition: "PRIMARY KEY (TARGET_SYSTEM_ID, CONNECTION_ID)"
+        - name: "FK_ADM_CONN_TARGET"
+          definition: "FOREIGN KEY (TARGET_SYSTEM_ID) REFERENCES AI_ADMIN_TARGET_SYSTEM (TARGET_SYSTEM_ID) DEFERRABLE INITIALLY DEFERRED"
       indexes:
-        - {"name":"IX_ADM_CONN_REFERENCE","unique":false,"method":"btree","definition":"(CONNECTION_ID, TARGET_SYSTEM_ID)"}
-
+        - name: "IX_ADM_CONN_REFERENCE"
+          unique: false
+          method: "btree"
+          definition: "(CONNECTION_ID, TARGET_SYSTEM_ID)"
+    description: "YAML 소유 연결 식별/소속과 비밀 없는 이름·설명 기본값/관리자 재정의. 현재 URL·인증 비밀 사본이 아니다."
   - id: ENT-018
     name: "데이터소스 적용 가능 그룹"
     term: TRM-262

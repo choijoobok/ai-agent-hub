@@ -2,13 +2,25 @@
 terms:
   - id: TRM-250
     term: "대상 시스템 변경 이력"
-    key: targetSystemHistory
+    key: "targetSystemHistory"
     group: "정책"
-    definition: "대상 시스템의 생성·수정·사용 상태 변경의 확정 후 전체 구성과 삭제 상태의 마지막 구성을 보존하고 실제 변경 주체·시각·사유·순서와 연결한 불변 기록"
-    relation: "REQ-601·604. 당시 허용 연결 집합·기본 연결을 포함하며 배포 연결 원본·비밀이나 현재 관측 상태를 복제하지 않는다. 대상 시스템(TRM-040)의 현재 정의와 구분한다"
+    definition: "대상 시스템/연결의 실제 비밀 없는 YAML 메타 동기화 또는 관리자 표시 보완의 전체 구성과 행위자·시각·사유를 보존한 불변 기록"
+    relation: "REQ-601·604·ADR-038. 기본 연결·UI삭제는 철회됐으며 원본 감사와 이력 기록 감사·현재 관측을 구분한다."
   - id: TRM-251
     term: "데이터소스 변경 이력"
     key: dataSourceHistory
     group: "정책"
     definition: "데이터소스의 생성·수정·참조 정정의 확정 후 전체 구성과 삭제 상태의 마지막 구성을 보존하고 실제 변경 주체·시각·사유·순서와 연결한 불변 기록"
     relation: "REQ-601·603. 당시 배포 참조·업무 메타데이터·적용 가능 그룹 집합을 포함한다. 데이터소스(TRM-041)의 현재 정의와 배포 연결 원본·실행 감사는 별개다"
+  - id: TRM-286
+    term: "연결 설정 경고"
+    key: "configurationAlert"
+    group: "운영"
+    definition: "현재 적용 설정에서 시스템/연결 누락·소속/참조 무효를 확인하고 원인과 영향 ID 관계를 묶어 관리자에게 제공하는 진단"
+    relation: "REQ-601.configuration_alerts·REQ-604·ADR-038"
+  - id: TRM-287
+    term: "연결 설정 경고 사건"
+    key: "configurationAlertEvent"
+    group: "운영"
+    definition: "원인 경고의 발생/해소·확인 불가 전이를 시각·근거와 함께 추가만 하는 운영 기록"
+    relation: "REQ-601.configuration_alerts·REQ-604·ADR-038"

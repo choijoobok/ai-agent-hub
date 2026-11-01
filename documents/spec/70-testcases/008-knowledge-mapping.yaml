@@ -209,3 +209,17 @@ testcases:
     then: "카탈로그 권한으로 API/지식의 열람·변경을 우회하지 못한다. 서버가 모든 실제 변경 대상의 현재 권한을 검사해 부족하면 전체 미반영하고 현재값·이력을 보존한다. 일반 admin 지위만으로 권한을 허용하지 않는다."
     status: "planned"
     verification: "변조 요청·권한 회수·부분 권한 거부의 후속 제품 계약/통합 시험."
+
+  - id: TC-01420
+    feature: FEAT-014
+    usecase: UC-012
+    screens: [SCR-011]
+    type: business_exception
+    title: "지식 수동 사용 중지와 자동 진단 분리"
+    actor: ACT-003
+    given: "유효 적용본·수동 OFF 지식과 수동 ON/기술 확인 불가 지식, 한 API 참조만 무효인 지식"
+    when: "수동 설정 저장·권한 잠금·기술 장애/복구와 현재/저장 정의/워크플로우의 후속 사용을 검사한다"
+    then: "OFF 지식과 매핑 설명은 후속 검색/주입에서 제외하고 ON만으로 미확인 준비 상태를 통과시키지 않는다. 개별 참조 오류를 지식 전체의 자동 OFF/업무 의미 판정으로 바꾸지 않는다. REQ-601.asset_availability를 적용한다"
+    verification: "OFF 또는 미확인 자산 사용 허용, 오류/복구의 수동 값 덮어쓰기, 현재 설정 재검사 생략, 완료 업무 소급 취소/자동 재전송을 허용하면 실패한다. 목업은 스위치/원복/잠금·진단 구분만 검증하며 실제 실행 통제는 제품 시험 후속이다"
+    screen_cases: ["documents/screen/admin/hub/knowledge/requirements.md#B011-13"]
+    status: planned

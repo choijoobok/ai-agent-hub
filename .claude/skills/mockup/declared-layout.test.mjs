@@ -266,6 +266,13 @@ test('모델별 effort 후보를 구분하고 상위 선택 누락을 거부한�
  assert.throws(()=>render(figure,invalid),/상위 선택 필드/);
 });
 
+test('부모 의존 검색콤보는 표시명과 저장 ID를 구분하고 유효한 기존 ID를 중복하지 않는다',()=>{
+ const table={heading:'API',header:['컬럼','입력방식','편집','예시','후보 예시','상위 선택','후보 매핑','후보 값 매핑'],rows:[['시스템','검색콤보','가능','101','주문·회계','—','—','{"주문":"101","회계":"102"}'],['연결','검색콤보','가능','ORDER-PUBLIC','주문 공개','시스템','{"101":["주문 공개"],"102":["회계 조회"]}','{"주문 공개":"ORDER-PUBLIC","회계 조회":"FINANCE-API"}']]};
+ const [figure]=declaredFigures(stateTable([['main','현재','없음','','조회·저장','가능','없음']]),plain);
+ const html=render(figure,{...model,columns:[table]});
+ assert.equal([...html.matchAll(/<option value="ORDER-PUBLIC"/g)].length,1);assert.match(html,/<option value="ORDER-PUBLIC" selected>/);assert.doesNotMatch(html,/지원 확인 필요/);assert.match(html,/data-reference-map=.*FINANCE-API/);
+});
+
 
 test('사용 중인 행은 제거 보호 근거를 갖고 신규 미참조 행과 구분한다',()=>{
  const fixture={...model,removeGuardField:'사용 용도',columns:[columns('모델',[['이름','텍스트','가능','','A'],['사용 용도','텍스트','읽기전용','','—']])],rowExamples:{rows:[['모델','{"이름":"A","사용 용도":"주 추론"}','—'],['모델','{"이름":"B","사용 용도":"없음"}','—']]}};

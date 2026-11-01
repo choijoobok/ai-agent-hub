@@ -21,3 +21,4 @@ spec_set:
     - 011-admin-query-policy.yaml
     - 012-admin-change-history.yaml
     - 013-admin-management-history.yaml
+    - 014-configuration-alerts.yaml

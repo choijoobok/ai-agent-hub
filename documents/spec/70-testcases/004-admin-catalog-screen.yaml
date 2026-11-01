@@ -302,3 +302,17 @@ testcases:
     verification: "각 PK 컬럼을 단일 유일키로 취급하거나 일부 복합 구성 검수·순서 중복 수락·유일 인덱스의 키 자동 승격·숨겨진 기존 키 삭제를 허용하면 실패한다. 전체 저장/복사/고정으로 키 정본이 보존돼야 한다"
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-34"]
     status: planned
+
+  - id: TC-00320
+    feature: FEAT-003
+    usecase: UC-007
+    screens: [SCR-003]
+    type: business_exception
+    title: "카탈로그 수동 사용 중지와 저장 SQL 현재 검사"
+    actor: ACT-003
+    given: "과거 정확 카탈로그 버전으로 저장된 SQL/워크플로우와 현재 수동 OFF 또는 데이터소스 확인 불가"
+    when: "수동 설정 저장·권한 잠금·기술 장애/복구와 현재/저장 정의/워크플로우의 후속 사용을 검사한다"
+    then: "현재 수동 설정/참조·권한을 재검사해 LLM/SQL 사용을 차단하며 기술 복구가 관리자 OFF를 ON으로 바꾸지 않는다. 효력/검수 상태와 수동 useYn은 독립이다"
+    verification: "OFF 또는 미확인 자산 사용 허용, 오류/복구의 수동 값 덮어쓰기, 현재 설정 재검사 생략, 완료 업무 소급 취소/자동 재전송을 허용하면 실패한다. 목업은 스위치/원복/잠금·진단 구분만 검증하며 실제 실행 통제는 제품 시험 후속이다"
+    screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-35"]
+    status: planned

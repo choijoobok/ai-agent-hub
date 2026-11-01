@@ -19,3 +19,4 @@ spec_set:
     - 008-knowledge-mapping.yaml
     - 009-monthly-token-rate.yaml
     - 010-user-group-mappings.yaml
+    - 011-target-system-availability.yaml

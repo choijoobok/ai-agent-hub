@@ -8,13 +8,9 @@ entities:
     implementation: "planned"
     design_stage: "physical"
     table: "AI_ADMIN_TARGET_SYSTEM_CONN_HIST"
-    features:
-      - FEAT-001
-      - FEAT-033
-    reqs:
-      - REQ-601
-      - REQ-604
-    description: "ADR-035·REQ-601.change_history에 따른 ENT-017의 동형 복사. 현재 원본이 아닌 같은 HISTORY_NO의 당시 값을 조회한다."
+    features: [FEAT-001, FEAT-033]
+    reqs: [REQ-601, REQ-604]
+    description: "당시 YAML 비밀 없는 메타와 관리자 표시 재정의의 동형 이력. 원본 REG/MOD 보존과 이력 기록자/시각 기본 감사 둘을 구분한다."
     attributes:
       - name: "이력 행 식별자"
         physical_name: "HIST_ID"
@@ -25,12 +21,69 @@ entities:
         description: "이력 세트 번호"
       - name: "대상 시스템 식별자"
         physical_name: "TARGET_SYSTEM_ID"
+        pk: false
         description: "허용 집합의 소유 시스템"
         origin: "ENT-017 당시 값"
       - name: "배포 API 연결 식별자"
         physical_name: "CONNECTION_ID"
+        pk: false
         description: "현재 로드 정의에서 선택한 비밀 없는 참조. 주소/인증/헤더 사본이 아니다"
         origin: "ENT-017 당시 값"
+      - name: "연결명 재정의"
+        physical_name: "CONNECTION_NM"
+        description: "관리자 이름 재정의; null은 YAML 기본/키"
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "연결 설명 재정의"
+        physical_name: "DESCRIPTION"
+        description: "관리자 설명; null은 기본, 빈 문자열은 명시 공란"
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "YAML 기본 연결명"
+        physical_name: "YAML_CONNECTION_NM"
+        description: "비밀 없는 기본 표시명"
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "YAML 기본 연결 설명"
+        physical_name: "YAML_DESCRIPTION"
+        description: "비밀 없는 기본 설명"
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "정상 확인 설정 세대"
+        physical_name: "SYNC_CONFIG_ID"
+        description: "현재 적용 세대와 소속/존재 대조"
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "REG_ID"
+        physical_name: "REG_ID"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "REG_DTM"
+        physical_name: "REG_DTM"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "MOD_ID"
+        physical_name: "MOD_ID"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "MOD_DTM"
+        physical_name: "MOD_DTM"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "REG_SOURCE_CD"
+        physical_name: "REG_SOURCE_CD"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
+      - name: "MOD_SOURCE_CD"
+        physical_name: "MOD_SOURCE_CD"
+        description: "등록/수정 감사. 주체 종류와 관리자 ID를 구분하고 서버가 기록한다."
+        origin: "ENT-017 당시 값"
+        pk: false
     relations:
       - entity: ENT-017
         cardinality: "원본 식별자를 값으로 보존"
@@ -38,14 +91,9 @@ entities:
       - entity: ENT-003
         cardinality: "같은 HISTORY_NO의 마스터 이력 하나"
         description: "원본 부모가 아니라 이력 세트 내부의 부모를 검증한다"
-    rules:
-      - "원본의 모든 허용 관리 컬럼·자료형과 REG/MOD 값을 그대로 복사한다. 비밀 및 실시간 관측은 제외한다."
-      - "HIST_ID는 각 이력 행의 PK이며 HISTORY_NO는 집합 연결 키다. 이력 저장일시는 마스터에만 있으며 HISTORY_NO와 원 부모 키로 참조한다."
-      - "현재값/세트 전체/명령 결과는 원자 저장하고 동일 명령 재전송은 원 historyNo를 재사용한다."
+    rules: ["REQ-601.change_history·REQ-604.synchronization. 당시 비밀 없는 메타와 관리자 재정의·원본 REG/MOD를 복사한다. 현재 연결 주소/비밀은 복제하지 않는다.", "기본 감사둘은 이력 기록자/시각이며 원본 감사는 당시 구성의 값으로 보존한다."]
     delete_policy: "관리 기능은 append만 허용. 보존/조사 보호 정책에 따라 세트 단위 파기하며 원본 삭제와 연쇄하지 않는다."
-    rules_from:
-      - "REQ-601.change_history"
-      - ADR-035
+    rules_from: ["REQ-601.change_history", ADR-035]
     history_copy_of: ENT-017
     physical:
       attributes:
@@ -63,6 +111,50 @@ entities:
           default: null
         - name: "CONNECTION_ID"
           type: "character varying(100)"
+          nullable: false
+          default: null
+        - name: "CONNECTION_NM"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "DESCRIPTION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "YAML_CONNECTION_NM"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "YAML_DESCRIPTION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "SYNC_CONFIG_ID"
+          type: "character varying(100)"
+          nullable: true
+          default: null
+        - name: "REG_ID"
+          type: "character varying(50)"
+          nullable: true
+          default: null
+        - name: "REG_DTM"
+          type: "timestamp with time zone"
+          nullable: false
+          default: null
+        - name: "MOD_ID"
+          type: "character varying(50)"
+          nullable: true
+          default: null
+        - name: "MOD_DTM"
+          type: "timestamp with time zone"
+          nullable: false
+          default: null
+        - name: "REG_SOURCE_CD"
+          type: "character varying(30)"
+          nullable: false
+          default: null
+        - name: "MOD_SOURCE_CD"
+          type: "character varying(30)"
           nullable: false
           default: null
       constraints:

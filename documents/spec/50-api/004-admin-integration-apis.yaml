@@ -2,10 +2,9 @@
 apis:
   - { id: API-001, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getList, action: READ, summary: "대상 시스템 목록", request: "body=SearchRequest<TargetSystemFilter>", response: "ApiResponse<PageResponse<TargetSystemRow>>" }
   - { id: API-002, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getOne, action: READ, summary: "대상 시스템 상세", request: "body=AssetDetailKey", response: "ApiResponse<TargetSystemDetail>" }
-  - { id: API-003, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getConnectionCandidates, action: READ, summary: "현재 로드 API 연결 후보", request: "body=SearchRequest<ConnectionFilter>", response: "ApiResponse<ConnectionCandidates>" }
-  - { id: API-004, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getReferences, action: READ, summary: "대상 시스템 사용처", request: "body=SearchRequest<AssetDetailKey>", response: "ApiResponse<AssetReferencePage>" }
-  - { id: API-005, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/save, action: SAVE, summary: "대상 시스템 전체 저장", request: "body=TargetSystemSave", response: "ApiResponse<AssetMutationResult>" }
-  - { id: API-006, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/delete, action: SAVE, summary: "참조 검사 후 대상 시스템 삭제", request: "body=AssetDelete", response: "ApiResponse<AssetMutationResult>" }
+  - { id: API-003, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getConnections, action: READ, summary: "대상 시스템 연결 정보와 설정 불일치", request: "body=SearchRequest<TargetConnectionFilter>", response: "ApiResponse<PageResponse<TargetConnectionRow>>" }
+  - { id: API-004, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getUsedApis, action: READ, summary: "대상 시스템 사용 API", request: "body=SearchRequest<AssetDetailKey>", response: "ApiResponse<PageResponse<TargetUsedApiRow>>" }
+  - { id: API-005, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/save, action: SAVE, summary: "대상 시스템 표시 보완 저장", request: "body=TargetSystemSave", response: "ApiResponse<AssetMutationResult>" }
   - { id: API-007, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getHistory, action: READ, summary: "대상 시스템 변경 이력 목록", request: "body=SearchRequest<TargetSystemHistoryFilter>", response: "ApiResponse<PageResponse<TargetSystemHistoryRow>>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
   - { id: API-008, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getHistoryOne, action: READ, summary: "대상 시스템 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
   - { id: API-009, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getCommandResult, action: READ, summary: "대상 시스템 저장 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
@@ -96,3 +95,22 @@ apis:
     request: "body=CodeQueryPreviewRequest"
     response: "ApiResponse<CodeQueryPreviewResult>"
     contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
+  - id: API-070
+    feature: FEAT-001
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/targetSystem/testConnection"
+    action: "EXECUTE"
+    summary: "YAML 정의 기반 연결 접속 테스트"
+    request: "body=ConnectionTestRequest"
+    response: "ApiResponse<ConnectionTestResult>"
+  - id: API-071
+    feature: FEAT-001
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/targetSystem/getConfigurationAlerts"
+    action: "READ"
+    summary: "현재 연결 설정 경고와 영향 요약"
+    request: "body=SearchRequest<ConfigurationAlertFilter>"
+    response: "ApiResponse<ConfigurationAlertPage>"
+    consumers: [FEAT-510]
