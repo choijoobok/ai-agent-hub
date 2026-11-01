@@ -173,7 +173,7 @@
 ## 4. 컬럼
 
 - 행 식별자 id와 관리 version은 내부 봉투다. 상단 API 목록이 모든 1:1 현재값을 내려주며 상세를 누르지 않아도 내보낼 열을 구성할 수 있다.
-- 감사 4컬럼은 공통 규약이다. 최종 변경 시각만 기본 표시한다. '선택 표시'는 설정에서 켤 수 있는 초기 숨김이며 영구 hidden이 아니다.
+- 감사 컬럼은 공통 규약에 따라 등록자·등록일시·수정자·수정일시를 모두 기본 표시한다. '선택 표시'는 다른 업무 컬럼의 초기 숨김이며 감사 컬럼을 숨기는 근거가 아니다.
 
 ### 4-1. 표시 · 입력 항목
 
@@ -245,8 +245,8 @@
 | 조회 정의 | MSG.ADMIN_DS_PARAMQUERY | ENT-042 소유 | paramQuery | 텍스트 | 200/좌 | — | 읽기전용 | 선택 정의/조회 원천 | 현재 소유·권한·선택 버전 검사 | — | ERP 공통코드 / 버전 4 | — | 표시 | 선택된 조회명·버전. ID를 직접 입력하지 않는다. |
 | 파라미터명 | MSG.ADMIN_DS_PARAMNAME | ENT-043 이름 | paramName | 텍스트 | 140/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 이름 유일·SQL 참조 일치·식별자 치환 금지 | — | groupCode | — | 표시 | SQL의 이름 있는 값 자리와 정확하게 대응. |
 | 자료형 | MSG.ADMIN_DS_PARAMTYPE | ENT-043 자료형 | paramType | 선택 | 140/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 현재 소유·권한·선택 버전 검사 | — | STRING | STRING·NUMBER·BOOLEAN·DATE·DATETIME | 표시 | 값 타입을 선언한다. STRING의 선행 0 보존. |
-| 필수 입력 | MSG.ADMIN_DS_PARAMREQUIRED | ENT-043 필수 여부 | paramRequired | 선택 | 100/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 현재 소유·권한·선택 버전 검사 | — | 예 | 예·아니오 | 표시 | 선택 값의 null 처리도 SQL에서 명시한다. |
-| NULL 허용 | MSG.ADMIN_DS_PARAMNULLABLE | ENT-043 NULL 정책 | paramNullable | 선택 | 100/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 허용하지 않으면 null 바인딩 거부 | — | 아니오 | 예·아니오 | 표시 | 필수 여부와 별개로 실제 null 값을 허용하는지 선언한다. |
+| 필수 입력 | MSG.ADMIN_DS_PARAMREQUIRED | ENT-043 필수 여부 | paramRequired | 설정 스위치 | 100/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 현재 소유·권한·선택 버전 검사 | — | 예 | 예·아니오 | 표시 | 선택 값의 null 처리도 SQL에서 명시한다. |
+| NULL 허용 | MSG.ADMIN_DS_PARAMNULLABLE | ENT-043 NULL 정책 | paramNullable | 설정 스위치 | 100/좌 | 행 존재 시 | 조건부 | 선택 정의/조회 원천 | 허용하지 않으면 null 바인딩 거부 | — | 아니오 | 예·아니오 | 표시 | 필수 여부와 별개로 실제 null 값을 허용하는지 선언한다. |
 | 허용값·제약 | MSG.ADMIN_DS_PARAMCONSTRAINTS | ENT-043 검증 규칙 | paramConstraints | 장문 셀 | 190/좌 | — | 조건부 | 선택 정의/조회 원천 | 허용값/길이 등 지원 규칙; 임의 SQL 금지 | — | 문자열 · 그룹코드 | — | 표시 | 길이·허용값 등 구조화 규칙. 사용여부 Y 일괄 강제 금지. |
 | 시험 값 상태 | MSG.ADMIN_DS_TESTBINDINGSTATE | 저장 안 함 | testBindingState | 선택 | 110/좌 | 시험 시 | 조건부 | 선택 정의/조회 원천 | 선언 필수/NULL 허용 정책 대조 | — | 값 | 값·NULL·미입력 | 표시 | 미입력·실제 NULL·값을 구분한다. 문자열 NULL은 값 상태에서 입력한다. |
 | 시험 바인딩 값 | MSG.ADMIN_DS_TESTBINDING | 저장 안 함 | testBinding | 텍스트 | 180/좌 | 필수값 시험 실행 시 | 조건부 | 선택 정의/조회 원천 | 시험 값 상태=값일 때만 입력; 타입·허용값·필수/NULL 확인 | — | ORDER_STATUS | — | 표시 | 검증/조회용 임시 값. 운영 컬럼 바인딩이나 SQL 기본값으로 저장하지 않는다. |

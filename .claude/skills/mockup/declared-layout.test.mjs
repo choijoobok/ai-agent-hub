@@ -384,6 +384,13 @@ test('설정 스위치는 직접 편집을 표시하되 행 조건·읽기 전�
  const unknown=render({...figure,examples:{'매핑 활성':'확인 필요'}},fixture);assert.match(unknown,/data-switch-unknown/);assert.doesNotMatch(unknown,/aria-checked="false"/);
 });
 
+test('기존 Y/N·boolean 유형도 텍스트 편집기로 돌아가지 않는다',()=>{
+ const table={heading:'기준',header:['컬럼','입력방식','편집','예시'],rows:[['사용','Y/N','가능','Y'],['확인','boolean','읽기전용','false']]};
+ const [figure]=declaredFigures(stateTable([['main','현재','없음','','조회·저장','가능','없음']]),plain);
+ const html=render(figure,{...model,columns:[table]});
+ assert.match(html,/aria-label="사용" aria-checked="true"/);assert.match(html,/aria-label="확인" aria-checked="false" disabled/);assert.doesNotMatch(html,/data-cell-editor|data-edit-value/);
+});
+
 test('그룹 정의 저장과 자산 매핑 승인 요청은 각각 자기 그리드의 저장 슬롯에만 표시한다',()=>{
  const fixture={...model,columns:[columns('그룹',[['이름','텍스트','가능','','그룹']]),columns('지식',[['매핑 활성','설정 스위치','가능','','true']])],actions:[['저장','','','','','그룹 저장'],['승인 요청','','','','','자산 승인']],surfaces:[{name:'그룹',buttons:['조회','저장'],disabled:[]},{name:'지식',buttons:['조회','승인 요청'],disabled:[]}]};
  const [figure]=declaredFigures(stateTable([['main','편집','지식','','조회·저장·승인 요청','가능','없음']]),plain);

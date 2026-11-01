@@ -320,7 +320,7 @@ DTO의 자식 필드명은 아래 표시 매핑 초안이다. 전체 CatalogComp
 | 조회 정의 | MSG.ADMIN_CATALOG_BINDINGQUERY | ENT-007 조회 참조 | bindingQuery | 텍스트 | 190/좌 | — | 읽기전용 | 선택 버전/조회 정의 | — | 현재 소유·권한·선택 버전 검사 | ERP 공통코드 / 버전 3 | — | 표시 | — | 선택된 조회명과 정확한 버전. |
 | 파라미터 | MSG.ADMIN_CATALOG_PARAMETERNAME | PARAMETER_NAME | parameterName | 텍스트 | 140/좌 | 행 존재 시 | 읽기전용 | 선택 버전/조회 정의 | — | 정의 파라미터와 1:1·중복/미정의 키 거부 | groupCode | — | 표시 | — | 정의 선택/바인딩 불러오기로 준비한다. 임의 이름 추가 금지. |
 | 자료형 | MSG.ADMIN_CATALOG_BINDINGTYPE | VALUE_TYPE | bindingType | 텍스트 | 140/좌 | — | 읽기전용 | 선택 버전/조회 정의 | — | 현재 소유·권한·선택 버전 검사 | STRING | — | 표시 | — | 선택 정의의 파라미터 자료형. 문자열의 선행 0을 보존한다. |
-| 필수 입력 | MSG.ADMIN_CATALOG_BINDINGREQUIRED | ENT-043 필수 속성 | bindingRequired | 텍스트 | 90/좌 | — | 읽기전용 | 선택 버전/조회 정의 | — | 현재 소유·권한·선택 버전 검사 | 예 | — | 표시 | — | 필수 값 누락이면 조회/운영 사용 불가. |
+| 필수 입력 | MSG.ADMIN_CATALOG_BINDINGREQUIRED | ENT-043 필수 속성 | bindingRequired | 스위치 | 90/좌 | — | 읽기전용 | 선택 버전/조회 정의 | — | 현재 소유·권한·선택 버전 검사 | 예 | — | 표시 | — | 필수 값 누락이면 조회/운영 사용 불가. |
 | 값 상태 | MSG.ADMIN_CATALOG_BINDINGSTATE | typed binding의 값/명시 null/미입력 | bindingState | 선택 | 100/좌 | 행 존재 시 | 조건부 | 선택 버전/조회 정의 | — | 필수/NULL 허용/기본값 없는 누락 규약 검사 | 값 | 값·NULL·미입력 | 표시 | — | 문자열 NULL·빈 문자열과 실제 null을 구분한다. NULL/미입력은 정의가 허용할 때만 선택한다. |
 | 바인딩 값 | MSG.ADMIN_CATALOG_BINDINGVALUE | VALUE_TEXT | bindingValue | 텍스트 | 180/좌 | 필수 파라미터 | 조건부 | 선택 버전/조회 정의 | — | 값 상태=값일 때만 편집; 선언 타입·허용값·길이·null 규약 검사 | ORDER_STATUS | — | 표시 | — | 그룹코드·언어·사용여부 등의 값. SQL/객체명 치환 금지. |
 

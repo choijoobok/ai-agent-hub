@@ -37,7 +37,7 @@ tags: [prompt, auto-completion, rules]
 | **프론트 폴더명** | 소문자 붙여쓰기 — 백엔드 애그리거트 이름과 대체로 대응 |
 | **API 파일명** | 폴더 이름 그대로 — `features/order/api/orderApi.ts` |
 | **서비스 이름** | 조회 `<기능>QueryService` · 명령 `<기능>Service` |
-| **감사 넷** | 모든 그리드에 붙는다 — 요건서에 적지 않는다 |
+| **감사 컬럼** | [공통 컬럼 표준](../../standard/frontend/grid-columns.md) §3에 따라 업무 목록에 기본 합성. 추가 전용/사용자 명시 제외는 요건서 §1에 분류 |
 | **`_DT` 컬럼** | `date` · `precision: 'day'` |
 | **`_DTM` 컬럼** | `datetime` |
 | **`_YN` 컬럼** | `ynFlag` · 편집하면 스위치 |

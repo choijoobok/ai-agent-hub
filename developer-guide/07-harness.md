@@ -121,6 +121,8 @@
 | `/mockup` | `add-choice.mjs` | `node .claude/skills/mockup/add-choice.mjs` |
 | `/mockup` | `add-choice.test.mjs` | `node .claude/skills/mockup/add-choice.test.mjs` |
 | `/mockup` | `admin-direct-management.test.mjs` | `node .claude/skills/mockup/admin-direct-management.test.mjs` |
+| `/mockup` | `column-contract.mjs` | `node .claude/skills/mockup/column-contract.mjs` |
+| `/mockup` | `column-contract.test.mjs` | `node .claude/skills/mockup/column-contract.test.mjs` |
 | `/mockup` | `declared-layout.mjs` | `node .claude/skills/mockup/declared-layout.mjs` |
 | `/mockup` | `declared-layout.test.mjs` | `node .claude/skills/mockup/declared-layout.test.mjs` |
 | `/mockup` | `generic-layout.mjs` | `node .claude/skills/mockup/generic-layout.mjs` |

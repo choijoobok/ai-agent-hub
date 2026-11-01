@@ -18,6 +18,7 @@ export function historyViewMarkdown(screen, source) {
 | 상단 그리드 | 당시 관리 데이터의 동일 컬럼 + 변경 요약 |
 | 행 선택 | 원 ID와 HISTORY_NO로 같은 시점의 하단 세트 조회 |
 | 하단 탭 | 같은 이력 번호로 복사한 당시 행만 표시 |
+| 기본 감사 컬럼 | 추가 전용 행의 등록자·등록일시 두 컬럼을 항상 표시. 원본 등록/수정 감사값은 스냅샷에 별도로 보존 |
 | 저장·실행 | 편집·추가·삭제·승인·실행·복원 동작 없음 |
 | 키 | 각 _HIST 표의 HIST_ID는 서로게이트 PK, HISTORY_NO는 세트 연결 키 |
 | 시각 | 원 REG_DTM/MOD_DTM 보존, HIST_DTM은 마스터에만 저장하고 자식은 HISTORY_NO로 참조 |

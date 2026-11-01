@@ -4,7 +4,7 @@ import {addChoiceFor,lookupAddDialog} from './add-choice.mjs';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
-import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,editableColumn} from './grid-chrome.mjs';
+import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,editableColumn,switchColumn,switchState,switchCell} from './grid-chrome.mjs';
 const controls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-controls.js', import.meta.url), 'utf8');
 const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-math.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -193,12 +193,10 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       let content=escape(value),switchKnown=true;
       const isSnapshot=/스냅샷 뷰어/.test(mode);
       const isLargeText=/셀 위 텍스트영역/.test(mode);
-      if(mode==='스위치'||mode==='설정 스위치'){
+      if(switchColumn(mode)){
         if(mode==='스위치'&&editable)throw new Error('조회 결과 스위치는 읽기 전용으로 선언한다');
-        const flag=String(valueOf(r)),on=['true','Y','1'].includes(flag);
-        switchKnown=['true','false','Y','N','1','0'].includes(flag);
-        const configurable=mode==='설정 스위치';
-        content=switchKnown?`<button type="button" role="switch" data-grid-switch${configurable?` data-config-switch data-switch-readonly="${!editable}"`:''} aria-label="${escape(plain(r[0]))}" aria-checked="${on}"${!configurable||!editable||conditionLocked?' disabled':''} title="${escape(plain(cell(table,r,'설명')))}"><span></span></button>`:'<span data-switch-unknown>확인 필요</span>';
+        switchKnown=switchState(valueOf(r))!==null;
+        content=switchCell(valueOf(r),plain(r[0]),{configurable:mode!=='스위치',editable,locked:conditionLocked,description:plain(cell(table,r,'설명'))});
       }else if(isLargeText){
         const controlId=`${gridId}-row-${rowIndex}-cell-${i}`;
         content=`<details data-cell-editor data-cell-large${editable?' data-cell-inline':' data-cell-large-view'}><summary title="${editable?'더블 클릭으로 셀 위 텍스트영역 편집':'전체 내용 보기'}">${escape(value)}</summary><textarea data-edit-value id="${controlId}" aria-label="${escape(plain(r[0]))}" rows="8" cols="60" maxlength="2000"${editable?'':' readonly'}>${escape(valueOf(r)||'')}</textarea></details>`;
@@ -222,7 +220,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         content = `<button type="button" class="btn ghost sm" data-open-tab="${escape(target)}" data-context="${escape(context)}">${escape(value)}</button>`;
       }
       if(model.requestScreen && plain(r[0])==='요청번호')content=`<span data-request-number>${content}</span>`;
-      if(rowConditional && editable && mode!=='설정 스위치')content=`<span data-locked-value${conditionLocked?'':' hidden'}>—</span>${conditionLocked?content.replace('<details data-cell-editor','<details hidden data-cell-editor'):content}`;
+      if(rowConditional && editable && !switchColumn(mode))content=`<span data-locked-value${conditionLocked?'':' hidden'}>—</span>${conditionLocked?content.replace('<details data-cell-editor','<details hidden data-cell-editor'):content}`;
       const storedValue=referenceMap&&referenceMap!=='—'?(JSON.parse(referenceMap)[valueOf(r)]??valueOf(r)):valueOf(r);
       return `<td data-grid-col="${i}" data-row-field="${escape(plain(r[0]))}" data-row-value="${escape(storedValue||'')}"${(model.calculations?.some(rule=>rule.area===label&&rule.target===plain(r[0]))||model.allocationValidity?.field===plain(r[0]))?' data-calculated-value':''}${rowConditional&&editable?` data-edit-rule="${escape(JSON.stringify(rowRules))}"`:''}${hidden(r)}${editable && !conditionLocked && switchKnown ? ' class="edit"' : ''} style="overflow:hidden;text-overflow:ellipsis" title="${isSnapshot?'전체 스냅샷 보기':escape(value)}">${content}</td>`;
     }).join('');
@@ -256,7 +254,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const addRef=addRefRow?{search:plain(addRefRow[1]),key:plain(addRefRow[2]),rate:plain(addRefRow[3]),values:JSON.parse(addRefRow[4])}:null;
     const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?standardButton('저장','save',(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장'),'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.'):'') ,actions,tools:excel+settings});
     const [contextField,contextValue]=(model.masterEditRule??'').split('=');
-    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
+    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${table.auditPolicy?` data-grid-audit="${escape(table.auditPolicy.kind)}"`:''}${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
       <div class="grid" style="overflow:auto"><table style="width:100%;table-layout:fixed;min-width:${table.rows.filter(r=>!optional(r)).reduce((n,r)=>n+width(r),systemWidth(showState,multiple,showDelete))}px"><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>
       <div class="pg">총 ${empty ? '0' : rows.length}건 · 1 페이지</div>${addChoice?lookupAddDialog(addChoice,badge):''}</div>`;
   };

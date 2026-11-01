@@ -82,7 +82,12 @@ function bindDeclaredMockup(root) {
   const setCell=(cell,value)=>{
     value=String(value??'');cell.dataset.rowValue=value;
     const toggle=cell.querySelector('[data-grid-switch]'),editor=cell.querySelector('[data-cell-editor]');
-    if(toggle)toggle.setAttribute('aria-checked',String(['true','Y','1'].includes(value)));
+    if(toggle){
+      const known=[toggle.dataset.switchOn,toggle.dataset.switchOff].includes(value);
+      toggle.hidden=!known;
+      if(known){toggle.setAttribute('aria-checked',String(value===toggle.dataset.switchOn));cell.querySelector('[data-switch-unknown]')?.remove();}
+      else {toggle.removeAttribute('aria-checked');if(!cell.querySelector('[data-switch-unknown]'))toggle.insertAdjacentHTML('afterend','<span data-switch-unknown>확인 필요</span>');}
+    }
     else if(editor){editor.querySelectorAll('[data-edit-value]').forEach(input=>input.value=value);editor.querySelector('summary').textContent=value||'—';const choice=editor.querySelector('[data-combo-value]');if(choice)choice.textContent='현재 선택: '+(value||'미지정');}
     else cell.textContent=value||'—';
   };
@@ -281,10 +286,11 @@ function bindDeclaredMockup(root) {
     const toggle=target.closest('[data-config-switch]');
     if(toggle){
       const cell=toggle.closest('[data-row-field]'),row=cell.closest('tr');
-      if(toggle.disabled||toggle.dataset.switchReadonly==='true'||row.dataset.gridRowState==='D')return;
+      if(toggle.disabled||toggle.dataset.switchReadonly==='true'||row?.dataset.gridRowState==='D')return;
       const old=cell.dataset.rowValue;
-      if(!['true','false','Y','N','1','0'].includes(old))return;
-      const on=['true','Y','1'].includes(old),pair=['Y','N'].includes(old)?['Y','N']:['1','0'].includes(old)?['1','0']:['true','false'];
+      const pair=[toggle.dataset.switchOn,toggle.dataset.switchOff];
+      if(!pair.includes(old))return;
+      const on=old===pair[0];
       cell.dataset.rowValue=pair[on?1:0];toggle.setAttribute('aria-checked',String(!on));
       refreshRowConditions(row);markEdited(row);return;
     }

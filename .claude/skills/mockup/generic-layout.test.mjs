@@ -50,3 +50,20 @@ test('기존 식별자는 잠그고 신규 행만 편집하며 미선언 행 추
  const fixed=render({...fixture,surfaces:[{...fixture.surfaces[0],buttons:['조회','저장']}]});
  assert.doesNotMatch(fixed,/data-grid-add/);
 });
+
+test('일반 그리드의 여부형은 직접 편집·조회 전용·미상을 구분한 스위치다',()=>{
+ const table={heading:'기준',header:['컬럼','입력방식','편집','예시'],rows:[['사용 여부','설정 스위치','가능','Y'],['시스템','스위치','읽기전용','N'],['확인 여부','스위치','읽기전용','확인 필요'],['처리 상태','선택','읽기전용','대기']]};
+ const fixture={...model,columns:[table],surfaces:[{name:'기준',kind:'목록',buttons:['조회','저장']}]};
+ const html=render(fixture);
+ assert.match(html,/aria-label="사용 여부" aria-checked="true"/);assert.match(html,/data-config-switch data-switch-readonly="false"/);
+ assert.match(html,/aria-label="시스템" aria-checked="false" disabled/);assert.match(html,/data-switch-unknown>확인 필요/);
+ assert.doesNotMatch(html,/data-cell-editor|type="checkbox"/);assert.match(html,/data-row-field="처리 상태"[^>]*>대기/);
+ assert.match(genericScreen('기준',fixture,{key:'readonly'},options),/data-switch-readonly="true"[^>]+aria-label="사용 여부" aria-checked="true" disabled/);
+});
+
+test('기존 Y/N 유형과 설정 폼도 같은 스위치 표현을 사용한다',()=>{
+ const table={heading:'설정',header:['컬럼','입력방식','편집','예시'],rows:[['사용','Y/N','가능','true']]};
+ const fixture={...model,columns:[table],surfaces:[{name:'설정',kind:'설정',buttons:['저장']}]};
+ const html=render(fixture);assert.match(html,/data-row-field="사용" data-row-value="true"/);assert.match(html,/role="switch"[^>]+aria-checked="true"/);assert.doesNotMatch(html,/<select|<input/);
+ assert.match(render({...fixture,columns:[{...table,readonly:true}]}),/aria-checked="true" disabled/);
+});

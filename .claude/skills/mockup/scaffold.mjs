@@ -22,6 +22,7 @@ import { declaredFigures, declaredScreen, searchComboScript } from './declared-l
 import {annotationBook, annotationIssues, surfaceRows, surfaceIntroduction, surfaceOf} from './presentation.mjs';
 import {genericScreen, areaTitle} from './generic-layout.mjs';
 import {requestDeclaration, inheritRequest} from './request-layout.mjs';
+import {withAuditColumns} from './column-contract.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../../..');
 const SCREENS = path.join(REPO, 'documents/screen');
@@ -266,6 +267,15 @@ function screenModel(md, type, allowInheritance = true) {
     if(!sourceMd)throw new Error('요청 원 화면 요건서가 없다');
     model=inheritRequest(model,screenModel(sourceMd,'마스터-디테일(상하)',false),declaration.areas,{mergeMaster:!extra});
   }
+  const auditTable=tablesIn(composition?.body??'').find(t=>t.header.some(h=>plain(h)==='데이터 성격')&&/^(영역|감사 컬럼)$/.test(plain(t.header[0])));
+  const auditNames=auditTable?.rows.map(row=>plain(row[0]))??[];
+  if(new Set(auditNames).size!==auditNames.length||auditNames.some(name=>!model.columns.some(t=>areaTitle(t)===name)))throw new Error('감사 컬럼의 영역이 중복되거나 §4에 없다');
+  model.columns=model.columns.map(table=>{
+    if(/폼|설정/.test(surfaceOf(model,areaTitle(table))?.kind??''))return table;
+    const row=auditTable?.rows.find(row=>plain(row[0])===areaTitle(table));
+    const policy=row?{kind:plain(row[1]),reason:plain(row[2])}:undefined;
+    return withAuditColumns(table,policy);
+  });
   return model;
 }
 

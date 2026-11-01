@@ -1,6 +1,14 @@
 // DataGrid 크롬의 목업 표현. 저장 계약/권한은 각 화면 정본이 갖는다.
 export const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const editableColumn = value => /가능|조건부|신규|^Y$/.test(value) && !/불가|읽기/.test(value);
+export const switchColumn = mode => /^(스위치|설정 스위치|Y\/N|ynFlag|boolean)$/.test(mode);
+const switchPairs=[['true','false'],['Y','N'],['1','0'],['예','아니오'],['사용','미사용'],['켜짐','꺼짐']];
+export const switchState = value => { const pair=switchPairs.find(p=>p.includes(String(value)));return pair?pair[0]===String(value):null; };
+export function switchCell(value,label,{configurable=false,editable=false,locked=false,description=''}={}) {
+  const state=switchState(value);
+  const pair=switchPairs.find(p=>p.includes(String(value)));
+  return state===null?'<span data-switch-unknown>확인 필요</span>':`<button type="button" role="switch" data-grid-switch data-switch-on="${esc(pair[0])}" data-switch-off="${esc(pair[1])}"${configurable?` data-config-switch data-switch-readonly="${!editable}"`:''} aria-label="${esc(label)}" aria-checked="${state}"${!configurable||!editable||locked?' disabled':''} title="${esc(description)}"><span></span></button>`;
+}
 export function chrome({title,count='',read,add='',save='',actions='',tools=''}) {
   return `<div class="tb" data-grid-toolbar style="flex-wrap:wrap;gap:6px"><span class="tb-meta"><span class="ttl">${esc(title)}</span><span class="cnt">${esc(count)}</span></span><span data-grid-actions style="margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap">${read}${add}${save}${actions}${tools}</span></div>`;
 }
