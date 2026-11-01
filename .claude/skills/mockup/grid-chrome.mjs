@@ -2,6 +2,7 @@
 export const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const editableColumn = value => /가능|조건부|신규|^Y$/.test(value) && !/불가|읽기/.test(value);
 export const switchColumn = mode => /^(스위치|설정 스위치|Y\/N|ynFlag|boolean)$/.test(mode);
+export const badgeCell = value => `<span class="tag" data-grid-badge>${esc(value)}</span>`;
 const switchPairs=[['true','false'],['Y','N'],['1','0'],['예','아니오'],['사용','미사용'],['켜짐','꺼짐']];
 export const switchState = value => { const pair=switchPairs.find(p=>p.includes(String(value)));return pair?pair[0]===String(value):null; };
 export function switchCell(value,label,{configurable=false,editable=false,locked=false,description=''}={}) {

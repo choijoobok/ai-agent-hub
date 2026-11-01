@@ -48,6 +48,21 @@ function render(figure, fixture = model) {
     },
   });
 }
+
+test('서버 진단 배지는 불일치·일치·확인 필요를 읽기 전용으로 구분하고 사용 스위치는 유지한다',()=>{
+  const [figure]=declaredFigures(stateTable([['main','기본','없음','','조회·저장','가능','없음']]),plain);
+  for(const value of ['불일치','일치','확인 필요']){
+    const fixture={...model,columns:[columns('목록',[
+      ['서버 설정 불일치','배지','읽기전용','',value],
+      ['사용 여부','설정 스위치','가능','','true'],
+    ])]};
+    const html=render(figure,fixture);
+    const diagnosis=html.match(/<td[^>]*data-row-field="서버 설정 불일치"[^>]*>([\s\S]*?)<\/td>/)?.[1];
+    assert.match(diagnosis,new RegExp(`data-grid-badge>${value}<`));
+    assert.doesNotMatch(diagnosis,/<button|data-cell-editor|role="switch"/);
+    assert.match(html,/data-config-switch/);
+  }
+});
 test('명시 상태만 생성하고 중복/잘못된 그림 키를 거부한다', () => {
   assert.equal(declaredFigures(null, plain).length, 0);
   assert.throws(() => declaredFigures(stateTable([['bad key'],['bad key']]), plain), /그림 키/);

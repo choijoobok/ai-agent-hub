@@ -5,7 +5,7 @@ import {rowActionCell,rowNavigationCell} from './row-actions.mjs';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
-import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,editableColumn,switchColumn,switchState,switchCell} from './grid-chrome.mjs';
+import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,editableColumn,switchColumn,switchState,switchCell,badgeCell} from './grid-chrome.mjs';
 const controls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-controls.js', import.meta.url), 'utf8');
 const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-math.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -200,6 +200,9 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         content=rowActionCell(table,r,{...Object.fromEntries(table.rows.map(row=>[plain(row[0]),valueOf(row)])),...record,...figure.examples},{buttons:figure.buttons,disabledButtons:figure.disabledButtons,locked:['saving','unknown','conflict','denied'].includes(figure.key)});
       }else if(mode==='화면 이동'){
         content=rowNavigationCell(table,r,{...record,[plain(r[0])]:valueOf(r)},model);
+      }else if(mode==='배지'){
+        if(editable)throw new Error('진단 배지는 읽기 전용으로 선언한다');
+        content=badgeCell(value);
       }else if(switchColumn(mode)){
         if(mode==='스위치'&&editable)throw new Error('조회 결과 스위치는 읽기 전용으로 선언한다');
         switchKnown=switchState(valueOf(r))!==null;
