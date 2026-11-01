@@ -186,7 +186,8 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       const choiceCandidates=addChoice?.mode==='기준정보 콤보'&&plain(r[0])===addChoice.key?addChoice.records.filter(v=>v['선택 가능']!==false).map(v=>({label:addChoice.columns.map(k=>String(v[k]??'')).join(' / '),key:v[addChoice.key]})):null;
       const referenceMap=choiceCandidates?JSON.stringify(Object.fromEntries(choiceCandidates.map(v=>[v.label,v.key]))):plain(cell(table,r,'후보 값 매핑'));
       const references=referenceMap&&referenceMap!=='—'?JSON.parse(referenceMap):{};
-      const value = Object.entries(references).find(([,stored])=>stored===valueOf(r))?.[0] || valueOf(r) || '—';
+      const keyOnly=plain(r[0])===addChoice?.key&&addChoice.displayFields.length>0;
+      const value = (keyOnly?valueOf(r):Object.entries(references).find(([,stored])=>stored===valueOf(r))?.[0]) || valueOf(r) || '—';
       const mode=plain(cell(table,r,'입력방식'));
       const parentField=plain(cell(table,r,'상위 선택'));
       const candidateMap=plain(cell(table,r,'후보 매핑'));
@@ -232,7 +233,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       if(model.requestScreen && plain(r[0])==='요청번호')content=`<span data-request-number>${content}</span>`;
       if(rowConditional && editable && !switchColumn(mode))content=`<span data-locked-value${conditionLocked?'':' hidden'}>—</span>${conditionLocked?content.replace('<details data-cell-editor','<details hidden data-cell-editor'):content}`;
       const storedValue=referenceMap&&referenceMap!=='—'?(JSON.parse(referenceMap)[valueOf(r)]??valueOf(r)):valueOf(r);
-      return `<td data-grid-col="${i}" data-row-field="${escape(plain(r[0]))}" data-row-value="${escape(storedValue||'')}"${(model.calculations?.some(rule=>rule.area===label&&rule.target===plain(r[0]))||model.allocationValidity?.field===plain(r[0]))?' data-calculated-value':''}${rowConditional&&editable?` data-edit-rule="${escape(JSON.stringify(rowRules))}"`:''}${hidden(r)}${editable && !conditionLocked && switchKnown ? ' class="edit"' : ''} style="overflow:hidden;text-overflow:ellipsis" title="${isSnapshot?'전체 스냅샷 보기':escape(value)}">${content}</td>`;
+      return `<td data-grid-col="${i}" data-row-field="${escape(plain(r[0]))}" data-row-value="${escape(storedValue||'')}"${keyOnly?' data-reference-key-only':''}${(model.calculations?.some(rule=>rule.area===label&&rule.target===plain(r[0]))||model.allocationValidity?.field===plain(r[0]))?' data-calculated-value':''}${rowConditional&&editable?` data-edit-rule="${escape(JSON.stringify(rowRules))}"`:''}${hidden(r)}${editable && !conditionLocked && switchKnown ? ' class="edit"' : ''} style="overflow:hidden;text-overflow:ellipsis" title="${isSnapshot?'전체 스냅샷 보기':escape(value)}">${content}</td>`;
     }).join('');
     const protection = model.removeGuardField ? String(record[model.removeGuardField]??'').trim() : '';
     const protectedRow = protection && !['—','없음','0'].includes(protection);

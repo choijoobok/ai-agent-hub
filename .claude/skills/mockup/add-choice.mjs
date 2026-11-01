@@ -7,6 +7,7 @@ export function addChoiceFor(model, area, figure) {
  const get=name=>String(row[table.header.indexOf(name)]??'').trim();
  const rule={mode:get('방식'),source:get('원천'),parent:get('상위 필드'),fixed:get('고정 필드'),key:get('선택 키'),active:get('활성 필드'),search:get('조회 조건').split('·'),columns:get('표시 컬럼').split('·'),records:JSON.parse(get('후보 예시(JSON)')),defaults:JSON.parse(get('기본값(JSON)')),state:figure.examples?.['추가 후보 상태']??'정상'};
  if(!['조회 팝업','기준정보 콤보'].includes(rule.mode)||![rule.source,rule.parent,rule.fixed,rule.key].every(Boolean)||!Array.isArray(rule.records))throw new Error('추가 방식의 원천·키·후보를 확인한다: '+area);
+ rule.displayFields=get('참조 표시').split('·').filter(value=>value&&value!=='—');
  const keys=new Set();
  for(const record of rule.records){const key=record[rule.key];if(typeof key!=='string'||!key||keys.has(key))throw new Error('추가 후보 키가 없거나 중복이다: '+area);keys.add(key);}
  return rule;

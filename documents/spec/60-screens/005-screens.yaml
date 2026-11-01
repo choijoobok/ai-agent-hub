@@ -173,7 +173,7 @@ screens:
     feature: FEAT-005
     roadmap: "RM-P1"
     agent_contact: "설정"
-    note: "REQ-616.screen_contract의 독립 Portal 계정·기간·비밀번호·감사와 하단 다섯 탭을 관리한다. 데이터소스/대상 시스템 아이디는 기준정보 후보 중 필요한 대상만 승인 없이 직접 저장하고 그룹 추가만 기존 승인 정책을 유지한다."
+    note: "REQ-616.screen_contract의 독립 Portal 계정·기간·비밀번호·감사와 하단 다섯 탭을 관리한다. 데이터소스/대상 시스템 아이디와 그룹 소속은 현재 관리 권한으로 직접 저장한다. 사용자 그룹 탭의 그룹 식별자·그룹명은 별도 컬럼이며 명칭은 기준정보 조회값이다."
     route: "/admin/hub/portal-user"
     menu_code: "HUB_PORTAL_USER"
     menu_parent: "HUB_FOUNDATION"
