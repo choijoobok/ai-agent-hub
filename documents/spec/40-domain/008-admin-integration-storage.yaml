@@ -138,33 +138,39 @@ entities:
     name: "데이터소스 적용 가능 그룹"
     term: TRM-262
     domain: "연동 자산"
-    module: admin
-    implementation: planned
-    design_stage: physical
-    table: AI_ADMIN_DATA_SOURCE_GROUP
-    features: ["FEAT-002"]
-    reqs: ["REQ-603"]
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
+    features: [FEAT-002]
+    reqs: [REQ-603]
     attributes:
-      - {"name":"데이터소스 식별자","physical_name":"DATA_SOURCE_ID","pk":true,"description":"매핑 어휘 집합의 소유 데이터소스"}
-      - {"name":"그룹 안정 식별자","physical_name":"GROUP_ID","pk":true,"description":"FEAT-006의 관리 그룹 참조. 현재 BIGINT 설계는 소유 영역과 물리 계약 대조가 필요하다"}
+      - name: "데이터소스 식별자"
+        physical_name: "DATA_SOURCE_ID"
+        pk: true
+        description: "매핑 어휘 집합의 소유 데이터소스"
+      - name: "그룹 안정 식별자"
+        physical_name: "GROUP_ID"
+        pk: true
+        description: "FEAT-006의 관리 그룹 참조. 현재 BIGINT 설계는 소유 영역과 물리 계약 대조가 필요하다"
+      - name: "REG_ID"
+        physical_name: "REG_ID"
+        description: "최초 등록 주체"
+      - name: "REG_DTM"
+        physical_name: "REG_DTM"
+        description: "최초 등록 시각"
+      - name: "MOD_ID"
+        physical_name: "MOD_ID"
+        description: "최종 변경 주체"
+      - name: "MOD_DTM"
+        physical_name: "MOD_DTM"
+        description: "최종 변경 시각"
     relations:
-      - {"entity":"ENT-002","cardinality":"그룹 매핑마다 데이터소스 하나","description":"집합 교체와 참조 보호를 부모 변경에 포함한다"}
-    rules:
-      - "적용 가능 그룹 집합은 추가 런타임 권한 게이트가 아니다"
-      - "하위 테이블/컬럼 매핑에 쓰는 그룹 제거는 차단하며 그룹 조회 실패를 미사용으로 보지 않는다"
+      - entity: ENT-002
+        cardinality: "그룹 매핑마다 데이터소스 하나"
+        description: "집합 교체와 참조 보호를 부모 변경에 포함한다"
+    rules: ["접근 가능 사용자 그룹의 안정 매핑. 하위 카탈로그/컬럼 허용 매핑 어휘이며 별도 DB 전체 접근권 부여가 아니다. 사용 중인 하위 매핑이 남은 축소는 거부한다.", "ENT-002 메타·가이드와 같은 전체 저장/이력 세트다."]
     delete_policy: "부모의 그룹 매핑 참조 검증 후 같은 트랜잭션으로 제거한다. 참조 중이거나 검증 불가면 삭제하지 않는다"
-    pending:
-      - "@defer P3 access_policy — 그룹 엔티티의 식별 타입·물리 FK 및 그룹 삭제/하위 매핑 쓰기의 동일 잠금 계약을 확정한다. 가짜 그룹 테이블을 참조하지 않는다"
-    physical:
-      attributes:
-        - {"name":"DATA_SOURCE_ID","type":"bigint","nullable":false,"default":null}
-        - {"name":"GROUP_ID","type":"bigint","nullable":false,"default":null}
-      constraints:
-        - {"name":"PK_ADM_DATA_SOURCE_GROUP","definition":"PRIMARY KEY (DATA_SOURCE_ID, GROUP_ID)"}
-        - {"name":"FK_ADM_GROUP_SOURCE","definition":"FOREIGN KEY (DATA_SOURCE_ID) REFERENCES AI_ADMIN_DATA_SOURCE (DATA_SOURCE_ID)"}
-      indexes:
-        - {"name":"IX_ADM_GROUP_REFERENCE","unique":false,"method":"btree","definition":"(GROUP_ID, DATA_SOURCE_ID)"}
-
+    pending: "@defer G3 이전 — 승인된 YAML 원천/수동 필드·감사·키/참조의 물리 컬럼·제약/인덱스·기동 동기화 경합을 확정한다. 기존 미구현 물리 초안의 연결 정정/별칭 키 설계를 그대로 적재하지 않는다."
   - id: ENT-019
     name: "연동 자산 변경 처리"
     term: TRM-263

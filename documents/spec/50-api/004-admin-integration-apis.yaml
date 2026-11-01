@@ -10,91 +10,38 @@ apis:
   - { id: API-009, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getCommandResult, action: READ, summary: "대상 시스템 저장 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
   - { id: API-010, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getList, action: READ, summary: "데이터소스 목록", request: "body=SearchRequest<DataSourceFilter>", response: "ApiResponse<PageResponse<DataSourceRow>>" }
   - { id: API-011, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getOne, action: READ, summary: "데이터소스 상세", request: "body=AssetDetailKey", response: "ApiResponse<DataSourceDetail>" }
-  - { id: API-012, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getConnectionCandidates, action: READ, summary: "현재 로드 DB 연결·파서 후보", request: "body=SearchRequest<ConnectionFilter>", response: "ApiResponse<ConnectionCandidates>" }
-  - { id: API-013, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getReferences, action: READ, summary: "데이터소스 사용처", request: "body=SearchRequest<AssetDetailKey>", response: "ApiResponse<AssetReferencePage>" }
-  - { id: API-014, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/save, action: SAVE, summary: "데이터소스 전체 저장·참조 정정", request: "body=DataSourceSave", response: "ApiResponse<AssetMutationResult>" }
-  - { id: API-015, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/delete, action: SAVE, summary: "참조 검사 후 데이터소스 삭제", request: "body=AssetDelete", response: "ApiResponse<AssetMutationResult>" }
+  - id: API-012
+    feature: FEAT-002
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/dataSource/getConnectionCandidates"
+    action: "READ"
+    summary: "현재 YAML 데이터소스 정확 연결/DBMS 진단"
+    request: "body=SearchRequest<ConnectionFilter>"
+    response: "ApiResponse<ConnectionCandidates>"
+  - id: API-013
+    feature: FEAT-002
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/dataSource/getReferences"
+    action: "READ"
+    summary: "데이터소스 사용 카탈로그 및 허용 사용처 조회"
+    request: "body=SearchRequest<AssetDetailKey>"
+    response: "ApiResponse<AssetReferencePage>"
+  - id: API-014
+    feature: FEAT-002
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/dataSource/save"
+    action: "SAVE"
+    summary: "기존 데이터소스 수동 메타·그룹·가이드 전체 저장"
+    request: "body=DataSourceSave"
+    response: "ApiResponse<AssetMutationResult>"
   - { id: API-016, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getHistory, action: READ, summary: "데이터소스 변경 이력 목록", request: "body=SearchRequest<DataSourceHistoryFilter>", response: "ApiResponse<PageResponse<DataSourceHistoryRow>>", history_menu: HUB_DATA_SOURCE_HISTORY }
   - { id: API-017, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getHistoryOne, action: READ, summary: "데이터소스 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_DATA_SOURCE_HISTORY }
   - { id: API-018, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getCommandResult, action: READ, summary: "데이터소스 저장 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
   - { id: API-062, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getTimezoneList, action: READ, summary: "데이터소스 시간대 선택 후보", request: "body={}", response: "ApiResponse<List<String>>", contract: "FEAT-002.timezone_contract. HUB_DATA_SOURCE READ로 조회하며 support.time.Timezones.candidates(calendar.zone())를 재사용한다. 배치 스케줄 메뉴 권한을 요구하지 않는다" }
 
-  - id: API-063
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/getList"
-    action: "READ"
-    summary: "데이터소스 코드 조회 정의 목록"
-    request: "body=SearchRequest<CodeQueryFilter>"
-    response: "ApiResponse<PageResponse<CodeQueryRow>>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-064
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/getRevisions"
-    action: "READ"
-    summary: "코드 조회 정확 버전/파라미터 열람"
-    request: "body=CodeQueryRevisionKey"
-    response: "ApiResponse<CodeQueryRevisionDetail>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-065
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/saveDraft"
-    action: "SAVE"
-    summary: "코드 조회 초안 저장/새 버전 복사"
-    request: "body=CodeQueryDraftSave"
-    response: "ApiResponse<CodeQueryCommandResult>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-066
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/verify"
-    action: "VERIFY"
-    summary: "코드 조회 버전 검수"
-    request: "body=CodeQueryReviewCommand"
-    response: "ApiResponse<CodeQueryCommandResult>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-067
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/activate"
-    action: "ACTIVATE"
-    summary: "검수된 코드 조회 버전 활성화"
-    request: "body=CodeQueryStateCommand"
-    response: "ApiResponse<CodeQueryCommandResult>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-068
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/deactivate"
-    action: "ACTIVATE"
-    summary: "코드 조회 버전 비활성화"
-    request: "body=CodeQueryStateCommand"
-    response: "ApiResponse<CodeQueryCommandResult>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
-
-  - id: API-069
-    feature: "FEAT-002"
-    implementation: "planned"
-    method: "POST"
-    path: "/api/service/admin/codeQuery/preview"
-    action: "EXECUTE"
-    summary: "코드 조회 결과 미리보기"
-    request: "body=CodeQueryPreviewRequest"
-    response: "ApiResponse<CodeQueryPreviewResult>"
-    contract: "FEAT-002.code_lookup_contract. VERIFY/ACTIVATE/EXECUTE는 설계상 구분이며 실제 권한 액션 키는 후속 확정 전 배포/실행하지 않는다"
   - id: API-070
     feature: FEAT-001
     implementation: "planned"
@@ -108,9 +55,19 @@ apis:
     feature: FEAT-001
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/targetSystem/getConfigurationAlerts"
+    path: "/api/service/admin/integration/getConfigurationAlerts"
     action: "READ"
     summary: "현재 연결 설정 경고와 영향 요약"
     request: "body=SearchRequest<ConfigurationAlertFilter>"
     response: "ApiResponse<ConfigurationAlertPage>"
     consumers: [FEAT-510]
+  - id: API-072
+    feature: FEAT-002
+    implementation: "planned"
+    method: "POST"
+    path: "/api/service/admin/dataSource/getQueryGuides"
+    action: "READ"
+    summary: "현재 데이터소스 데이터 조회 가이드 목록"
+    request: "body=SearchRequest<DataQueryGuideFilter>"
+    response: "ApiResponse<PageResponse<DataQueryGuideRow>>"
+    contract: "admin 화면 READ 조회. agent는 FEAT-002.query_guide_read_contract의 현재 Portal 권한을 검사하는 별도 내부 공개 계약을 사용하며 이 관리자 REST를 직접 사용하지 않는다."

@@ -32,10 +32,7 @@ screens:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
   - id: SCR-002
-    code_lookup: "REQ-603.code_lookup_definition. 코드 조회 정의/조회 파라미터/코드 조회 결과 탭에 각 그리드 하나를 둔다. 정의 목록·정확 버전·DRAFT 저장/복사·검수/활성/비활성과 제한 미리보기는 데이터소스 상단/그룹 저장과 별도다. 시험값은 일시 입력이며 결과 조회는 서버 실행 권한/통제 검사 후 수행한다"
-    features:
-      - FEAT-002
-      - FEAT-003
+    features: [FEAT-002, FEAT-003]
     comparison: "REQ-304.batch_structure_comparison. 선택 데이터소스의 등록 객체 일괄 비교 버튼과 컬럼 불일치·인덱스 불일치 탭별 단일 그리드를 제공한다. 성공 확인된 해소만 현재 목록에서 제거하며 실패·부분 비교/오래된 결과로 삭제하지 않는다"
     dbms_fields: "상단 그리드에서 DBMS 공통코드와 DBMS 버전 문자열을 관리한다. 연결 관측 제안/불일치와 관리값을 구분하고 이력에 당시 값을 표시한다. 상세는 target_doc·REQ-603.dbms_context를 따른다"
     type: "list_detail"
@@ -44,7 +41,7 @@ screens:
     menu_code: "HUB_DATA_SOURCE"
     menu_parent: "HUB_INTEGRATION"
     target_doc: "documents/screen/admin/hub/data-source/requirements.md"
-    layout: "상단 1:1 현재값 편집 그리드·하단 소유 관리/관측·사용처 탭. 변경 이력은 별도 SCR-041에서 원 화면을 읽기 전용 상속한다. 관측/실행 결과는 관리 이력 복사에서 제외한다."
+    layout: "상단 YAML 식별자/별칭/DBMS readonly와 수동 업무 메타·서버 불일치 배지, 가운데 스플리터, 하단 접근 가능 사용자 그룹·사용 스키마 카탈로그·컬럼 불일치·인덱스 불일치·데이터 조회 가이드 정확히5탭."
     export: true
     access: "HUB_DATA_SOURCE READ, 직접 변경은 SAVE 추가 검사. 그룹 집합은 하위 매핑 어휘이며 사용자 접근 게이트 아님"
     empty_state: "목록 없음·파서/시간대 미지정·연결 MISSING/UNAVAILABLE를 구분"
@@ -55,8 +52,7 @@ screens:
     group: "연동 관리"
     title: "데이터소스"
     feature: FEAT-002
-    usecases:
-      - UC-016
+    usecases: [UC-016]
     roadmap: "RM-P1"
     agent_contact: "설정"
     history_view: SCR-041
@@ -66,9 +62,10 @@ screens:
     history_policy:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
+    note: "REQ-603.yaml_authority·data_query_guides. Hub spring.datasource 제외, app.external-datasources 기동 동기화. UI 마스터 신규/삭제/연결 정정과 옛 코드 정의/파라미터/결과 탭 없음. 가이드 여러 제목/상세+감사4개, 같은 DS 전체 저장/이력."
   - id: SCR-003
     object_type: "OBJECT_TYPE의 TABLE/VIEW를 상단 목록과 조건·신규/정의에서 테이블/뷰로 표시한다. 유형은 필수이며 수동 지정/원천 관측 상태를 구분한다"
-    code_workspace: "REQ-301.value_domain.workspace. 기존 공통코드 테이블 설정/코드 조건 대신 코드 조회 설정 창·코드 바인딩 탭·조회 코드 값 탭을 제공한다. 직접 코드 값은 INLINE만 편집한다. 조회 정의 선택/버전·typed 바인딩은 전체 후보 저장, 조회 결과는 현재 미리보기이며 후보 값으로 자동 고정하지 않는다"
+    code_workspace: "REQ-301.value_domain.workspace. INLINE 직접 코드값 관리와 CODE 원천확인 필요 표시를 유지한다. 옛 코드 조회 정의/정확 버전 선택·코드 바인딩·조회 결과 탭은 제거하고 데이터소스의 범용 데이터 조회 가이드를 소비한다."
     simplified_tabs: "키 구성·원천 구조·샘플 조회 탭 제거. PK 여부/순서는 컬럼 정의, 유일키는 기존 인덱스 탭의 종류로 구분. 비교는 SCR-002 인계"
     evidence_targets: "근거 대상 탭은 변경 근거에서 선택한 기록의 관련 테이블·업무명·근거 내용·관측/전후/후보 역할·버전 번호/상태를 보여준다. 내부 ID는 기본 숨김이다. 원천은 API-032의 EvidenceTargetView와 target_doc이며 영향 확정/조치 완료나 과거 버전 복사 출처로 해석하지 않는다"
     datatype_and_group_fields: "원천 자료형은 REQ-301.source_type_catalog의 DBMS별 공통코드 검색콤보이며 버전으로 목록을 나누지 않는다. 컬럼 그룹 예외는 REQ-103.column_group_exclusions의 컬럼·제외 그룹·사유·등록자·등록일시 다섯 열로 표시한다"
@@ -92,18 +89,14 @@ screens:
     group: "연동 관리"
     title: "스키마 카탈로그"
     feature: FEAT-003
-    features:
-      - "FEAT-003"
-    usecases:
-      - "UC-007"
-      - "UC-014"
-      - "UC-026"
+    features: [FEAT-003]
+    usecases: [UC-007, UC-014, UC-026]
     privacy_workspace: "REQ-111.privacy_metadata.column_workspace. 별도 개인정보 탭/메뉴 없이 컬럼 정의에서 개인·민감정보 여부·마스킹 옵션을 편집하고 그룹 예외 탭에서 숨김/MASK를 선택한다. FK 요약 컬럼은 제거한다"
     metadata_scope: "REQ-301.column_metadata·value_domain·relationship_metadata와 REQ-111.privacy_metadata를 참조해 컬럼의 구조/의미·코드 출처·관계·개인정보 기준과 미완성/검수 상태를 확인한다. 정책 편집 권한과 원천은 REQ-103·611을 유지하고 필드·배치·목업은 P3에서 정한다"
     roadmap: "RM-P1"
     agent_contact: "설정"
     note: "공개 테이블/뷰의 현재 메타데이터·업무 의미·컬럼/그룹/기술 근거를 전체 구성으로 직접 저장한다. 업무 DB 전체 수집이 아니며 agent는 검증된 유효 적용본을 소비한다."
-    history_view: "SCR-042"
+    history_view: SCR-042
     applied_only: true
     management_boundary: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
     screen_role: "management"

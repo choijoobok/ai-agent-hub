@@ -7,7 +7,7 @@ conventions:
   business_domains:
     - name: "연동 자산"
       responsibility: "업무 API의 제공 주체와 DB/DW 조회 연결 단위의 관리 정의·배포 참조, 공개 카탈로그의 내용/변경 근거, 업무 API·등록 도구의 안정 식별·내용 리비전·입출력/코드명·검수/노출 구성을 소유한다. 지식별 사용 설명·현재 정책·배포 구현 및 실제 실행은 소유 기능의 계약으로 연결한다"
-      terms: [TRM-040, TRM-041, TRM-199, TRM-223, TRM-233, TRM-247, TRM-250, TRM-251, TRM-252, TRM-253, TRM-254, TRM-255, TRM-256, TRM-257, TRM-258, TRM-259, TRM-260, TRM-261, TRM-262, TRM-263, TRM-264, TRM-265, TRM-266, TRM-267, TRM-268, TRM-269, TRM-270, TRM-271, TRM-272, TRM-273, TRM-274, TRM-275, TRM-276, TRM-277, TRM-278, TRM-279, TRM-280, TRM-281, TRM-282]
+      terms: [TRM-040, TRM-041, TRM-199, TRM-223, TRM-233, TRM-247, TRM-250, TRM-251, TRM-252, TRM-253, TRM-254, TRM-255, TRM-256, TRM-257, TRM-258, TRM-259, TRM-260, TRM-261, TRM-262, TRM-263, TRM-264, TRM-265, TRM-266, TRM-267, TRM-269, TRM-270, TRM-271, TRM-272, TRM-273, TRM-274, TRM-275, TRM-276, TRM-277, TRM-278, TRM-279, TRM-280, TRM-281, TRM-282, TRM-288, TRM-289]
       boundary: "대상 시스템과 데이터소스는 서로 귀속 관계가 없는 별도 개념이다. 배포 연결 정의·비밀은 이 영역의 DB 모델에 복제하지 않는다. 업무 영역 이름은 메뉴 대분류나 물리 접두어를 확정하는 코드가 아니다"
   liquibase:
     root: sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml

@@ -6,6 +6,11 @@ function applyRequestContext(root, query) {
     const rows=[...screen.querySelectorAll('[data-grid-role="master"] tbody tr')],row=rows.find(row=>row.querySelector('[data-row-field="시스템 식별자"]')?.dataset.rowValue===targetId);
     if(row){screen.dataset.masterInitial=targetId;row.click();}
   });
+  const dataSourceKey=params.get('dataSourceKey');
+  if(dataSourceKey&&/^[a-zA-Z0-9_-]+$/.test(dataSourceKey))root.querySelectorAll('[data-master-link="데이터소스 키"]').forEach(screen=>{
+    const row=[...screen.querySelectorAll('[data-grid-role="master"] tbody tr')].find(row=>row.querySelector('[data-row-field="데이터소스 키"]')?.dataset.rowValue===dataSourceKey);
+    if(row){screen.dataset.masterInitial=dataSourceKey;row.click();}
+  });
   if(!requestNo||!/^[a-zA-Z0-9_-]+$/.test(requestNo))return;
   root.querySelectorAll('[data-request-number]').forEach(e=>{e.textContent=requestNo;});
   root.querySelectorAll('[data-request-navigation]').forEach(a=>{

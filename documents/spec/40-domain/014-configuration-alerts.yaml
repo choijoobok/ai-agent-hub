@@ -7,8 +7,8 @@ entities:
     module: "admin"
     design_stage: "logical"
     implementation: "planned"
-    features: [FEAT-001]
-    reqs: [REQ-601, REQ-604]
+    features: [FEAT-001, FEAT-002]
+    reqs: [REQ-601, REQ-604, REQ-603]
     attributes:
       - name: "원인 경고 식별자"
         key: "alertId"
@@ -25,7 +25,7 @@ entities:
         description: "미지원/실패는null·확인필요; 0정상과구분"
       - name: "등록자·등록일시·수정자·수정일시"
         key: "audit"
-    rules: ["REQ-601.configuration_alerts가 원인 묶음/해소·표시의 정본이다. 자동 진단은 수동 자산 사용 값을 수정하지 않는다.", "현재 집계는 갱신되므로 감사4. 실제 세대/원인키 유일성·낡은 점검 덮어쓰기 방지와 동기화 뒤 사건 저장의 원자/재처리 경계는 G3에서 물리화한다."]
+    rules: ["REQ-601.configuration_alerts가 원인 묶음/해소·표시의 정본이다. 자동 진단은 수동 자산 사용 값을 수정하지 않는다.", "현재 집계는 갱신되므로 감사4. 실제 세대/원인키 유일성·낡은 점검 덮어쓰기 방지와 동기화 뒤 사건 저장의 원자/재처리 경계는 G3에서 물리화한다.", "TARGET_SYSTEM/TARGET_CONNECTION/DATA_SOURCE 종류와 안정 대상 키·설정 세대로 원인을 구분한다. 데이터소스 경고는 URL/계정 대신 정확 DS키와 허용 카탈로그 영향만 표시한다."]
     pending: ["@defer G3 전 — 용어/업무 영역을 기반으로 물리명·타입·유일성/인덱스·동기화 및 진단 사건 일관성 경계를 확정한다."]
   - id: ENT-095
     name: "연결 설정 경고 사건"
@@ -34,8 +34,8 @@ entities:
     module: "admin"
     design_stage: "logical"
     implementation: "planned"
-    features: [FEAT-001]
-    reqs: [REQ-601]
+    features: [FEAT-001, FEAT-002]
+    reqs: [REQ-601, REQ-603]
     attributes:
       - name: "사건 식별자"
         key: "eventId"
@@ -51,5 +51,5 @@ entities:
       - entity: ENT-094
         cardinality: "원인 경고별 사건0개이상"
         description: "발생/해소/확인불가 전이를 추가 기록한다."
-    rules: ["실패한 조회를 복구 사건으로 기록하지 않는다. 동일 원인/세대/전이의 중복 감지를 새 사건으로 무제한 누적하지 않는다."]
+    rules: ["실패한 조회를 복구 사건으로 기록하지 않는다. 동일 원인/세대/전이의 중복 감지를 새 사건으로 무제한 누적하지 않는다.", "TARGET_SYSTEM/TARGET_CONNECTION/DATA_SOURCE 종류와 안정 대상 키·설정 세대로 원인을 구분한다. 데이터소스 경고는 URL/계정 대신 정확 DS키와 허용 카탈로그 영향만 표시한다."]
     pending: ["@defer G3 전 — 현재 경고와 사건의 일관성·중복 방지·재처리/보존 물리를 정한다."]

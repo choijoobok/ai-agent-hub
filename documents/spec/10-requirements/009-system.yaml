@@ -432,3 +432,4 @@ requirements:
       by: "AI — 현재 소스 대조와 기존 회귀 검사"
       confirmed_by: "사용자 (2026-10-26 system 요구사항을 소스와 비교해 구현과 차이가 없으면 모두 확정 처리하도록 명시 승인)"
     configuration_warning_widget: "2026-11-01 사용자 승인 CR-030: 현재 서버 호출 없는 SCR-525 위젯 슬롯에 admin API-071의 연결 설정 오류 요약·목록 이동을 추가 설계한다. 원천 소유/판정은 REQ-601.configuration_alerts이며 system은 공개 소비자다. 현재 소스 완료와 설계 확장을 구분하고 기존 관리자 개인 상태/권한 계약은 유지한다."
+    data_source_alerts: "CR-031 계획 확장: admin 소유의 API-071 공통 연동 경고에서 DATA_SOURCE 원인도 읽어 해당 데이터소스 설정 화면으로 정확 키를 전달한다. 기존 구현 소스는 카드만 제공하며 신규 위젯 구현 완료가 아니다."

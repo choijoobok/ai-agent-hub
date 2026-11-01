@@ -180,82 +180,109 @@ entities:
     name: "데이터소스"
     term: TRM-041
     domain: "연동 자산"
-    module: admin
-    implementation: planned
-    design_stage: physical
-    table: AI_ADMIN_DATA_SOURCE
+    module: "admin"
+    implementation: "planned"
+    design_stage: "logical"
     features: [FEAT-002]
     reqs: [REQ-601, REQ-603]
-    description: "등록 공개 객체와 SQL 조회가 참조하는 Hub 관리 단위. 하나의 배포 DB/DW 연결을 가리키며 여러 DB/카탈로그·스키마의 객체가 같은 내부 식별자를 사용할 수 있다"
+    description: "YAML 외부 데이터소스의 안정 참조와 수동 업무 메타. Hub 자체 DB는 등록하지 않는다."
     attributes:
-      - { name: "데이터소스 식별자", physical_name: DATA_SOURCE_ID, pk: true, description: "자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다", origin: "서버" }
-      - { name: "배포 데이터소스 참조", physical_name: CONNECTION_ID, description: "현재 로드된 yml 데이터소스 식별자에서 선택한 연결 참조. 기존 값이 사라져도 자동 대체하지 않는다", origin: "관리자 선택" }
-      - { name: "별칭 비교 키", physical_name: ALIAS_KEY, description: "별칭 정규화 계약으로 계산한 유일성 검사값. 관리자가 직접 편집하지 않는다", origin: "서버" }
-      - { name: "별칭", physical_name: ALIAS_NM, description: "관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다", origin: "관리자" }
-      - { name: "설명", physical_name: DESCRIPTION, description: "조회 대상 업무 범위와 선택에 필요한 설명", origin: "관리자" }
-      - { name: "DBMS 종류", physical_name: DBMS_CD, description: "질의 해석·파서 선택의 기술 기준", origin: "관리자·지원 목록" }
-      - { name: "DBMS 버전", physical_name: DBMS_VERSION, description: "제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다", origin: "연결 관측 제안·관리자 확인" }
-      - { name: "SQL 파서 선택", physical_name: PARSER_ID, description: "DBMS 기본값을 참고하되 별도 지정하는 파서. 미지정/미지원은 조회 불가이며 기본 파서로 조용히 대체하지 않는다", origin: "관리자·지원 목록" }
-      - { name: "운영 DB·DW 유형", physical_name: SOURCE_TYPE_CD, description: "조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다", origin: "관리자" }
-      - { name: "시각 체계", physical_name: TIME_ZONE_ID, description: "조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다", origin: "관리자" }
-      - { name: "데이터 기준 시각 정보", physical_name: DATA_BASIS, description: "조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다", origin: "관리자" }
-      - { name: "현재 관리 버전", physical_name: MANAGEMENT_VERSION, description: "메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다", origin: "서버" }
-      - { name: "생성 주체", physical_name: REG_ID, description: "최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다", origin: "서버 인증 근거" }
-      - { name: "생성 시각", physical_name: REG_DTM, description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다", origin: "서버" }
-      - { name: "최종 변경 주체", physical_name: MOD_ID, description: "현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다", origin: "서버 인증 근거" }
-      - { name: "최종 변경 시각", physical_name: MOD_DTM, description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다", origin: "서버" }
-      - { name: "변경 사유", physical_name: CHANGE_REASON, description: "현재 관리 버전을 만든 등록/변경의 업무 사유", origin: "관리자" }
-      - { name: "변경 작업 참조", physical_name: COMMAND_KEY, description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거", origin: "서버" }
-      - { name: "배포 참조 정정 근거", physical_name: CORRECTION_EVIDENCE, description: "현재 배포 참조로 명시 정정할 때 확인한 동일 대상의 비밀 없는 근거. 정정 이력이 없다면 없는 값으로 구분한다", origin: "관리자 및 공개 검증 결과" }
+      - name: "데이터소스 식별자"
+        physical_name: "DATA_SOURCE_ID"
+        pk: true
+        description: "자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다"
+        origin: "서버"
+      - name: "별칭"
+        physical_name: "ALIAS_NM"
+        description: "관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타"
+        origin: "관리자"
+      - name: "설명"
+        physical_name: "DESCRIPTION"
+        description: "조회 대상 업무 범위와 선택에 필요한 설명"
+        origin: "관리자"
+      - name: "DBMS 종류"
+        physical_name: "DBMS_CD"
+        description: "질의 해석·파서 선택의 기술 기준; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타"
+        origin: "관리자·지원 목록"
+      - name: "DBMS 버전"
+        physical_name: "DBMS_VERSION"
+        description: "제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다"
+        origin: "연결 관측 제안·관리자 확인"
+      - name: "SQL 파서 선택"
+        physical_name: "PARSER_ID"
+        description: "DBMS 기본값을 참고하되 별도 지정하는 파서. 미지정/미지원은 조회 불가이며 기본 파서로 조용히 대체하지 않는다"
+        origin: "관리자·지원 목록"
+      - name: "운영 DB·DW 유형"
+        physical_name: "SOURCE_TYPE_CD"
+        description: "조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다"
+        origin: "관리자"
+      - name: "시각 체계"
+        physical_name: "TIME_ZONE_ID"
+        description: "조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다"
+        origin: "관리자"
+      - name: "데이터 기준 시각 정보"
+        physical_name: "DATA_BASIS"
+        description: "조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다"
+        origin: "관리자"
+      - name: "현재 관리 버전"
+        physical_name: "MANAGEMENT_VERSION"
+        description: "메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다"
+        origin: "서버"
+      - name: "생성 주체"
+        physical_name: "REG_ID"
+        description: "최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다"
+        origin: "서버 인증 근거"
+      - name: "생성 시각"
+        physical_name: "REG_DTM"
+        description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다"
+        origin: "서버"
+      - name: "최종 변경 주체"
+        physical_name: "MOD_ID"
+        description: "현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다"
+        origin: "서버 인증 근거"
+      - name: "최종 변경 시각"
+        physical_name: "MOD_DTM"
+        description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다"
+        origin: "서버"
+      - name: "변경 사유"
+        physical_name: "CHANGE_REASON"
+        description: "현재 관리 버전을 만든 등록/변경의 업무 사유"
+        origin: "관리자"
+      - name: "변경 작업 참조"
+        physical_name: "COMMAND_KEY"
+        description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거"
+        origin: "서버"
+      - name: "안정 YAML 데이터소스 키"
+        physical_name: "DATA_SOURCE_KEY"
+        description: "app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음"
+      - name: "동기화 설정 세대"
+        physical_name: "SYNC_CONFIG_ID"
+        description: "검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님"
+      - name: "등록 주체 종류"
+        physical_name: "REG_SOURCE_CD"
+        description: "기동 동기화/관리자 영역의 실제 기록 주체 구분"
+      - name: "변경 주체 종류"
+        physical_name: "MOD_SOURCE_CD"
+        description: "YAML 기술 메타 동기화와 수동 업무 보완 구분"
     relations:
-      - { entity: ENT-018, cardinality: "데이터소스마다 적용 가능 그룹 0개 이상", description: "전체 집합 교체와 하위 매핑 보호를 같은 변경에서 검사한다" }
-      - { entity: ENT-019, cardinality: "성공 변경마다 처리 근거 하나", description: "생성과 수정·삭제의 재수신 결과를 연결한다" }
-      - { entity: ENT-004, cardinality: "현재 대상 하나에서 반영 후 이력 0개 이상", description: "원 식별자와 변경 버전/순서로 연결하며 허용 삭제 뒤에도 과거 구성을 조회할 수 있다" }
+      - entity: ENT-018
+        cardinality: "데이터소스마다 적용 가능 그룹 0개 이상"
+        description: "전체 집합 교체와 하위 매핑 보호를 같은 변경에서 검사한다"
+      - entity: ENT-019
+        cardinality: "성공 변경마다 처리 근거 하나"
+        description: "생성과 수정·삭제의 재수신 결과를 연결한다"
+      - entity: ENT-004
+        cardinality: "현재 대상 하나에서 반영 후 이력 0개 이상"
+        description: "원 식별자와 변경 버전/순서로 연결하며 허용 삭제 뒤에도 과거 구성을 조회할 수 있다"
     related_features: [FEAT-003, FEAT-005, FEAT-006, FEAT-007, FEAT-014, FEAT-023]
-    external_observations: "현재 연결 정상/끊김과 확인 불가, 파서 지원 여부는 ARCH-030과 소유 공개 조회의 관측 결과다. 연결 주소·계정·비밀·풀 설정을 속성으로 복제하지 않으며 정상 상태를 수동 저장하지 않는다"
-    rules:
-      - "별칭 유일성과 내부 식별자 안정성을 유지한다. 배포 참조 자체에 새 유일성 제약을 가정하지 않는다"
-      - "적용 가능 그룹 제거 시 하위 테이블·컬럼 매핑이 남아 있으면 저장을 차단한다(AUTHZ-010 및 22-authz.mapping_rules). 참조 조회 실패는 남은 매핑 없음이 아니다"
-      - "배포 참조 정정은 같은 대상임을 확인한 명시적 관리 변경이며 기존 내부 식별자·카탈로그 귀속을 유지한다"
-      - "대상 시스템·단일 필수 DB 스키마·DB 허용 목록·사용자별 스키마 권한을 추가하지 않는다. 같은 연결의 전체 객체 식별·현재 권한·SQL 통제는 REQ-301·603의 소비 계약에서 검사한다"
-      - "반영 후 전체 메타데이터·배포 참조·그룹 집합의 ENT-004 기록과 현재값 변경은 함께 성공한다. 배포 정의나 실시간 관측은 이 스냅샷의 복제 대상이 아니다"
-    state_machine:
-      connection_observation: "REQ-603.lifecycle의 정상↔끊긴 연결은 로드 설정과 참조의 대조 결과다. 관측 실패는 확인 불가로 구분한다. 설정 복구/명시적 참조 정정 뒤 다시 확인하며 운영자가 상태값만 바꿔 정상화하지 않는다"
-      query_eligibility: "연결 관측과 파서 지정/지원, 현재 사용자 신원·객체/행 권한을 별도로 검증한다. 연결 정상이나 적용 가능 그룹 포함만으로 조회를 허용하지 않는다"
+    external_observations: ["현재 설정 세대/node/boot·존재/DBMS 판별/연결 지원 상태는 공개 registry에서 안전하게 투영한다. 누락/로드 실패를 이전 연결로 대체하지 않는다."]
+    rules: ["REQ-603.yaml_authority·data_query_guides를 따른다. YAML 검증 성공 시 안정 키 upsert, 수동 메타·그룹·가이드·최초 감사 보존. UI 신규/삭제/연결 정정 없음.", "제거 항목의 현재 참조·이력을 보존하고 불일치 배지/업무 호출 차단/경고를 제공한다. JDBC URL·계정·비밀 참조 원문은 이 엔티티/관리 HIST에 저장하지 않는다.", "수동 메타·ENT-018 그룹·ENT-096 가이드를 같은 기대 리비전/전체 스냅샷으로 원자 적용한다. 원천 조회 결과/구조 비교는 별도 관측이다."]
+    state_machine: ["PRESENT/MISSING/UNKNOWN은 현재 YAML 존재 상태다. DB 메타 완성과 실행 가능은 별도 판정이다."]
     audit: "반영 후 전체 구성은 ENT-004, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다"
-    delete_policy: "REQ-601·603의 유효 참조를 검사하고 사용 중 카탈로그 등의 참조를 끊는 삭제는 거부한다. 허용 삭제 뒤 원 식별자를 재사용하지 않는다"
-    rules_from: ["REQ-603", "REQ-601.business_rules", "ARCH-030", "AUTHZ-010", "UC-016"]
-    storage_contract: "50-api의 FEAT-001.shared_write_contract를 따르는 직접 변경이다. BIGINT는 SYS_SEQUENCE의 JPA TABLE 전략으로 생성하며 배포 관측을 DB 상태로 복제하지 않는다. 신규 일시는 timestamptz, 긴 텍스트는 NCLOB 매핑의 PostgreSQL text를 사용한다."
-    pending: ["@defer P3 access_policy·integration — 그룹 원천 모델의 물리 FK와 삭제 보호, 연결/파서 공개 계약 구현과 같은 대상 정정 검수를 연결한다. 현재 초안은 미구현이며 화면/경합 시험은 후속이다"]
-    physical:
-      attributes:
-        - {"name":"DATA_SOURCE_ID","type":"bigint","nullable":false,"default":null}
-        - {"name":"CONNECTION_ID","type":"character varying(100)","nullable":false,"default":null}
-        - {"name":"ALIAS_NM","type":"character varying(100)","nullable":false,"default":null}
-        - {"name":"ALIAS_KEY","type":"character varying(300)","nullable":false,"default":null}
-        - {"name":"DESCRIPTION","type":"text","nullable":true,"default":null}
-        - {"name":"DBMS_CD","type":"character varying(30)","nullable":false,"default":null}
-        - {"name":"DBMS_VERSION","type":"character varying(100)","nullable":false,"default":null}
-        - {"name":"PARSER_ID","type":"character varying(100)","nullable":true,"default":null}
-        - {"name":"SOURCE_TYPE_CD","type":"character varying(10)","nullable":false,"default":null}
-        - {"name":"TIME_ZONE_ID","type":"character varying(100)","nullable":true,"default":null}
-        - {"name":"DATA_BASIS","type":"text","nullable":true,"default":null}
-        - {"name":"MANAGEMENT_VERSION","type":"bigint","nullable":false,"default":"1"}
-        - {"name":"REG_ID","type":"character varying(30)","nullable":false,"default":null}
-        - {"name":"REG_DTM","type":"timestamp with time zone","nullable":false,"default":null}
-        - {"name":"MOD_ID","type":"character varying(30)","nullable":false,"default":null}
-        - {"name":"MOD_DTM","type":"timestamp with time zone","nullable":false,"default":null}
-        - {"name":"CHANGE_REASON","type":"text","nullable":false,"default":null}
-        - {"name":"COMMAND_KEY","type":"character(36)","nullable":false,"default":null}
-        - {"name":"CORRECTION_EVIDENCE","type":"text","nullable":true,"default":null}
-      constraints:
-        - {"name":"PK_ADM_DATA_SOURCE","definition":"PRIMARY KEY (DATA_SOURCE_ID)"}
-        - {"name":"UK_ADM_DATA_SOURCE_ALIAS","definition":"UNIQUE (ALIAS_KEY)"}
-        - {"name":"CK_ADM_DATA_SOURCE_VER","definition":"CHECK (MANAGEMENT_VERSION >= 1)"}
-        - {"name":"CK_ADM_DATA_SOURCE_TYPE","definition":"CHECK (SOURCE_TYPE_CD IN ('DB','DW'))"}
-      indexes:
-        - {"name":"IX_ADM_DATA_SOURCE_CONN","unique":false,"method":"btree","definition":"(CONNECTION_ID, DATA_SOURCE_ID)"}
-
+    delete_policy: "YAML 제거 시 물리 삭제하지 않으며 새 호출 차단과 정확 ID 진단만 한다."
+    rules_from: [REQ-603, "REQ-601.business_rules", ARCH-030, AUTHZ-010, UC-016]
+    storage_contract: "ENT-004 마스터·ENT-045 그룹·ENT-097 가이드를 같은 HISTORY_NO로 보존한다."
+    pending: "@defer G3 이전 — 승인된 YAML 원천/수동 필드·감사·키/참조의 물리 컬럼·제약/인덱스·기동 동기화 경합을 확정한다. 기존 미구현 물리 초안의 연결 정정/별칭 키 설계를 그대로 적재하지 않는다."
   - id: ENT-003
     name: "대상 시스템 변경 이력"
     term: TRM-250
@@ -499,14 +526,9 @@ entities:
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
-    design_stage: "physical"
-    table: "AI_ADMIN_DATA_SOURCE_HIST"
-    features:
-      - FEAT-002
-      - FEAT-033
-    reqs:
-      - REQ-601
-      - REQ-603
+    design_stage: "logical"
+    features: [FEAT-002, FEAT-033]
+    reqs: [REQ-601, REQ-603]
     description: "ADR-035·REQ-601.change_history에 따른 ENT-002의 동형 복사. 현재 원본이 아닌 같은 HISTORY_NO의 당시 값을 조회한다."
     attributes:
       - name: "이력 행 식별자"
@@ -543,14 +565,6 @@ entities:
       - name: "데이터소스 식별자"
         physical_name: "DATA_SOURCE_ID"
         description: "자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "배포 데이터소스 참조"
-        physical_name: "CONNECTION_ID"
-        description: "현재 로드된 yml 데이터소스 식별자에서 선택한 연결 참조. 기존 값이 사라져도 자동 대체하지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "별칭 비교 키"
-        physical_name: "ALIAS_KEY"
-        description: "별칭 정규화 계약으로 계산한 유일성 검사값. 관리자가 직접 편집하지 않는다"
         origin: "ENT-002 당시 값"
       - name: "별칭"
         physical_name: "ALIAS_NM"
@@ -612,153 +626,24 @@ entities:
         physical_name: "COMMAND_KEY"
         description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거"
         origin: "ENT-002 당시 값"
-      - name: "배포 참조 정정 근거"
-        physical_name: "CORRECTION_EVIDENCE"
-        description: "현재 배포 참조로 명시 정정할 때 확인한 동일 대상의 비밀 없는 근거. 정정 이력이 없다면 없는 값으로 구분한다"
-        origin: "ENT-002 당시 값"
+      - name: "안정 YAML 데이터소스 키"
+        physical_name: "DATA_SOURCE_KEY"
+        description: "app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음"
+      - name: "동기화 설정 세대"
+        physical_name: "SYNC_CONFIG_ID"
+        description: "검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님"
+      - name: "등록 주체 종류"
+        physical_name: "REG_SOURCE_CD"
+        description: "기동 동기화/관리자 영역의 실제 기록 주체 구분"
+      - name: "변경 주체 종류"
+        physical_name: "MOD_SOURCE_CD"
+        description: "YAML 기술 메타 동기화와 수동 업무 보완 구분"
     relations:
       - entity: ENT-002
         cardinality: "원본 식별자를 값으로 보존"
         description: "현재 행에 FK/연쇄 삭제를 두지 않는다"
-    rules:
-      - "원본의 모든 허용 관리 컬럼·자료형과 REG/MOD 값을 그대로 복사한다. 비밀 및 실시간 관측은 제외한다."
-      - "HIST_ID는 각 이력 행의 PK이며 HISTORY_NO는 집합 연결 키다. 이력 일시는 모든 관련 행에 같으며 조인 키로 사용하지 않는다."
-      - "현재값/세트 전체/명령 결과는 원자 저장하고 동일 명령 재전송은 원 historyNo를 재사용한다."
-      - "승인 대상은 실제 반영 성공 때만 저장하며 초안·승인 요청·반려·취소는 이력 저장 시점이 아니다. 원 후보와 승인/반려 원장은 별도 보존한다."
+    rules: ["ENT-002의 적용 후 전체 메타와 그룹/가이드 자식을 같은 HISTORY_NO/HIST_DTM으로 복사한다. 실제 구성 변경이 없으면 기동 이력을 반복 생성하지 않는다.", "당시 비밀 없는 YAML 키/별칭/도출 DBMS와 수동값·원본 감사를 보존한다. 현재 연결 진단·원천 조회 데이터·비밀정보는 복제하지 않는다."]
     delete_policy: "관리 기능은 append만 허용. 보존/조사 보호 정책에 따라 세트 단위 파기하며 원본 삭제와 연쇄하지 않는다."
-    rules_from:
-      - "REQ-601.change_history"
-      - ADR-035
+    rules_from: ["REQ-601.change_history", ADR-035]
     history_copy_of: ENT-002
-    physical:
-      attributes:
-        - name: "HIST_ID"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "HISTORY_NO"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "HIST_DTM"
-          type: "timestamp with time zone"
-          nullable: false
-          default: null
-        - name: "HIST_ACTOR_ID"
-          type: "character varying(50)"
-          nullable: false
-          default: null
-        - name: "HIST_ACTION_CD"
-          type: "character varying(30)"
-          nullable: false
-          default: null
-        - name: "HIST_REASON"
-          type: "text"
-          nullable: false
-          default: null
-        - name: "HIST_COMMAND_KEY"
-          type: "character(36)"
-          nullable: false
-          default: null
-        - name: "HIST_SCHEMA_VERSION"
-          type: "integer"
-          nullable: false
-          default: "1"
-        - name: "CHANGE_SEQ"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "CHANGE_SUMMARY"
-          type: "text"
-          nullable: false
-          default: null
-        - name: "DATA_SOURCE_ID"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "CONNECTION_ID"
-          type: "character varying(100)"
-          nullable: false
-          default: null
-        - name: "ALIAS_NM"
-          type: "character varying(100)"
-          nullable: false
-          default: null
-        - name: "ALIAS_KEY"
-          type: "character varying(300)"
-          nullable: false
-          default: null
-        - name: "DESCRIPTION"
-          type: "text"
-          nullable: true
-          default: null
-        - name: "DBMS_CD"
-          type: "character varying(30)"
-          nullable: false
-          default: null
-        - name: "DBMS_VERSION"
-          type: "character varying(100)"
-          nullable: false
-          default: null
-        - name: "PARSER_ID"
-          type: "character varying(100)"
-          nullable: true
-          default: null
-        - name: "SOURCE_TYPE_CD"
-          type: "character varying(10)"
-          nullable: false
-          default: null
-        - name: "TIME_ZONE_ID"
-          type: "character varying(100)"
-          nullable: true
-          default: null
-        - name: "DATA_BASIS"
-          type: "text"
-          nullable: true
-          default: null
-        - name: "MANAGEMENT_VERSION"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "REG_ID"
-          type: "character varying(30)"
-          nullable: false
-          default: null
-        - name: "REG_DTM"
-          type: "timestamp with time zone"
-          nullable: false
-          default: null
-        - name: "MOD_ID"
-          type: "character varying(30)"
-          nullable: false
-          default: null
-        - name: "MOD_DTM"
-          type: "timestamp with time zone"
-          nullable: false
-          default: null
-        - name: "CHANGE_REASON"
-          type: "text"
-          nullable: false
-          default: null
-        - name: "COMMAND_KEY"
-          type: "character(36)"
-          nullable: false
-          default: null
-        - name: "CORRECTION_EVIDENCE"
-          type: "text"
-          nullable: true
-          default: null
-      constraints:
-        - name: "PK_ADM_SOURCE_HIST"
-          definition: "PRIMARY KEY (HIST_ID)"
-        - name: "UK_ADM_SOURCE_HIST_SET"
-          definition: "UNIQUE (HISTORY_NO)"
-        - name: "UK_ADM_SOURCE_HIST_SEQ"
-          definition: "UNIQUE (DATA_SOURCE_ID, CHANGE_SEQ)"
-        - name: "UK_ADM_SOURCE_HIST_TIME"
-          definition: "UNIQUE (HISTORY_NO, DATA_SOURCE_ID)"
-      indexes:
-        - name: "IX_ADM_SOURCE_HIST_DTM"
-          unique: false
-          method: "btree"
-          definition: "(HIST_DTM DESC, HISTORY_NO DESC)"
+    pending: "@defer G3 이전 — 승인된 YAML 원천/수동 필드·감사·키/참조의 물리 컬럼·제약/인덱스·기동 동기화 경합을 확정한다. 기존 미구현 물리 초안의 연결 정정/별칭 키 설계를 그대로 적재하지 않는다."

@@ -1,68 +1,55 @@
 terms:
   - id: TRM-264
     term: "카탈로그 구성 식별"
-    key: catalogMember
+    key: "catalogMember"
     group: "데이터"
     definition: "소유 카탈로그·종류·식별자는 생성 후 불변이다. 이름 변경이나 미사용/폐기 뒤 다른 구성에 ID를 재사용하지 않는다"
   - id: TRM-265
     term: "카탈로그 식별키"
-    key: catalogKey
+    key: "catalogKey"
     group: "데이터"
     definition: "원천 PK·유일키의 전체 컬럼 구성과 근거를 보존한다. 인덱스·DB 제약을 생성하거나 편집하는 기능이 아니다"
   - id: TRM-266
     term: "카탈로그 식별키 컬럼"
-    key: catalogKeyColumn
+    key: "catalogKeyColumn"
     group: "데이터"
     definition: "복합 키의 일부 컬럼만으로 유일성을 판정하지 않으며 수집한 전체 키가 등록 컬럼에 완결됐는지 검증한다"
   - id: TRM-267
     term: "카탈로그 인라인 값"
-    key: catalogInlineValue
+    key: "catalogInlineValue"
     group: "데이터"
     definition: "소유 컬럼의 VALUE_MODE=INLINE일 때만 쓰며 같은 유형/정규화 값 중복을 전체 구성 검증에서 거부한다"
-  - id: TRM-268
-    term: 카탈로그 코드 바인딩
-    key: catalogCodeBinding
-    group: 데이터
-    definition: 카탈로그 CODE 컬럼이 선택한 코드 조회 정의의 정확 버전에 전달하는 파라미터명·타입·정형 값. SQL 조각이나 단일 코드 테이블 AND 조건을 저장하지 않는다
-    db_token: CAT_CODE_BINDING
-    db_token_reason: 30자 제한에 맞춰 catalog를 CAT으로 줄인다
   - id: TRM-269
     term: "권장 조인 컬럼 쌍"
-    key: catalogJoinPair
+    key: "catalogJoinPair"
     group: "데이터"
     definition: "두 역할을 컬럼 방향과 함께 유지한다. 자기조인의 양쪽 객체/판이 같아도 역할을 합치지 않는다"
   - id: TRM-270
     term: "조회 제약 대체 키"
-    key: catalogAlternativeKey
+    key: "catalogAlternativeKey"
     group: "데이터"
     definition: "한 행은 하나의 제약에 허용한 키 한 개이며 ENT-022의 전체 컬럼을 참조한다. 복수 대체 키는 각각 독립 대안이다"
-    db_token: CAT_ALTERNATIVE_KEY
+    db_token: "CAT_ALTERNATIVE_KEY"
     db_token_reason: "30자 테이블 제한에 맞춰 catalog를 CAT으로 줄인다. 원 의미와 키는 유지한다"
   - id: TRM-271
     term: "카탈로그 근거 대상"
-    key: catalogEvidenceTarget
+    key: "catalogEvidenceTarget"
     group: "데이터"
     definition: "공개 범위의 관측/변경 근거이며 모든 대상이 세트의 실제 변경 대상이라는 뜻은 아니다"
-    db_token: CAT_EVIDENCE_TARGET
+    db_token: "CAT_EVIDENCE_TARGET"
     db_token_reason: "30자 테이블 제한에 맞춰 catalog를 CAT으로 줄인다. 원 의미와 키는 유지한다"
   - id: TRM-272
     term: "카탈로그 편집 처리"
-    key: catalogEditCommand
+    key: "catalogEditCommand"
     group: "데이터"
     definition: "성공 결과만 초안/자식·근거와 같은 DB 트랜잭션에서 보존한다. ENT-019의 직접 관리나 자산 세트의 승인/실제 반영 원장을 확장하지 않는다"
-
-  - id: TRM-283
-    term: 코드 조회 정의
-    key: codeQuery
-    group: 데이터
-    definition: 데이터소스 안에서 코드값과 코드명을 공급하는 조회 자산의 안정 식별/관리명. 정확 SQL·파라미터/결과 대응은 정의 버전이 가진다
-  - id: TRM-284
-    term: 코드 조회 정의 버전
-    key: codeQueryRevision
-    group: 데이터
-    definition: 검수한 읽기 전용 SQL·typed named 파라미터·반환 코드값/코드명 대응과 조회/캐시 통제를 고정하는 버전. 원천 코드 데이터의 버전과 구분한다
-  - id: TRM-285
-    term: 코드 조회 파라미터
-    key: codeQueryParameter
-    group: 데이터
-    definition: 정확 코드 조회 버전에 선언된 값 바인딩의 이름/타입/필수·NULL 허용/업무 설명. SQL 식별자/구문을 치환하지 않는다
+  - id: TRM-288
+    term: "데이터 조회 가이드"
+    key: "dataQueryGuide"
+    group: "데이터"
+    definition: "데이터소스별 여러 제목·상세 설명으로 관리하는 원천 데이터 조회 방법과 업무 조건 안내. 공통/참조 코드 및 권한 조건 적용 설명에 쓰지만 서버 인가 정책·읽기 전용 통제를 대체하지 않는다."
+  - id: TRM-289
+    term: "데이터 조회 가이드 적용 이력"
+    key: "dataQueryGuideHistory"
+    group: "데이터"
+    definition: "데이터소스의 수동 메타·그룹과 같은 HISTORY_NO로 복사한 가이드 전체 자식 이력. 실제 조회 데이터/결과 이력은 턴 근거로 별도 관리한다."

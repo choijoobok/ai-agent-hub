@@ -207,16 +207,13 @@ entities:
   - id: ENT-007
     source_type_storage: "REQ-301.source_type_catalog의 DBMS_DATA_TYPE 상세 코드를 SOURCE_TYPE_CD(30자)에, 확인한 당시 원천 타입명을 SOURCE_TYPE(200자)에 보존한다. 코드명/참조 변경으로 고정 판 원문을 다시 구성하지 않는다. 미확인 원천값은 SOURCE_TYPE에 남기고 코드 미선택은 null이며 VERIFIED는 허용하지 않는다. 선택 코드의 DBMS PARENT/활성/NATIVE_TYPE과 원천 대조는 서버가 검증한다. 실제 타입명이 저장 한도를 넘으면 절단하지 않고 지원 불가로 표시한다"
     name: "카탈로그 컬럼"
-    term: "TRM-253"
+    term: TRM-253
     domain: "연동 자산"
     module: "admin"
     implementation: "planned"
     design_stage: "logical"
-    features:
-      - "FEAT-003"
-    reqs:
-      - "REQ-301"
-      - "REQ-111"
+    features: [FEAT-003]
+    reqs: [REQ-301, REQ-111]
     description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
     attributes:
       - name: "소유 카탈로그"
@@ -265,12 +262,6 @@ entities:
       - name: "UNKNOWN/NONE/CODE/INLINE"
         physical_name: "VALUE_MODE"
         description: "UNKNOWN/NONE/CODE/INLINE"
-      - name: "코드 조회 안정 정의"
-        physical_name: "CODE_QUERY_ID"
-        description: "같은 데이터소스의 ENT-041 참조"
-      - name: "코드 조회 정확 버전"
-        physical_name: "CODE_QUERY_REVISION_ID"
-        description: "ENT-042의 검수/활성 버전을 고정하며 최신판으로 치환하지 않음"
       - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
         physical_name: "REVIEW_STATUS"
         description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
@@ -299,34 +290,21 @@ entities:
         physical_name: "IDENTITY_EVIDENCE"
         description: "컬럼 이름 변경의 동일 객체 확인 근거"
     relations:
-      - entity: "ENT-020"
+      - entity: ENT-020
         cardinality: "소유 판·구성의 복합 키로 참조"
         description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-042"
-        cardinality: "CODE 컬럼마다 정확 조회 버전 0개 또는 1개"
-        description: "같은 데이터소스의 안정 정의/정확 버전과 현재 사용 가능성을 검사한다. 구체 FK는 조회 정의 물리 설계에서 완성한다"
-      - entity: "ENT-005"
+      - entity: ENT-005
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    rules:
-      - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
-      - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
+    rules: ["REQ-301.value_domain. CODE는 현재 원천값 확인이 필요한 의미 표시이고 조회 SQL 정의/버전/파라미터 바인딩을 소유하지 않는다. INLINE 고정 값은 그대로 보존한다.", "권한 있는 선택 카탈로그의 데이터소스 가이드와 실제 조회 근거를 사용하며 인가·행 정책·신원·SQL 통제를 유지한다."]
     audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
-    rules_from:
-      - "REQ-301.column_metadata"
-      - "REQ-301.value_domain"
-      - "REQ-301.business_rules"
-      - "REQ-111.privacy_metadata"
-      - "REQ-304.note"
+    rules_from: ["REQ-301.column_metadata", "REQ-301.value_domain", "REQ-301.business_rules", "REQ-111.privacy_metadata", "REQ-304.note"]
     delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
     design_followup: "@defer P3 integration_assets — REQ-301.source_dimensions/index_metadata에 따라 치수의 형식/단위/정밀도·소수자리와 인덱스 정의/순서 구성의 논리·물리 저장을 보완한다. 현재 ENT-007 SOURCE_TYPE과 기존 식별키 테이블에 임의로 합쳐 저장하지 않으며 전체 후보·검수·복사/고정/이행 계약을 함께 완성한다"
     storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
-    code_query_followup: "@defer P3 integration_assets — ENT-041/042/043의 물리 스키마를 확정해 CODE_QUERY_ID/CODE_QUERY_REVISION_ID의 같은 데이터소스·정확 버전 복합 FK/잠금·전체 이행/검수 계약을 완성한다. 현재 논리 참조를 FK 완료로 표시하지 않는다"
-    pending:
-      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
+    pending: ["@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."]
     copy_mapping:
-      history: "ENT-055"
+      history: ENT-055
   - id: ENT-008
     name: "권장 조인 관계"
     term: "TRM-254"
@@ -602,96 +580,3 @@ entities:
     rules: ["신규 차이 추가·같은 차이 갱신·성공 재비교된 일치만 제거", "실패/부분/권한 제한·오래된 결과는 제거 사유가 아니다", "카탈로그 폐기는 별도 대상 제외로 처리하고 일치 확인을 꾸미지 않는다"]
     delete_policy: "성공 확인된 일치/명시적 대상 폐기 시 현재 목록에서 제거. 실행/변경 근거와 사람 영향 검토는 보존"
     pending: ["@defer P3 integration_assets — 물리 키·대상별 갱신 트랜잭션/복구·목록 페이지/정렬·권한 설계"]
-
-  - id: ENT-041
-    name: "코드 조회 정의"
-    term: TRM-283
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
-    features:
-      - FEAT-002
-      - FEAT-003
-    reqs:
-      - REQ-603
-      - REQ-301
-    attributes:
-      - name: "안정 조회 정의"
-        physical_name: "CODE_QUERY_ID"
-        description: "재사용하지 않는 식별자"
-        pk: true
-      - name: "소속 데이터소스"
-        physical_name: "DATA_SOURCE_ID"
-        description: "ENT-002 소속 고정"
-      - name: "조회명"
-        physical_name: "QUERY_NAME"
-        description: "관리자가 식별하는 이름"
-      - name: "관리 설명"
-        physical_name: "DESCRIPTION"
-        description: "업무 목적/사용 범위"
-    relations:
-      - entity: ENT-002
-        cardinality: "데이터소스마다 여러 정의"
-        description: "데이터소스/배포 연결과 별도 정의 자산"
-      - entity: ENT-042
-        cardinality: "정의마다 여러 버전"
-        description: "정확 버전별 불변 SQL 계약"
-    rules:
-      - "사용 중 정의의 물리삭제 금지. 현재 상태/사용처를 검사하며 이름으로 실행하지 않는다"
-      - "코드 정의의 초안·검수·활성 명령/판 원장은 데이터소스 기본설정 명령과 독립이다. 실제 유효값 반영 성공 때만 REQ-601.change_history의 데이터소스 전체 _HIST 세트를 기록하며 초안·반려는 운영 이력에 넣지 않는다."
-      - "운영 이력 복사 시에는 실제 유효 판만 ENT-046~048로 복사한다. 승인/검수 후보·반려 제출본의 원장은 삭제하지 않고 별도로 보존한다."
-    pending:
-      - "@defer P3 integration_assets·integration — 물리 컬럼/키·버전 원자성/잠금·멱등 처리·참조 보호와 감사/검수 이력의 보존 계약을 완성한다. planned 논리 모델이며 제품 구현/이행이 아니다"
-  - id: ENT-042
-    name: "코드 조회 정의 버전"
-    term: "TRM-284"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
-    features: ["FEAT-002","FEAT-003"]
-    reqs: ["REQ-603","REQ-301"]
-    attributes:
-      - {"name":"조회 버전 식별자","physical_name":"CODE_QUERY_REVISION_ID","description":"정확 버전을 가리키는 안정 ID","pk":true}
-      - {"name":"안정 조회 정의","physical_name":"CODE_QUERY_ID","description":"ENT-041 소유"}
-      - {"name":"버전 번호","physical_name":"REVISION_NO","description":"정의 내 증가 번호"}
-      - {"name":"편집 버전","physical_name":"EDIT_VERSION","description":"DRAFT 저장 충돌 검사"}
-      - {"name":"상태 버전","physical_name":"STATE_VERSION","description":"검수/활성/비활성 전환의 기대 상태 버전. 내용 편집 버전과 구분"}
-      - {"name":"상태","physical_name":"STATUS","description":"DRAFT/VERIFIED/ACTIVE/INACTIVE"}
-      - {"name":"조회 SQL","physical_name":"QUERY_SQL","description":"typed named value binding의 검수된 read-only SQL"}
-      - {"name":"코드값 결과 컬럼","physical_name":"VALUE_RESULT_COLUMN","description":"코드값 원자료형을 보존"}
-      - {"name":"코드명 결과 컬럼","physical_name":"NAME_RESULT_COLUMN","description":"자연어 의미"}
-      - {"name":"설명 결과 컬럼","physical_name":"DESCRIPTION_RESULT_COLUMN","description":"선택"}
-      - {"name":"조회 방식","physical_name":"FETCH_MODE","description":"LIVE 기본/CACHE 선택"}
-      - {"name":"캐시 유효 초","physical_name":"CACHE_TTL_SECONDS","description":"CACHE에서 필수인 양수, 상한 값 후속"}
-      - {"name":"검수 근거","physical_name":"REVIEW_EVIDENCE","description":"서버 검수 주체/시각·정적/원천 시험 근거"}
-      - {"name":"실행 통제 참조","physical_name":"EXECUTION_POLICY_REF","description":"원천 참조/현재 권한·상한/정책 계약"}
-    relations:
-      - {"entity":"ENT-041","cardinality":"버전마다 정의 하나","description":"소속 데이터소스와 같은 실행 원천"}
-      - {"entity":"ENT-043","cardinality":"버전마다 선언 파라미터 0개 이상","description":"SQL placeholder와 전체 일치 검증"}
-      - {"entity":"ENT-007","cardinality":"정확 버전 참조 컬럼 0개 이상","description":"자동 최신판 치환/자동 원천 공개 금지"}
-    rules: ["VERIFIED 이후 SQL/파라미터/결과 계약은 불변. 수정은 새 DRAFT 복사","명시 활성화만 ACTIVE. 여러 버전 활성 가능, 비활성화는 그 버전의 신규/실행을 차단하고 참조를 보존","정의 변경·원천 코드 데이터 변경·실행 시점 결과/캐시를 구분한다. 실행 결과는 정의 행에 덮어쓰지 않는다"]
-    pending: ["@defer P3 integration_assets·integration — 물리 컬럼/키·버전 원자성/잠금·멱등 처리·참조 보호와 감사/검수 이력의 보존 계약을 완성한다. planned 논리 모델이며 제품 구현/이행이 아니다"]
-
-  - id: ENT-043
-    name: "코드 조회 파라미터"
-    term: "TRM-285"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
-    features: ["FEAT-002","FEAT-003"]
-    reqs: ["REQ-603","REQ-301"]
-    attributes:
-      - {"name":"소유 조회 버전","physical_name":"CODE_QUERY_REVISION_ID","description":"ENT-042 소유","pk":true}
-      - {"name":"파라미터명","physical_name":"PARAMETER_NAME","description":"named placeholder와 일치","pk":true}
-      - {"name":"자료형","physical_name":"VALUE_TYPE","description":"STRING/NUMBER/BOOLEAN/DATE/DATETIME"}
-      - {"name":"필수","physical_name":"REQUIRED_YN","description":"기본값을 암묵 생성하지 않음"}
-      - {"name":"NULL 허용","physical_name":"NULLABLE_YN","description":"필수/값 없음과 구분"}
-      - {"name":"허용값·길이 제약","physical_name":"VALIDATION_RULES","description":"지원하는 구조화 검증 규칙. 임의 SQL 금지; 물리 형식/길이와 검증 어휘는 후속 확정"}
-      - {"name":"업무 설명","physical_name":"DESCRIPTION","description":"그룹/언어/회사/과거 사용여부 정책"}
-    relations:
-      - {"entity":"ENT-042","cardinality":"파라미터마다 버전 하나","description":"정확 버전의 SQL/결과 계약에 고정"}
-    rules: ["PARAMETER_NAME은 ASCII 식별 이름으로 중복 불가, 테이블명/SQL 조각 치환이 아님","시험 바인딩은 일시 요청이며 파라미터 정의/공유 기본값으로 영구 저장하지 않는다","카탈로그 typed 바인딩·실행값과 선언 타입/필수/NULL을 서버에서 검사한다"]
-    pending: ["@defer P3 integration_assets·integration — 물리 컬럼/키·버전 원자성/잠금·멱등 처리·참조 보호와 감사/검수 이력의 보존 계약을 완성한다. planned 논리 모델이며 제품 구현/이행이 아니다"]
