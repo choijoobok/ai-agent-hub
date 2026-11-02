@@ -276,6 +276,11 @@ entities:
         physical_name: "MEMBER_KIND"
         description: "안정 식별의 종류 COLUMN"
         pk: false
+      - name: "원천 컬럼 순서"
+        logical_field: "ordinalPosition"
+        physical_name: "ORDINAL_POSITION"
+        nullable: true
+        description: "REQ-301.column_order의 양의 정수/미확인 null. 같은 카탈로그 구성 내(이력은 같은 HISTORY_NO) non-null 중복 금지·부분 공개 공백 허용. 과거 값 보존"
       - name: "당시 원천 컬럼명. 미확인 초안은 null"
         physical_name: "COLUMN_NAME"
         description: "당시 원천 컬럼명. 미확인 초안은 null"
