@@ -118,6 +118,7 @@ testcases:
     when: "현재 사용처를 다시 조회"
     then: "현재 허용 범위에서 직접/예제 경유 참조 경로를 구분한다. 사용처 변화만으로 업무 의미 영향을 판정·보완 작업 생성·지식 자동 수정하지 않는다. 삭제/비활성화 참조 보호와 자기 기준본 검증은 유지한다."
     status: "planned"
+    group_boundary: "REQ-302.catalog_access. 예제 직접 그룹 매핑 없음. 현재 사용자 그룹 전체의 허용 카탈로그 합집합에 모든 예제 매핑 카탈로그가 있어야 사용 가능. 하나라도 미허용/미확인이면 예제 전체 제외."
     verification: "요구사항 검수 시 반례 대조. 제품 구현 시 단위/통합 시험으로 연결하며 문서 검증을 실제 저장/동시성 실행 시험으로 표시하지 않는다."
   - id: TC-0148
     feature: FEAT-014
@@ -222,4 +223,19 @@ testcases:
     then: "OFF 지식과 매핑 설명은 후속 검색/주입에서 제외하고 ON만으로 미확인 준비 상태를 통과시키지 않는다. 개별 참조 오류를 지식 전체의 자동 OFF/업무 의미 판정으로 바꾸지 않는다. REQ-601.asset_availability를 적용한다"
     verification: "OFF 또는 미확인 자산 사용 허용, 오류/복구의 수동 값 덮어쓰기, 현재 설정 재검사 생략, 완료 업무 소급 취소/자동 재전송을 허용하면 실패한다. 목업은 스위치/원복/잠금·진단 구분만 검증하며 실제 실행 통제는 제품 시험 후속이다"
     screen_cases: ["documents/screen/admin/hub/knowledge/requirements.md#B011-13"]
+    status: planned
+
+  - id: TC-01421
+    feature: FEAT-014
+    usecase: UC-012
+    reqs: [REQ-303, REQ-302, REQ-103]
+    screens: [SCR-011, SCR-012]
+    type: business_exception
+    title: "지식에 연결된 인증 예제의 전체 카탈로그 접근 필터"
+    actor: ACT-001
+    given: "접근 가능한 지식 K에 E1(C1/C2), E2(C1)가 연결됨. C1은 G1, C2는 G2 허용. 사용자 G1+G2/G1만 및 C2 미확인/회수"
+    when: "해당 지식의 연결 인증 예제 목록을 사용자 현재 그룹 전체 기준으로 각각 필터링"
+    then: "G1+G2이면 E1/E2 모두 남는다. G1만 또는 C2 미허용/미확인이면 E1만 제외하고 E2와 지식 자체는 각자의 기존 사용 조건에 따라 유지한다. 예제의 미허용 참조만 잘라 일부 사용하지 않는다. 예제 직접 그룹은 없다."
+    verification: "참조 하나만 통과하면 허용, 모든 사용자 그룹에 공통 허용을 강요해 합집합을 교집합으로 변경, 미허용 참조 제거 후 부분 예제 사용, 빈/불완전 매핑 우회, 과거 권한 재사용을 허용하면 실패. 실제 제품 계약/통합/E2E는 구현 후 검증."
+    screen_cases: ["documents/screen/admin/hub/query-example/requirements.md#EX-CATALOG-ACCESS"]
     status: planned

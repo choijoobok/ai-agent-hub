@@ -67,6 +67,14 @@ test('사용자 그룹의 자산 네 탭은 현재 매핑 조회만 제공한다
  const membership=md.match(/### 4-2\. 사용자\r?\n([\s\S]*?)(?=\r?\n### )/)?.[1];
  assert.match(membership,/\| 설정 스위치 \|/);
 });
+test('인증 예제는 직접 그룹 탭 없이 모든 참조 카탈로그의 현재 접근을 요구한다',()=>{
+ const md=read('query-example');
+ assert.doesNotMatch(md,/^### 4-\d+\. 노출 그룹|^\| 노출 그룹 \| 탭 \|/m);
+ assert.ok(!controls(md).some(x=>/그룹 추가|그룹 제거/.test(x)));
+ assert.match(md,/모든 매핑 카탈로그가 그 집합에 빠짐없이/);assert.match(md,/그 예제 전체만 제외/);assert.match(md,/다른 통과 예제/);
+ const groups=read('user-group');assert.doesNotMatch(groups,/"EX-ORDER"/);
+ for(const name of ['현재 접근','처리 상태','제약·근거'])assert.doesNotMatch(groups,new RegExp('^\\| '+name+' \\|','m'));
+});
 test('연결 지식은 참조 조회이며 본문 일괄 수집·보완 판정 컬럼을 제공하지 않는다',()=>{
  for(const name of ['business-api','business-tool','knowledge-tag','query-example','catalog-relation']){
   const md=read(name);const section=md.match(/### 4-\d+\. 연결 지식\r?\n([\s\S]*?)(?=\r?\n### |\r?\n## )/)?.[1];

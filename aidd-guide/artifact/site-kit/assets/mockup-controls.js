@@ -334,6 +334,14 @@ function bindDeclaredMockup(root) {
     if (command) {
       hideTip();
       const dialog=[...command.closest('.screen').querySelectorAll('[data-command]')].find(d=>d.dataset.command===command.dataset.openCommand);
+      if(dialog?.dataset.command==='저장'){
+        if(dialog.dataset.commandConfirmed||dialog.dataset.saveTarget&&dialog.dataset.saveTarget!==command.dataset.saveTarget){
+          const reason=dialog.querySelector('[aria-label="변경 사유"]');if(reason){reason.value='';reason.setCustomValidity('');}
+          dialog.querySelector('[data-command-result]').textContent='';delete dialog.dataset.commandConfirmed;
+        }
+        dialog.dataset.saveTarget=command.dataset.saveTarget;
+        const summary=dialog.querySelector('[aria-label="변경 대상"]');if(summary)summary.value=command.dataset.saveTargetName;
+      }
       dialog?.showModal(); return;
     }
     if (target.closest('[data-close-command]')) { hideTip(); target.closest('dialog').close(); return; }
@@ -478,8 +486,12 @@ function bindDeclaredMockup(root) {
   root.addEventListener('submit', event => {
     if (!event.target.matches('[data-command-form]')) return;
     event.preventDefault();
+    for(const input of event.target.querySelectorAll('input[required],textarea[required]'))input.setCustomValidity(input.value.trim()?'':'공백이 아닌 내용을 입력하세요.');
+    if(!event.target.reportValidity())return;
+    if(event.target.closest('[data-command="저장"]'))event.target.closest('dialog').dataset.commandConfirmed='true';
     event.target.querySelector('[data-command-result]').textContent='목업 입력 확인 완료 — 서버로 접수하거나 업무 데이터를 변경하지 않았습니다.';
   });
+  root.addEventListener('input',event=>{if(event.target.matches('[data-command-form] input,[data-command-form] textarea'))event.target.setCustomValidity('');});
   root.querySelectorAll('[data-command-targets]').forEach(group=>{
     if(group.children.length===1)group.querySelector('[data-remove-command-target]').disabled=true;
   });

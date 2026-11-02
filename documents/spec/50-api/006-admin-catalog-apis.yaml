@@ -38,17 +38,17 @@ apis:
     summary: "카탈로그 신규 직접 저장"
     request: "body=ManagementChange"
     response: "ApiResponse<ManagementResult>"
-    contract: "신규 baseRevision=0/원본 미존재·업무키 유일성·현재 변경 권한/필수 참조·기술 검증과 전체 이력/명령 결과를 원자 반영한다."
+    contract: "신규는 saveTarget=MASTER와 마스터 areaValues만 허용하고 자식 영역은 거부한다. 마스터 발급 후 각 탭 영역을 저장한다. baseRevision=0/원본 미존재·업무키 유일성·현재 변경 권한/필수 참조·기술 검증과 전체 이력/명령 결과를 원자 반영한다."
   - id: API-024
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
     path: "/api/service/admin/catalog/saveChange"
     action: "SAVE"
-    summary: "카탈로그 전체 구성 직접 저장"
+    summary: "카탈로그 지정 영역 직접 저장"
     request: "body=ManagementChange"
     response: "ApiResponse<ManagementResult>"
-    contract: "commandKey/targetId 또는 신규 업무키/baseRevision/reason/전체 구성. 서버가 현재 변경 권한·기대 버전·입력/참조·기술 계약을 검증해 직접 저장하며 관리자 요청/전결은 없다."
+    contract: "REQ-301.save_reason. commandKey/targetId/baseRevision/saveTarget/reason/areaValues. 고정 대상과 허용 필드를 확인해 해당 영역만 반영하고 그 시점 전체 HIST를 원자 복사한다. 다른 탭 로컬 변경은 반영하지 않는다."
   - id: API-026
     feature: FEAT-003
     implementation: "planned"

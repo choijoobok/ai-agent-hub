@@ -13,3 +13,7 @@ test('잘못된 원 화면·다른 모듈·상속 사슬과 별도 문서 복사
  for(const original of [null,{...source,id:'SCR-002'},{...source,module:'system'},{...source,view_kind:'change_history'}])assert.throws(()=>historyViewMarkdown(screen,original),/상속 연결/);
  assert.throws(()=>historyViewMarkdown({...screen,target_doc:'copy.md'},source),/독립 요건서/);
 });
+test('카탈로그의 저장 버튼 대상과 작업자 사유는 별도 이력 열로 선언한다',()=>{
+ const text=historyViewMarkdown({...screen,history_summary_columns:['변경 대상','변경 사유'],history_summary_rule:'saveTarget 전달값과 HIST_REASON을 그대로 조회한다.'},source);
+ assert.match(text,/동일 컬럼 \+ 변경 대상 · 변경 사유/);assert.match(text,/saveTarget 전달값과 HIST_REASON/);
+});

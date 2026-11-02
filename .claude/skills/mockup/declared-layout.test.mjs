@@ -21,6 +21,16 @@ const model = {
   actions: [['조회','','','','','목록 조회'],['저장','','','','','전체 저장']], search: [],
 };
 
+test('저장 명령은 버튼의 고정 영역과 사유 레이어를 연결하며 잠금 상태를 유지한다',()=>{
+ const commandFields={header:['명령 입력창','영역','필드','입력방식','필수','예시'],rows:[['저장','기본','변경 대상','조회','선택','마스터 데이터'],['저장','기본','변경 사유','장문','필수','—']]};
+ const fixture={...model,columns:[columns('카탈로그 목록',[['업무명','텍스트','가능','','주문']]),columns('컬럼 정의',[['상세 설명','장문 셀','가능','','설명']])],commandFields,saveTargets:{rows:[['카탈로그 목록','MASTER','마스터 데이터'],['컬럼 정의','COLUMNS','컬럼 정의']]},surfaces:[{name:'카탈로그 목록',buttons:['저장']},{name:'컬럼 정의',buttons:['저장']}]};
+ const [figure]=declaredFigures(stateTable([['main','기본','컬럼 정의','','저장','가능','없음']]),plain);
+ const html=render(figure,fixture);
+ assert.match(html,/data-grid-save data-native-save/);assert.match(html,/data-open-command="저장" data-save-target="MASTER"/);assert.match(html,/data-open-command="저장" data-save-target="COLUMNS"/);
+ assert.match(html,/<textarea aria-label="변경 사유" rows="3" required><\/textarea>/);
+ assert.match(render({...figure,editable:false},fixture),/<button[^>]*disabled[^>]*data-open-command="저장"/);
+});
+
 test('조회 표시명을 통일해도 원천 비교 명령과 내부 동작을 합치지 않는다', () => {
   const actionTable={header:['버튼','동작','표시명'],rows:[['불일치 새로고침','저장 목록 조회','조회'],['원천 구조 비교','새 관측 실행','원천 구조 비교']]};
   const fixture={...model,actions:actionTable.rows,actionTables:[actionTable],figureNavigation:{rows:[['원천 구조 비교','comparison']]}};

@@ -244,9 +244,11 @@ entities:
       - name: "컬럼 업무 명칭"
         physical_name: "BUSINESS_NAME"
         description: "컬럼 업무 명칭"
-      - name: "컬럼 업무 의미"
+      - name: "컬럼 상세 설명"
         physical_name: "DESCRIPTION"
-        description: "컬럼 업무 의미"
+        logical_field: "detailDescription"
+        nullable: true
+        description: "컬럼 용도·사용법과 비공통 하드 코딩 값/의미의 장문 설명. 같은 컬럼 원장/HIST에 보존"
       - name: "UNKNOWN/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER/TEXT"
         physical_name: "SEMANTIC_TYPE"
         description: "UNKNOWN/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER/TEXT"
@@ -259,9 +261,10 @@ entities:
       - name: "금액·수량 등 단위"
         physical_name: "UNIT_CD"
         description: "금액·수량 등 단위"
-      - name: "UNKNOWN/NONE/CODE/INLINE"
-        physical_name: "VALUE_MODE"
-        description: "UNKNOWN/NONE/CODE/INLINE"
+      - name: "원천 공통 코드 그룹 코드. 해당 없음은 null"
+        physical_name: "GROUP_CODE"
+        nullable: true
+        description: "원천 조회 가이드의 그룹 구분 조건에 전달하는 관리값. 코드값 자체나 Hub 공통코드 그룹 참조가 아님"
       - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
         physical_name: "REVIEW_STATUS"
         description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
@@ -296,7 +299,7 @@ entities:
       - entity: ENT-005
         cardinality: "소유 현재 구성 1:N"
         description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
-    rules: ["REQ-301.value_domain. CODE는 현재 원천값 확인이 필요한 의미 표시이고 조회 SQL 정의/버전/파라미터 바인딩을 소유하지 않는다. INLINE 고정 값은 그대로 보존한다.", "권한 있는 선택 카탈로그의 데이터소스 가이드와 실제 조회 근거를 사용하며 인가·행 정책·신원·SQL 통제를 유지한다."]
+    rules: ["REQ-301.value_domain. groupCode가 있으면 데이터소스 가이드의 원천 조회로 코드명을 확인하며, 없으면 상세 설명의 명확한 하드 코딩 의미를 해석한다. 수기 열거 자식은 두지 않고 groupCode/detailDescription을 보존한다.", "권한 있는 선택 카탈로그의 데이터소스 가이드와 실제 조회 근거를 사용하며 인가·행 정책·신원·SQL 통제를 유지한다."]
     audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
     rules_from: ["REQ-301.column_metadata", "REQ-301.value_domain", "REQ-301.business_rules", "REQ-111.privacy_metadata", "REQ-304.note"]
     delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."

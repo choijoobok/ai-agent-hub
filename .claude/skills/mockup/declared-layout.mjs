@@ -79,7 +79,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     return columns.some(r=>(figure.examples['컬럼명']===r['컬럼명']&&figure.examples['값 방식']?figure.examples['값 방식']:r['값 방식'])===required);
   };
   const badge = (label, detail = '', key = label) => n.badge(`<b>${escape(label)}</b> — ${escape(detail || label)}`, key);
-  const button = (name, scope = '화면') => {
+  const button = (name, scope = '화면', forceDisabled = false) => {
     if (name === '승인 요청' && figure.buttons.includes('저장') && !figure.buttons.includes('승인 요청')) name = '저장';
     const actionTable = model.actionTables?.find(t=>t.rows.some(r=>plain(r[0])===name));
     const row = actionTable?.rows.find(r=>plain(r[0])===name) ?? model.actions.find((r) => plain(r[0]) === name);
@@ -89,7 +89,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const locked = ['saving','unknown','conflict','denied'].includes(figure.key);
     const modeLocked=/추가|제거/.test(name)&&!supportsValueMode(scope);
     const localRequestEdit = model.requestScreen && figure.editable && /추가$|제거$/.test(name) && (model.addRowTabs??[]).includes(scope);
-    const disabled = (model.strictButtons && !figure.buttons.includes(name) && !localRequestEdit) || figure.disabledButtons?.includes(name) || modeLocked || (locked && !figure.buttons.includes(name)) || (!figure.editable && !read && !figure.buttons.includes(name)) || surface?.disabled?.includes(name) || name === '수동 샘플';
+    const disabled = forceDisabled || (model.strictButtons && !figure.buttons.includes(name) && !localRequestEdit) || figure.disabledButtons?.includes(name) || modeLocked || (locked && !figure.buttons.includes(name)) || (!figure.editable && !read && !figure.buttons.includes(name)) || surface?.disabled?.includes(name) || name === '수동 샘플';
     const add = !disabled && /추가$/.test(name) && (model.addRowTabs??[]).includes(scope);
     const remove = !disabled && /제거$/.test(name) && (model.addRowTabs??[]).includes(scope);
     const description = actionTable ? actionExplanation(actionTable,row,title) : `<b>${escape(name)}</b> — ${escape(plain(row[5]))}`;
@@ -97,6 +97,8 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const saveScopes=[...new Set(locations.map(s=>s.save))];
     const note=n.badge(description+(locations.length?`<p>배치: ${escape(locations.map(s=>s.name).join(' · '))}</p><p>저장 범위: ${escape(saveScopes.join(' / '))}</p>`:''),`action:${name}`);
     const command=(model.commandFields?.rows??[]).some(r=>plain(r[0])===name);
+    const targetRow=command&&name==='저장'?model.saveTargets?.rows.find(row=>plain(row[0])===scope):null;
+    const saveTarget=targetRow?[plain(targetRow[1]),plain(targetRow[2])]:null;
     const destination=(model.figureNavigation?.rows??[]).find(r=>plain(r[0])===name);
     const displayName=/추가$|^신규$/.test(name)?'추가':actionTable ? plain(cell(actionTable,row,'표시명'))||name : name;
     const nav=model.screenNavigation?.rows.find(r=>plain(r[0])===name);
@@ -107,7 +109,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       const requestId=model.requestRoutes?.find(s=>s.route===`/${destination}`)?.id??'';
       return `<span class="control-annotation"><a class="btn ghost sm" href="${escape(href)}" data-request-navigation data-request-screen="${escape(requestId)}">${escape(displayName)}</a>${note}</span>`;
     }
-    return `<span class="control-annotation"><button type="button" class="btn ghost sm"${disabled?' disabled':''}${!read?' data-edit-action':''}${model.savedActions?.includes(name)?' data-saved-action':''}${model.independentButtons?.includes(name)?' data-selection-independent':''}${modeLocked?' title="해당 값 방식의 등록 컬럼이 없어 사용할 수 없습니다"':''}${add?' data-add-demo-row':''}${remove?' data-remove-demo-row':''}${command?` data-open-command="${escape(name)}"`:''}${destination?` data-open-figure="${escape(plain(destination[1]))}"`:''}>${escape(displayName)}</button>${note}</span>`;
+    return `<span class="control-annotation"><button type="button" class="btn ghost sm"${disabled?' disabled':''}${!read?' data-edit-action':''}${model.savedActions?.includes(name)?' data-saved-action':''}${model.independentButtons?.includes(name)?' data-selection-independent':''}${modeLocked?' title="해당 값 방식의 등록 컬럼이 없어 사용할 수 없습니다"':''}${add?' data-add-demo-row':''}${remove?' data-remove-demo-row':''}${command?` data-open-command="${escape(name)}"`:''}${saveTarget?` data-save-target="${saveTarget[0]}" data-save-target-name="${saveTarget[1]}"`:''}${destination?` data-open-figure="${escape(plain(destination[1]))}"`:''}>${escape(displayName)}</button>${note}</span>`;
   };
   const buttons = () => compact ? '' : figure.buttons.filter((name) => name !== '엑셀 다운로드').map(name=>button(name)).join('');
   const details = model.columns.slice(1);
@@ -262,7 +264,9 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const addControl=!wantsAdd?'':commandAdd?button(commandAdd,label):newNavigation?button('신규',label):standardButton('추가','add',!canAdd,'같은 저장 단위에 신규 행 추가').replace('data-grid-add',table===model.columns[0]&&model.independentButtons?.includes('행 추가')?'data-grid-add data-selection-independent':'data-grid-add');
     const addRefRow=model.addReferences?.rows.find(row=>plain(row[0])===label);
     const addRef=addRefRow?{search:plain(addRefRow[1]),key:plain(addRefRow[2]),rate:plain(addRefRow[3]),values:JSON.parse(addRefRow[4])}:null;
-    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?standardButton('저장','save',(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장'),'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.'):'') ,actions,tools:excel+settings});
+    const saveLocked=(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장')||Boolean(model.saveTargets&&figure.key==='new'&&table!==model.columns[0]);
+    const saveControl=commandDeclared('저장')?`<span data-grid-save data-native-save>${button('저장',label,saveLocked)}</span>`:standardButton('저장','save',saveLocked,'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.');
+    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?saveControl:'') ,actions,tools:excel+settings});
     const [contextField,contextValue]=(model.masterEditRule??'').split('=');
     return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${table.auditPolicy?` data-grid-audit="${escape(table.auditPolicy.kind)}"`:''}${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
       <div class="grid" style="overflow:auto"><table style="width:100%;table-layout:fixed;min-width:${table.rows.filter(r=>!optional(r)).reduce((n,r)=>n+width(r),systemWidth(showState,multiple,showDelete))}px"><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>
@@ -327,13 +331,14 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       const max=value('최대 길이');
       const note=badge(label,`${value('설명')} 필수: ${value('필수')}. 검증: ${value('검증')}. 메시지: ${value('메시지 키')}`,`command:${name}:${label}`);
       const control=mode==='선택'?`<select aria-label="${escape(label)}"${required}>${value('후보 예시').split('·').map(v=>`<option${v===example?' selected':''}>${escape(v)}</option>`).join('')}</select>`
-        :mode==='장문'?`<textarea aria-label="${escape(label)}" rows="3"${required}>${escape(example)}</textarea>`
+        :mode==='장문'?`<textarea aria-label="${escape(label)}" rows="3"${required}>${escape(example==='—'?'':example)}</textarea>`
         :`<input aria-label="${escape(label)}" type="${mode==='일시'?'datetime-local':'text'}" value="${escape(example==='—'?'':example)}"${required}${mode==='조회'?' readonly':''}${/^\d+$/.test(max)?` maxlength="${max}"`:''}>`;
       return `<label class="command-field"><span>${escape(label)}${required?' *':''}${note}</span>${control}</label>`;
     };
     const targetRows=rows.filter(r=>plain(cell(commandTable,r,'영역'))==='관련 대상');
     const targets=targetRows.length?`<div data-command-targets><fieldset data-command-target><legend>관련 테이블·버전</legend>${targetRows.map(field).join('')}<button type="button" class="btn ghost sm" data-remove-command-target>대상 제거${badge('대상 제거','입력 중 대상 연결만 제거한다. 테이블이나 버전을 삭제하지 않는다.',`command:${name}:remove`)}</button></fieldset></div><button type="button" class="btn ghost sm" data-add-command-target>대상 추가${badge('대상 추가','같은 명령에 연결할 대상 입력 행을 추가한다.',`command:${name}:add`)}</button>`:'';
-    return `<dialog class="command-dialog" data-command="${escape(name)}" aria-label="${escape(name)} 입력"><form data-command-form><h3>${escape(name)}</h3>${rows.filter(r=>plain(cell(commandTable,r,'영역'))!=='관련 대상').map(field).join('')}${targets}<p>검토용 입력 예시입니다. 실제 서버로 전송하지 않습니다.</p><p role="status" data-command-result></p><div class="row actions"><button type="submit" class="btn">접수${badge('접수','요건서의 필수 입력과 명령별 검증 조건을 확인해 접수한다. 목업에서는 입력 확인만 시연하며 실제 전송하지 않는다.',`command:${name}:submit`)}</button><button type="button" class="btn ghost" data-close-command>닫기${badge('닫기','입력창을 닫는다. 목업에서는 입력을 유지한다.',`command:${name}:close`)}</button></div></form></dialog>`;
+    const submitName=name==='저장'?'저장':'접수';
+    return `<dialog class="command-dialog" data-command="${escape(name)}" aria-label="${escape(name)} 입력"><form data-command-form><h3>${escape(name)}</h3>${rows.filter(r=>plain(cell(commandTable,r,'영역'))!=='관련 대상').map(field).join('')}${targets}<p>검토용 입력 예시입니다. 실제 서버로 전송하지 않습니다.</p><p role="status" data-command-result></p><div class="row actions"><button type="submit" class="btn">${submitName}${badge(submitName,'요건서의 필수 입력과 명령별 검증 조건을 확인한다. 목업은 입력 확인만 시연하며 실제 전송하지 않는다.',`command:${name}:submit`)}</button><button type="button" class="btn ghost" data-close-command>닫기${badge('닫기','입력창을 닫는다. 목업에서는 입력을 유지한다.',`command:${name}:close`)}</button></div></form></dialog>`;
   }).join('');
   return `<div class="screen leaf" id="${escape(figure.key)}"${interactive?' data-interactive-tabs':''}${model.masterLink?` data-master-link="${escape(model.masterLink)}" data-master-initial="${escape(figure.masterValue??'')}" data-calculation-rules="${escape(JSON.stringify(model.calculations??[]))}" data-calculation-guard="${escape(JSON.stringify(model.calculationGuardButtons??[]))}"${model.allocationValidity?` data-allocation-validity="${escape(JSON.stringify(model.allocationValidity))}"`:''}${figure.editable?'':' data-calculation-readonly'}`:''}${manualKey ? ` data-manual="${escape(figure.key)}"` : ''}>
     <div class="bar">${escape(title)} · ${escape(figure.caption)} · 검토용 예시</div><div class="body">${main}${model.masterLink?'<p class="notes" role="status" data-calculation-status hidden></p>':''}</div>${commands}</div>\n${n.render()}`;

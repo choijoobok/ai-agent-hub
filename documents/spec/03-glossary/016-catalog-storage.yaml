@@ -14,11 +14,6 @@ terms:
     key: "catalogKeyColumn"
     group: "데이터"
     definition: "복합 키의 일부 컬럼만으로 유일성을 판정하지 않으며 수집한 전체 키가 등록 컬럼에 완결됐는지 검증한다"
-  - id: TRM-267
-    term: "카탈로그 인라인 값"
-    key: "catalogInlineValue"
-    group: "데이터"
-    definition: "소유 컬럼의 VALUE_MODE=INLINE일 때만 쓰며 같은 유형/정규화 값 중복을 전체 구성 검증에서 거부한다"
   - id: TRM-269
     term: "권장 조인 컬럼 쌍"
     key: "catalogJoinPair"

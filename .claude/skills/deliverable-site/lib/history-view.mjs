@@ -5,6 +5,7 @@ export function historyViewMarkdown(screen, source) {
     throw new Error(`${screen.id}: 원 관리 화면의 이력 상속 연결이 잘못됐다.`);
   }
   if (screen.target_doc || screen.current_doc) throw new Error(`${screen.id}: 상속 이력의 독립 요건서/목업을 만들지 않는다.`);
+  const summary=screen.history_summary_columns?.join(' · ')||'변경 요약';
   return `# ${screen.id} ${screen.title}
 
 이 화면은 **${source.id} ${source.title}**의 조회조건·마스터 컬럼·배치·하단 탭을 읽기 전용으로 재사용합니다. 별도 이력 목업과 요건서를 복사하지 않습니다.
@@ -15,7 +16,7 @@ export function historyViewMarkdown(screen, source) {
 | 경로 | ${screen.route} |
 | 원 화면 | ${source.id} · ${source.route} |
 | 조회조건 | 원 관리 화면과 동일 + 이력 저장일시 범위 |
-| 상단 그리드 | 당시 관리 데이터의 동일 컬럼 + 변경 요약 |
+| 상단 그리드 | 당시 관리 데이터의 동일 컬럼 + ${summary} |
 | 행 선택 | 원 ID와 HISTORY_NO로 같은 시점의 하단 세트 조회 |
 | 하단 탭 | 같은 이력 번호로 복사한 당시 행만 표시 |
 | 기본 감사 컬럼 | 추가 전용 행의 등록자·등록일시 두 컬럼을 항상 표시. 원본 등록/수정 감사값은 스냅샷에 별도로 보존 |
@@ -26,6 +27,8 @@ export function historyViewMarkdown(screen, source) {
 ${screen.access}
 
 ${screen.empty_state}
+
+${screen.history_summary_rule??''}
 
 원 화면에 있던 실시간 관측·타 소유 사용처 등 비저장 영역에는 현재값을 대신 채우지 않습니다. 저장·요약·권한·보존의 정본은 REQ-601.change_history와 ADR-035입니다.
 `;
