@@ -1,0 +1,9 @@
+meta:
+  status: "in_progress"
+  baselined: null
+spec_set:
+  version: 1
+  parts:
+    - "001-common.yaml"
+    - "002-system-jobs.yaml"
+    - "003-schema-comparison.yaml"

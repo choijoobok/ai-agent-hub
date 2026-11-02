@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { batchContractErrors, checkBatchSpec } from './batch-contract.mjs';
+import { parseYaml } from '../../../.claude/hooks/lib.mjs';
+const source='sources/backend/domain/src/main/java/example/ExampleJob.java';
+const job={id:'JOB-001',title:'배치',module:'system',implementation:'implemented',feature:'FEAT-001',usecase:'UC-001',reqs:['REQ-001'],screens:['SCR-001'],testcases:['TC-001'],runbooks:[],sources:[source],schedule:{batch_id:'EXAMPLE',bean_id:'exampleJob',seed_cron:'0 0 3 * * *',seed_timezone:'Asia/Seoul',seed_use_yn:'N',activation:'운영 확인 후'},scope:'범위',parameters:'없음',permissions:'현재 권한',processing:'처리',concurrency:'중복 제한',failure:'실패',cancellation:'협조 중단',retry:'재실행',outputs:'결과',observability:'이력'};
+const opts={knownIds:new Set(['FEAT-001','UC-001','REQ-001','SCR-001','TC-001']),implementationSources:[source]};
+const errors=changed=>batchContractErrors({jobs:[{...job,...changed}]},opts);
+assert.deepEqual(errors({}),[]);
+assert.ok(errors({failure:''}).some(x=>x.includes('failure')));
+assert.ok(errors({feature:'FEAT-999'}).some(x=>x.includes('존재하지 않는')));
+assert.ok(errors({sources:[]}).some(x=>x.includes('미등재')));
+assert.ok(errors({implementation:'planned'}).some(x=>x.includes('pending')));
+assert.ok(batchContractErrors({jobs:[job,job]},opts).some(x=>x.includes('중복')));
+assert.ok(batchContractErrors({jobs:[job]},{...opts,sourceExists:()=>false}).some(x=>x.includes('잘못된 소스')));
+assert.deepEqual(checkBatchSpec({repo:process.cwd(),parseYaml}),[]);
+console.log('배치 명세: 정상·필수 계약·오참조·실구현 누락·계획 상태·중복·소스 경로 반례 통과');

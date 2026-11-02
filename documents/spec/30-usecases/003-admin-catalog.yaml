@@ -209,7 +209,11 @@ usecases:
     workstream: "admin"
     design_status: "draft"
     feature_contract: "FEAT-003"
+    jobs: [JOB-003]
+    screens: [SCR-002, SCR-525]
     entities:
+      - "ENT-039"
+      - "ENT-040"
       - "ENT-010"
       - "ENT-027"
       - "ENT-028"
@@ -222,17 +226,22 @@ usecases:
         - "ACT-014"
     process_step: "PRC-09-04"
     precondition: "등록 공개 범위와 구조 관측의 현재 권한을 확인할 수 있다."
-    trigger: "고객사 변경 근거를 받거나 등록 공개 객체의 구조 변화 후보를 확인하거나 UC-007에서 카탈로그 업무 의미·값 도메인을 변경한다"
+    trigger: "JOB-003의 예약 시각 또는 관리자의 원천 구조 비교 명령"
     main_flow:
+      - "예약/수동 실행이 같은 점유·멱등 계약으로 현재 설정의 등록 카탈로그 범위와 기준 판을 확정한다."
       - "등록 공개 테이블/뷰와 기준 카탈로그·현재 원천 구조의 비교 범위/권한을 확인한다."
       - "REQ-304.batch_structure_comparison으로 타입/컬럼/키 등 지원 구조 속성의 양쪽 값·부재/미지원/실패·기준/관측 시각을 조회한다."
       - "구조 관측/불일치 사실만 보존하고 자동 카탈로그/지식 변경·지식 영향 검토 작업을 만들지 않는다."
       - "업무 의미 적합성은 운영조직 자체 프로세스로 맡기고 필요한 관리는 현재 변경 권한자의 원 소유 직접 저장/기술 검증·이력으로 처리한다."
+      - "저장된 결과를 불일치 탭·불일치 검사 요약·대시보드에서 같은 집계 단위와 현재 열람 범위로 확인하고 관리 화면으로 이동한다."
     alternative_flows:
       - id: "A1"
         condition: "담당자 변경 통지"
         flow:
           - "통지 사실/출처·대상·시각을 보존할 수 있으나 지식 영향 판정/작업을 생성하지 않는다."
+      - id: "A2"
+        condition: "접속 계정의 대상 스키마 메타데이터 조회 권한 부재가 확인됨"
+        flow: ["REQ-304.batch_structure_comparison.summary에 따라 해당 없음 또는 일부 확인으로 표시한다. 과거 차이를 해소하지 않고 이전 결과로 유지한다."]
     exception_flows:
       - id: "E1"
         condition: "원천 조회 실패/미지원 또는 범위 불완전"
@@ -244,4 +253,4 @@ usecases:
       - "REQ-303.reference_mapping"
     pending:
       - "@defer P3 — 구조 관측 범위·권한·기준/관측 시각·보존/재접수/복구 계약을 상세 설계한다."
-    storage_context: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
+    storage_context: "REQ-304.batch_structure_comparison 및 FEAT-003.batch_comparison_contract. ENT-039 비교 실행/대상별 근거와 ENT-040 현재 차이를 원자 갱신하고 관리값·마스터 리비전·관리 HIST는 수정하지 않는다. 공통 배치 실행 이력과 runId를 연결한다."

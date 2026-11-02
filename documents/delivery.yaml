@@ -65,6 +65,10 @@ sites:
           path: ["화면 목록"]
           source_prefixes: ["documents/generated/60-"]
           group_by_module: true
+        - key: batches
+          path: ["스케줄 배치"]
+          source_prefixes: ["documents/generated/65-"]
+          group_by_module: true
         - key: validation
           path: ["테스트·추적성"]
           source_prefixes: ["documents/generated/70-", "documents/generated/71-", "documents/generated/72-", "documents/generated/90-"]

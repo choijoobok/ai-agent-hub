@@ -118,20 +118,20 @@
 
 ### 4-1. 그리드 — 실행 이력
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 정렬 | 필터 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 배치 ID | `MSG.BATCH_HISTORY_COL_BATCH_ID` | `BATCH_ID` | `batchId` | 텍스트 | 160 | ○ | ○ | 배치 ID 항목. 저장 또는 조회 근거: BATCH_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 배치명 | `MSG.BATCH_HISTORY_COL_BATCH_NM` | `SYS_SCHEDULE_BATCH.BATCH_NM` | `batchNm` | 텍스트 | 180 | — | ○ | 배치명 항목. 저장 또는 조회 근거: SYS_SCHEDULE_BATCH.BATCH_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 시작 | `MSG.BATCH_HISTORY_COL_START` | `START_DTM` | `startDtm` | 일시 | 160 | **○** | ○ | 시작 항목. 저장 또는 조회 근거: START_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 종료 ○ | `MSG.BATCH_HISTORY_COL_END` | `END_DTM` | `endDtm` | 일시 | 160 | — | — | 종료 ○ 항목. 저장 또는 조회 근거: END_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| **소요** | `MSG.BATCH_HISTORY_COL_ELAPSED` | `ELAPSED_MS` | `elapsedMs` | 기간 | 120 | **○** | 끔 | 소요 항목. 저장 또는 조회 근거: ELAPSED_MS. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 결과 | `MSG.BATCH_HISTORY_COL_RSLT` | `RSLT_CD` | `rsltCd` | 배지 | 150 | — | ○ | 결과 항목. 저장 또는 조회 근거: RSLT_CD. | **요청과 결과가 다른 컬럼이다** — 실제로 멈추면 `RSLT_CD` 가 `CANCELED` 가 된다. |
-| 실행 구분 | `MSG.BATCH_HISTORY_COL_EXEC_TYPE` | `EXEC_TYPE_CD` | `execTypeCd` | 텍스트 | 100 | — | ○ | 실행 구분 항목. 저장 또는 조회 근거: EXEC_TYPE_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 결과 메시지 | `MSG.BATCH_HISTORY_COL_RSLT_MSG` | `RSLT_MSG` | `rsltMsg` | 텍스트 | 260 | — | 끔 | 결과 메시지 항목. 저장 또는 조회 근거: RSLT_MSG. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 상세 | `MSG.BATCH_HISTORY_COL_DETAIL` | **파생** | `hasDetail` | 링크 | 80 | — | 끔 | 상세 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 노드 ○ | `MSG.BATCH_HISTORY_COL_NODE` | `NODE_ID` | `nodeId` | 텍스트 | 160 | — | — | 노드 ○ 항목. 저장 또는 조회 근거: NODE_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 중단 요청 ○ | `MSG.BATCH_HISTORY_COL_CANCEL_REQ` | `CANCEL_REQ_DTM` | `cancelReqDtm` | 일시 | 160 | — | — | 중단 요청 ○ 항목. 저장 또는 조회 근거: CANCEL_REQ_DTM. | 중단  ·  `SYS_BATCH_HISTORY`  ·  UPDATE  ·  **`CANCEL_REQ_DTM` 하나** |
-| 이력 ID ○ | `MSG.BATCH_HISTORY_COL_HIST_ID` | `HIST_ID` | `histId` | 숫자 | 100 | — | — | 이력 ID ○ 항목. 저장 또는 조회 근거: HIST_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 정렬 | 필터 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 배치 ID | `MSG.BATCH_HISTORY_COL_BATCH_ID` | `BATCH_ID` | `batchId` | 텍스트 | 160 | ○ | ○ | 배치 ID 항목. 저장 또는 조회 근거: BATCH_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | BATCH_ID; 소유 정본 | 소유 원천에 저장, 화면 직접 입력 불가 | — |
+| 배치명 | `MSG.BATCH_HISTORY_COL_BATCH_NM` | `SYS_SCHEDULE_BATCH.BATCH_NM` | `batchNm` | 텍스트 | 180 | — | ○ | 배치명 항목. 저장 또는 조회 근거: SYS_SCHEDULE_BATCH.BATCH_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | SYS_SCHEDULE_BATCH.BATCH_NM | 소유 정본의 저장값 | — |
+| 시작 | `MSG.BATCH_HISTORY_COL_START` | `START_DTM` | `startDtm` | 일시 | 160 | **○** | ○ | 시작 항목. 저장 또는 조회 근거: START_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | START_DTM | 소유 정본의 저장값 | — |
+| 종료 ○ | `MSG.BATCH_HISTORY_COL_END` | `END_DTM` | `endDtm` | 일시 | 160 | — | — | 종료 ○ 항목. 저장 또는 조회 근거: END_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | END_DTM | 소유 정본의 저장값 | — |
+| **소요** | `MSG.BATCH_HISTORY_COL_ELAPSED` | `ELAPSED_MS` | `elapsedMs` | 기간 | 120 | **○** | 끔 | 소요 항목. 저장 또는 조회 근거: ELAPSED_MS. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | ELAPSED_MS | 소유 정본의 저장값 | — |
+| 결과 | `MSG.BATCH_HISTORY_COL_RSLT` | `RSLT_CD` | `rsltCd` | 배지 | 150 | — | ○ | 결과 항목. 저장 또는 조회 근거: RSLT_CD. | **요청과 결과가 다른 컬럼이다** — 실제로 멈추면 `RSLT_CD` 가 `CANCELED` 가 된다. | string | text | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | RSLT_CD | 소유 정본의 저장값 | — |
+| 실행 구분 | `MSG.BATCH_HISTORY_COL_EXEC_TYPE` | `EXEC_TYPE_CD` | `execTypeCd` | 텍스트 | 100 | — | ○ | 실행 구분 항목. 저장 또는 조회 근거: EXEC_TYPE_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | EXEC_TYPE_CD | 소유 정본의 저장값 | — |
+| 결과 메시지 | `MSG.BATCH_HISTORY_COL_RSLT_MSG` | `RSLT_MSG` | `rsltMsg` | 텍스트 | 260 | — | 끔 | 결과 메시지 항목. 저장 또는 조회 근거: RSLT_MSG. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | RSLT_MSG | 소유 정본의 저장값 | — |
+| 상세 | `MSG.BATCH_HISTORY_COL_DETAIL` | **파생** | `hasDetail` | 링크 | 80 | — | 끔 | 상세 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 대상/조회 조건·소유 원천 변경 후 조회 시 | 파생; 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다; 상세 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 비저장 투영(원천의 저장 결과/집계 참조) | — |
+| 노드 ○ | `MSG.BATCH_HISTORY_COL_NODE` | `NODE_ID` | `nodeId` | 텍스트 | 160 | — | — | 노드 ○ 항목. 저장 또는 조회 근거: NODE_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | NODE_ID; 소유 정본 | 소유 원천에 저장, 화면 직접 입력 불가 | — |
+| 중단 요청 ○ | `MSG.BATCH_HISTORY_COL_CANCEL_REQ` | `CANCEL_REQ_DTM` | `cancelReqDtm` | 일시 | 160 | — | — | 중단 요청 ○ 항목. 저장 또는 조회 근거: CANCEL_REQ_DTM. | 중단  ·  `SYS_BATCH_HISTORY`  ·  UPDATE  ·  **`CANCEL_REQ_DTM` 하나** | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | CANCEL_REQ_DTM | 소유 정본의 저장값 | — |
+| 이력 ID ○ | `MSG.BATCH_HISTORY_COL_HIST_ID` | `HIST_ID` | `histId` | 숫자 | 100 | — | — | 이력 ID ○ 항목. 저장 또는 조회 근거: HIST_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | HIST_ID; 소유 정본 | 소유 원천에 저장, 화면 직접 입력 불가 | — |
 
 `○` = 기본 숨김.
 

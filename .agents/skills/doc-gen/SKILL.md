@@ -93,6 +93,7 @@ node .claude/skills/doc-gen/gen.mjs --check            # 생성물이 spec 을 �
 | 테이블명세서 | `gen` | `documents/generated/41-테이블명세서/{ENT-ID}.md` + `_index.md` (기술 기반은 테이블명) | 40-domain + 활성 Liquibase |
 | DDL | `prose` | 승인된 **새 Liquibase changeset** `sources/backend/bootstrap/src/main/resources/db/changelog/` | 40-domain + conventions |
 | API | `gen` | `documents/generated/50-API.md` + `documents/generated/50-openapi.yaml` | 50-api |
+| 스케줄배치명세서 | `gen` | `documents/generated/65-스케줄배치명세서/` | 65-batches |
 | 테스트케이스 | `gen` | `documents/generated/70-테스트케이스.md` | 70-testcases |
 | 운영런북 | `gen` | `documents/generated/80-운영런북.md` | 80-operations |
 | 시퀀스 | `gen` | `documents/generated/33-시퀀스/UC-###.md` (Mermaid sequenceDiagram) + `_index.md` | 30-usecases.sequence_design (50-api 등 상세 계약 참조) |

@@ -58,6 +58,14 @@ export function testTraceModel() {
   assert.deepEqual(testsByFeature([sharedTest]).get('FEAT-002'), [sharedTest]);
   const nfr = createTraceModel({ nfrs: [{ id: 'NFR-001', test_case: 'TC-002' }], features: [{ id: 'FEAT-001' }, { id: 'FEAT-002' }], testcases: [sharedTest] });
   assert.ok(affectedIds(nfr, ['NFR-001']).includes('TC-002'));
+  const batch = createTraceModel({
+    features: [{ id: 'FEAT-001' }], usecases: [{ id: 'UC-001' }],
+    jobs: [{ id: 'JOB-001', feature: 'FEAT-001', usecase: 'UC-001', screens: ['SCR-001'], testcases: ['TC-001'], sources: ['sources/backend/Job.java'] }],
+    screens: [{ id: 'SCR-001', feature: 'FEAT-001' }], testcases: [{ id: 'TC-001', feature: 'FEAT-001', jobs: ['JOB-001'] }],
+  });
+  assert.deepEqual(sourceSeeds(batch, 'sources/backend/Job.java'), ['JOB-001']);
+  for (const id of ['JOB-001','FEAT-001','SCR-001','TC-001']) assert.ok(affectedIds(batch, ['UC-001']).includes(id));
+  assert.ok(affectedIds(batch, ['JOB-001']).includes('FEAT-001'));
 }
 
 /** 순수 함수 import와 chain 실행을 구분한다. */

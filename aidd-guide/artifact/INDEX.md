@@ -66,11 +66,11 @@ tags: [artifact, map, index]
 | 42  | **외부 조사 자료** (비규범)        | P2~   | S   | `documents/research/{주제}.md`                                                                                          |  ○   |  ○  |  ●   |
 | 43  | **요구사항 정의서** (읽는 뷰)        | P1~   | G   | `documents/generated/10-요구사항정의서/`                                                                                 |  ●   |  ●  |  ●   |
 | 44  | **고객 제출 사이트 구성·제출본**       | P3~P6 | S+G | `documents/delivery.yaml` → `build/deliverables/`                                                                        |  ●   |  ●  |  ●   |
+| 45 | **스케줄 배치 목록·명세서** | P3~P6 | S+G | `documents/spec/65-batches/_index.yaml` → `documents/generated/65-스케줄배치명세서/` | ○ | ● | ● |
 
 ● 필수 · △ 축약형 · ○ 선택
 
-문서별 책임·다대다 연결·소스 현행화의 정본은 [spec-schema.md](./spec-schema.md)의 「설계 문서의 책임과 연결」이다.
-기능별 명세는 31-features에서 생성하고 공통 화면도 같은 SCR 체계로 관리한다. API 목록은 독립 추적 기준이며 Swagger UI는 필수가 아니다.
+문서별 책임·연결·현행화는 [spec-schema.md](./spec-schema.md)의 「설계 문서의 책임과 연결」을 따른다. 기능별 명세는 31-features에서 생성하고 공통 화면도 같은 SCR 체계로 관리한다. API 목록은 독립 추적 기준이며 Swagger UI는 필수가 아니다.
 
 ### 33~38 — 화면 문서는 왜 `generated/` 가 아닌가
 

@@ -119,12 +119,12 @@
 
 ### 4-1. 좌 — 사용자 목록 (**읽기 전용**)
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 정렬 | 필터 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 이름 | `MSG.USER_COL_USER_NM` | `USER_NM` | `userNm` | 110 | ○ | ○ | 이름 항목. 저장 또는 조회 근거: USER_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 로그인 ID | `MSG.USER_COL_USER_ID` | `USER_ID` | `userId` | 110 | ○ | ○ | 로그인 ID 항목. 저장 또는 조회 근거: USER_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 계정 상태 | `MSG.USER_COL_STAT` | **파생** | `accountStat` | 90 | **불가** | ○ | 계정 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 예외 건수 | `MSG.USER_AUTH_COL_GRANT_CNT` | **파생** | `activeGrantCnt` | 90 | **불가** | 끔 | 예외 건수 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 정렬 | 필터 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 이름 | `MSG.USER_COL_USER_NM` | `USER_NM` | `userNm` | 110 | ○ | ○ | 이름 항목. 저장 또는 조회 근거: USER_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | USER_NM | 소유 정본의 저장값 | {"sortable":true} |
+| 로그인 ID | `MSG.USER_COL_USER_ID` | `USER_ID` | `userId` | 110 | ○ | ○ | 로그인 ID 항목. 저장 또는 조회 근거: USER_ID. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 참조 조회 | 참조 원천 변경/선택 대상 변경 후 재조회 시 | SYS_USER.USER_ID의 기존 로그인 ID. 사용자 권한 화면은 이 ID를 생성/변경하지 않음 | 화면 비저장 참조. 안정 식별자/매핑은 해당 소유 정본에 저장하며 표시명을 복사 저장하지 않음 | {"sortable":true} |
+| 계정 상태 | `MSG.USER_COL_STAT` | **파생** | `accountStat` | 90 | **불가** | ○ | 계정 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => accountStatText(row.accountStat); sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx#accountStat.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#accountStat.derive"} |
+| 예외 건수 | `MSG.USER_AUTH_COL_GRANT_CNT` | **파생** | `activeGrantCnt` | 90 | **불가** | 끔 | 예외 건수 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | SYS_USER_MENU_AUTH 중 validFromDt ≤ 오늘 ≤ validToDt인 개인 예외 행 수. 만료분 제외, 고아 부여 포함; sources/backend/domain/src/main/java/com/aiagent/domain/authz/userauth/UserAuthQueryService.java#activeGrantCounts | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | {"filter":false} |
 
 - **넷뿐이고 고르기만 하는 목록이다.** 행 추가 버튼도 삭제 컬럼도 없다.
 - **`계정 상태` 는 `USER_MGMT` 와 같은 파생 규칙이다** — 같은 계정이 두 화면에서 다르게 보이면 안 되므로 타입도 라벨도 공통물 하나가 갖는다. **부여하는 자리에서 계정 상태가 보여야** 못 쓰는 계정에 예외를 열심히 주고 나서 *왜 안 되나* 를 묻는 일이 없다. 헤더 툴팁이 파생임을 말한다.
@@ -153,24 +153,24 @@
 
 ### 4-2a. 권한 트리
 
-| 컬럼 | 필드명 | 입력방식 | 필수 | 편집 | 선택 출처 | 검증 | 설명 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 메뉴 | menuNm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 메뉴 계층. 구조 노드는 권한을 직접 갖지 않는다. |
-| 조회 | READ | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. |
-| 저장 | SAVE | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. |
-| 엑셀 | EXPORT | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. |
-| 실행 | EXECUTE | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. |
+| 컬럼 | 필드명 | 입력방식 | 필수 | 편집 | 선택 출처 | 검증 | 설명 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 메뉴 | menuNm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 메뉴 계층. 구조 노드는 권한을 직접 갖지 않는다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 조회 | READ | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. | string | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 해당 없음 | 조건부 — §4-2의 권한·업무 상태 및 검증 조건 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 서버 | 소유 구성에 저장 | — |
+| 저장 | SAVE | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. | string | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 해당 없음 | 조건부 — §4-2의 권한·업무 상태 및 검증 조건 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 서버 | 소유 구성에 저장 | — |
+| 엑셀 | EXPORT | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. | string | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 해당 없음 | 조건부 — §4-2의 권한·업무 상태 및 검증 조건 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 서버 | 소유 구성에 저장 | — |
+| 실행 | EXECUTE | 스위치 | 해당 없음 | 조건부 | 서버 | 현재 주체가 부여 가능한 리프 액션만. 변경은 하단 예외 목록에 반영되고 그 목록을 저장 | 셀의 역할 경유·개인 예외·기간 상태를 함께 확인한다. | string | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 해당 없음 | 조건부 — §4-2의 권한·업무 상태 및 검증 조건 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 서버 | 소유 구성에 저장 | — |
 
 ### 4-3. 하 — 예외 목록 (**기간과 사유가 들어가는 유일한 자리**)
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 필수 | 편집 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 메뉴 | `MSG.USER_AUTH_COL_MENU` | 파생 — `사용자 > 사용자 관리` | `menuPath` | 260(fill) | — | **불가** | 메뉴 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 액션 | `MSG.USER_AUTH_COL_ACTION` | `ACTION_CD` | `actionCd` | 90 | — | **불가** | 액션 항목. 저장 또는 조회 근거: ACTION_CD. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 상태 | `MSG.USER_AUTH_COL_STATE` | **파생** | `grantState` | 80 | — | 불가 | 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 시작일 | `MSG.USER_AUTH_COL_FROM` | `VALID_FROM_DT` | `validFromDt` | 130 | **필수** | 가능 | 시작일 항목. 저장 또는 조회 근거: VALID_FROM_DT. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 종료일 | `MSG.USER_AUTH_COL_TO` | `VALID_TO_DT` | `validToDt` | 130 | **필수** | 가능 | 종료일 항목. 저장 또는 조회 근거: VALID_TO_DT. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 부여 사유 | `MSG.USER_AUTH_COL_REASON` | `GRANT_RSN` | `grantRsn` | 280(fill) | **필수** | 가능(큰 텍스트) | 부여 사유 항목. 저장 또는 조회 근거: GRANT_RSN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 필수 | 편집 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 메뉴 | `MSG.USER_AUTH_COL_MENU` | 파생 — `사용자 > 사용자 관리` | `menuPath` | 260(fill) | — | **불가** | 메뉴 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 대상/조회 조건·소유 원천 변경 후 조회 시 | 파생 — 사용자 > 사용자 관리; 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다.; 메뉴 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 비저장 투영(원천의 저장 결과/집계 참조) | {"sortable":false,"fill":true,"badge":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#menuPath.badge"} |
+| 액션 | `MSG.USER_AUTH_COL_ACTION` | `ACTION_CD` | `actionCd` | 90 | — | **불가** | 액션 항목. 저장 또는 조회 근거: ACTION_CD. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => label(ACTION_LABEL[row.actionCd]); sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx#actionCd.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#actionCd.derive"} |
+| 상태 | `MSG.USER_AUTH_COL_STATE` | **파생** | `grantState` | 80 | — | 불가 | 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => label(STATE_LABEL[stateOf(row, today)]); sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx#grantState.derive | 비저장 화면 파생값 | {"filter":false,"derive":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#grantState.derive"} |
+| 시작일 | `MSG.USER_AUTH_COL_FROM` | `VALID_FROM_DT` | `validFromDt` | 130 | **필수** | 가능 | 시작일 항목. 저장 또는 조회 근거: VALID_FROM_DT. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | date | 자동(type) | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx의 validFromDt 컬럼 선언 | 소유 구성에 저장 | {"validate":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#validFromDt.validate"} |
+| 종료일 | `MSG.USER_AUTH_COL_TO` | `VALID_TO_DT` | `validToDt` | 130 | **필수** | 가능 | 종료일 항목. 저장 또는 조회 근거: VALID_TO_DT. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | date | 자동(type) | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx의 validToDt 컬럼 선언 | 소유 구성에 저장 | {"validate":"sources/frontend/src/modules/system/features/userauth//pages/UserAuthMgmtPage.tsx#validToDt.validate"} |
+| 부여 사유 | `MSG.USER_AUTH_COL_REASON` | `GRANT_RSN` | `grantRsn` | 280(fill) | **필수** | 가능(큰 텍스트) | 부여 사유 항목. 저장 또는 조회 근거: GRANT_RSN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/userauth/pages/UserAuthMgmtPage.tsx의 grantRsn 컬럼 선언 | 소유 구성에 저장 | {"filter":false,"fill":true} |
 
 - **메뉴와 액션이 읽기 전용이다.** 그 둘은 PK 의 일부이고 고치는 것은 *다른 행을 만드는 일* 이며, 만드는 자리는 트리다 — 목록에서 메뉴 코드를 고칠 수 있게 하면 **트리를 둔 이유가 사라진다.**
 - **`행 추가` 버튼이 없다.** 부여는 **트리에서 켜는 것**이며, 목록에 빈 행을 만들 수 있게 하면 *메뉴 코드를 손으로 적는* 경로가 열린다.

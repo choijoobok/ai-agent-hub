@@ -2,6 +2,7 @@
 import {escapeHtml as esc, tableCell as cell, columnExplanation, actionExplanation, searchExplanation, surfaceOf} from './presentation.mjs';
 import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,editableColumn,switchColumn,switchCell,badgeCell} from './grid-chrome.mjs';
 import {rowActionCell,rowNavigationCell} from './row-actions.mjs';
+import {canEditRow,gridWritable,propertyAttributes} from './grid-properties.mjs';
 export const areaTitle = table => table.heading.replace(/\*+/g,'').replace(/^\d+(?:-\d+[a-z]?)?\.?\s*/, '').replace(/^(?:마스터(?: 그리드)?|하단|그리드|좌|우|하|디테일 탭 \d+|정의 모달)\s*—\s*/, '').replace(/\s*—\s*(폼|그리드)$/, '').replace(/\s*\([^)]*\)\s*$/,'');
 export function genericScreen(title, model, figure, {annotator, manualKey, compact=false, surfaceName}) {
   const n=annotator(figure.key);
@@ -16,7 +17,7 @@ export function genericScreen(title, model, figure, {annotator, manualKey, compa
   const renderArea=table=>{
     const name=areaTitle(table), surface=surfaceOf(model,name);
     const form=/폼|설정/.test(surface?.kind??'');
-    const writable=!table.readonly&&table.rows.some(row=>editableColumn(cell(table,row,'편집')));
+    const writable=gridWritable(table);
     const createDeclared=(surface?.buttons??[]).some(name=>/추가$|^신규$/.test(name));
     const deleteDeclared=(surface?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
     const locked=['readonly','denied','saving','unknown','conflict'].includes(figure.key);
@@ -33,12 +34,12 @@ export function genericScreen(title, model, figure, {annotator, manualKey, compa
       const input=mode==='배지'?badgeCell(value):switchColumn(mode)?switchCell(value,label,{configurable:mode!=='스위치',editable:writable&&!locked&&editableColumn(editable),description:cell(table,row,'설명')}):/선택|셀렉트|콤보/.test(mode)?`<select ${ro?'disabled':''}><option>${esc(value||'선택')}</option></select>`:/장문|텍스트영역/.test(mode)?`<textarea ${ro?'readonly':''}>${esc(value)}</textarea>`:`<input type="${/password|비밀번호/.test(mode)?'password':'text'}" value="${esc(value)}" ${ro?'readonly':''}>`;
       return `<div class="f${ro?' ro':''}"${switchColumn(mode)?` data-row-field="${esc(label)}" data-row-value="${esc(value)}"`:''}><label data-field-label="${esc(label)}">${esc(label)}${note}</label>${input}</div>`;
     }).join('')}</div>`;
-    const renderRow=(isNew=false)=>`<tr data-grid-row-state="" data-row-context="[]">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple)}${columns.map(({row,label})=>{
-      const value=cell(table,row,'예시')||'—',mode=cell(table,row,'편집'),edit=writable&&!locked&&editableColumn(mode)&&(!/신규/.test(mode)||isNew);
+    const renderRow=(isNew=false)=>`<tr data-grid-row-state="${isNew?'C':''}" data-row-context="[]">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,0,isNew)}${columns.map(({row,label})=>{
+      const value=cell(table,row,'예시')||'—',mode=cell(table,row,'편집'),edit=writable&&!locked&&canEditRow(table,row,isNew);
       const inputMode=cell(table,row,'입력방식');
       const values=Object.fromEntries(table.rows.map(r=>[cell(table,r,'컬럼'),cell(table,r,'예시')]));
       const content=inputMode==='배지'?badgeCell(value):inputMode==='버튼 액션'?rowActionCell(table,row,values,{buttons:figure.buttons??[],disabledButtons:figure.disabledButtons??[],locked}):inputMode==='화면 이동'?rowNavigationCell(table,row,values,model):switchColumn(inputMode)?switchCell(value,label,{configurable:inputMode!=='스위치',editable:edit,description:cell(table,row,'설명')}):edit?inlineEditor(value,`<input data-edit-value value="${esc(value)}" aria-label="${esc(label)}">`):esc(value);
-      return `<td data-row-field="${esc(label)}" data-row-value="${esc(value)}">${content}</td>`;
+      return `<td${propertyAttributes(table,row,isNew)} data-row-field="${esc(label)}" data-row-value="${esc(value)}">${content}</td>`;
     }).join('')}${deleteCell(showDelete,locked)}</tr>`;
     return `<div data-grid-view="${esc(figure.key+'-'+model.columns.indexOf(table))}"${table.auditPolicy?` data-grid-audit="${esc(table.auditPolicy.kind)}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${controls}${writable&&!locked&&createDeclared?`<template data-row-template>${renderRow(true)}</template>`:''}<div class="grid" style="overflow:auto"><table><thead><tr>${stateHeads(showState,multiple)}${columns.map(({label,note})=>`<th style="min-width:110px">${esc(label)}${note}</th>`).join('')}${deleteHead(showDelete)}</tr></thead><tbody>${renderRow()}</tbody></table></div><div class="pg">총 1건 · 1 페이지</div></div>`;
   };

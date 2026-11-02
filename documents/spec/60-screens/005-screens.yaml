@@ -33,8 +33,8 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
   - id: SCR-002
     features: [FEAT-002, FEAT-003]
-    comparison: "REQ-304.batch_structure_comparison. 선택 데이터소스의 등록 객체 일괄 비교 버튼과 컬럼 불일치·인덱스 불일치 탭별 단일 그리드를 제공한다. 성공 확인된 해소만 현재 목록에서 제거하며 실패·부분 비교/오래된 결과로 삭제하지 않는다"
-    dbms_fields: "상단 그리드에서 DBMS 공통코드와 DBMS 버전 문자열을 관리한다. 연결 관측 제안/불일치와 관리값을 구분하고 이력에 당시 값을 표시한다. 상세는 target_doc·REQ-603.dbms_context를 따른다"
+    comparison: "REQ-304.batch_structure_comparison. 스케줄 배치 결과·선택 데이터소스의 수동 일괄 비교 버튼과 컬럼 불일치·인덱스 불일치 탭별 단일 그리드를 제공한다. 성공 확인된 해소만 현재 목록에서 제거하며 실패·부분 비교/오래된 결과로 삭제하지 않는다"
+    dbms_fields: "상단 DBMS는 YAML URL 도출 읽기 전용이며 버전 문자열을 수동 관리한다. SQL 파서·최근 비교 컬럼은 선택 열에도 없다. 불일치 검사 요약은 REQ-304.batch_structure_comparison.summary의 현재 탭별 건수/확인 상태를 읽기 전용으로 표시한다. DB·DW 유형 옆의 동기화 방식은 DW에서 편집하는 선택 참고 메모다. 연결 관측 제안/불일치와 관리값을 구분하고 이력에 당시 값을 표시한다. 상세는 target_doc·REQ-603.dbms_context를 따른다"
     type: "list_detail"
     route: "/admin/hub/data-source"
     history_entry: "/admin/hub/data-source/history?targetId={원ID}&historyNo={선택세트번호}. 이력 번호 생략 시 당시 값/기간 조건으로 목록을 조회하며 별도 이력 메뉴 권한을 검사한다."
@@ -44,9 +44,9 @@ screens:
     layout: "상단 YAML 식별자/별칭/DBMS readonly와 수동 업무 메타·서버 불일치 배지, 가운데 스플리터, 하단 접근 가능 사용자 그룹·사용 스키마 카탈로그·컬럼 불일치·인덱스 불일치·데이터 조회 가이드 정확히5탭."
     export: true
     access: "HUB_DATA_SOURCE READ, 직접 변경은 SAVE 추가 검사. 그룹 집합은 하위 매핑 어휘이며 사용자 접근 게이트 아님"
-    empty_state: "목록 없음·파서/시간대 미지정·연결 MISSING/UNAVAILABLE를 구분"
+    empty_state: "목록 없음·시간대 미지정·DW 메모 미입력·연결 MISSING/UNAVAILABLE를 구분"
     loading: "상세 전체 집합 확보 후 편집, 저장·결과 불명 중 새 명령 잠금"
-    error_display: "별칭/버전/참조 충돌·정정 근거 누락·연결/파서 미확인 구분"
+    error_display: "버전/참조 충돌·연결/서버 SQL 지원 미확인 구분. 동기화 방식 메모는 실행 설정이 아님"
     module: "admin"
     entry: "menu"
     group: "연동 관리"
@@ -66,7 +66,7 @@ screens:
   - id: SCR-003
     object_type: "OBJECT_TYPE의 TABLE/VIEW를 상단 목록과 조건·신규/정의에서 테이블/뷰로 표시한다. 유형은 필수이며 수동 지정/원천 관측 상태를 구분한다"
     code_workspace: "REQ-301.value_domain.workspace. INLINE 직접 코드값 관리와 CODE 원천확인 필요 표시를 유지한다. 옛 코드 조회 정의/정확 버전 선택·코드 바인딩·조회 결과 탭은 제거하고 데이터소스의 범용 데이터 조회 가이드를 소비한다."
-    simplified_tabs: "키 구성·원천 구조·샘플 조회 탭 제거. PK 여부/순서는 컬럼 정의, 유일키는 기존 인덱스 탭의 종류로 구분. 비교는 SCR-002 인계"
+    simplified_tabs: "테이블 정의는 상단 편집 행으로 통합하고 설명 컬럼을 표시한다. 내부 ID·DBMS/버전·감사·리비전은 보호한다. 키 구성·원천 구조·샘플 조회 탭 제거. PK 여부/순서는 컬럼 정의, 유일키는 기존 인덱스 탭의 종류로 구분. 비교는 SCR-002 인계"
     evidence_targets: "근거 대상 탭은 변경 근거에서 선택한 기록의 관련 테이블·업무명·근거 내용·관측/전후/후보 역할·버전 번호/상태를 보여준다. 내부 ID는 기본 숨김이다. 원천은 API-032의 EvidenceTargetView와 target_doc이며 영향 확정/조치 완료나 과거 버전 복사 출처로 해석하지 않는다"
     datatype_and_group_fields: "원천 자료형은 REQ-301.source_type_catalog의 DBMS별 공통코드 검색콤보이며 버전으로 목록을 나누지 않는다. 컬럼 그룹 예외는 REQ-103.column_group_exclusions의 컬럼·제외 그룹·사유·등록자·등록일시 다섯 열로 표시한다"
     revision_terminology: "내용 판의 버전/후보/고정 의미는 유지한다. 과거 구성의 변경 이력은 SCR-042의 같은 화면 구조에서 읽기 전용으로 조회하고 현재 관리 화면에 변경 이력 탭을 두지 않는다."
@@ -106,7 +106,7 @@ screens:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
-    master_grid_projection: "상단 효력 상태와 조회 제약 컬럼 및 효력 상태 조회조건은 생략한다. 적용 리비전은 반영 시각 다음(기존 조회 제약 위치)에 기본 표시한다. 수동 사용/현재 사용 가능·사유와 감사4개를 유지한다. 내부 lifecycle·조회 제약 적용 기능을 철회하는 변경은 아니다."
+    master_grid_projection: "상단 효력 상태와 조회 제약 컬럼 및 효력 상태 조회조건은 생략한다. 적용 리비전은 반영 시각 다음(기존 조회 제약 위치)에 기본 표시한다. 수동 사용 여부와 감사4개를 유지하며 사용 가능 여부·사용 불가 사유는 선택 열과 상속 이력 SCR-042에도 제공하지 않는다. 데이터소스 진단은 SCR-002에서 확인한다. 내부 lifecycle·조회 제약·실행 전 유효성 검사와 데이터소스 문제에 따른 업무 SQL 차단은 유지한다."
   - id: SCR-039
     module: "admin"
     entry: "menu"
@@ -220,7 +220,7 @@ screens:
       kind: "shared_owner"
       source_screen: SCR-003
       rule: "같은 관리 구성의 다른 진입점이다. 저장·이력 복사 단위를 중복 생성하지 않고 소유 관리 화면의 이력으로 이동한다."
-      exception: "카탈로그 그룹·컬럼 예외만 SCR-003 이력 대상이다. 공통 마스킹 변환 정의는 별도 직접 관리 정책이며 이 이력에 섞지 않는다. 정의 관리 진입과 그 이력 화면은 UND-S07에서 목업과 함께 분리 검토한다."
+      exception: "카탈로그 그룹·컬럼 예외만 SCR-003 이력 대상이다. 마스킹 구현은 REQ-611.masking_utility의 배포 소스이며 정의 관리/별도 변경 이력 화면은 두지 않는다. 컬럼의 정보 유형 코드 선택만 소유 구성 이력에 포함하고 소스 변경은 형상/배포 이력으로 관리한다."
     history_view: "SCR-042"
     request_owner: "SCR-003"
     request_boundary: "별도 승인 루트를 만들지 않고 소유 자산의 전체 구성/요청번호와 전용 변경 요청 화면을 재사용한다. 요청 화면 이동은 현재 권한과 해당 대상/매핑 문맥을 유지한다."
@@ -980,7 +980,7 @@ screens:
   - { id: SCR-522, module: system, workstream: system, group: "공지·알림", title: "관리 요청 처리", feature: FEAT-509, roadmap: RM-P1, type: list_detail, route: "/admin/system/noti-request", current_route: "/admin/system/noti-request", current_doc: "documents/screen/admin/system/noti-request/requirements.md", target_doc: "documents/screen/admin/system/noti-request/requirements.md", access: "NOTI_REQUEST 유효 권한", empty_state: "조건에 맞는 요청이 없음", loading: "판정 중 같은 요청 재처리 금지", error_display: "종결 상태 충돌·처리 사유 검증 오류 표시" }
   - { id: SCR-523, module: system, workstream: system, group: "공통 오버레이", title: "내 알림함", feature: FEAT-509, roadmap: RM-P1, type: popup, route: null, current_doc: "documents/screen/_standalone/system/noti-inbox/requirements.md", target_doc: "documents/screen/_standalone/system/noti-inbox/requirements.md", access: "authenticated", empty_state: "받은 알림이 없음", loading: "읽음 처리 중 중복 동작 금지", error_display: "타 사용자 알림 접근 거부" }
   - { id: SCR-524, module: system, workstream: system, group: "공통 오버레이", title: "공지 팝업", feature: FEAT-509, roadmap: RM-P1, type: popup, route: null, current_doc: "documents/screen/_standalone/system/notice-popup/requirements.md", target_doc: "documents/screen/_standalone/system/notice-popup/requirements.md", access: "authenticated", empty_state: "현재 노출할 공지가 없으면 열지 않음", loading: "공지 조회 중 중복 팝업 금지", error_display: "기간 밖 공지는 조용히 내용 노출하지 않음" }
-  - { id: SCR-525, module: system, workstream: system, group: "공통 진입", title: "관리 대시보드", feature: FEAT-510, roadmap: RM-P1, type: dashboard, route: "/admin/system/dashboard", current_route: "/admin/system/dashboard", current_doc: "documents/screen/admin/system/dashboard/requirements.md", target_doc: "documents/screen/admin/system/dashboard/requirements.md", access: "DASHBOARD 유효 권한", empty_state: "기존 카드 유지, 목표 경고 없음은 성공 확인된 현재 점검 범위에서만 표시", loading: "현행 슬롯은 별도 조회 없음. 목표 경고 API071은 현재 조회 중 상태를 표시", error_display: "목표 경고는 권한 없음·조회 실패·점검 범위 미지원·복구를 구분하며 0건 정상으로 대체하지 않음", undecided: "연결 경고 위젯은 CR-030으로 설계 승인. @defer Hub 개발 완료 후 — 즐겨찾기·자주 쓰는 메뉴 등 추가 위젯을 정한다", target_extension: "CR-030·REQ-601.configuration_alerts. admin API071 기반 연결 설정 오류 위젯의 승인된 설계 확장. 기존 슬롯 현재 소스는 유지하며 구현은 후속" }
+  - { id: SCR-525, features: [FEAT-003], module: system, workstream: system, group: "공통 진입", title: "관리 대시보드", feature: FEAT-510, roadmap: RM-P1, type: dashboard, route: "/admin/system/dashboard", current_route: "/admin/system/dashboard", current_doc: "documents/screen/admin/system/dashboard/requirements.md", target_doc: "documents/screen/admin/system/dashboard/requirements.md", access: "DASHBOARD 유효 권한", empty_state: "기존 카드 유지, 목표 경고 없음은 성공 확인된 현재 점검 범위에서만 표시", loading: "현행 슬롯은 별도 조회 없음. 목표 경고 API071은 현재 조회 중 상태를 표시", error_display: "목표 경고는 권한 없음·조회 실패·점검 범위 미지원·복구를 구분하며 0건 정상으로 대체하지 않음", undecided: "연결 경고 위젯은 CR-030으로 설계 승인. @defer Hub 개발 완료 후 — 즐겨찾기·자주 쓰는 메뉴 등 추가 위젯을 정한다", target_extension: "CR-030·REQ-601.configuration_alerts와 CR-032·REQ-304.batch_structure_comparison. admin 소유 연결 설정 오류/스키마 불일치 두 탭과 관리 화면 인계. 현재 제품은 기존 카드이며 구현은 후속" }
 
 # ── 차수별 노출 ───────────────────────────────────────────
 

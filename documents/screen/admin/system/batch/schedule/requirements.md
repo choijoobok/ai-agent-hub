@@ -117,22 +117,22 @@
 
 ### 4-1. 마스터 — 배치 등록
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 필수 | 편집 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 정렬 | `MSG.BATCH_SCHEDULE_COL_SORT_NO` | `SORT_NO` | `sortNo` | 숫자 | 80 | — | 가능 | 정렬 항목. 저장 또는 조회 근거: SORT_NO. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 배치 ID | `MSG.BATCH_SCHEDULE_COL_BATCH_ID` | `BATCH_ID` | `batchId` | 텍스트 | 180 | **PK** | **신규행만** | 배치 ID 항목. 저장 또는 조회 근거: BATCH_ID. | 1  ·  저장  ·  화면  ·  같은 요청 안 `BATCH_ID` 중복  ·  `MSG.BATCH_SCHEDULE_DUPLICATE` |
-| 배치명 | `MSG.BATCH_SCHEDULE_COL_BATCH_NM` | `BATCH_NM` | `batchNm` | 텍스트 | 180 | **필수** | 가능 | 배치명 항목. 저장 또는 조회 근거: BATCH_NM. | 3  ·  저장  ·  화면+서버  ·  `BATCH_NM` 필수  ·  `MsgKey.ERR_BATCH_NAME_REQUIRED` |
-| **설명** | `MSG.BATCH_SCHEDULE_COL_BATCH_DESC` | `BATCH_DESC` | `batchDesc` | 텍스트 | 280 | **필수** | 가능 | 설명 항목. 저장 또는 조회 근거: BATCH_DESC. | 4  ·  저장  ·  화면+서버  ·  **`BATCH_DESC` 필수**  ·  `MsgKey.ERR_BATCH_DESC_REQUIRED` |
-| 배치 구현 | `MSG.BATCH_SCHEDULE_COL_BEAN_ID` | `BEAN_ID` | `beanId` | **셀렉트** | 200 | **필수** | 가능 | 배치 구현 항목. 저장 또는 조회 근거: BEAN_ID. | 5  ·  저장  ·  서버  ·  **`BEAN_ID` 가 등록된 구현인가**  ·  `MsgKey.ERR_BATCH_BEAN_UNKNOWN` |
-| 크론 | `MSG.BATCH_SCHEDULE_COL_CRON` | `CRON` | `cron` | 텍스트 | 150 | **필수** | 가능 | 크론 항목. 저장 또는 조회 근거: CRON. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| **시간대** | `MSG.BATCH_SCHEDULE_COL_TIMEZONE` | `TIMEZONE` | `timezone` | **셀렉트(검색)** | 200 | **필수** | 가능 | 시간대 항목. 저장 또는 조회 근거: TIMEZONE. | **13**  ·  저장  ·  화면+서버  ·  **`TIMEZONE` 이 아는 시간대 ID 인가**  ·  `MsgKey.ERR_BATCH_TIMEZONE_INVALID` |
-| 다음 실행 | `MSG.BATCH_SCHEDULE_COL_NEXT_EXEC` | **파생** | `nextExecDtm` | **일시 + 시간대** | 200 | — | **불가** | 다음 실행 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 파라미터 | `MSG.BATCH_SCHEDULE_COL_PARAM` | `PARAM_JSON` | `paramJson` | 큰 텍스트 | 220 | — | 가능 | 파라미터 항목. 저장 또는 조회 근거: PARAM_JSON. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 쿨다운(초) | `MSG.BATCH_SCHEDULE_COL_COOLDOWN` | `LOCK_MIN_INTERVAL_SEC` | `lockMinIntervalSec` | 숫자 | 110 | — | 가능 | 쿨다운(초) 항목. 저장 또는 조회 근거: LOCK_MIN_INTERVAL_SEC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 락 만료(초) | `MSG.BATCH_SCHEDULE_COL_LOCK_EXPIRY` | `LOCK_EXPIRY_SEC` | `lockExpirySec` | 숫자 | 110 | — | 가능 | 락 만료(초) 항목. 저장 또는 조회 근거: LOCK_EXPIRY_SEC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 사용 | `MSG.BATCH_SCHEDULE_COL_USE_YN` | `USE_YN` | `useYn` | 스위치 | 80 | — | 가능 | 사용 항목. 저장 또는 조회 근거: USE_YN. | 없음. `USE_YN` 은 켜고 끄는 값이다. |
-| 최근 결과 | `MSG.BATCH_SCHEDULE_COL_LAST_RSLT` | **파생** | `lastRsltCd` | 배지 | 120 | — | **불가** | 최근 결과 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 감사 4 | (공통) | — | — | — | — | — | 불가 | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 필수 | 편집 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 정렬 | `MSG.BATCH_SCHEDULE_COL_SORT_NO` | `SORT_NO` | `sortNo` | 숫자 | 80 | — | 가능 | 정렬 항목. 저장 또는 조회 근거: SORT_NO. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | text | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 sortNo 컬럼 선언 | 소유 구성에 저장 | {"sortable":true} |
+| 배치 ID | `MSG.BATCH_SCHEDULE_COL_BATCH_ID` | `BATCH_ID` | `batchId` | 텍스트 | 180 | **PK** | **신규행만** | 배치 ID 항목. 저장 또는 조회 근거: BATCH_ID. | 1  ·  저장  ·  화면  ·  같은 요청 안 `BATCH_ID` 중복  ·  `MSG.BATCH_SCHEDULE_DUPLICATE` | string | text | text | 없음 | 없음 | 저장 시 | 가능 | 입력 대상 아님 | 불가(신규만 입력) | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 batchId 컬럼 선언 | 소유 구성에 저장 | {"pk":true,"pinned":"left"} |
+| 배치명 | `MSG.BATCH_SCHEDULE_COL_BATCH_NM` | `BATCH_NM` | `batchNm` | 텍스트 | 180 | **필수** | 가능 | 배치명 항목. 저장 또는 조회 근거: BATCH_NM. | 3  ·  저장  ·  화면+서버  ·  `BATCH_NM` 필수  ·  `MsgKey.ERR_BATCH_NAME_REQUIRED` | string | text | text | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 batchNm 컬럼 선언 | 소유 구성에 저장 | {"sortable":true} |
+| **설명** | `MSG.BATCH_SCHEDULE_COL_BATCH_DESC` | `BATCH_DESC` | `batchDesc` | 텍스트 | 280 | **필수** | 가능 | 설명 항목. 저장 또는 조회 근거: BATCH_DESC. | 4  ·  저장  ·  화면+서버  ·  **`BATCH_DESC` 필수**  ·  `MsgKey.ERR_BATCH_DESC_REQUIRED` | string | text | largeText | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 batchDesc 컬럼 선언 | 소유 구성에 저장 | {"filter":false,"fill":true} |
+| 배치 구현 | `MSG.BATCH_SCHEDULE_COL_BEAN_ID` | `BEAN_ID` | `beanId` | **셀렉트** | 200 | **필수** | 가능 | 배치 구현 항목. 저장 또는 조회 근거: BEAN_ID. | 5  ·  저장  ·  서버  ·  **`BEAN_ID` 가 등록된 구현인가**  ·  `MsgKey.ERR_BATCH_BEAN_UNKNOWN` | string | text | select | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 beanId 컬럼 선언 | 소유 구성에 저장 | {"options":"sources/frontend/src/modules/system/features/batchschedule//pages/BatchSchedulePage.tsx#beanId.options"} |
+| 크론 | `MSG.BATCH_SCHEDULE_COL_CRON` | `CRON` | `cron` | 텍스트 | 150 | **필수** | 가능 | 크론 항목. 저장 또는 조회 근거: CRON. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | text | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 cron 컬럼 선언 | 소유 구성에 저장 | — |
+| **시간대** | `MSG.BATCH_SCHEDULE_COL_TIMEZONE` | `TIMEZONE` | `timezone` | **셀렉트(검색)** | 200 | **필수** | 가능 | 시간대 항목. 저장 또는 조회 근거: TIMEZONE. | **13**  ·  저장  ·  화면+서버  ·  **`TIMEZONE` 이 아는 시간대 ID 인가**  ·  `MsgKey.ERR_BATCH_TIMEZONE_INVALID` | string | text | richSelect | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 timezone 컬럼 선언 | 소유 구성에 저장 | {"options":"sources/frontend/src/modules/system/features/batchschedule//pages/BatchSchedulePage.tsx#timezone.options"} |
+| 다음 실행 | `MSG.BATCH_SCHEDULE_COL_NEXT_EXEC` | **파생** | `nextExecDtm` | **일시 + 시간대** | 200 | — | **불가** | 다음 실행 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 cron/사용 여부/시간대와 now로 계산 | useYn=true이고 timezone이 유효할 때 CronRules.nextExecution(cron, now, zone). 화면 formatInZone(nextExecDtm, timezone)은 표시 변환; sources/backend/domain/src/main/java/com/aiagent/domain/batch/schedule/BatchScheduleQueryService.java#getList | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | {"filter":false,"derive":"sources/frontend/src/modules/system/features/batchschedule//pages/BatchSchedulePage.tsx#nextExecDtm.derive"} |
+| 파라미터 | `MSG.BATCH_SCHEDULE_COL_PARAM` | `PARAM_JSON` | `paramJson` | 큰 텍스트 | 220 | — | 가능 | 파라미터 항목. 저장 또는 조회 근거: PARAM_JSON. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | largeText | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 paramJson 컬럼 선언 | 소유 구성에 저장 | {"filter":false,"validate":"sources/frontend/src/modules/system/features/batchschedule//pages/BatchSchedulePage.tsx#paramJson.validate"} |
+| 쿨다운(초) | `MSG.BATCH_SCHEDULE_COL_COOLDOWN` | `LOCK_MIN_INTERVAL_SEC` | `lockMinIntervalSec` | 숫자 | 110 | — | 가능 | 쿨다운(초) 항목. 저장 또는 조회 근거: LOCK_MIN_INTERVAL_SEC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | text | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 lockMinIntervalSec 컬럼 선언 | 소유 구성에 저장 | — |
+| 락 만료(초) | `MSG.BATCH_SCHEDULE_COL_LOCK_EXPIRY` | `LOCK_EXPIRY_SEC` | `lockExpirySec` | 숫자 | 110 | — | 가능 | 락 만료(초) 항목. 저장 또는 조회 근거: LOCK_EXPIRY_SEC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | text | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 lockExpirySec 컬럼 선언 | 소유 구성에 저장 | {"visible":false} |
+| 사용 | `MSG.BATCH_SCHEDULE_COL_USE_YN` | `USE_YN` | `useYn` | 스위치 | 80 | — | 가능 | 사용 항목. 저장 또는 조회 근거: USE_YN. | 없음. `USE_YN` 은 켜고 끄는 값이다. | boolean | ynFlag | 없음 | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/batchschedule/pages/BatchSchedulePage.tsx의 useYn 컬럼 선언 | 소유 구성에 저장 | {"sortable":true} |
+| 최근 결과 | `MSG.BATCH_SCHEDULE_COL_LAST_RSLT` | **파생** | `lastRsltCd` | 배지 | 120 | — | **불가** | 최근 결과 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | badge | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | 참조 조회 | 새 실행 이력 기록 후 재조회 시 | BATCH_ID별 실행 이력의 MAX(START_DTM) 행 RSLT_CD. SYS_SCHEDULE_BATCH의 별도 저장 컬럼 아님 | 화면 비저장 참조. 안정 식별자/매핑은 해당 소유 정본에 저장하며 표시명을 복사 저장하지 않음 | {"filter":false} |
+| 감사 4 | (공통) | — | — | — | — | — | 불가 | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
 
 - **`설명` 이 기본 숨김이 아니다.** 그 컬럼은 *끄면 무슨 일이 생기는가를 적는 자리* 이며 **장애 대응 중에 소스를 열 시간은 없다.** 컬럼 설정에서 꺼 둘 수는 있지만 **기본은 보인다.**
 - **`설명` 이 필수인 것이 그 자리의 값이다** — 비어 있으면 §5-1 의 확인이 아무 말도 못 한다.
@@ -153,14 +153,14 @@
 
 ### 4-1a. 최근 실행 이력
 
-| 컬럼 | 필드명 | 입력방식 | 필수 | 편집 | 선택 출처 | 검증 | 설명 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 시작 | startDtm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 선택 배치 실행 시작. |
-| 종료 | endDtm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 종료 시각. |
-| 소요 | elapsedMs | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 소요 시간. |
-| 결과 | rsltCd | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 결과. |
-| 실행 구분 | execTypeCd | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 수동/스케줄 실행 구분. |
-| 노드 | nodeId | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 노드. |
+| 컬럼 | 필드명 | 입력방식 | 필수 | 편집 | 선택 출처 | 검증 | 설명 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 시작 | startDtm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 선택 배치 실행 시작. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 종료 | endDtm | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 종료 시각. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 소요 | elapsedMs | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 소요 시간. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 결과 | rsltCd | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 결과. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 실행 구분 | execTypeCd | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 수동/스케줄 실행 구분. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
+| 노드 | nodeId | 텍스트 | 입력 대상 아님 | 읽기전용 | 서버 | 서버가 반환한 현재 대상의 값만 표시 | 실행 노드. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 서버 | 소유 정본의 저장값 | — |
 
 ### 4-2. 편집 가능 판단 — 조건부
 
@@ -180,15 +180,15 @@
 
 ### 4-5. 행 추가 기본값
 
-| 컬럼 | 값 | 왜 |
-|---|---|---|
-| `BATCH_ID` · `BATCH_NM` · `BATCH_DESC` · `BEAN_ID` · `CRON` | 빈칸 | 전부 필수 |
-| `PARAM_JSON` | `null` | — |
-| `LOCK_EXPIRY_SEC` | **300** | 공통 잠금의 기본값과 같다 |
-| **`LOCK_MIN_INTERVAL_SEC`** | **0(끔)** | **크론과의 관계를 모른 채 값을 넣으면 저장이 막힌다** |
-| **`USE_YN`** | **`true`** | 켜 두는 것이 정상이다 — 만들자마자 꺼져 있으면 **왜 안 도는지 찾게 된다** |
-| `SORT_NO` | `0` | — |
-| 파생 셋 | **`null` · `false`** | `0` 이나 임의의 시각으로 채우면 *계산해 보니 그렇다* 와 구분되지 않는다 |
+| 컬럼 | 값 | 왜 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `BATCH_ID` · `BATCH_NM` · `BATCH_DESC` · `BEAN_ID` · `CRON` | 빈칸 | 전부 필수 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `PARAM_JSON` | `null` | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `LOCK_EXPIRY_SEC` | **300** | 공통 잠금의 기본값과 같다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| **`LOCK_MIN_INTERVAL_SEC`** | **0(끔)** | **크론과의 관계를 모른 채 값을 넣으면 저장이 막힌다** | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| **`USE_YN`** | **`true`** | 켜 두는 것이 정상이다 — 만들자마자 꺼져 있으면 **왜 안 도는지 찾게 된다** | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `SORT_NO` | `0` | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| 파생 셋 | **`null` · `false`** | `0` 이나 임의의 시각으로 채우면 *계산해 보니 그렇다* 와 구분되지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
 
 ### 4-6. 비노출 저장 컬럼
 

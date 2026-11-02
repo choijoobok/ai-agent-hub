@@ -1,5 +1,6 @@
 feature_contracts:
   FEAT-004:
+    masking_type_catalog: "REQ-611.masking_utility와 FEAT-003.masking_type_catalog의 공통 유형 조회의 {value,text}를 재사용한다. 원응답 value는 유형 구분값이고 text는 메시지 키다. 화면은 {value:item.value,text:label(item.text)}로 기존 SelectOption에 맞추며 선택/저장·마스킹 호출은 언어와 독립된 코드로 처리한다. 요청/응답 필드 maskingRef는 같은 유틸의 안정 정보 유형 코드이며 현재 지원·자료형·실패 처리를 검증한다. 그룹 매핑에서 별도 알고리즘을 등록/편집하지 않는다."
     security_domain_scope: "ARCH-050.admin_account_contract. 관리 명령의 인증·ACTOR_ID·지문·원 결과 소유 비교는 system 관리자 영역이다. Portal 주체/같은 문자열 ID로 실행·재생하지 않으며 Portal 대상 이용자와 처리자를 구분한다"
     design_status: "draft"
     implementation: "planned"

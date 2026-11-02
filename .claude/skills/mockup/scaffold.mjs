@@ -23,6 +23,7 @@ import {annotationBook, annotationIssues, surfaceRows, surfaceIntroduction, surf
 import {genericScreen, areaTitle} from './generic-layout.mjs';
 import {requestDeclaration, inheritRequest} from './request-layout.mjs';
 import {withAuditColumns} from './column-contract.mjs';
+import {withGridProperties,gridPropertyIssues} from './grid-properties.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../../..');
 const SCREENS = path.join(REPO, 'documents/screen');
@@ -271,10 +272,13 @@ function screenModel(md, type, allowInheritance = true) {
   const auditNames=auditTable?.rows.map(row=>plain(row[0]))??[];
   if(new Set(auditNames).size!==auditNames.length||auditNames.some(name=>!model.columns.some(t=>areaTitle(t)===name)))throw new Error('감사 컬럼의 영역이 중복되거나 §4에 없다');
   model.columns=model.columns.map(table=>{
-    if(/폼|설정/.test(surfaceOf(model,areaTitle(table))?.kind??''))return table;
+    if(/폼|설정/.test(surfaceOf(model,areaTitle(table))?.kind??''))return {...table,form:true};
     const row=auditTable?.rows.find(row=>plain(row[0])===areaTitle(table));
     const policy=row?{kind:plain(row[1]),reason:plain(row[2])}:undefined;
-    return withAuditColumns(table,policy);
+    const sourceHeader=table.header;
+    const area=surfaceOf(model,areaTitle(table));
+    const canCreate=(area?.buttons??[]).some(name=>/추가$|^신규$/.test(name))||(model.addRowTabs??[]).includes(areaTitle(table))||(table===model.columns[0]&&(model.figures??[]).some(f=>f.key==='new'));
+    return withGridProperties({...withAuditColumns(table,policy),declaredHeader:sourceHeader,declaredRows:table.rows},{canCreate});
   });
   return model;
 }
@@ -447,6 +451,7 @@ function check(dir) {
   if (md) {
     const type = meta(md).find((r) => /화면 유형/.test(r[0]))?.[1] ?? '';
     const model = screenModel(md, type);
+    for(const table of model.columns)problems.push(...gridPropertyIssues(table,{explicit:dir.split(path.sep).join('/').startsWith('admin/')}));
     if (dir.split(path.sep).join('/').startsWith('admin/hub/') && [...model.figures.flatMap(figure=>figure.buttons),...model.surfaces.flatMap(surface=>surface.buttons)].some(name=>['수정','편집 취소'].includes(name))) {
       problems.push('그리드 툴바에 수정/편집 취소 버튼을 두지 않는다 — 셀 더블 클릭 편집과 상태 컬럼의 행별 되돌리기를 사용한다');
     }

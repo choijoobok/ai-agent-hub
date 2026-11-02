@@ -68,7 +68,7 @@ export function createTraceModel(groups) {
   for (const u of groups.usecases ?? []) for (const id of relationIds(u, 'req', 'reqs')) edge(id, u.id);
   for (const n of groups.nfrs ?? []) for (const id of relationIds(n, 'test_case')) edge(n.id, id);
   for (const f of groups.features ?? []) {
-    for (const id of relationIds(f, 'reqs', 'usecases', 'nfrs', 'uses_features', 'entities', 'apis', 'interfaces')) edge(id, f.id);
+    for (const id of relationIds(f, 'reqs', 'usecases', 'nfrs', 'uses_features', 'entities', 'apis', 'interfaces', 'jobs')) edge(id, f.id);
     for (const id of screenIds(f)) { edge(f.id, id); edge(id, f.id); }
   }
   for (const s of groups.screens ?? []) {
@@ -80,7 +80,12 @@ export function createTraceModel(groups) {
     for (const id of featureIds(a)) { edge(a.id, id); edge(id, a.id); }
   }
   for (const t of groups.testcases ?? []) {
-    for (const id of [...featureIds(t), ...relationIds(t, 'reqs', 'apis', 'screen', 'screens')]) edge(id, t.id);
+    for (const id of [...featureIds(t), ...relationIds(t, 'reqs', 'apis', 'screen', 'screens', 'jobs')]) edge(id, t.id);
+  }
+  for (const job of groups.jobs ?? []) {
+    for (const id of featureIds(job)) edge(job.id,id);
+    for (const id of [...featureIds(job), ...relationIds(job, 'usecase','reqs','uses_features')]) edge(id,job.id);
+    for (const id of relationIds(job,'screens','testcases','runbooks')) edge(job.id,id);
   }
   for (const item of [...(groups.interfaces ?? []), ...(groups.operations ?? [])]) {
     for (const id of [...featureIds(item), ...relationIds(item, 'traces_to', 'reqs', 'apis')]) edge(id, item.id);

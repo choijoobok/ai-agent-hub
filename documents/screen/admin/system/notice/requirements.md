@@ -99,20 +99,20 @@
 
 ### 4-1. 그리드 — 공지
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 필수 | 편집 | 정렬 | 필터 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 순서 | `MSG.NOTICE_COL_SORT_NO` | `SORT_NO` | `sortNo` | 숫자 | 80 | — | 가능 | ○ | ○ | 순서 항목. 저장 또는 조회 근거: SORT_NO. | **팝업은 정렬의 첫 건을 집는다** — `SORT_NO` → `NOTICE_ID`. |
-| 번호 ○ | `MSG.NOTICE_COL_NOTICE_ID` | `NOTICE_ID` | `noticeId` | 숫자 | 90 | — | **불가** | — | — | 번호 ○ 항목. 저장 또는 조회 근거: NOTICE_ID. | **팝업은 정렬의 첫 건을 집는다** — `SORT_NO` → `NOTICE_ID`. |
-| 제목 | `MSG.NOTICE_COL_TITLE` | `TITLE` | `title` | 텍스트 | 260 | **필수** | 가능 | **불가** | ○ | 제목 항목. 저장 또는 조회 근거: TITLE. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 본문 | `MSG.NOTICE_COL_CONTENT` | `CONTENT`(nclob) | `content` | 큰 텍스트 | 320(fill) | **필수** | 가능 | **불가** | **끔** | 본문 항목. 저장 또는 조회 근거: CONTENT(nclob). | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 게시 시작 | `MSG.NOTICE_COL_FROM_DTM` | `NOTICE_FROM_DTM` | `noticeFromDtm` | 일시 | 160 | **필수** | 가능 | ○ | ○ | 게시 시작 항목. 저장 또는 조회 근거: NOTICE_FROM_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 게시 종료 | `MSG.NOTICE_COL_TO_DTM` | `NOTICE_TO_DTM` | `noticeToDtm` | 일시 | 160 | — | 가능 | — | ○ | 게시 종료 항목. 저장 또는 조회 근거: NOTICE_TO_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 게시 상태 | `MSG.NOTICE_COL_STAT` | **파생** | `noticeStat` | 배지 | 100 | — | **불가** | — | **끔** | 게시 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 사용 | `MSG.NOTICE_COL_USE_YN` | `USE_YN` | `useYn` | 스위치 | 80 | — | 가능 | **불가** | ○ | 사용 항목. 저장 또는 조회 근거: USE_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 팝업 | `MSG.NOTICE_COL_POPUP_YN` | `POPUP_YN` | `popupYn` | 스위치 | 80 | — | 가능 | — | ○ | 팝업 항목. 저장 또는 조회 근거: POPUP_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 팝업 시작 ○ | `MSG.NOTICE_COL_POPUP_FROM` | `POPUP_FROM_DTM` | `popupFromDtm` | 일시 | 160 | 조건부 | 가능 | — | — | 팝업 시작 ○ 항목. 저장 또는 조회 근거: POPUP_FROM_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 팝업 종료 ○ | `MSG.NOTICE_COL_POPUP_TO` | `POPUP_TO_DTM` | `popupToDtm` | 일시 | 160 | 조건부 | 가능 | — | — | 팝업 종료 ○ 항목. 저장 또는 조회 근거: POPUP_TO_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 감사 4 | (공통) | — | — | — | — | — | 불가 | — | — | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 필수 | 편집 | 정렬 | 필터 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 순서 | `MSG.NOTICE_COL_SORT_NO` | `SORT_NO` | `sortNo` | 숫자 | 80 | — | 가능 | ○ | ○ | 순서 항목. 저장 또는 조회 근거: SORT_NO. | **팝업은 정렬의 첫 건을 집는다** — `SORT_NO` → `NOTICE_ID`. | number | number | text | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 sortNo 컬럼 선언 | 소유 구성에 저장 | {"sortable":true} |
+| 번호 ○ | `MSG.NOTICE_COL_NOTICE_ID` | `NOTICE_ID` | `noticeId` | 숫자 | 90 | — | **불가** | — | — | 번호 ○ 항목. 저장 또는 조회 근거: NOTICE_ID. | **팝업은 정렬의 첫 건을 집는다** — `SORT_NO` → `NOTICE_ID`. | number | number | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | NOTICE_ID; 소유 정본 | 소유 원천에 저장, 화면 직접 입력 불가 | {"visible":false} |
+| 제목 | `MSG.NOTICE_COL_TITLE` | `TITLE` | `title` | 텍스트 | 260 | **필수** | 가능 | **불가** | ○ | 제목 항목. 저장 또는 조회 근거: TITLE. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | text | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 title 컬럼 선언 | 소유 구성에 저장 | {"sortable":false} |
+| 본문 | `MSG.NOTICE_COL_CONTENT` | `CONTENT`(nclob) | `content` | 큰 텍스트 | 320(fill) | **필수** | 가능 | **불가** | **끔** | 본문 항목. 저장 또는 조회 근거: CONTENT(nclob). | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | largeText | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 content 컬럼 선언 | 소유 구성에 저장 | {"sortable":false,"filter":false,"fill":true} |
+| 게시 시작 | `MSG.NOTICE_COL_FROM_DTM` | `NOTICE_FROM_DTM` | `noticeFromDtm` | 일시 | 160 | **필수** | 가능 | ○ | ○ | 게시 시작 항목. 저장 또는 조회 근거: NOTICE_FROM_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 자동(type) | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 noticeFromDtm 컬럼 선언 | 소유 구성에 저장 | {"sortable":true} |
+| 게시 종료 | `MSG.NOTICE_COL_TO_DTM` | `NOTICE_TO_DTM` | `noticeToDtm` | 일시 | 160 | — | 가능 | — | ○ | 게시 종료 항목. 저장 또는 조회 근거: NOTICE_TO_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 자동(type) | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 noticeToDtm 컬럼 선언 | 소유 구성에 저장 | — |
+| 게시 상태 | `MSG.NOTICE_COL_STAT` | **파생** | `noticeStat` | 배지 | 100 | — | **불가** | — | **끔** | 게시 상태 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | badge | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | useYn=false → DOWN; now<from → SCHEDULED; to가 있고 now>to → EXPIRED; 그 외 ACTIVE. 페이지 전체가 같은 now 사용; sources/backend/domain/src/main/java/com/aiagent/domain/notification/notice/NoticeStatus.java#resolve | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | {"filter":false} |
+| 사용 | `MSG.NOTICE_COL_USE_YN` | `USE_YN` | `useYn` | 스위치 | 80 | — | 가능 | **불가** | ○ | 사용 항목. 저장 또는 조회 근거: USE_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | boolean | ynFlag | 없음 | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 useYn 컬럼 선언 | 소유 구성에 저장 | {"sortable":false} |
+| 팝업 | `MSG.NOTICE_COL_POPUP_YN` | `POPUP_YN` | `popupYn` | 스위치 | 80 | — | 가능 | — | ○ | 팝업 항목. 저장 또는 조회 근거: POPUP_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | boolean | ynFlag | 없음 | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 popupYn 컬럼 선언 | 소유 구성에 저장 | — |
+| 팝업 시작 ○ | `MSG.NOTICE_COL_POPUP_FROM` | `POPUP_FROM_DTM` | `popupFromDtm` | 일시 | 160 | 조건부 | 가능 | — | — | 팝업 시작 ○ 항목. 저장 또는 조회 근거: POPUP_FROM_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 자동(type) | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 popupFromDtm 컬럼 선언 | 소유 구성에 저장 | {"visible":false} |
+| 팝업 종료 ○ | `MSG.NOTICE_COL_POPUP_TO` | `POPUP_TO_DTM` | `popupToDtm` | 일시 | 160 | 조건부 | 가능 | — | — | 팝업 종료 ○ 항목. 저장 또는 조회 근거: POPUP_TO_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 자동(type) | 없음 | 없음 | 선택 | 가능 | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/notice/pages/NoticeMgmtPage.tsx의 popupToDtm 컬럼 선언 | 소유 구성에 저장 | {"visible":false} |
+| 감사 4 | (공통) | — | — | — | — | — | 불가 | — | — | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
 
 `○` = 기본 숨김.
 
@@ -151,17 +151,17 @@
 
 ### 4-5. 행 추가 기본값
 
-| 컬럼 | 값 | 왜 |
-|---|---|---|
-| `SORT_NO` | `0` | — |
-| `NOTICE_ID` | **`null`** | 채번이다 |
-| `TITLE` · `CONTENT` | 빈칸 | 필수 |
-| **`NOTICE_FROM_DTM`** | **빈칸** | *지금* 으로 채우면 사용자가 그 값을 보고 넘어가는데, **예약 게시가 성립하는 자리**라 언제부터인지를 실제로 정해야 한다. **필수이므로 저장이 막고, 그 막힘이 곧 *정하라* 는 신호다** |
-| `NOTICE_TO_DTM` | `null` | 무기한 |
-| `게시 상태` | `SCHEDULED` | **임의의 값이며 서버가 다시 계산한다** — 채우지 않으면 *계산해 보니 그렇다* 와 구분되지 않는다 |
-| **`USE_YN`** | **`true`** | 게시하는 것이 정상이다 — 만들자마자 내려가 있으면 **왜 안 보이는지 찾게 된다** |
-| **`POPUP_YN`** | **`false`** | **켜는 것은 명시여야 한다** — 전 사용자에게 뜬다 |
-| 팝업 기간 둘 | `null` | — |
+| 컬럼 | 값 | 왜 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `SORT_NO` | `0` | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `NOTICE_ID` | **`null`** | 채번이다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `TITLE` · `CONTENT` | 빈칸 | 필수 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| **`NOTICE_FROM_DTM`** | **빈칸** | *지금* 으로 채우면 사용자가 그 값을 보고 넘어가는데, **예약 게시가 성립하는 자리**라 언제부터인지를 실제로 정해야 한다. **필수이므로 저장이 막고, 그 막힘이 곧 *정하라* 는 신호다** | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `NOTICE_TO_DTM` | `null` | 무기한 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| `게시 상태` | `SCHEDULED` | **임의의 값이며 서버가 다시 계산한다** — 채우지 않으면 *계산해 보니 그렇다* 와 구분되지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | useYn=false → DOWN; now<from → SCHEDULED; to가 있고 now>to → EXPIRED; 그 외 ACTIVE. 페이지 전체가 같은 now 사용; sources/backend/domain/src/main/java/com/aiagent/domain/notification/notice/NoticeStatus.java#resolve | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | — |
+| **`USE_YN`** | **`true`** | 게시하는 것이 정상이다 — 만들자마자 내려가 있으면 **왜 안 보이는지 찾게 된다** | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| **`POPUP_YN`** | **`false`** | **켜는 것은 명시여야 한다** — 전 사용자에게 뜬다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
+| 팝업 기간 둘 | `null` | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
 
 ### 4-6. 비노출 저장 컬럼
 

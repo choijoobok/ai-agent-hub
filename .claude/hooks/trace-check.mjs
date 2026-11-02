@@ -40,6 +40,7 @@ import {
 import { loadSpecSet } from '../../aidd-guide/harness/runtime/spec-set.mjs';
 import { createTraceModel, featureIds, testsByFeature, associatedScreens, affectedIds, sourceSeeds, sourceRef, sourceEntries, relationErrors, linkedDocuments } from '../../aidd-guide/harness/runtime/trace-model.mjs';
 import { entityDesignIssues } from '../../aidd-guide/harness/runtime/liquibase-schema.mjs';
+import { checkBatchSpec } from '../../aidd-guide/harness/runtime/batch-contract.mjs';
 
 const SPEC_DIR = 'documents/spec';
 const SPEC = {
@@ -54,7 +55,7 @@ const SPEC = {
 };
 
 const ID_RE =
-  /\b(ACT|CON|PRC|REQ|TRM|ADR|NFR|UC|FEAT|ENT|API|SCR|IF|TC|SLICE|DEF|ASM|CR|MNU|GOAL|NGOAL|PRN)-[0-9]{2,}(?:-[0-9]{2,})?\b/g;
+  /\b(ACT|CON|PRC|REQ|TRM|ADR|NFR|UC|FEAT|ENT|API|SCR|JOB|IF|TC|SLICE|DEF|ASM|CR|MNU|GOAL|NGOAL|PRN)-[0-9]{2,}(?:-[0-9]{2,})?\b/g;
 
 /** 정의가 다른 원장에 있는 접두 — dangling 판정에서 뺀다. */
 const EXTERNAL = ['ASM-', 'CR-', 'DEF-', 'SLICE-', 'ADR-'];
@@ -191,6 +192,7 @@ function laterThanCurrentRoadmap() {
 function fullCheck(targetWorkstream = null, { g1 = false } = {}) {
   const errors = [];
   const warnings = [];
+  for (const message of checkBatchSpec({ repo: REPO, parseYaml })) errors.push(['T9', 'JOB', message]);
 
   const reqs = asList(load(SPEC.req), 'requirements');
   const nfrs = asList(load(SPEC.nfr), 'nfrs');
@@ -659,6 +661,7 @@ export function loadTraceModel() {
     entities: asList(load(SPEC.ent), 'entities'), apis: asList(load(SPEC.api), 'apis'),
     screens: asList(load(SPEC.scr), 'screens'), testcases: asList(load(SPEC.tc), 'testcases'),
     interfaces: asList(load('51-interfaces'), 'interfaces'), operations: nestedItems(load('80-operations')),
+    jobs: asList(load('65-batches'), 'jobs'),
   });
 }
 
@@ -759,6 +762,7 @@ function report(errors, warnings) {
 
 /** 추적성 매트릭스 — `/trace --report` 가 `documents/generated/` 로 옮겨 담는다. */
 function matrix() {
+  const jobs = asList(load('65-batches'), 'jobs');
   const reqs = asList(load(SPEC.req), 'requirements');
   const ucs = asList(load(SPEC.uc), 'usecases');
   const feats = asList(load(SPEC.feat), 'features');
@@ -766,7 +770,7 @@ function matrix() {
   const scrs = asList(load(SPEC.scr), 'screens');
   const tcs = asList(load(SPEC.tc), 'testcases');
 
-  const rows = ['## 추적성 매트릭스', '', '| REQ | 우선순위 | UC | FEAT | ENT | API | SCR | TC |', '|---|---|---|---|---|---|---|---|'];
+  const rows = ['## 추적성 매트릭스', '', '| REQ | 우선순위 | UC | FEAT | ENT | API | SCR | JOB | TC |', '|---|---|---|---|---|---|---|---|---|'];
   for (const r of reqs) {
     const myUcs = ucs.filter((u) => refs(u, 'reqs', 'req').has(r?.id));
     const myFeats = feats.filter(
@@ -779,6 +783,7 @@ function matrix() {
         `${cell([...new Set(myFeats.flatMap((f) => [...refs(f, 'entities')]))])} | ` +
         `${cell(apis.filter((a) => featureIds(a).some((id) => featIds.includes(id)) || myFeats.some((f) => refs(f, 'apis').has(a.id))).map((a) => a?.id))} | ` +
         `${cell(associatedScreens(featIds, feats, scrs))} | ` +
+        `${cell(jobs.filter(j => refs(j,'reqs').has(r?.id) || featIds.includes(j.feature)).map(j => j.id))} | ` +
         `${cell(tcs.filter((t) => featureIds(t).some((id) => featIds.includes(id))).map((t) => t?.id))} |`,
     );
   }

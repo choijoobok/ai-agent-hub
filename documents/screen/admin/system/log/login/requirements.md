@@ -119,16 +119,16 @@
 
 ### 4-1. 그리드 — 로그인 이력
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭/정렬 | 편집 | 선택 출처 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 일시 | `MSG.LOGIN_LOG_COL_CRE_DTM` | `CRE_DTM` | `creDtm` | 일시 | 170/좌고정 | 읽기전용 | — | 일시 항목. 값/선택 출처: —. | 1  ·  조회  ·  화면+서버  ·  `CRE_DTM` 기간 필수 — `TRACE_ID` 가 있으면 건너뛴다  ·  `MsgKey.ERR_LOGIN_LOG_RANGE_REQUIRED` |
-| 사용자 아이디 | `MSG.LOGIN_LOG_COL_USER_ID` | `USER_ID` | `userId` | 텍스트 | 140 | 읽기전용 | — | 사용자 아이디 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 사용자명 | `MSG.LOGIN_LOG_COL_USER_NM` | `SYS_USER.USER_NM` | `userNm` | 텍스트 + 배지 | 140 | 읽기전용 | — | 사용자명 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 결과 | `MSG.LOGIN_LOG_COL_RESULT` | `LOGIN_RSLT_CD` | `loginRsltCd` | 코드·배지 | 150 | 읽기전용 | **코드그룹 `LOGIN_RSLT_CD`** | 결과 항목. 값/선택 출처: 코드그룹 LOGIN_RSLT_CD. | 없음 — `LOGIN_RSLT_CD` 는 **기록된 사건의 종류**이지 전이하는 상태가 아니다. 한 행은 한 번 일어난 판정이며 나중에 바뀌지 않는다. |
-| 접속 IP | `MSG.LOGIN_LOG_COL_CLIENT_IP` | `CLIENT_IP` | `clientIp` | 텍스트 | 130 | 읽기전용 | — | 접속 IP 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 추적 ID | `MSG.LOGIN_LOG_COL_TRACE_ID` | `TRACE_ID` | `traceId` | 텍스트 | 280 | 읽기전용 | — | 추적 ID 항목. 값/선택 출처: —. | 1  ·  조회  ·  화면+서버  ·  `CRE_DTM` 기간 필수 — `TRACE_ID` 가 있으면 건너뛴다  ·  `MsgKey.ERR_LOGIN_LOG_RANGE_REQUIRED` |
-| 브라우저 ○ | `MSG.LOGIN_LOG_COL_USER_AGENT` | `USER_AGENT` | `userAgent` | 텍스트(툴팁) | 320 | 읽기전용 | — | 브라우저 ○ 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 순번 ○ | `MSG.LOGIN_LOG_COL_SEQ` | `LOGIN_LOG_SEQ` | `loginLogSeq` | 숫자 | 100 | 읽기전용 | — | 순번 ○ 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭/정렬 | 편집 | 선택 출처 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 일시 | `MSG.LOGIN_LOG_COL_CRE_DTM` | `CRE_DTM` | `creDtm` | 일시 | 170/좌고정 | 읽기전용 | — | 일시 항목. 값/선택 출처: —. | 1  ·  조회  ·  화면+서버  ·  `CRE_DTM` 기간 필수 — `TRACE_ID` 가 있으면 건너뛴다  ·  `MsgKey.ERR_LOGIN_LOG_RANGE_REQUIRED` | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | CRE_DTM | 소유 정본의 저장값 | {"pinned":"left","sortable":true} |
+| 사용자 아이디 | `MSG.LOGIN_LOG_COL_USER_ID` | `USER_ID` | `userId` | 텍스트 | 140 | 읽기전용 | — | 사용자 아이디 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => row.userId \|\| label(MSG.LOGIN_LOG_NO_USER_ID); sources/frontend/src/modules/system/features/loginlog/pages/LoginLogPage.tsx#userId.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/loginlog//pages/LoginLogPage.tsx#userId.derive"} |
+| 사용자명 | `MSG.LOGIN_LOG_COL_USER_NM` | `SYS_USER.USER_NM` | `userNm` | 텍스트 + 배지 | 140 | 읽기전용 | — | 사용자명 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => row.userNm ?? ''; sources/frontend/src/modules/system/features/loginlog/pages/LoginLogPage.tsx#userNm.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/loginlog//pages/LoginLogPage.tsx#userNm.derive","badge":"sources/frontend/src/modules/system/features/loginlog//pages/LoginLogPage.tsx#userNm.badge"} |
+| 결과 | `MSG.LOGIN_LOG_COL_RESULT` | `LOGIN_RSLT_CD` | `loginRsltCd` | 코드·배지 | 150 | 읽기전용 | **코드그룹 `LOGIN_RSLT_CD`** | 결과 항목. 값/선택 출처: 코드그룹 LOGIN_RSLT_CD. | 없음 — `LOGIN_RSLT_CD` 는 **기록된 사건의 종류**이지 전이하는 상태가 아니다. 한 행은 한 번 일어난 판정이며 나중에 바뀌지 않는다. | string | code | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | LOGIN_RSLT_CD; 코드그룹 LOGIN_RSLT_CD | 소유 정본의 저장값 | {"grpCd":"sources/frontend/src/modules/system/features/loginlog//pages/LoginLogPage.tsx#loginRsltCd.grpCd"} |
+| 접속 IP | `MSG.LOGIN_LOG_COL_CLIENT_IP` | `CLIENT_IP` | `clientIp` | 텍스트 | 130 | 읽기전용 | — | 접속 IP 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | CLIENT_IP | 소유 정본의 저장값 | — |
+| 추적 ID | `MSG.LOGIN_LOG_COL_TRACE_ID` | `TRACE_ID` | `traceId` | 텍스트 | 280 | 읽기전용 | — | 추적 ID 항목. 값/선택 출처: —. | 1  ·  조회  ·  화면+서버  ·  `CRE_DTM` 기간 필수 — `TRACE_ID` 가 있으면 건너뛴다  ·  `MsgKey.ERR_LOGIN_LOG_RANGE_REQUIRED` | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | TRACE_ID; — | 소유 원천에 저장, 화면 직접 입력 불가 | — |
+| 브라우저 ○ | `MSG.LOGIN_LOG_COL_USER_AGENT` | `USER_AGENT` | `userAgent` | 텍스트(툴팁) | 320 | 읽기전용 | — | 브라우저 ○ 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | USER_AGENT | 소유 정본의 저장값 | {"visible":false,"fill":true} |
+| 순번 ○ | `MSG.LOGIN_LOG_COL_SEQ` | `LOGIN_LOG_SEQ` | `loginLogSeq` | 숫자 | 100 | 읽기전용 | — | 순번 ○ 항목. 값/선택 출처: —. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | LOGIN_LOG_SEQ | 소유 정본의 저장값 | {"visible":false} |
 
 `○` = 기본 숨김.
 

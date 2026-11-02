@@ -196,3 +196,4 @@ usecases:
     postcondition: "관리자 UI 상태가 system의 4개 테이블에 저장되며 Portal 개인 상태와 연결되지 않는다"
     business_rules: ["portal 전용 대화 상태는 제외한다", "platform 테이블은 system 엔티티가 아니다", "동시 즐겨찾기 등록은 하나의 행만 만들고 모두 성공으로 끝낸다", "같은 사용자의 동시 기본 조회조건 저장은 마지막 저장 완료 요청 하나만 기본으로 둔다", "기존 탭 이동·화면 안 버튼·팝업 차단은 메뉴 선택 통계에 넣지 않는다", "동시 메뉴 선택 통계는 편의용 best-effort이며 한 건 유실을 허용한다"]
     configuration_warning_widget: "CR-030: 관리자 대시보드는 현재 세션/원 메뉴 권한으로 admin API-071을 호출해 경고 요약·연결 대상만 표시한다. admin 참조/경고를 system이 직접 변경하거나 개인 상태 저장과 혼합하지 않는다. 권한/조회 실패를 0건 정상으로 처리하지 않는다."
+    schema_comparison_widget: "CR-032·REQ-304.batch_structure_comparison.dashboard. admin FEAT-003이 소유한 스케줄/수동 비교 결과의 현재 권한 범위 요약을 SCR-525에서 조회하고 SCR-002로 인계한다. system이 비교·DB 직접 조회·별도 이력 저장을 소유하지 않으며 기존 기본 카드 구현과 계획 위젯을 구분한다."

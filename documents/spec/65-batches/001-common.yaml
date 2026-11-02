@@ -1,0 +1,26 @@
+common:
+  purpose: "스케줄 관리에서 등록하는 업무 배치의 실행 명세 정본. 업무 규칙은 소유 REQ/FEAT, 운영 점검/복구는 RUN을 참조한다. JOB는 설계 ID이며 한 구현에 여러 BATCH_ID 등록이 가능하다."
+  contracts_from:
+    - "REQ-508"
+    - "FEAT-508"
+    - "UC-508"
+    - "SCR-519"
+    - "SCR-520"
+  implementation: "현재 BatchJob·BatchJobRegistry·BatchScheduler·BatchRunner가 공통 실행을 제공한다. 구현 빈 목록은 Spring에서 수집하며 임의 시드 목록으로 실행 가능성을 보증하지 않는다."
+  schedule: "SCR-519에서 주기·시간대·사용 여부·등록별 PARAM_JSON·락 시간·쿨다운을 설정한다. 시드 기본값은 고객 운영 현재값이 아니다. 기동 및 저장 커밋 뒤 활성 등록을 다시 예약하며 미사용 등록은 예약하지 않는다."
+  permissions: "설정 SAVE, 즉시 실행/중단 EXECUTE, 일정/이력은 해당 메뉴 READ. 예약 실행은 서버 운영 작업이며 과거 등록자의 화면 세션을 위조하지 않는다. 업무별 대상/원천 권한은 각 JOB가 검사한다."
+  concurrency: "현재 공통 락은 batchId 단위다. 같은 beanId를 서로 다른 batchId로 등록하면 상호 배제되지 않는다. 수동 실행은 쿨다운을 우회하며 예약은 쿨다운/점유 충돌에 SKIP_COOLDOWN/SKIP_LOCK 이력을 기록한다. 수동 점유 충돌은 이미 실행 중 응답으로 안내/거절하며 SKIP 이력을 만들지 않는다. 업무 대상별 추가 점유가 필요한 배치는 자신의 계약에 명시한다."
+  outcomes: "RUNNING 후 정상 반환 SUCCESS, 예외/빈 부재/큐 적재 실패 FAIL, 협조 중단 CANCELED, 고아 실행 LOST. FAIL/LOST가 공통 배치 실패 알림 대상이다. 업무의 불일치 발견·부분 확인·해당 없음은 공통 실행 결과와 별도이며 각 JOB가 결과 매핑을 정의한다."
+  parameters: "공통 설정 저장은 PARAM_JSON의 JSON 문법을 검사한다. 업무별 스키마 검증은 각 구현 책임이며 현재 등록된 두 구현은 PARAM_JSON을 읽지 않는다. 비밀을 파라미터·결과·오류 원문에 저장하지 않는다."
+  history: "현행 SYS_BATCH_HISTORY는 배치 ID·MANUAL/SCHEDULE·노드·시작/종료·상태/결과/오류·중단 요청 시각을 제공한다. 수동 실행/중단 요청자 ID·당시 파라미터·크론/등록 설정 사본은 저장하지 않는다. 배치별 재현 근거는 현재 제공 여부와 계획 보완을 구분한다."
+  internal_timers: "BatchGhostSweeper·JdbcProgressSweeper·BatchHeartbeat는 등록형 BatchJob이 아닌 내부 유지보수 타이머다. 운영 점검은 RUN-101과 기존 공통 배치 규약에서 확인하며 업무 배치 등록 목록에 섞지 않는다."
+  docs:
+    - "documents/screen/admin/system/batch/schedule/requirements.md"
+    - "documents/screen/admin/system/batch/history/requirements.md"
+    - "aidd-guide/knowledge/sys/batch.md"
+  sources:
+    - "sources/backend/domain/src/main/java/com/aiagent/domain/batch/BatchJob.java"
+    - "sources/backend/domain/src/main/java/com/aiagent/domain/batch/BatchJobRegistry.java"
+    - "sources/backend/domain/src/main/java/com/aiagent/domain/batch/run/BatchScheduler.java"
+    - "sources/backend/domain/src/main/java/com/aiagent/domain/batch/run/BatchRunner.java"
+    - "sources/backend/domain/src/main/java/com/aiagent/domain/batch/entity/SysBatchHistory.java"

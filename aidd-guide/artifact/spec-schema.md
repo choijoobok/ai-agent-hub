@@ -39,6 +39,7 @@ tags: [spec, ssot, yaml]
 | `50-api/_index.yaml` | P3 | 독립 API 목록·호출 계약·소스 메서드 연결 | 〃 §5 |
 | `51-interfaces/_index.yaml` | P3 | 외부 시스템 연동 | 〃 |
 | `60-screens/_index.yaml` | P3 | 메뉴·화면 목록, 공통 화면과 호출 관계 | 〃 §6 |
+| `65-batches/_index.yaml` | P3~P6 | 관리형 배치별 실행 명세·구현/운영 연결 | 이 문서의 스케줄 배치 명세 절 |
 | `70-testcases/_index.yaml` | P3~ | 테스트 케이스 | `aidd-guide/quality/test-design.md` §1 |
 | `80-operations/_index.yaml` | P2~P6 | 운영 절차·검증·복구·에스컬레이션 | `aidd-guide/artifact/template/05-runbook.md` |
 
@@ -85,12 +86,22 @@ tags: [spec, ssot, yaml]
 | API 목록·명세 | 메서드+경로·입출력·오류·인가·소유 기능·구현 메서드 | 50-api가 독립 정본; 화면 문서는 API 식별자를 참조 |
 | 데이터 모델·테이블 목록/명세서 | 개념·소유·상태·물리 계약, Liquibase 구현 대조 | ENT와 소스 연결로 테이블별 명세 생성; [동기화 서식](data-model.md) |
 | 외부 연동 | 외부 송수신 계약 | IF를 사용 기능과 연결 |
+| 스케줄 배치 명세 | JOB별 실행 대상·설정/파라미터·기동·중복·결과·재처리 경계 | 65-batches에서 목록/개별 명세 생성. 업무 판정은 REQ, 기능 처리는 FEAT, 운영 절차는 RUN 참조 |
 | 테스트 명세 | 검증 조건·기대 결과·검증 수단 | TC와 테스트 코드·화면 사례 연결 |
 | 추적성·변경 영향 | 위 연결에서 계산한 검토 범위 | 생성/조회만 하며 별도 현황 원장을 만들지 않음 |
 
 사용자 매뉴얼과 운영 런북도 현행화 대상이다.
 배치의 실행·실패·재처리·복구 절차는 80-operations에 두고 기능 계약을 참조한다.
 API 목록의 목적은 변경 추적이며 Swagger UI는 필수가 아니다.
+
+### 스케줄 배치 명세
+
+`65-batches`의 `common`은 공통 실행 규약의 연결과 현행 지원 한계를, `jobs[]`는 `JOB-###` 단위의 관리형 BatchJob 실행 계약을 갖는다. JOB는 설계 식별자이고 실제 스케줄 등록의 BATCH_ID·구현 beanId와 구분한다. 내부 하트비트/청소 타이머는 관리형 JOB로 오등록하지 않는다.
+
+- 필수: `id`·`title`·`module`·`implementation`(implemented/planned), 소유 `feature`·`usecase`·`reqs`, `scope`·`schedule`·`parameters`·`permissions`·`processing`·`concurrency`·`failure`·`cancellation`·`retry`·`outputs`·`observability`·`testcases`·`sources`.
+- `schedule`은 시드 기본값과 운영 현재값을 구분한다. 주기·등록 키/빈이 미정인 계획 배치는 null과 `pending` 근거를 둔다. 실제 설정을 읽지 않고 활성/성공을 선언하지 않는다.
+- `sources`는 구현/시험 경로, `screens`는 설정·결과 화면, `runbooks`는 운영 절차를 연결한다. 구현된 BatchJob은 반드시 명세가 있어야 한다. 예정 배치의 시드를 임의로 만들지 않는다.
+- 새 배치는 소유자가 해당 조각에 등록하고 JOB 연결·필수 항목·실구현 누락 검사를 통과시킨 뒤 문서/HTML을 재생성한다. 업무 규칙·파기/복구 절차를 복사하지 않고 REQ·FEAT·RUN 정본을 참조한다.
 
 ### 핵심 처리 시퀀스
 

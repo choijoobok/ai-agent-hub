@@ -110,15 +110,15 @@
 
 ### 4-1. 마스터 — 메시지 키
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 편집 | 정렬 | 필터 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 메시지 키 | `MSG.MESSAGE_COL_KEY` | `MSG_KEY` | `msgKey` | 텍스트 | 300/좌고정 | **불가** | ○ | ○ | 메시지 키 항목. 저장 또는 조회 근거: MSG_KEY. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 사용처 | `MSG.MESSAGE_COL_SCOPE` | `USE_SCOPE` | `useScope` | 코드·배지 | 110 | **불가** | ○ | ○ | 사용처 항목. 저장 또는 조회 근거: USE_SCOPE. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 번들 | `MSG.MESSAGE_COL_BUNDLED` | **파생** | `bundled` | 스위치 | 90 | 불가 | — | ○ | 번들 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 번역 | `MSG.MESSAGE_COL_TRANSLATED` | **파생** `채운수/전체` | `translated` | 배지 | 130 | 불가 | **불가** | **끔** | 번역 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 설명 | `MSG.MESSAGE_COL_DESC` | `MSG_DESC` | `msgDesc` | 텍스트(펼쳐 보기) | 200(fill) | **불가** | — | 끔 | 설명 항목. 저장 또는 조회 근거: MSG_DESC. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
-| 값 | `MSG.MESSAGE_COL_VALUE` | `values` | `values` | 목록 | — | — | — | **`hidden`** | 값 항목. 저장 또는 조회 근거: values. | 저장(수정)  ·  `SYS_MESSAGE`  ·  INSERT · UPDATE · **DELETE**  ·  `values` 가 **전량**이므로 서버가 상태를 추론하지 않는다 — 값이 빈 언어는 **행을 지운다** |
-| 감사 4 | (공통) | — | — | — | — | 불가 | — | **`hidden`** | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 편집 | 정렬 | 필터 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 메시지 키 | `MSG.MESSAGE_COL_KEY` | `MSG_KEY` | `msgKey` | 텍스트 | 300/좌고정 | **불가** | ○ | ○ | 메시지 키 항목. 저장 또는 조회 근거: MSG_KEY. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | MSG_KEY | 소유 정본의 저장값 | {"pinned":"left","sortable":true} |
+| 사용처 | `MSG.MESSAGE_COL_SCOPE` | `USE_SCOPE` | `useScope` | 코드·배지 | 110 | **불가** | ○ | ○ | 사용처 항목. 저장 또는 조회 근거: USE_SCOPE. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | code | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | USE_SCOPE | 소유 정본의 저장값 | {"sortable":true,"options":"sources/frontend/src/modules/system/features/message//pages/MessageMgmtPage.tsx#useScope.options"} |
+| 번들 | `MSG.MESSAGE_COL_BUNDLED` | **파생** | `bundled` | 스위치 | 90 | 불가 | — | ○ | 번들 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | USE_SCOPE가 FRONT/BOTH/DATA 중 하나이면 true, 아니면 false; sources/backend/domain/src/main/java/com/aiagent/domain/message/MessageScope.java#bundled | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | — |
+| 번역 | `MSG.MESSAGE_COL_TRANSLATED` | **파생** `채운수/전체` | `translated` | 배지 | 130 | 불가 | **불가** | **끔** | 번역 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => `${filledCount(row.values)}/${langs.length}`; sources/frontend/src/modules/system/features/message/pages/MessageMgmtPage.tsx#translated.derive | 비저장 화면 파생값 | {"filter":false,"derive":"sources/frontend/src/modules/system/features/message//pages/MessageMgmtPage.tsx#translated.derive","options":"sources/frontend/src/modules/system/features/message//pages/MessageMgmtPage.tsx#translated.options"} |
+| 설명 | `MSG.MESSAGE_COL_DESC` | `MSG_DESC` | `msgDesc` | 텍스트(펼쳐 보기) | 200(fill) | **불가** | — | 끔 | 설명 항목. 저장 또는 조회 근거: MSG_DESC. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | largeText | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | MSG_DESC | 소유 정본의 저장값 | {"filter":false,"fill":true} |
+| 값 | `MSG.MESSAGE_COL_VALUE` | `values` | `values` | 목록 | — | — | — | **`hidden`** | 값 항목. 저장 또는 조회 근거: values. | 저장(수정)  ·  `SYS_MESSAGE`  ·  INSERT · UPDATE · **DELETE**  ·  `values` 가 **전량**이므로 서버가 상태를 추론하지 않는다 — 값이 빈 언어는 **행을 지운다** | string[] | list | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | values | 소유 정본의 저장값 | {"hidden":true} |
+| 감사 4 | (공통) | — | — | — | — | 불가 | — | **`hidden`** | 감사 4 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 직접 입력하지 않는다. 조회 범위·권한을 적용한 값만 표시한다. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | §3 조회 계약의 소유 데이터 | 소유 정본의 저장값 | — |
 
 - **`메시지 키` 가 열리지 않는다.** 키의 원본은 소스 상수이거나 데이터이며 이 화면은 그 어느 쪽도 아니다 — 여기서 고친 키는 **다음 생성이 되돌린다.** 그래서 **`pk` 도 `required` 도 아니다**: PK 인 것은 맞지만 신규 행조차 없으므로 열릴 자리가 없고, 채울 수 없는 칸에 필수 표시를 붙이면 *왜 안 되나* 를 묻게 된다.
 - **`사용처` 는 시드가 소유한다** — 저장 DTO 에 필드가 없다. **`미사용` 하나만 칠한다**: 정상이 압도적인 목록에서는 칠하지 않는 것이 기본이고 **죽은 키만 눈에 남아야** 한다. `BACK` 은 번들에 없지만 **결함이 아니라 사실**이다.
@@ -137,10 +137,10 @@
 
 ### 4-1a. 하단 — 언어별 값
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 편집 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 언어 | `MSG.MESSAGE_COL_LANG` | `LANG_CD` | `langCd` | 코드 | 140 | 불가 | 언어 항목. 저장 또는 조회 근거: LANG_CD. | 2  ·  저장  ·  서버  ·  `langCd` 가 **지원 언어 목록**에 있는가  ·  `MsgKey.ERR_MESSAGE_LANG_UNKNOWN` |
-| 값 | `MSG.MESSAGE_COL_VALUE` | `MSG_VAL`(≤2000자) | `msgVal` | 큰 텍스트 | 240(fill) | **가능** | 값 항목. 저장 또는 조회 근거: MSG_VAL(≤2000자). | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 편집 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 언어 | `MSG.MESSAGE_COL_LANG` | `LANG_CD` | `langCd` | 코드 | 140 | 불가 | 언어 항목. 저장 또는 조회 근거: LANG_CD. | 2  ·  저장  ·  서버  ·  `langCd` 가 **지원 언어 목록**에 있는가  ·  `MsgKey.ERR_MESSAGE_LANG_UNKNOWN` | string | code | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | LANG_CD | 소유 정본의 저장값 | {"filter":false,"options":"sources/frontend/src/modules/system/features/message//pages/MessageMgmtPage.tsx#langCd.options"} |
+| 값 | `MSG.MESSAGE_COL_VALUE` | `MSG_VAL`(≤2000자) | `msgVal` | 큰 텍스트 | 240(fill) | **가능** | 값 항목. 저장 또는 조회 근거: MSG_VAL(≤2000자). | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 선택 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 직접 입력; sources/frontend/src/modules/system/features/message/pages/MessageMgmtPage.tsx의 msgVal 컬럼 선언 | 소유 구성에 저장 | {"filter":false,"fill":true} |
 
 - **필터가 없다.** 행이 언제나 지원 언어 수만큼(둘)이다 — 두 줄짜리 목록에서 거를 것이 없고, 헤더 메뉴는 **잊힌 필터가 숨는 자리**만 된다.
 - **그리드 설정 창도 없다.** 컬럼 둘이 다 필요하니 끄거나 옮길 것이 없다.

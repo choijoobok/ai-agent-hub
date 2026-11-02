@@ -33,6 +33,7 @@ import { domainSchema } from '../../../aidd-guide/harness/runtime/domain-schema.
 import { assertHistoryContract } from './history-contract.mjs';
 import { approvalContractErrors } from './approval-contract.mjs';
 import { menuContractErrors, menuReviewMarkdown, orderByAdminMenu } from './menu-contract.mjs';
+import { checkBatchSpec } from '../../../aidd-guide/harness/runtime/batch-contract.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -52,6 +53,11 @@ const LABEL = {
   open: '미확정', open2: '미확정', category: '분류', requirement: '요구',
   measurement: '측정 방법', test_case: '테스트 케이스', target: '목표값', direction: '방향',
   aggregation: '집계 규칙',
+  jobs: '배치 명세', usecase: '유즈케이스', runbooks: '운영 절차', schedule: '실행 일정',
+  batch_id: '기본 등록 ID', bean_id: '구현 빈', seed_cron: '시드 주기', seed_timezone: '시드 시간대', seed_use_yn: '시드 사용 여부',
+  seed_lock_seconds: '시드 락 시간(초)', seed_cooldown_seconds: '시드 쿨다운(초)', activation: '활성화 전제',
+  parameters: '입력·설정', concurrency: '중복·경합', failure: '실패 처리', cancellation: '중단', retry: '재실행', observability: '결과 확인',
+  outcomes: '실행 결과', internal_timers: '내부 주기 작업', contracts_from: '계약 근거',
   peer: '상대', protocol: '프로토콜', prerequisites: '전제', status: '상태', screen: '화면',
   uses_features: '사용 기능', uses_screens: '호출 화면', sources: '구현 소스', source_contract: '구현 메서드',
   screen_cases: '화면 사례 연결', implementation: '구현 상태', entry: '진입 유형', menu_code: '메뉴 코드', menu_parent: '상위 메뉴',
@@ -883,6 +889,8 @@ function ERD() {
 
 let checkedDomain;
 function schema() {
+  const batchErrors = checkBatchSpec({ repo: REPO, parseYaml });
+  if (batchErrors.length) throw new Error(batchErrors.join('\n'));
   if (!checkedDomain) { const snapshot=domainSchema(REPO); assertHistoryContract(snapshot.domain); const errors=approvalContractErrors(snapshot.domain); if(errors.length)throw new Error(errors.join('\n')); checkedDomain=snapshot; }
   return checkedDomain;
 }
@@ -1081,6 +1089,35 @@ function API() {
   written.push([path, text.split('\n').length]);
 }
 
+function 스케줄배치명세서(verify = false) {
+  const d = load('65-batches'), folder = `${OUT}65-스케줄배치명세서/`;
+  const jobs = d.jobs ?? [], expected = new Map();
+  const emit = (file, parts) => expected.set(file, `${parts.join('\n\n').replace(/\n+$/, '')}\n`);
+  emit(`${folder}00-목록.md`, [
+    head('JOB', '스케줄 배치 목록·공통 계약', specSource('65-batches'), d.meta.status, d.meta.baselined, jobs.map(j => j.id)),
+    '> JOB는 설계 식별자입니다. 구현 상태·시드 기본값과 실제 운영 활성/성공 상태를 구분합니다.',
+    table(jobs.map(j => ({ id: `[${j.id}](${j.id}.md)`, title: j.title, module: j.module, implementation: j.implementation, feature: j.feature })), ['id','title','module','implementation','feature']),
+    blocks([{ id: '공통 실행 계약', ...d.common }]),
+  ]);
+  for (const job of jobs) emit(`${folder}${job.id}.md`, [
+    head(job.id, job.title, specSource('65-batches'), job.implementation === 'implemented' ? 'current_source' : 'draft', null, [job.feature, ...job.reqs]).replace('generated_from:', `module: ${job.module}\ngenerated_from:`),
+    '[배치 목록·공통 계약](./00-목록.md)',
+    blocks([job]),
+  ]);
+  const errors = [], normalizeDate = text => text.replace(/^last_sync:.*$/m, 'last_sync: DATE');
+  for (const [file, text] of expected) {
+    if (verify) {
+      if (!existsSync(join(REPO,file)) || normalizeDate(readFileSync(join(REPO,file),'utf8')) !== normalizeDate(text)) errors.push(`${file}: 재생성 필요`);
+    } else write(file,[text]);
+  }
+  if (existsSync(join(REPO,folder))) for (const name of readdirSync(join(REPO,folder))) {
+    if (!/^JOB-\d+\.md$/.test(name) || expected.has(`${folder}${name}`)) continue;
+    if (verify) errors.push(`${folder}${name}: 정본에서 제외된 파생 명세`);
+    else rmSync(join(REPO,folder,name));
+  }
+  if (errors.length) throw new Error(errors.join('\n'));
+}
+
 function 테스트() {
   const d = load('70-testcases');
   const items = d.testcases ?? [];
@@ -1114,7 +1151,7 @@ function 운영런북() {
 }
 
 // ── 대상 등록 ─────────────────────────────────────────────────────
-const TARGETS = { 요구사항정의서, 아키텍처, 기능목록, 요건정의서, 화면정의서, 권한매트릭스, 유즈케이스, 시퀀스, ERD, 테이블명세서, API, 테스트, 운영런북, 추적성 };
+const TARGETS = { 요구사항정의서, 아키텍처, 기능목록, 요건정의서, 화면정의서, 권한매트릭스, 유즈케이스, 시퀀스, ERD, 테이블명세서, API, 스케줄배치명세서, 테스트, 운영런북, 추적성 };
 
 /**
  * 같은 대상의 다른 이름. `SKILL.md` 의 인자 줄은 짧은 이름(`화면`·`권한`)을 쓰고
@@ -1148,6 +1185,7 @@ const NOT_YET = {
  */
 function check() {
   schema();
+  스케줄배치명세서(true);
   테이블명세서(true);
   checkSequenceDocuments();
   const mdFiles = [];

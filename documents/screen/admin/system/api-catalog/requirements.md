@@ -118,14 +118,14 @@
 
 ### 4-1. 마스터 — API
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 정렬 | 필터 | 설명 | 검증 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| API URL | `MSG.API_CATALOG_COL_API_URL` | `API_URL` | `apiUrl` | 텍스트 | 300/좌고정 | ○ | ○ | API URL 항목. 저장 또는 조회 근거: API_URL. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| API 이름 | `MSG.API_CATALOG_COL_API_NM` | `API_NM` | `apiNm` | 텍스트 | 220 | ○ | ○ | API 이름 항목. 저장 또는 조회 근거: API_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 액션 | `MSG.API_CATALOG_COL_ACTION_CD` | `ACTION_CD` | `actionCd` | 코드 | 110 | ○ | ○(고르는 필터) | 액션 항목. 저장 또는 조회 근거: ACTION_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 설명 | `MSG.API_CATALOG_COL_API_DESC` | `API_DESC` | `apiDesc` | 텍스트(펼쳐 보기) | 200(fill) | — | 끔 | 설명 항목. 저장 또는 조회 근거: API_DESC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| **매핑 메뉴 수** | `MSG.API_CATALOG_COL_MENU_COUNT` | **파생** | `menuCount` | 숫자 + 배지 | 120 | **불가** | 끔 | 매핑 메뉴 수 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
-| 최종 시드 반영 ○ | `MSG.API_CATALOG_COL_SEED_DTM` | `REG_DTM` | `regDtm` | 일시 | 160 | ○ | — | 최종 시드 반영 ○ 항목. 저장 또는 조회 근거: REG_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭 | 정렬 | 필터 | 설명 | 검증 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| API URL | `MSG.API_CATALOG_COL_API_URL` | `API_URL` | `apiUrl` | 텍스트 | 300/좌고정 | ○ | ○ | API URL 항목. 저장 또는 조회 근거: API_URL. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 참조 조회 | 조회/대상 변경 시 원천에서 갱신 | API_URL | 화면 비저장 참조(원천 정본에서 조회) | {"pinned":"left","sortable":true} |
+| API 이름 | `MSG.API_CATALOG_COL_API_NM` | `API_NM` | `apiNm` | 텍스트 | 220 | ○ | ○ | API 이름 항목. 저장 또는 조회 근거: API_NM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 참조 조회 | 조회/대상 변경 시 원천에서 갱신 | API_NM | 화면 비저장 참조(원천 정본에서 조회) | {"sortable":true} |
+| 액션 | `MSG.API_CATALOG_COL_ACTION_CD` | `ACTION_CD` | `actionCd` | 코드 | 110 | ○ | ○(고르는 필터) | 액션 항목. 저장 또는 조회 근거: ACTION_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | code | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | ACTION_CD | 소유 정본의 저장값 | {"sortable":true,"options":"sources/frontend/src/modules/system/features/apicatalog//pages/ApiCatalogPage.tsx#actionCd.options"} |
+| 설명 | `MSG.API_CATALOG_COL_API_DESC` | `API_DESC` | `apiDesc` | 텍스트(펼쳐 보기) | 200(fill) | — | 끔 | 설명 항목. 저장 또는 조회 근거: API_DESC. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | text | 없음 | 없음 | largeText | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 참조 조회 | 조회/대상 변경 시 원천에서 갱신 | API_DESC | 화면 비저장 참조(원천 정본에서 조회) | {"filter":false,"fill":true} |
+| **매핑 메뉴 수** | `MSG.API_CATALOG_COL_MENU_COUNT` | **파생** | `menuCount` | 숫자 + 배지 | 120 | **불가** | 끔 | 매핑 메뉴 수 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | API_URL별 SYS_MENU_API 행 수 COUNT(*); sources/backend/modules/system/src/main/java/com/aiagent/system/domain/apicatalog/ApiCatalogQueryService.java#menuCounts | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | {"filter":false,"badge":"sources/frontend/src/modules/system/features/apicatalog//pages/ApiCatalogPage.tsx#menuCount.badge"} |
+| 최종 시드 반영 ○ | `MSG.API_CATALOG_COL_SEED_DTM` | `REG_DTM` | `regDtm` | 일시 | 160 | ○ | — | 최종 시드 반영 ○ 항목. 저장 또는 조회 근거: REG_DTM. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | REG_DTM; 소유 정본 | 소유 원천에 저장, 화면 직접 입력 불가 | {"visible":false,"sortable":true} |
 
 `○` = 기본 숨김.
 
@@ -139,12 +139,12 @@
 
 ### 4-2. 하단 — 이 API 를 쓰는 메뉴
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 정렬 | 필터 | 설명 | 검증 | 입력방식 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 메뉴 경로 | `MSG.API_CATALOG_COL_MENU_PATH` | 파생 — `시스템 › 로그 › 에러 로그` | `menuPath` | 260(fill) | ○ | ○ | 메뉴 경로 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 |
-| 메뉴코드 | `MSG.API_CATALOG_COL_MENU_CD` | `MENU_CD` | `menuCd` | 160 | ○ | ○ | 메뉴코드 항목. 저장 또는 조회 근거: MENU_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 |
-| 메뉴 사용 | `MSG.API_CATALOG_COL_MENU_USE_YN` | `SYS_MENU.USE_YN` | `useYn` | 100 | ○ | ○ | 메뉴 사용 항목. 저장 또는 조회 근거: SYS_MENU.USE_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 스위치 |
-| **닿는 인원** | `MSG.API_CATALOG_COL_USER_COUNT` | 파생 | `accessibleUserCount` | 130 | 불가 | 끔 | 닿는 인원 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 폭 | 정렬 | 필터 | 설명 | 검증 | 입력방식 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 메뉴 경로 | `MSG.API_CATALOG_COL_MENU_PATH` | 파생 — `시스템 › 로그 › 에러 로그` | `menuPath` | 260(fill) | ○ | ○ | 메뉴 경로 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 참조 조회 | 참조 원천 변경/선택 대상 변경 후 재조회 시 | 매핑 MENU_CD → 현재 SYS_MENU의 상위 경로/메뉴명 조합 | 화면 비저장 참조. 안정 식별자/매핑은 해당 소유 정본에 저장하며 표시명을 복사 저장하지 않음 | {"sortable":true,"fill":true} |
+| 메뉴코드 | `MSG.API_CATALOG_COL_MENU_CD` | `MENU_CD` | `menuCd` | 160 | ○ | ○ | 메뉴코드 항목. 저장 또는 조회 근거: MENU_CD. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | MENU_CD | 소유 정본의 저장값 | {"sortable":true} |
+| 메뉴 사용 | `MSG.API_CATALOG_COL_MENU_USE_YN` | `SYS_MENU.USE_YN` | `useYn` | 100 | ○ | ○ | 메뉴 사용 항목. 저장 또는 조회 근거: SYS_MENU.USE_YN. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 스위치 | boolean | ynFlag | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | SYS_MENU.USE_YN | 소유 정본의 저장값 | {"sortable":true} |
+| **닿는 인원** | `MSG.API_CATALOG_COL_USER_COUNT` | 파생 | `accessibleUserCount` | 130 | 불가 | 끔 | 닿는 인원 항목. 표시/편집 동작은 이 영역의 작업 설명과 아래 편집 조건을 따른다. | 요건서 §6 공통 검증·실행 규칙 참조; 별도 필드 제한을 추정하지 않는다 | 조회 | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 조회 시 현재 원천과 같은 기준 시각으로 계산 | 해당 API 매핑 메뉴별 유효 역할 경유·개인 예외 경유 사용자 ID의 합집합 크기. 계정·역할·부여 기간 유효 조건 적용; sources/backend/modules/system/src/main/java/com/aiagent/system/domain/apicatalog/ApiCatalogQueryService.java#accessibleUserCounts | 비저장 조회 파생. 계산에 쓰인 원천/관계 저장값과 구분 | {"filter":false} |
 
 - **메뉴명이 아니라 전체 경로다** — 이 화면에 오는 사람은 403 하나를 들고 왔을 뿐이라 그 메뉴를 **모르는 상태**다.
 - **`메뉴 사용` 과 `닿는 인원` 이 다른 것을 말한다** — 앞은 *대상이 살아 있나*, 뒤는 *줄 사람이 있나*. **둘을 합치면 꺼진 메뉴의 인원이 전부 `0` 이 되어** 관리자가 무엇을 고쳐야 할지 알 수 없다.

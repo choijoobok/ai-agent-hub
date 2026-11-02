@@ -1,0 +1,87 @@
+jobs:
+  - id: JOB-001
+    title: "이력 보존기한 파기"
+    module: "system"
+    implementation: "implemented"
+    feature: "FEAT-508"
+    usecase: "UC-508"
+    reqs:
+      - "REQ-508"
+    screens:
+      - "SCR-519"
+      - "SCR-520"
+    runbooks:
+      - "RUN-501"
+    testcases:
+      - "TC-5081"
+      - "TC-5083"
+      - "TC-5084"
+    scope: "RUN-501·ARCH-024의 보존 정책. 현행 대상은 사용 이력·에러 로그·로그인 이력·배치 실행 이력·인앱 알림 5종이다. 개인정보 접근 이력 SYS_LO_PII_ACCESS는 포함하지 않는다. 시드 설명의 과거 4종 표기보다 현재 소스/운영 정본을 우선한다."
+    schedule:
+      batch_id: "RETENTION_PURGE"
+      bean_id: "retentionPurgeJob"
+      seed_cron: "0 30 3 * * *"
+      seed_timezone: "Asia/Seoul"
+      seed_use_yn: "N"
+      seed_lock_seconds: 300
+      seed_cooldown_seconds: 0
+      activation: "RUN-501의 고객 보존 기간·아카이브 방침 확정 후 활성화. 실제 아카이브 구현은 없다."
+    parameters: "PARAM_JSON은 사용하지 않는다. sys-config.retention.*의 실행 단위 스냅샷을 사용한다. 기간/청크 기본값·정책은 application.yml 및 RUN-501을 참조한다."
+    permissions: "공통 실행 권한은 common.permissions. 운영 활성화는 소유 운영 절차를 따른다."
+    concurrency: "공통 batchId 락/쿨다운. 동일 구현을 여러 등록으로 중복 실행하지 않도록 운영 등록을 점검한다. 구현 단위 전역 락은 현재 없다."
+    processing: "각 대상의 보존 기한 이전 행을 청크 단위로 삭제한다. 인앱 알림은 읽음 여부와 무관하다. 각 청크는 독립 트랜잭션이므로 이미 성공한 삭제는 후속 실패로 롤백되지 않는다."
+    failure: "예외는 공통 FAIL과 실패 알림으로 남긴다. 이미 커밋된 청크가 있을 수 있으므로 전체 롤백이라고 표시하지 않는다."
+    cancellation: "청크 사이의 협조 중단. 완료한 삭제를 복구하지 않으며 실제 멈춘 경우 CANCELED로 반환한다."
+    retry: "실행 결과와 적용 보존 기한을 점검한 뒤 남은 기한 초과 행을 다음 실행으로 처리한다. 삭제 복구/아카이브 절차는 RUN-501의 활성화 전제와 고객 복구 정책을 따른다."
+    outputs: "대상별/전체 파기 건수 요약, 적용 보존 기간·기준 시각·대상별 결과 상세."
+    observability: "SCR-520의 실행 결과/상세와 RUN-501. 현재 비활성 시드 및 과거 검증 사실을 현재 운영 실행 완료로 해석하지 않는다."
+    sources:
+      - "sources/backend/domain/src/main/java/com/aiagent/domain/retention/RetentionPurgeJob.java"
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/system/002-system-seed.sql"
+      - "sources/backend/bootstrap/src/main/resources/application.yml"
+  - id: JOB-002
+    title: "관리자 비밀번호·권한 만료 예고"
+    module: "system"
+    implementation: "implemented"
+    feature: "FEAT-509"
+    usecase: "UC-509"
+    reqs:
+      - "REQ-501"
+      - "REQ-509"
+    uses_features:
+      - "FEAT-501"
+      - "FEAT-502"
+      - "FEAT-508"
+    screens:
+      - "SCR-519"
+      - "SCR-520"
+    runbooks:
+      - "RUN-502"
+      - "RUN-101"
+    testcases:
+      - "TC-5081"
+      - "TC-5094"
+    scope: "사용 중이며 현재 사용기간에 있는 system 관리자 계정의 비밀번호와 역할 부여/개인 메뉴 권한 유효 종료일을 조사한다. Portal 계정은 제외한다. 계정 만료·권한 회수·잠금·휴면 전환을 실행하지 않는다."
+    schedule:
+      batch_id: "EXPIRY_NOTICE"
+      bean_id: "expiryNoticeJob"
+      seed_cron: "0 10 4 * * *"
+      seed_timezone: "Asia/Seoul"
+      seed_use_yn: "Y"
+      seed_lock_seconds: 60
+      seed_cooldown_seconds: 0
+      activation: "시드는 활성이나 현재 운영 성공 여부는 SCR-520/RUN-101로 확인한다."
+    parameters: "PARAM_JSON은 사용하지 않는다. ConfigLookup 실행 스냅샷의 sys-config.auth.password.expire-days/expire-notice-days와 sys-config.noti.authz-expire-notice-days를 사용한다. 기본값은 application.yml을 참조한다. 비밀번호 기간/예고일 0 이하이면 해당 예고를 생략한다."
+    permissions: "공통 실행 권한은 common.permissions. 운영 활성화는 소유 운영 절차를 따른다."
+    concurrency: "공통 batchId 락/쿨다운. 동일 구현을 여러 등록으로 중복 실행하지 않도록 운영 등록을 점검한다. 구현 단위 전역 락은 현재 없다."
+    processing: "비밀번호/권한 예고 기간 내 대상에게 인앱 알림을 생성한다. 권한 예고는 오늘부터 예고 종료일까지 포함한다. 종류별 예고 기간에 이미 알림받은 사용자는 다시 보내지 않는다. 단일 트랜잭션으로 처리한다."
+    failure: "예외는 트랜잭션 롤백 및 공통 FAIL로 남긴다. 공통 실패 알림은 실행 결과와 별개다."
+    cancellation: "비밀번호 예고와 권한 예고 사이에 협조 중단을 확인한다. 중단 전에 처리한 결과/실제 CANCELED 반환을 확인하며 즉시 강제 종료로 설명하지 않는다."
+    retry: "기존 인앱 알림을 조회한 중복 억제를 적용해 다시 실행한다. 외부 알림까지 포함한 엄밀한 한 번 전송을 보장하지 않는다."
+    outputs: "비밀번호/권한 예고 대상별 발송 인원·전체 인원 요약과 상세."
+    observability: "SCR-520 및 인앱 알림, RUN-502/RUN-101. RUN-502의 과거 자연 실행 미확인 기록을 성공 검증 완료로 승격하지 않는다."
+    sources:
+      - "sources/backend/domain/src/main/java/com/aiagent/domain/notification/producer/ExpiryNoticeJob.java"
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/system/002-system-seed.sql"
+      - "sources/backend/bootstrap/src/main/resources/application.yml"
+    pending: "배치별 실제 결과 검증은 기존 소스 시험 및 RUN-502의 고객 환경 자연 실행 확인을 따른다."

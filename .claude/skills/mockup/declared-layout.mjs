@@ -5,7 +5,8 @@ import {rowActionCell,rowNavigationCell} from './row-actions.mjs';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
-import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,editableColumn,switchColumn,switchState,switchCell,badgeCell} from './grid-chrome.mjs';
+import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,switchColumn,switchState,switchCell,badgeCell} from './grid-chrome.mjs';
+import {canEditRow,gridWritable,propertyAttributes} from './grid-properties.mjs';
 const controls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-controls.js', import.meta.url), 'utf8');
 const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-math.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -138,7 +139,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     empty = empty || contextEmpty;
     const gridId = `${figure.key}-grid-${model.columns.indexOf(table)}`;
     const addChoice=addChoiceFor(model,label,figure);
-    const writable=!table.readonly&&table.rows.some(r=>editableColumn(plain(cell(table,r,'편집'))));
+    const writable=gridWritable(table);
     const showState=writable&&figure.editable;
     const multiple=model.selectionModes?.[label]==='다중';
     const deletionDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
@@ -152,8 +153,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     if (compact && model.masterLink && figure.masterValue && examples.length === 0) empty = true;
     const rows = examples.length ? examples : [{}];
     const editableNow=(r,record,isNew=false)=>{
-      if(!figure.editable||table.readonly||!editableColumn(plain(cell(table,r,'편집'))))return false;
-      if(/신규/.test(plain(cell(table,r,'편집')))&&!isNew&&figure.key!=='new')return false;
+      if(!figure.editable||!canEditRow(table,r,isNew||figure.key==='new'))return false;
       const condition=plain(cell(table,r,'편집 조건'));
       return !condition||condition==='—'||condition.split('&&').every(rule=>{
         const [field,...values]=rule.trim().split('=');
@@ -167,7 +167,6 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const renderRow = (record, rowIndex) => {
     const valueOf = r => exampleContext(record)&&Object.hasOwn(figure.examples,plain(r[0])) && (!figure.examples['컬럼명'] || figure.examples['컬럼명']===record['컬럼명']) ? figure.examples[plain(r[0])] : Object.hasOwn(record,plain(r[0])) ? String(record[plain(r[0])]) : exampleContext(record)?example(table,r):plain(cell(table,r,'예시'));
     const vals = table.rows.map((r,i) => {
-      const editMode = plain(cell(table, r, '편집'));
       const condition=plain(cell(table,r,'편집 조건'));
       const rowRules = condition && condition !== '—' ? condition.split('&&').map(rule => {
         const [field,...values]=rule.trim().split('=');
@@ -182,7 +181,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         const actual=(exampleContext(record)?figure.examples[field]:undefined)??record[field]??(base?example(base.table,base.row):'');
         return !values.join('=').split('·').includes(String(actual));
       });
-      const editable = (!conditionLocked || rowConditional) && !table.readonly && figure.editable && (/가능|조건부/.test(editMode) || (/신규/.test(editMode) && (figure.key==='new'||rowIndex>=rows.length)));
+      const editable = (!conditionLocked || rowConditional) && figure.editable && canEditRow(table,r,figure.key==='new'||rowIndex>=rows.length);
       const choiceCandidates=addChoice?.mode==='기준정보 콤보'&&plain(r[0])===addChoice.key?addChoice.records.filter(v=>v['선택 가능']!==false).map(v=>({label:addChoice.columns.map(k=>String(v[k]??'')).join(' / '),key:v[addChoice.key]})):null;
       const referenceMap=choiceCandidates?JSON.stringify(Object.fromEntries(choiceCandidates.map(v=>[v.label,v.key]))):plain(cell(table,r,'후보 값 매핑'));
       const references=referenceMap&&referenceMap!=='—'?JSON.parse(referenceMap):{};
@@ -233,14 +232,14 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       if(model.requestScreen && plain(r[0])==='요청번호')content=`<span data-request-number>${content}</span>`;
       if(rowConditional && editable && !switchColumn(mode))content=`<span data-locked-value${conditionLocked?'':' hidden'}>—</span>${conditionLocked?content.replace('<details data-cell-editor','<details hidden data-cell-editor'):content}`;
       const storedValue=referenceMap&&referenceMap!=='—'?(JSON.parse(referenceMap)[valueOf(r)]??valueOf(r)):valueOf(r);
-      return `<td data-grid-col="${i}" data-row-field="${escape(plain(r[0]))}" data-row-value="${escape(storedValue||'')}"${keyOnly?' data-reference-key-only':''}${(model.calculations?.some(rule=>rule.area===label&&rule.target===plain(r[0]))||model.allocationValidity?.field===plain(r[0]))?' data-calculated-value':''}${rowConditional&&editable?` data-edit-rule="${escape(JSON.stringify(rowRules))}"`:''}${hidden(r)}${editable && !conditionLocked && switchKnown ? ' class="edit"' : ''} style="overflow:hidden;text-overflow:ellipsis" title="${isSnapshot?'전체 스냅샷 보기':escape(value)}">${content}</td>`;
+      return `<td${propertyAttributes(table,r,figure.key==='new'||rowIndex>=rows.length)} data-grid-col="${i}" data-row-field="${escape(plain(r[0]))}" data-row-value="${escape(storedValue||'')}"${keyOnly?' data-reference-key-only':''}${(model.calculations?.some(rule=>rule.area===label&&rule.target===plain(r[0]))||model.allocationValidity?.field===plain(r[0]))?' data-calculated-value':''}${rowConditional&&editable?` data-edit-rule="${escape(JSON.stringify(rowRules))}"`:''}${hidden(r)}${editable && !conditionLocked && switchKnown ? ' class="edit"' : ''} style="overflow:hidden;text-overflow:ellipsis" title="${isSnapshot?'전체 스냅샷 보기':escape(value)}">${content}</td>`;
     }).join('');
     const protection = model.removeGuardField ? String(record[model.removeGuardField]??'').trim() : '';
     const protectedRow = protection && !['—','없음','0'].includes(protection);
     const rowEditable=table.rows.some(r=>editableNow(r,record,rowIndex>=rows.length));
     const rowDeleteAllowed=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
     const [lockField,lockValue]=(model.masterEditRule??'').split('=');
-    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state=""${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
+    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
     };
     const body = empty ? `<tr><td class="empty" colspan="${table.rows.length+1+(multiple?1:0)+(showState?1:0)+(showDelete?1:0)}">${escape(contextEmpty?'선택한 문맥에 해당하지 않는 목록입니다.':figure.notice)}</td></tr>` : rows.map(renderRow).join('');
     const excel=figure.buttons.includes('엑셀 다운로드')?`<details data-excel-menu><summary>엑셀 다운로드 ▾${badge('엑셀 다운로드','현재 페이지 또는 전체를 선택한다. 현재 표시한 열과 순서, 반출 권한을 적용하며 숨긴 열은 자동 포함하지 않는다.','common:excel')}</summary><span>현재 페이지 · 전체</span></details>`:'';

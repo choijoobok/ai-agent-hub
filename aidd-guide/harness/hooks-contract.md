@@ -75,6 +75,10 @@ tags: [harness, hooks, contract, wiring]
 
 fixture는 `.codex/hooks/self-test.mjs`가 갖고 여는 쪽과 **닫히는 쪽을 함께** 센다.
 
+## 배치 명세 추적성 확장
+
+기존 spec 쓰기 후 trace-check 공통 엔진은 `65-batches`의 JOB 참조·필수 계약·소유 FEAT/UC/REQ/TC 및 실제 BatchJob 구현 누락을 검사한다. Claude/Codex의 기존 post-write adapter와 경고 강도·실패 정책을 유지하며 새 이벤트나 승인 흐름을 추가하지 않는다. 문서 생성은 같은 검사에서 오류가 있으면 쓰기 전에 실패한다. `batch-contract.self-test.mjs`는 정상과 누락/오참조/구현체 미등재 반례를 검증한다.
+
 ## `git-sync` — 세션 시작의 원격 동기화
 
 | 칸 | 값 |

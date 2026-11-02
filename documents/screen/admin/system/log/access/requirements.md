@@ -122,18 +122,18 @@
 
 ### 4-1. 그리드 — 사용 이력
 
-| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 설명 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 일시 | `MSG.ACCESS_LOG_COL_CRE_DTM` | `CRE_DTM` | `creDtm` | 일시 | 170/좌고정 | — | 읽기전용 | — | — | 일시 항목. 값/선택 출처: —. |
-| 상태 | `MSG.ACCESS_LOG_COL_HTTP_STAT` | `HTTP_STAT` | `httpStat` | 숫자·배지 | 90 | — | 읽기전용 | — | — | 상태 항목. 값/선택 출처: —. |
-| 사용자 ID | `MSG.ACCESS_LOG_COL_USER_ID` | `USER_ID` | `userId` | 텍스트 | 120 | — | 읽기전용 | — | — | 사용자 ID 항목. 값/선택 출처: —. |
-| 사용자명 | `MSG.ACCESS_LOG_COL_USER_NM` | `SYS_USER.USER_NM` | `userNm` | 텍스트 | 120 | — | 읽기전용 | — | — | 사용자명 항목. 값/선택 출처: —. |
-| 메뉴 | `MSG.ACCESS_LOG_COL_MENU` | `MENU_CD` → 번역 | `menuNm` | 텍스트 | 140 | — | 읽기전용 | — | — | 메뉴 항목. 값/선택 출처: —. |
-| 요청 URI | `MSG.ACCESS_LOG_COL_REQUEST_URI` | `REQUEST_URI` | `requestUri` | 텍스트 | 260 | — | 읽기전용 | — | — | 요청 URI 항목. 값/선택 출처: —. |
-| 전문 | `MSG.ACCESS_LOG_COL_PAYLOAD` | **파생** — `PARAMETERS IS NOT NULL` | `hasParameters` | 링크 | 80 | — | 읽기전용 | — | — | 전문 항목. 값/선택 출처: —. |
-| 접속 IP | `MSG.ACCESS_LOG_COL_CLIENT_IP` | `CLIENT_IP` | `clientIp` | 텍스트 | 130 | — | 읽기전용 | — | — | 접속 IP 항목. 값/선택 출처: —. |
-| 추적 ID | `MSG.ACCESS_LOG_COL_TRACE_ID` | `TRACE_ID` | `traceId` | 텍스트 | 280 | — | 읽기전용 | — | — | 추적 ID 항목. 값/선택 출처: —. |
-| 순번 ○ | `MSG.ACCESS_LOG_COL_SEQ` | `ACCESS_LOG_SEQ` | `accessLogSeq` | 숫자 | 100 | — | 읽기전용 | — | — | 순번 ○ 항목. 값/선택 출처: —. |
+| 컬럼 | 라벨 키 | DB 컬럼 | **필드명** | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 설명 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 일시 | `MSG.ACCESS_LOG_COL_CRE_DTM` | `CRE_DTM` | `creDtm` | 일시 | 170/좌고정 | — | 읽기전용 | — | — | 일시 항목. 값/선택 출처: —. | string | dateTime | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | CRE_DTM | 소유 정본의 저장값 | {"pinned":"left","sortable":true} |
+| 상태 | `MSG.ACCESS_LOG_COL_HTTP_STAT` | `HTTP_STAT` | `httpStat` | 숫자·배지 | 90 | — | 읽기전용 | — | — | 상태 항목. 값/선택 출처: —. | number | number | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | HTTP_STAT | 소유 정본의 저장값 | — |
+| 사용자 ID | `MSG.ACCESS_LOG_COL_USER_ID` | `USER_ID` | `userId` | 텍스트 | 120 | — | 읽기전용 | — | — | 사용자 ID 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => row.userId \|\| label(MSG.ACCESS_LOG_ANONYMOUS); sources/frontend/src/modules/system/features/accesslog/pages/AccessLogPage.tsx#userId.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/accesslog//pages/AccessLogPage.tsx#userId.derive"} |
+| 사용자명 | `MSG.ACCESS_LOG_COL_USER_NM` | `SYS_USER.USER_NM` | `userNm` | 텍스트 | 120 | — | 읽기전용 | — | — | 사용자명 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | SYS_USER.USER_NM | 소유 정본의 저장값 | — |
+| 메뉴 | `MSG.ACCESS_LOG_COL_MENU` | `MENU_CD` → 번역 | `menuNm` | 텍스트 | 140 | — | 읽기전용 | — | — | 메뉴 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/파생 | 참조 행 값 변경/재조회 시 | (row) => row.menuNm ?? row.menuCd ?? label(MSG.ACCESS_LOG_NO_MENU); sources/frontend/src/modules/system/features/accesslog/pages/AccessLogPage.tsx#menuNm.derive | 비저장 화면 파생값 | {"derive":"sources/frontend/src/modules/system/features/accesslog//pages/AccessLogPage.tsx#menuNm.derive"} |
+| 요청 URI | `MSG.ACCESS_LOG_COL_REQUEST_URI` | `REQUEST_URI` | `requestUri` | 텍스트 | 260 | — | 읽기전용 | — | — | 요청 URI 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | REQUEST_URI | 소유 정본의 저장값 | — |
+| 전문 | `MSG.ACCESS_LOG_COL_PAYLOAD` | **파생** — `PARAMETERS IS NOT NULL` | `hasParameters` | 링크 | 80 | — | 읽기전용 | — | — | 전문 항목. 값/선택 출처: —. | string | text | 없음 | link | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 자동 계산/집계 | 대상/조회 조건·소유 원천 변경 후 조회 시 | 파생 — PARAMETERS IS NOT NULL; 전문 항목. 값/선택 출처: —.; **전문 컬럼의 값은 참/거짓이고 셀에 그려지는 것은 `[보기]` 다.** 미리보기를 두지 않는다 — 앞 N자 절단은 벤더 중립이 아니고(`SUBSTR` · `SUBSTRING` · `DBMS_LOB.SUBSTR`) 100행 × 1MB 는 실을 수 없다. **필터를 끈다**(값이 화면에 없다). 정렬은 선언이 없어 애초에 닫혀 있다. 엑셀에는 원본 값(`true`/`false`)이 나간다. | 비저장 투영(원천의 저장 결과/집계 참조) | {"filter":false} |
+| 접속 IP | `MSG.ACCESS_LOG_COL_CLIENT_IP` | `CLIENT_IP` | `clientIp` | 텍스트 | 130 | — | 읽기전용 | — | — | 접속 IP 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | CLIENT_IP | 소유 정본의 저장값 | — |
+| 추적 ID | `MSG.ACCESS_LOG_COL_TRACE_ID` | `TRACE_ID` | `traceId` | 텍스트 | 280 | — | 읽기전용 | — | — | 추적 ID 항목. 값/선택 출처: —. | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 서버 생성/저장 | 소유 명령 저장 성공/해당 상태 전이 시 | TRACE_ID; — | 소유 원천에 저장, 화면 직접 입력 불가 | — |
+| 순번 ○ | `MSG.ACCESS_LOG_COL_SEQ` | `ACCESS_LOG_SEQ` | `accessLogSeq` | 숫자 | 100 | — | 읽기전용 | — | — | 순번 ○ 항목. 값/선택 출처: —. | number | number | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | ACCESS_LOG_SEQ | 소유 정본의 저장값 | {"visible":false} |
 
 `○` = 기본 숨김. **`hidden` 은 없다** — 운영자가 켜서 보면 안 되는 컬럼이 이력에는 없다.
 

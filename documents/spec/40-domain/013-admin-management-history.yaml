@@ -832,9 +832,9 @@ entities:
         physical_name: "SUBJECT_ID_CD"
         description: "UNKNOWN/YES/NO. 정보주체 식별 용도"
         pk: false
-      - name: "공통 마스킹 변환 원천 참조. 현재 정책 사본 아님"
+      - name: "공통 마스킹 유틸의 안정 정보 유형 코드. 알고리즘/DB 정책 사본 아님"
         physical_name: "MASK_RULE_REF"
-        description: "공통 마스킹 변환 원천 참조. 현재 정책 사본 아님"
+        description: "공통 마스킹 유틸의 안정 정보 유형 코드. 알고리즘/DB 정책 사본 아님"
         pk: false
       - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
         physical_name: "REVIEW_STATUS"

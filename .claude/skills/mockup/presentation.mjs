@@ -1,6 +1,6 @@
 /** 목업 전체에서 같은 요소는 같은 번호와 한 번의 상세 설명을 사용한다. */
 export const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-const plain = value => String(value ?? '').replace(/`([^`]+)`/g,'$1').replace(/\*+/g,'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+const plain = value => String(value ?? '').replace(/`([^`]+)`/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\\\|/g,'|').replace(/<\/?(?:b|strong|em|i|code|span|small|br|sub|sup|del|u)(?:\s[^<>]*)?\/?>/gi,'').replace(/\s+/g,' ').trim();
 export const tableCell = (table,row,...names) => {
   for(const name of names){const index=table?.header.findIndex(h=>plain(h)===name);if(index>=0&&row[index]!==undefined)return plain(row[index]);}
   return '';
@@ -13,6 +13,12 @@ export function columnExplanation(table,row){
     ['설명',tableCell(table,row,'설명','업무 설명','의미','무엇')],
     ['필수 입력',editable==='읽기전용'?'입력 대상 아님 (조회 전용)':(tableCell(table,row,'필수').replace(/^—$/,'선택') || '개별 필수 조건은 공통 규칙 참조')],
     ['입력 방식',tableCell(table,row,'입력방식')], ['편집 조건',editable],
+    ['값 자료형',tableCell(table,row,'값 자료형')],['그리드 타입(type)',tableCell(table,row,'그리드 타입')],
+    ['에디터(editor)',tableCell(table,row,'에디터')],['렌더러(renderer)',tableCell(table,row,'렌더러')],['뷰어(viewer)',tableCell(table,row,'뷰어')],
+    ['신규 행 필수',tableCell(table,row,'신규 필수')],['신규 행 편집',tableCell(table,row,'신규 편집')],
+    ['조회 행 필수',tableCell(table,row,'조회 필수')],['조회 행 편집',tableCell(table,row,'조회 편집')],
+    ['값 원천',tableCell(table,row,'값 원천')],['생성·갱신 시점',tableCell(table,row,'생성·갱신')],
+    ['참조 항목·계산식',tableCell(table,row,'참조·계산식')],['저장 방식',tableCell(table,row,'저장 방식')],['추가 구현 속성',tableCell(table,row,'추가 속성')],
     ['선택·값 출처',tableCell(table,row,'선택 출처','기본값/원천')],
     ['선택 코드',tableCell(table,row,'코드그룹','코드 그룹')],
     ['검증·거부 조건',tableCell(table,row,'검증').replace(/^—$/,'') || (editable==='읽기전용'?'직접 입력하지 않는다. 서버가 반환한 허용 범위의 값을 표시한다.':'아래 공통 검증·실행 규칙을 적용한다. 개별 길이/범위는 임의로 추정하지 않는다.')],
@@ -93,7 +99,7 @@ export function annotationBook(){
       const count=initialCount??notes.length;
       const list=items=>`<ol>${items.map(n=>`<li id="note-${n.id}"><span class="n">${n.number}</span><div>${n.description}</div></li>`).join('')}</ol>`;
       const extra=notes.slice(count);
-      return `<section class="annotation-catalog" id="element-descriptions" data-annotation-catalog><h2>화면 요소 상세 설명</h2><p>초기 화면에 보이는 요소부터 연속 번호를 부여했습니다. 같은 요소는 탭·상태가 달라도 같은 번호를 씁니다. 번호에 마우스를 올리거나 초점을 맞추면 설명이 나타나고, 누르면 해당 설명으로 이동합니다.</p>${list(notes.slice(0,count))}${extra.length?`<details data-extra-annotations><summary>추가 설명 ${extra.length}개 — 숨김 컬럼·다른 탭·편집/상태별 요소</summary>${list(extra)}</details>`:''}</section>`;
+      return `<section class="annotation-catalog" id="element-descriptions" data-annotation-catalog><h2>화면 요소 상세 설명</h2><p>초기 화면에 보이는 요소부터 연속 번호를 부여했습니다. 같은 요소는 탭·상태가 달라도 같은 번호를 씁니다. 번호에 마우스를 올리거나 초점을 맞추면 설명이 나타나고, 누르면 해당 설명으로 이동합니다.</p><p>그리드 타입·에디터·렌더러·필수 조건은 개발 시 적용할 계약입니다. 목업은 입력과 상태 전환을 예시로 보여주며, 실제 공통 그리드의 모든 편집기와 서버 검증을 실행하지는 않습니다.</p>${list(notes.slice(0,count))}${extra.length?`<details data-extra-annotations><summary>추가 설명 ${extra.length}개 — 숨김 컬럼·다른 탭·편집/상태별 요소</summary>${list(extra)}</details>`:''}</section>`;
     },
   };
 }

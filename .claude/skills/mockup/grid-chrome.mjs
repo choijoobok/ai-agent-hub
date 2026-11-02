@@ -26,10 +26,10 @@ export function stateHeads(editable,multiple=false) {
     +(multiple?`<th data-grid-system="select" ${pinned('left',60,44)}><input type="checkbox" data-grid-select-all aria-label="현재 표시 행 전체 선택"></th>`:'')
     +(editable?`<th data-grid-system="state" data-grid-state-column ${pinned('left',multiple?104:60,84)}>상태</th>`:'');
 }
-export function stateCells(editable,locked,multiple=false,index=0) {
+export function stateCells(editable,locked,multiple=false,index=0,isNew=false) {
   return `<td data-grid-system="number" data-grid-row-number ${pinned('left',0,60)}>${index+1}</td>`
     +(multiple?`<td data-grid-system="select" ${pinned('left',60,44)}><input type="checkbox" data-grid-select-row aria-label="${index+1}번 행 선택"${locked?' disabled':''}></td>`:'')
-    +(editable?`<td data-grid-system="state" data-grid-state-cell ${pinned('left',multiple?104:60,84)}><span data-row-state></span><button type="button" class="btn ghost sm" data-revert-row hidden title="행의 값을 원본으로 되돌리기">↶</button></td>`:'');
+    +(editable?`<td data-grid-system="state" data-grid-state-cell ${pinned('left',multiple?104:60,84)}><span data-row-state>${isNew?'신규':''}</span><button type="button" class="btn ghost sm" data-revert-row hidden title="행의 값을 원본으로 되돌리기">↶</button></td>`:'');
 }
 export function deleteHead(visible) {
   return visible?`<th data-grid-system="delete" data-grid-delete-column ${pinned('right',0,84)}>삭제</th>`:'';

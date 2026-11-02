@@ -94,6 +94,8 @@ node .claude/skills/mockup/scaffold.mjs --write admin/system/log/access
 
 ---
 
+그리드 컬럼의 신규/조회 필수·편집, 값 자료형·type/editor/renderer/viewer, 값 원천·생성/갱신·참조/계산식·저장 방식·추가 속성은 요건서에 명시하고 컬럼 설명에 그대로 낸다. admin 정본의 누락/미지원 어휘는 `--check` 오류다. 생성기는 신규/조회 편집 조건을 분리 적용하며 읽기 전용·서버 생성·계산·참조·YAML 값의 출처를 직접 입력과 구분한다. 실제 어휘는 `sources/frontend/src/shared/grid/types.ts`, 상세 서식은 `02-requirements.md`가 정본이다.
+
 ## ② 검사 — 어긋난 것을 찾는다
 
 ```bash

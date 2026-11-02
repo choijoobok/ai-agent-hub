@@ -550,8 +550,12 @@ entities:
     design_stage: "logical"
     features: [FEAT-003]
     reqs: [REQ-304]
-    description: "데이터소스별 수동 비교 실행과 기준 목록·대상별 결과. 데이터소스 설정 변경 이력과 별도"
+    description: "데이터소스별 스케줄/수동 비교 실행과 고정 기준·대상별 결과. JOB-003 및 REQ-304.batch_structure_comparison을 따르며 데이터소스 설정 변경 이력과 별도다."
     attributes:
+      - name: "기동 종류·스케줄/공통 실행 이력 참조·실행 주체"
+        description: "스케줄/수동을 구분하고 기존 배치 실행 이력과 비교 runId를 연결한다. system에 별도 비교 이력을 복제하지 않는다."
+      - name: "스키마 권한 판정·완전성·결과 스냅샷"
+        description: "대상 스키마별 명시적 메타데이터 조회 권한 부재 근거와 확인 시각·설정 세대, 일부 제외/실패·미실행 상태를 보존한다. 요약/탭의 같은 결과 기준을 식별한다."
       - name: "실행 ID·멱등 키·세대·데이터소스/설정 버전"
         description: "재요청·중복 실행·오래된 결과 차단"
       - name: "주체·시작/완료 시각·상태·처리 수"
@@ -578,6 +582,8 @@ entities:
     reqs: [REQ-304]
     description: "데이터소스 관리에서 조회할 현재 미해결 차이 목록. 불변 과거 근거가 아닌 현재 투영"
     attributes:
+      - name: "화면 집계 키"
+        description: "REQ-304.batch_structure_comparison.summary의 COLUMN/INDEX별 정확 그룹 키. 요약과 각 탭은 같은 미해결 행·권한 범위·결과 스냅샷을 그룹화하며 속성 차이 행 수를 건수로 쓰지 않는다."
       - name: "차이 키·COLUMN/INDEX 유형·정확 대상/속성·차이 종류"
         description: "동일 데이터소스/카탈로그/대상/속성/종류 중복 방지"
       - name: "기준 버전·카탈로그 값·원천 값"
