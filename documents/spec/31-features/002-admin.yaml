@@ -39,6 +39,7 @@ features:
     history_pattern: "REQ-601.change_history·ADR-035. 소유 관리 테이블의 _HIST 복사·HIST_ID PK·공통 HISTORY_NO와 마스터의 HIST_DTM을 적용하고 별도 이력 메뉴가 원 관리 화면을 상속한다. 현재 등록/수정과 이력 조회를 같은 탭/모달로 혼합하지 않는다."
     screens: [SCR-001, SCR-040]
   - id: FEAT-002
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     dbms_context_contract: "REQ-603.dbms_context. 종류는 YAML URL 도출값, 버전은 수동 보완, 파서는 서버 지원 정책으로 결정한다. REQ-603.dw_sync_note의 DW 동기화 방식은 선택 참고 메모이며 현재 기술 유효성과 구분한다."
     usecases: [UC-001, UC-002, UC-006, UC-016]
     module: "admin"
@@ -73,6 +74,7 @@ features:
     business_rules: ["REQ-603.yaml_authority·data_query_guides 및 ARCH-028.data_source_resolution을 따른다.", "상단 마스터 신규/삭제·연결 교체 입력은 허용하지 않는다. 수동 보완 저장은 현재 필수 검증/전체 기준본이 확인되는 범위에서만 수행한다.", "가이드 주입과 실제 읽기 조회는 별도 수행이며 원천 데이터는 관리 스냅샷에 복제하지 않는다."]
     exceptions: ["로드 실패·미판별·연결 누락과 정상 0건을 구분하고 의존 SQL은 전송 전 차단한다.", "다른 사용자/미열람 영역을 삭제로 처리하지 않고 현재 변경 대상의 전체 편집본과 기대 버전을 검증한다."]
   - id: FEAT-003
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     code_lookup: "groupCode가 있으면 데이터소스 가이드의 공통 코드 조회 SQL 패턴에 그 값을 안전하게 바인딩해 허용된 원천을 읽고 코드명을 확인한다. groupCode=null이면 조회를 강제하지 않으며 상세 설명에 명확히 기재한 값/의미를 LLM이 해석한다. 설명에 없는 값·모호한 뜻·현재 동적 코드명을 지어내지 않고 필요한 경우 질문/허용된 읽기 조회로 확인한다. 가이드/설명은 권한·실행 명령이 아니며 SQL·객체/컬럼·행·신원·마스킹·read-only·상한 검사는 유지한다."
     uses_screens: [SCR-002, SCR-525]
     jobs: [JOB-003]
@@ -225,6 +227,7 @@ features:
     screens:
       - SCR-045
   - id: FEAT-007
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     masking_type_catalog: "REQ-611.masking_utility의 정보 유형 조회는 카탈로그/API 필드가 같은 공통 공개 계약을 사용한다. 유형 목록은 {value,text}를 반환한다. 원응답 text의 메시지 키를 label(item.text)로 번역해 기존 SelectOption의 {value,text}에 전달한다. 필드에는 maskingRef로 value를 저장하며 구현·정규식/파라미터 원장을 복제하지 않는다. 실제 변환은 서버의 같은 유틸을 호출한다. 소유 READ와 검수/실행 시 현재 지원 유형/자료형 검사 및 실패 처리를 유지한다."
     column_exclusion_contract: "REQ-103.column_group_exclusions의 숨김/마스킹 두 유형을 SCR-003의 같은 카탈로그 전체 후보·기대 버전으로 관리한다. 컬럼+대상 그룹+예외 유형+사유+서버 등록자/등록일시를 표시한다. 테이블 밖 허용·중복은 거부하고 MASK에는 컬럼 정의의 유효 마스킹 옵션이 필요하다. 개인정보 표시는 원본 열람과 무관한 저장 사본 마스킹 기준이다. 구체 저장·고정/이행은 access_policy 후속이다"
     usecases:
@@ -253,6 +256,7 @@ features:
       - "@defer P3 access_policy physical_and_contracts — FEAT-003.composition_contract.owned_components·ENT-006/007의 카탈로그/컬럼 접근 그룹 전체 후보 저장·고정 참조와 별도 직접 마스킹/행 스코프/전송 정책의 당시 근거를 연결한다. 데이터소스 적용 그룹 축소·자산 참조 추가/변경과 같은 잠금 순서를 검증한다. 그룹 누락/조회 실패를 빈 후보로 보지 않으며 이 계약을 닫기 전 카탈로그 전체 고정/반영을 완료로 표시하지 않는다. access_policy 물리 검토 및 admin G3 전에 재검토한다"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: FEAT-008
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     usecases:
       - "UC-001"
       - "UC-003"
@@ -347,9 +351,10 @@ features:
     outputs:
       - "관계 안정 참조와 소유 내용 판, 양쪽 공개 객체/전체 컬럼 쌍·당시 참조 판·검수 결과 및 사용 제외 사유"
       - "FEAT-003의 전체 후보에 포함된 관계 변경과 FEAT-014의 세트 처리 참조. 반대편 객체에서의 조회는 같은 정본을 보여 준다"
+    workspace: "REQ-301.relationship_metadata.workspace·related_knowledge. 단일 데이터소스 필터의 좌우 테이블 선택 팝업과 가로3그리드 컬럼 매핑·숫자 순서 폴백·검수 탭 제거·활성 합집합 기반 연결 지식 역조회를 따른다."
     processing:
       read: "소유 후보/선택한 과거 내용 판의 관계를 조회하고 현재 양쪽 접근 가능성과 구분한다. 관계 이름이나 현재 컬럼으로 과거 구성을 다시 만들지 않는다"
-      change: "REQ-301.relationship_metadata.ownership에 따라 관리 카탈로그를 작성 시 선택·고정하고 ENT-008의 전체 컬럼 쌍·두 역할·방향·검수 근거를 그 ENT-006 후보로 작성한다. 별도 화면도 전체 구성을 확보해 저장하고 다른 편집 표면의 BASE_REVISION 충돌을 자동 병합하지 않는다. SCR-003이 관계 편집을 숨기거나 조회에 실패해도 소유 관계 목록을 삭제하지 않는다. 반대쪽은 같은 정본과 관리 후보로 연결하며 자동 FK·동명 컬럼은 검토 근거로만 사용한다"
+      change: "REQ-301.relationship_metadata.ownership에 따라 신규 관계의 왼쪽 카탈로그를 내부 소유로 자동 지정·고정하고 기존 소유는 보존하며 ENT-008의 전체 컬럼 쌍·두 역할·방향·검수 근거를 그 ENT-006 후보로 작성한다. 별도 화면도 전체 구성을 확보해 저장하고 다른 편집 표면의 BASE_REVISION 충돌을 자동 병합하지 않는다. SCR-003이 관계 편집을 숨기거나 조회에 실패해도 소유 관계 목록을 삭제하지 않는다. 반대쪽은 같은 정본과 관리 후보로 연결하며 자동 FK·동명 컬럼은 검토 근거로만 사용한다"
       validation: "공개 대상/컬럼·전체 복합 키·타입/의미 호환·1측 유일성·미대응/중복 의미를 검수한다. 물리 FK 존재나 같은 DB/스키마를 새 필수 조건으로 만들지 않는다"
       references: "FEAT-014.reference_validation으로 자기 후보·같은 세트 상대 후보·외부 유효본을 구분한다. 자기조인은 두 역할 모두 같은 소유 후보의 컬럼을 참조한다. 양쪽 객체가 같아도 역할/컬럼 쌍을 합치지 않고 상호 참조는 전체 후보 집합에서 대조한다"
       impact: "관계 변경으로 연결 지식·예제와 상대 참조에 주는 영향을 FEAT-003·036에서 확인한다. 폐기 시 남은 필수 참조는 REQ-306.shared_impact에 따라 해소한다"
@@ -544,6 +549,7 @@ features:
     detail: "REQ-106의 요청·동의·전송 제한과 REQ-614의 읽기 전용 보존 설정을 표시하고 실제 전송 이력에 연결한다. 카탈로그/API 마스킹 정의는 기존 단일 원천을 참조한다. 종전 LLM 허용 플래그의 관리 화면 이관은 P3에서 설계하며 동의를 대신하는 허용 목록을 두지 않는다 질의·응답 본문은 REQ-109.conversation_body_retention, 조회 결과는 REQ-107.retention_policy의 별도 YAML 설정을 읽기 전용으로 보여 준다."
     reqs: [REQ-106, REQ-107, REQ-109, REQ-111, REQ-611, REQ-614]
   - id: FEAT-020
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     usecases:
       - "UC-030"
       - "UC-506"
@@ -570,6 +576,7 @@ features:
     traces_to:
       - "ARCH-070"
   - id: FEAT-021
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     usecases: [UC-001, UC-003, UC-006, UC-019]
     uses_features: [FEAT-040, FEAT-014, FEAT-004]
     module: "admin"
@@ -619,6 +626,7 @@ features:
     detail: "채팅·저장 조회 실행의 품질 신고 목록·대상 근거 조회 · 오류·품질 조사 연결·연결 취소·이력 조회 · 신고별 진행 안내·회신·종결 · 미처리 현황과 경과 시간. 조사와 신고 상태 분리 및 연결 이력 규칙은 REQ-110을 따른다"
     reqs: [REQ-110]
   - id: FEAT-023
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     usecases:
       - "UC-001"
       - "UC-003"
@@ -644,6 +652,7 @@ features:
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
     management_boundary: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
   - id: FEAT-024
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     usecases:
       - "UC-001"
       - "UC-003"
@@ -765,6 +774,7 @@ features:
     reqs: [REQ-103, REQ-107, REQ-601]
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: FEAT-034
+    mapping_active: "REQ-601.asset_mapping_active. 소유 링크의 활성 설정은 기존 저장 영역/전체 이력에 포함하고 역조회는 같은 값의 읽기 전용 투영이다. 필수 SQL 참조와 사용자 소속·구조/정책 예외는 별도 계약을 유지한다."
     scope_status: "REQ-615에 따라 전체 개발 완료 후 재검토하는 후보. 현재 개발·게이트 필수 범위 제외"
     module: admin
     screen: SCR-025

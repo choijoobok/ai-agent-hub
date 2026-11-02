@@ -23,7 +23,8 @@ import {annotationBook, annotationIssues, surfaceRows, surfaceIntroduction, surf
 import {genericScreen, areaTitle} from './generic-layout.mjs';
 import {requestDeclaration, inheritRequest} from './request-layout.mjs';
 import {withAuditColumns} from './column-contract.mjs';
-import {withGridProperties,gridPropertyIssues} from './grid-properties.mjs';
+import {withGridProperties,gridPropertyIssues,validateRowDefaults} from './grid-properties.mjs';
+import {relationWorkspace} from './relation-workspace.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../../..');
 const SCREENS = path.join(REPO, 'documents/screen');
@@ -241,6 +242,7 @@ function screenModel(md, type, allowInheritance = true) {
     commandFields: findTable(composition, /^명령 입력창$/),
     saveTargets: findTable(composition, /^저장 대상$/),
     addChoices: findTable(composition, /^추가 방식$/),
+    rowDefaults: Object.fromEntries((findTable(composition,/^행 추가 초기값$/)?.rows??[]).map(row=>[plain(row[0]),JSON.parse(row[1])])),
     figureNavigation: findTable(composition, /^목업 이동$/),
     masterLink: composition?.body.match(/^목록 연동:\s*(.+)$/m)?.[1]?.trim(),
     masterEditRule: composition?.body.match(/^대상 편집 조건:\s*(.+)$/m)?.[1]?.trim(),
@@ -281,6 +283,11 @@ function screenModel(md, type, allowInheritance = true) {
     const canCreate=(area?.buttons??[]).some(name=>/추가$|^신규$/.test(name))||(model.addRowTabs??[]).includes(areaTitle(table))||(table===model.columns[0]&&(model.figures??[]).some(f=>f.key==='new'));
     return withGridProperties({...withAuditColumns(table,policy),declaredHeader:sourceHeader,declaredRows:table.rows},{canCreate});
   });
+  model.relationWorkspace=relationWorkspace(findTable(composition,/^관계 작업대$/),model);
+  for(const [area,values]of Object.entries(model.rowDefaults)){
+    const table=model.columns.find(table=>areaTitle(table)===area);
+    validateRowDefaults(table,values);
+  }
   return model;
 }
 
@@ -335,7 +342,7 @@ function scaffold(dir) {
   const renderFigure = (figure,options={}) => model.figures.length
     ? declaredScreen(title, model, figure, { annotator:sharedAnnotator, plain, manualKey: keys.some((k) => k.key === figure.key), ...options })
     : genericScreen(title, model, figure, { annotator:sharedAnnotator, manualKey:keys.some(k=>k.key===figure.key),...options});
-  const areas=[...new Set(model.columns.slice(1).filter(t=>surfaceOf(model,areaTitle(t))?.kind!=='탭 내부').map(t=>model.figures.length?areaTitle(t).split(' / ')[0]:areaTitle(t)))];
+  const areas=[...new Set(model.columns.slice(1).filter(t=>!['탭 내부','팝업'].includes(surfaceOf(model,areaTitle(t))?.kind)).map(t=>model.figures.length?areaTitle(t).split(' / ')[0]:areaTitle(t)))];
   const used=new Set([figures[0].key]);
   const walkthrough=areas.map((name,index)=>{
     const candidates=figures.slice(1).filter(f=>f.detail===name&&!/실패|없|충돌|잠금|확인 중|거부/.test(f.caption));
@@ -461,7 +468,7 @@ function check(dir) {
       const names=model.columns.map(areaTitle);
       if(new Set(model.surfaces.map(s=>s.name)).size!==model.surfaces.length)problems.push('영역별 작업 표의 영역 이름이 중복됐다');
       for(const name of names)if(!surfaceOf(model,name))problems.push(`컬럼 영역 '${name}'의 관리 대상·작업·버튼 계약이 없다`);
-      for(const surface of model.surfaces)if(!names.includes(surface.name))problems.push(`영역 '${surface.name}'의 컬럼 표가 없다`);
+      for(const surface of model.surfaces)if(!names.includes(surface.name)&&!(surface.kind==='탭'&&names.some(name=>name.startsWith(surface.name+' / '))))problems.push(`영역 '${surface.name}'의 컬럼 표가 없다`);
     }
     const expected = model.columns.flatMap((t) => t.rows.map(columnLabel));
     const shown = [...mock.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)]

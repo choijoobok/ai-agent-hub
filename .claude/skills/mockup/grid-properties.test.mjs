@@ -30,3 +30,11 @@ test('정본 그리드 소스와 type/editor/renderer 어휘 일치',()=>{
  const values=name=>[...source.match(new RegExp('export type '+name+'\\s*=([\\s\\S]*?);'))[1].matchAll(/'([^']+)'/g)].map(m=>m[1]);
  assert.deepEqual(values('ColumnType'),GRID_TYPES);assert.deepEqual(values('EditorType'),GRID_EDITORS);assert.deepEqual(values('RendererType'),GRID_RENDERERS);
 });
+
+ test('행 추가 초기값은 신규 편집 컬럼만 허용하고 서버 감사/조회값을 거부한다',async()=>{
+ const {validateRowDefaults}=await import('./grid-properties.mjs');
+ const table={header:['컬럼','신규 편집'],rows:[['매핑 활성 여부','가능'],['등록자','불가']]};
+ assert.doesNotThrow(()=>validateRowDefaults(table,{'매핑 활성 여부':true}));
+ for(const value of [{'등록자':'관리자'},{'없는 필드':true},null,[]])assert.throws(()=>validateRowDefaults(table,value));
+ assert.throws(()=>validateRowDefaults({...table,readonly:true},{'매핑 활성 여부':true}));
+});

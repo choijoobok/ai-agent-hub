@@ -33,4 +33,5 @@ test('중복 그룹 편집면 통합과 조회 정책·AI 운영 메뉴 이동',
  }
  for(const [id,feature]of[['SCR-003','FEAT-007'],['SCR-004','FEAT-008']])assert.ok(spec.screens.find(s=>s.id===id).features.includes(feature));
  assert.equal(spec.screens.find(s=>s.id==='SCR-046').menu_parent,'HUB_CHANGE_HISTORY');
+ assert.deepEqual(spec.menu_tree.admin_groups.find(g=>g.code==='HUB_KNOWLEDGE').screens,['SCR-010','SCR-011','SCR-012','SCR-009','SCR-013','SCR-014']);
 });

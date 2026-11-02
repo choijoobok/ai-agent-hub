@@ -55,7 +55,7 @@ test('사용자 그룹의 자산 네 탭은 현재 매핑 조회만 제공한다
  const assertReadOnly=section=>{
   assert.doesNotMatch(section,/^\| (변경 사유|매핑 변경 가능) \|/m);
   assert.doesNotMatch(section,/\| (설정 스위치|가능|조건부) \|/);
-  assert.match(section,/\| 매핑 활성 \|[^\n]*\| 스위치 \|[^\n]*\| 읽기전용 \|/);
+  assert.match(section,/\| 매핑 활성 여부 \|[^\n]*\| 스위치 \|[^\n]*\| 읽기전용 \|/);
  };
  for(const name of ['지식','스키마 카탈로그','API','커스텀 도구']){
   const row=md.split('\n').find(line=>line.startsWith(`| ${name} | 탭 |`)).split('|').slice(1,-1).map(x=>x.trim());

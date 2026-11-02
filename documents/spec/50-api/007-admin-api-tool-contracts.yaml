@@ -1,5 +1,7 @@
 feature_contracts:
   FEAT-004:
+    reference_projection: "기술 참조 보호의 currentRef는 응답/내부 문맥에 보존한다. 별개인 소유 링크의 mappingActive:boolean|null을 역조회에 제공하고 화면은 매핑 활성 여부만 표시한다. 비활성 링크도 참조 존재와 다르며 조회 실패/미상은 null로 표시한다. 구조 참조는 임의 활성 플래그를 만들지 않는다."
+    mapping_active: "REQ-601.asset_mapping_active. 허용 그룹 링크의 groupRef/mappingActive를 소유 API/도구 전체 구성과 HIST에 보존하고 현재 호출/노출에는 활성 링크만 사용한다. 역조회 별도 쓰기는 없으며 위험/실행 확인·응답 예외/마스킹·현재 권한을 우회하지 않는다."
     masking_type_catalog: "REQ-611.masking_utility와 FEAT-003.masking_type_catalog의 공통 유형 조회의 {value,text}를 재사용한다. 원응답 value는 유형 구분값이고 text는 메시지 키다. 화면은 {value:item.value,text:label(item.text)}로 기존 SelectOption에 맞추며 선택/저장·마스킹 호출은 언어와 독립된 코드로 처리한다. 요청/응답 필드 maskingRef는 같은 유틸의 안정 정보 유형 코드이며 현재 지원·자료형·실패 처리를 검증한다. 그룹 매핑에서 별도 알고리즘을 등록/편집하지 않는다."
     security_domain_scope: "ARCH-050.admin_account_contract. 관리 명령의 인증·ACTOR_ID·지문·원 결과 소유 비교는 system 관리자 영역이다. Portal 주체/같은 문자열 ID로 실행·재생하지 않으며 Portal 대상 이용자와 처리자를 구분한다"
     design_status: "draft"
@@ -66,7 +68,7 @@ feature_contracts:
       BusinessApiComposition: "ENT-012 편집 항목, ENT-013/014/030~034/037 전체 자식 목록과 FEAT-008 소유 전체 정책 후보. 필드별 fieldId 또는 신규 clientKey, 판 내 순번/참조·검수 의도/근거를 사용한다. 서버 값은 입력 금지. DB 물리명을 그대로 클라이언트 필드명으로 노출하지 않고 logical attribute와 일대일 대응한다 전체 구성에 수동 useYn과 제공 시스템/명시 connectionId를 포함한다. 연결 모드/기본 연결 값은 받지 않으며 기술 파생 진단은 서버 전용이다."
       BusinessApiRevisionDetail: "BusinessApiRevisionRow·당시 전체 BusinessApiComposition·고정 참조와 검수 근거. 현재 정책은 별도 관측이며 과거 판을 현재 값으로 재구성하지 않는다"
       AssetReferencesQuery: "targetKind/targetId와 명시 CURRENT 또는 HISTORY의 appliedRevision/historyNo. 현재 열람 권한·대상 소유/세트를 검사한다. 로컬 입력의 기술 참조 후보 검증은 전체 구성/baseRevision을 별도로 받고 운영값/요청 상태를 만들지 않는다."
-      AssetReferenceRow: "대상 안정 ID/종류·표시명·적용 리비전·연결 경로·현재 참조 여부를 현재 열람 권한 안에서 조회한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다."
+      AssetReferenceRow: "대상 안정 ID/종류·표시명·적용 리비전·연결 경로·현재 참조 여부를 현재 열람 권한 안에서 조회한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다. 매핑 링크를 표시하는 역조회에는 원 소유 mappingActive:boolean|null도 별도로 제공하며 currentRef는 기술 참조 보호용 응답 문맥으로 보존한다. 화면 활성 표시를 currentRef에서 계산하지 않는다."
       AssetValidationQuery: "현재 대상/기대 리비전·전체 로컬 편집 구성과 같은 명시 변경 대상 집합. 기술 검증만 반환하며 저장/승인 상태를 만들지 않는다."
       AssetValidationResult: "원 targetKind/targetId/readContext와 검증 결과·현재 권한·후보/외부 적용 참조를 구분해 반환한다. 후보는 requestNo+대상키, 외부 참조는 안정 ID+적용 리비전이다."
       AssetReferenceQuery: "targetKind/targetId와 명시 CURRENT 또는 HISTORY의 appliedRevision/historyNo. 현재 열람 권한·대상 소유/세트를 검사한다. 로컬 입력의 기술 참조 후보 검증은 전체 구성/baseRevision을 별도로 받고 운영값/요청 상태를 만들지 않는다."
@@ -89,6 +91,7 @@ feature_contracts:
     save_rule: "commandKey/targetId 또는 신규 업무키/baseRevision/reason/전체 구성. 서버가 현재 변경 권한·기대 버전·입력/참조·기술 계약을 검증해 직접 저장하며 관리자 요청/전결은 없다."
     asset_availability: "REQ-601.asset_availability·configuration_alerts. 수동 사용은 전체 직접 저장/이력의 입력이고 자동 진단/사유는 서버 관측이다. 미확인/설정 누락과 모든 저장된 실행 경로의 전송 전 차단을 공개 호출 계약으로 제공한다."
   FEAT-021:
+    mapping_active: "REQ-601.asset_mapping_active. 전체 허용 그룹 링크의 활성 설정과 HIST를 보존하며 API 대응/실행 통제를 별도로 지킨다."
     design_status: "draft"
     implementation: "planned"
     composition_contract:

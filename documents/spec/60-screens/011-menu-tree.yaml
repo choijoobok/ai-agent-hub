@@ -24,12 +24,12 @@ menu_tree:
     - code: "HUB_KNOWLEDGE"
       title: "업무 지식 관리"
       screens:
-        - "SCR-009"
         - "SCR-010"
-        - "SCR-012"
         - "SCR-011"
-        - "SCR-014"
+        - "SCR-012"
+        - "SCR-009"
         - "SCR-013"
+        - "SCR-014"
     - code: "HUB_REQUEST_APPROVAL"
       title: "Portal 신청 승인"
       screens:

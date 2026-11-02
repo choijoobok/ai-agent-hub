@@ -359,3 +359,43 @@ testcases:
     verification: "문자열 정렬·등록 행 번호 재부여·미확인을 0으로 변경·부분 공개 공백 거부·중복 순서 저장·현재 DB 순서로 이력 재구성·원천 DDL 실행을 허용하면 실패. 실제 제품 계약/통합은 소유 구현 후 검증."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-40"]
     status: planned
+
+  - id: TC-0116
+    feature: FEAT-011
+    usecase: UC-008
+    screens: [SCR-039]
+    type: business_exception
+    title: "관계 데이터소스 선행·좌우 후보 동시 선택과 소유 고정"
+    actor: ACT-003
+    given: "여러 소스의 동명 객체·자기조인과 기존 관계/쌍·고정 소유가 있다"
+    when: "빈 행 추가·소스 선택·두 후보 그리드 선택/적용/닫기·기존 테이블 변경/권한 회수를 시도한다"
+    then: "같은 선택 소스 후보만 양쪽 완전 선택 후 로컬 동시 반영한다. 신규 왼쪽 소유 자동 고정·기존 소유 보존, 기존 쌍 초기화 명시 동의·다른 관계 입력 보존. 소유 RELATIONSHIPS 저장/전체 HIST를 유지한다"
+    verification: "목업/후속 계약에서 소스 미선택 열기·한쪽/다른 소스/권한 밖 적용·취소 입력 유실·소유 이전·다른 관계 쌍 삭제·낡은 검수 근거 재사용/독립 관계 이력/부분 저장이 가능하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-01", "documents/screen/admin/hub/catalog-relation/requirements.md#REL-04"]
+    status: planned
+  - id: TC-0117
+    feature: FEAT-011
+    usecase: UC-008
+    screens: [SCR-039]
+    type: validation
+    title: "세 그리드 컬럼 쌍 추가·숫자 순서 폴백·검수 근거 보존"
+    actor: ACT-003
+    given: "양 테이블의 등록 컬럼·복합 쌍·자기조인·그리드 행 드래그 미지원"
+    when: "좌우 선택 후 가운데 추가/제거·순서 수정·저장을 수행한다"
+    then: "안정 ID 두 개만 한 쌍으로 추가하며 미선택/다른 테이블/중복/타입 불명은 거부한다. 양의 고유 정수 순서를 ASC로 저장하고 역할·전체 복합 쌍을 보존한다. 검수 탭 없이 기술 검증/근거·소유 전체 HIST는 유지한다"
+    verification: "목업/후속 통합에서 잘못된 순서·반쪽 쌍/동명 대체·일부 복합키만 완전 저장·검수/근거 면제·행 드래그 지원을 가장하거나 다른 관계/탭 입력 유실을 허용하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-02", "documents/screen/admin/hub/catalog-relation/requirements.md#REL-03"]
+    status: planned
+  - id: TC-0118
+    feature: FEAT-011
+    usecase: UC-008
+    screens: [SCR-039]
+    type: business_exception
+    title: "연결 지식의 활성 직접/예제 합집합과 양끝점 포함"
+    actor: ACT-003
+    given: "직접 A+예제 B, 예제 A+다른 예제 B, 한쪽만 참조·비활성/불완전 링크와 A 자기조인"
+    when: "관계 A-B 또는 A-A의 연결 지식을 관리 READ 범위로 조회한다"
+    then: "활성 직접/완전한 예제 카탈로그 합집합에 양끝점이 모두 포함된 지식만 안정 ID로 한 행 표시한다. 한쪽·비활성 경로 제외·실패/제한과 정상0건 구분. 실제 예제 소비의 현재 권한/정확 판·전체 SQL 참조 검증은 별도 유지한다"
+    verification: "후속 계약에서 한쪽만 포함·비활성 링크·불완전 예제 포함·동명 매칭·중복 지식 행·관리 역조회로 실제 사용 권한 부여·본문 수집/의미 영향 판정을 허용하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-05"]
+    status: planned

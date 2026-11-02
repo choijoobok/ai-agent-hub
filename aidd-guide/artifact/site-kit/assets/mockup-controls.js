@@ -35,7 +35,7 @@ function bindDeclaredMockup(root) {
   applyRequestContext(root,location.search);
   const rowValues=row=>Object.fromEntries([...row.querySelectorAll('[data-row-field]:not([data-calculated-value])')].map(cell=>[cell.dataset.rowField,cell.dataset.rowValue]));
   const originals=new WeakMap();
-  root.querySelectorAll('tbody tr[data-grid-row-state]').forEach(row=>originals.set(row,{values:rowValues(row),html:row.innerHTML}));
+  root.querySelectorAll('tbody tr[data-grid-row-state]').forEach(row=>originals.set(row,{values:rowValues(row),html:row.innerHTML,relationRecord:row.dataset.relationRecord}));
   const refreshGrid=grid=>{
     if(!grid)return;
     const header=grid.querySelector(':scope > .grid > table > thead > tr');
@@ -105,6 +105,7 @@ function bindDeclaredMockup(root) {
   let newRowNo=0;
   const appendRow=(grid,seed)=>{
     const template=grid.querySelector('template[data-row-template]');if(!template)return null;
+    if(grid.dataset.rowDefaults)seed={...JSON.parse(grid.dataset.rowDefaults),...seed};
     const row=template.content.firstElementChild.cloneNode(true);newRowNo++;
     row.querySelectorAll('[id]').forEach(e=>e.id+=`-new-${newRowNo}`);
     row.querySelectorAll('[data-auto-editor]').forEach(e=>{e.removeAttribute('data-auto-editor');e.open=false;});
@@ -138,6 +139,7 @@ function bindDeclaredMockup(root) {
   const restoreRow=row=>{
     const selected=row.querySelector('[data-grid-select-row]')?.checked;
     row.innerHTML=originals.get(row).html;setRowState(row,'');
+    if(originals.get(row).relationRecord!==undefined)row.dataset.relationRecord=originals.get(row).relationRecord;
     const select=row.querySelector('[data-grid-select-row]');if(select)select.checked=selected;
     refreshGrid(row.closest('[data-grid-view]'));
   };
@@ -557,4 +559,5 @@ function bindDeclaredMockup(root) {
     });
   });
   if(typeof bindMockupMath==='function')bindMockupMath(root);
+  if(typeof bindRelationWorkspace==='function')bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refreshGrid});
 }

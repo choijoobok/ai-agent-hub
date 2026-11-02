@@ -71,7 +71,7 @@ screens:
     evidence_targets: "변경 근거/근거 대상 탭은 제거하고 품질 조사/구조 비교 소유로 분리한다. 직접 저장은 REQ-301.save_reason의 레이어 메모와 저장 버튼 고정 대상 이력을 사용한다."
     datatype_and_group_fields: "원천 자료형은 REQ-301.source_type_catalog의 DBMS별 공통코드 검색콤보이며 버전으로 목록을 나누지 않는다. 컬럼 그룹 예외는 REQ-103.column_group_exclusions의 컬럼·제외 그룹·사유·등록자·등록일시 다섯 열로 표시한다"
     revision_terminology: "내용 판의 버전/후보/고정 의미는 유지한다. 과거 구성의 변경 이력은 SCR-042의 같은 화면 구조에서 읽기 전용으로 조회하고 현재 관리 화면에 변경 이력 탭을 두지 않는다."
-    related_knowledge: "조회 시점의 매핑된 지식 식별자·지식명·매핑 활성만 조회한다. 사용자 그룹 지식 탭과 동일 열이며 인증 예제 직접 그룹 매핑 없음."
+    related_knowledge: "조회 시점의 매핑된 지식 식별자·지식명·매핑 활성 여부만 조회한다. 사용자 그룹 지식 탭과 동일 열이며 인증 예제 직접 그룹 매핑 없음."
     type: "list_detail"
     route: "/admin/hub/catalog"
     menu_code: "HUB_CATALOG"
@@ -118,7 +118,7 @@ screens:
     usecases:
       - "UC-008"
     roadmap: "RM-P1"
-    design_handoff: "REQ-301.relationship_metadata.workspace·FEAT-011. 관계 작성 시 양쪽 중 관리 카탈로그 선택·고정, 반대편 동일 정본 조회, 자기조인 두 역할과 전체 컬럼쌍·검수 근거를 상세 설계한다. 관리 카탈로그의 같은 전체 후보·EDIT_VERSION·API-022/023/024/025와 고정/세트 반영을 재사용하고 독립 관계 저장/버전/승인 모델을 만들지 않는다. SCR-003 읽기 전용 요약에서의 문맥 전달·미저장 입력 보존·권한 재검사·동시 편집 충돌, 화면 요건/목업·경로·메뉴/액션 계약은 후속 P3에서 정한다. LLM과 인증 예제 작성은 50-api FEAT-011.relation_read_contract의 양쪽 정확 판/현재 권한/검수·전체 쌍 필터를 공통 소비한다"
+    design_handoff: "REQ-301.relationship_metadata.workspace·related_knowledge. 데이터소스 선행·좌우 두 후보 그리드 팝업·가로3그리드 컬럼 매핑·숫자 순서 폴백·검수 근거 탭 제거와 활성 직접/예제 카탈로그 합집합의 양끝점 포함 지식 역조회를 상세 요건서에 반영한다. 내부 저장 소유 고정·API-024 RELATIONSHIPS와 전체 HIST·현재 권한/정확 참조 검증을 유지한다."
     route: "/admin/hub/catalog-relation"
     menu_code: "HUB_CATALOG_RELATION"
     menu_parent: "HUB_INTEGRATION"
@@ -132,7 +132,7 @@ screens:
       rule: "같은 관리 구성의 다른 진입점이다. 저장·이력 복사 단위를 중복 생성하지 않고 소유 관리 화면의 이력으로 이동한다."
     history_view: "SCR-042"
     request_owner: "SCR-003"
-    request_boundary: "별도 승인 루트를 만들지 않고 소유 자산의 전체 구성/요청번호와 전용 변경 요청 화면을 재사용한다. 요청 화면 이동은 현재 권한과 해당 대상/매핑 문맥을 유지한다."
+    save_boundary: "별도 관리자 요청 원장/승인 루트나 관계 리비전을 만들지 않고 같은 소유 카탈로그 관계 영역 명령과 전체 HIST를 사용한다."
   - id: SCR-004
     policy_workspace: "FEAT-008의 그룹/예외 편집은 이 화면의 사용자 그룹·응답 그룹 예외 탭에 통합한다. 독립 그룹 매핑 메뉴/저장소/리비전을 두지 않으며 영역별 현재 변경 권한은 정의 편집 권한과 분리해 검사한다."
     usecases: [UC-018, UC-026]
@@ -189,7 +189,7 @@ screens:
     entry: "menu"
     group: "공통 기반"
     title: "사용자 그룹"
-    note: "REQ-605.mapping_workbench에 따라 다섯 탭을 안정 그룹 식별자에 연동한다. 사용자 탭은 소속을 직접 관리하고 지식·카탈로그·API·도구 네 탭은 현재 매핑의 식별·명칭·활성만 조회한다. 자산 매핑 활성은 읽기 전용 스위치이고 행 추가·저장·삭제·사유 입력은 없다. 자산 매핑 변경은 각 자산 화면에서 전체 구성과 같은 자산 리비전의 이력으로 저장한다."
+    note: "REQ-605.mapping_workbench에 따라 다섯 탭을 안정 그룹 식별자에 연동한다. 사용자 탭은 소속을 직접 관리하고 지식·카탈로그·API·도구 네 탭은 현재 매핑의 식별·명칭·활성만 조회한다. 자산 매핑 활성 여부은 읽기 전용 스위치이고 행 추가·저장·삭제·사유 입력은 없다. 자산 매핑 변경은 각 자산 화면에서 전체 구성과 같은 자산 리비전의 이력으로 저장한다."
     usecases: [UC-025, UC-001, UC-002, UC-006]
     feature: FEAT-006
     roadmap: "RM-P1"

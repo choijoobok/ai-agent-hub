@@ -152,6 +152,9 @@ entities:
         physical_name: "GROUP_ID"
         pk: true
         description: "FEAT-006의 관리 그룹 참조. 현재 BIGINT 설계는 소유 영역과 물리 계약 대조가 필요하다"
+      - name: "매핑 활성 여부"
+        type: "boolean"
+        description: "소유 매핑의 mappingActive. 현재/과거 값 보존; 자산 자체 useYn과 구분"
       - name: "REG_ID"
         physical_name: "REG_ID"
         description: "최초 등록 주체"
@@ -164,6 +167,7 @@ entities:
       - name: "MOD_DTM"
         physical_name: "MOD_DTM"
         description: "최종 변경 시각"
+    mapping_active: "REQ-601.asset_mapping_active.datasource_boundary·history. 현재 행과 동형 이력에 매핑 활성 여부를 보존한다. 비활성화는 삭제가 아니며 활성 하위 참조를 남긴 부모 OFF는 거부한다. 물리 컬럼은 소유 G3 전에 확정한다."
     relations:
       - entity: ENT-002
         cardinality: "그룹 매핑마다 데이터소스 하나"

@@ -7,8 +7,10 @@ import path from 'node:path';
 import {columnExplanation, actionExplanation, searchExplanation, surfaceOf, surfaceIntroduction} from './presentation.mjs';
 import {chrome,standardButton,inlineEditor,stateHeads,stateCells,deleteHead,deleteCell,systemWidth,switchColumn,switchState,switchCell,badgeCell} from './grid-chrome.mjs';
 import {canEditRow,gridWritable,propertyAttributes} from './grid-properties.mjs';
+import {relationPicker} from './relation-workspace.mjs';
 const controls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-controls.js', import.meta.url), 'utf8');
 const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-math.js', import.meta.url), 'utf8');
+const relationControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-relation.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const titleOf = (table) => table.heading.replace(/^\d+(?:-\d+)?\.?\s*/, '').replace(/\s*—\s*(폼|그리드)$/, '');
 const tabOf = (table) => titleOf(table).split(' / ')[0];
@@ -36,7 +38,7 @@ function searchCombo(id, label, value, examples, locked, parent = '', mapping = 
 
 /** 검색 문자열은 선택값을 변경하지 않으며 실제 선택 이벤트만 현재 값을 표시한다. */
 export function searchComboScript() {
-  return `<script>${math}\n${controls}\nbindDeclaredMockup(document);
+  return `<script>${math}\n${relationControls}\n${controls}\nbindDeclaredMockup(document);
 function openDeclaredCell() {
   document.querySelectorAll('[data-auto-editor]').forEach(function(editor){editor.open=editor.closest('.screen').id===location.hash.slice(1);});
 }
@@ -109,10 +111,10 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
       const requestId=model.requestRoutes?.find(s=>s.route===`/${destination}`)?.id??'';
       return `<span class="control-annotation"><a class="btn ghost sm" href="${escape(href)}" data-request-navigation data-request-screen="${escape(requestId)}">${escape(displayName)}</a>${note}</span>`;
     }
-    return `<span class="control-annotation"><button type="button" class="btn ghost sm"${disabled?' disabled':''}${!read?' data-edit-action':''}${model.savedActions?.includes(name)?' data-saved-action':''}${model.independentButtons?.includes(name)?' data-selection-independent':''}${modeLocked?' title="해당 값 방식의 등록 컬럼이 없어 사용할 수 없습니다"':''}${add?' data-add-demo-row':''}${remove?' data-remove-demo-row':''}${command?` data-open-command="${escape(name)}"`:''}${saveTarget?` data-save-target="${saveTarget[0]}" data-save-target-name="${saveTarget[1]}"`:''}${destination?` data-open-figure="${escape(plain(destination[1]))}"`:''}>${escape(displayName)}</button>${note}</span>`;
+    return `<span class="control-annotation"><button type="button" class="btn ghost sm"${disabled?' disabled':''}${!read?' data-edit-action':''}${model.relationWorkspace&&name==='테이블 선택'?' data-relation-open':''}${model.savedActions?.includes(name)?' data-saved-action':''}${model.independentButtons?.includes(name)?' data-selection-independent':''}${modeLocked?' title="해당 값 방식의 등록 컬럼이 없어 사용할 수 없습니다"':''}${add?' data-add-demo-row':''}${remove?' data-remove-demo-row':''}${command?` data-open-command="${escape(name)}"`:''}${saveTarget?` data-save-target="${saveTarget[0]}" data-save-target-name="${saveTarget[1]}"`:''}${destination?` data-open-figure="${escape(plain(destination[1]))}"`:''}>${escape(displayName)}</button>${note}</span>`;
   };
   const buttons = () => compact ? '' : figure.buttons.filter((name) => name !== '엑셀 다운로드').map(name=>button(name)).join('');
-  const details = model.columns.slice(1);
+  const details = model.columns.slice(1).filter(table=>surfaceOf(model,titleOf(table))?.kind!=='팝업');
   const selected = details.filter((t) => tabOf(t) === figure.detail);
   if (figure.detail !== '없음' && !selected.length) throw new Error(`목업 상태 ${figure.key}의 상세 영역 '${figure.detail}'이 §4에 없다`);
   const singleGrid = model.columns.length === 1;
@@ -151,7 +153,13 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const width = r => Number.parseInt(cell(table, r, '폭/정렬'), 10) || 120;
     const lastVisible=table.rows.findLastIndex(r=>!optional(r));
     const heads = stateHeads(showState,multiple)+table.rows.map((r,i) => `<th data-grid-col="${i}" data-grid-base-width="${width(r)}"${hidden(r)} style="white-space:normal;width:${i===lastVisible?'auto':width(r)+'px'}">${escape(plain(r[0]))}${n.badge(columnExplanation(table,r),`column:${label}:${plain(r[0])}`)}</th>`).join('')+deleteHead(showDelete);
-    const examples = configured(table).filter(record => !compact || exampleContext(record));
+    const compactRelation=model.relationWorkspace&&compact?configured(model.columns[0])[0]:null;
+    const examples = configured(table).filter(record => {
+      if(!compact||!exampleContext(record))return !compact;
+      if(!compactRelation)return true;
+      const rule=model.relationWorkspace;
+      return label===rule.leftColumns?record.catalogId===compactRelation.leftCatalogId:label===rule.rightColumns?record.catalogId===compactRelation.rightCatalogId:label===rule.pairs?record.relationId===compactRelation.relationId:true;
+    });
     if (compact && model.masterLink && figure.masterValue && examples.length === 0) empty = true;
     const rows = examples.length ? examples : [{}];
     const editableNow=(r,record,isNew=false)=>{
@@ -241,7 +249,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const rowEditable=table.rows.some(r=>editableNow(r,record,rowIndex>=rows.length));
     const rowDeleteAllowed=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
     const [lockField,lockValue]=(model.masterEditRule??'').split('=');
-    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
+    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${model.relationWorkspace?` data-relation-record="${escape(JSON.stringify(record))}"`:''}${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
     };
     const body = empty ? `<tr><td class="empty" colspan="${table.rows.length+1+(multiple?1:0)+(showState?1:0)+(showDelete?1:0)}">${escape(contextEmpty?'선택한 문맥에 해당하지 않는 목록입니다.':figure.notice)}</td></tr>` : rows.map(renderRow).join('');
     const excel=figure.buttons.includes('엑셀 다운로드')?`<details data-excel-menu><summary>엑셀 다운로드 ▾${badge('엑셀 다운로드','현재 페이지 또는 전체를 선택한다. 현재 표시한 열과 순서, 반출 권한을 적용하며 숨긴 열은 자동 포함하지 않는다.','common:excel')}</summary><span>현재 페이지 · 전체</span></details>`:'';
@@ -268,7 +276,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const saveControl=commandDeclared('저장')?`<span data-grid-save data-native-save>${button('저장',label,saveLocked)}</span>`:standardButton('저장','save',saveLocked,'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.');
     const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?saveControl:'') ,actions,tools:excel+settings});
     const [contextField,contextValue]=(model.masterEditRule??'').split('=');
-    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${table.auditPolicy?` data-grid-audit="${escape(table.auditPolicy.kind)}"`:''}${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
+    return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${model.rowDefaults?.[label]?` data-row-defaults="${escape(JSON.stringify(model.rowDefaults[label]))}"`:''}${table.auditPolicy?` data-grid-audit="${escape(table.auditPolicy.kind)}"`:''}${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
       <div class="grid" style="overflow:auto"><table style="width:100%;table-layout:fixed;min-width:${table.rows.filter(r=>!optional(r)).reduce((n,r)=>n+width(r),systemWidth(showState,multiple,showDelete))}px"><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>
       <div class="pg">총 ${empty ? '0' : rows.length}건 · 1 페이지</div>${addChoice?lookupAddDialog(addChoice,badge):''}</div>`;
   };
@@ -295,7 +303,13 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     return table ? `<div class="sf" style="grid-template-columns:max-content minmax(0,1fr)">${table.rows.map((r) => `<label>${escape(plain(r[0]))}${badge(plain(r[0]),plain(cell(table,r,'기본값')))}</label><input aria-label="${escape(plain(r[0]))}" placeholder="${escape(plain(r[0]))}">`).join('')}</div>` : '';
   };
   const detailTable = (table) => /—\s*폼$/.test(table.heading) ? `<h3>${escape(titleOf(table))}</h3>${formView(table)}` : tableView(table);
-  const detail = () => interactive && showData ? '' : selected.length ? detailSearch(figure.detail) + selected.map(detailTable).join('') : `<p>${escape(figure.notice)}</p>`;
+  const areaTables=name=>details.filter(table=>tabOf(table)===name);
+  const renderArea=name=>{
+    const tables=areaTables(name),horizontal=model.relationWorkspace&&tables.some(table=>titleOf(table)===model.relationWorkspace.pairs);
+    const ordered=horizontal?[model.relationWorkspace.leftColumns,model.relationWorkspace.pairs,model.relationWorkspace.rightColumns].map(label=>tables.find(table=>titleOf(table)===label)):tables;
+    return horizontal?`<div data-relation-column-grids style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);gap:12px">${ordered.map(table=>`<section style="min-width:0">${detailTable(table)}</section>`).join('')}</div>`:ordered.map(detailTable).join('');
+  };
+  const detail = () => interactive && showData ? '' : selected.length ? detailSearch(figure.detail) + renderArea(figure.detail) : `<p>${escape(figure.notice)}</p>`;
   const search = compact ? '' : model.search.map((r) => {
     if (!model.searchTable) return searchControl(r, n);
     const label = plain(r[0]);
@@ -309,7 +323,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
   }).join('');
   const master = compact ? '' : /—\s*폼$/.test(model.columns[0]?.heading??'') ? `<div data-summary-panel>${formView(model.columns[0])}</div>` : tableView(model.columns[0],!showData);
   const tabMarkup=compact||tabNames.length<2?'':tabs();
-  const panels = interactive && showData ? tabNames.map(name=>`<div data-detail-panel="${escape(name)}"${name===figure.detail?'':' hidden'}>${surfaceIntroduction(surfaceOf(model,name))}<div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detailSearch(name)}${details.filter(t=>tabOf(t)===name).map(detailTable).join('')}</div>`).join('') : compact?'':detail();
+  const panels = interactive && showData ? tabNames.map(name=>`<div data-detail-panel="${escape(name)}"${name===figure.detail?'':' hidden'}>${surfaceIntroduction(surfaceOf(model,name))}<div class="hint" data-context-label hidden>현재 컬럼: <span></span> <button type="button" class="btn ghost sm" data-clear-context>전체 보기${badge('전체 보기','건수 셀에서 전달한 컬럼 문맥 필터를 해제하고 같은 대상의 전체 목록을 표시한다.','common:clear-context')}</button></div>${detailSearch(name)}${renderArea(name)}</div>`).join('') : compact?'':detail();
   const lower = (tabMarkup?`<div class="tabs" style="flex-wrap:wrap"${interactive?' role="tablist"':''}>${tabMarkup}</div>`:'')+panels;
   const panes = singleGrid
     ? `<div data-layout="single-grid" style="margin-top:12px">${master}</div>`
@@ -340,6 +354,6 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const submitName=name==='저장'?'저장':'접수';
     return `<dialog class="command-dialog" data-command="${escape(name)}" aria-label="${escape(name)} 입력"><form data-command-form><h3>${escape(name)}</h3>${rows.filter(r=>plain(cell(commandTable,r,'영역'))!=='관련 대상').map(field).join('')}${targets}<p>검토용 입력 예시입니다. 실제 서버로 전송하지 않습니다.</p><p role="status" data-command-result></p><div class="row actions"><button type="submit" class="btn">${submitName}${badge(submitName,'요건서의 필수 입력과 명령별 검증 조건을 확인한다. 목업은 입력 확인만 시연하며 실제 전송하지 않는다.',`command:${name}:submit`)}</button><button type="button" class="btn ghost" data-close-command>닫기${badge('닫기','입력창을 닫는다. 목업에서는 입력을 유지한다.',`command:${name}:close`)}</button></div></form></dialog>`;
   }).join('');
-  return `<div class="screen leaf" id="${escape(figure.key)}"${interactive?' data-interactive-tabs':''}${model.masterLink?` data-master-link="${escape(model.masterLink)}" data-master-initial="${escape(figure.masterValue??'')}" data-calculation-rules="${escape(JSON.stringify(model.calculations??[]))}" data-calculation-guard="${escape(JSON.stringify(model.calculationGuardButtons??[]))}"${model.allocationValidity?` data-allocation-validity="${escape(JSON.stringify(model.allocationValidity))}"`:''}${figure.editable?'':' data-calculation-readonly'}`:''}${manualKey ? ` data-manual="${escape(figure.key)}"` : ''}>
-    <div class="bar">${escape(title)} · ${escape(figure.caption)} · 검토용 예시</div><div class="body">${main}${model.masterLink?'<p class="notes" role="status" data-calculation-status hidden></p>':''}</div>${commands}</div>\n${n.render()}`;
+  return `<div class="screen leaf" id="${escape(figure.key)}"${interactive?' data-interactive-tabs':''}${model.relationWorkspace?` data-relation-workspace="${escape(JSON.stringify(model.relationWorkspace))}" data-relation-editable="${figure.editable}"`:''}${model.masterLink?` data-master-link="${escape(model.masterLink)}" data-master-initial="${escape(figure.masterValue??'')}" data-calculation-rules="${escape(JSON.stringify(model.calculations??[]))}" data-calculation-guard="${escape(JSON.stringify(model.calculationGuardButtons??[]))}"${model.allocationValidity?` data-allocation-validity="${escape(JSON.stringify(model.allocationValidity))}"`:''}${figure.editable?'':' data-calculation-readonly'}`:''}${manualKey ? ` data-manual="${escape(figure.key)}"` : ''}>
+    <div class="bar">${escape(title)} · ${escape(figure.caption)} · 검토용 예시</div><div class="body">${main}${model.masterLink?'<p class="notes" role="status" data-calculation-status hidden></p>':''}</div>${commands}${model.relationWorkspace&&!compact?relationPicker(model.relationWorkspace,name=>tableView(model.columns.find(table=>titleOf(table)===name)),badge):''}</div>\n${n.render()}`;
 }

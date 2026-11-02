@@ -134,6 +134,8 @@
 | `/mockup` | `grid-properties.test.mjs` | `node .claude/skills/mockup/grid-properties.test.mjs` |
 | `/mockup` | `presentation.mjs` | `node .claude/skills/mockup/presentation.mjs` |
 | `/mockup` | `presentation.test.mjs` | `node .claude/skills/mockup/presentation.test.mjs` |
+| `/mockup` | `relation-workspace.mjs` | `node .claude/skills/mockup/relation-workspace.mjs` |
+| `/mockup` | `relation-workspace.test.mjs` | `node .claude/skills/mockup/relation-workspace.test.mjs` |
 | `/mockup` | `request-layout.mjs` | `node .claude/skills/mockup/request-layout.mjs` |
 | `/mockup` | `request-layout.test.mjs` | `node .claude/skills/mockup/request-layout.test.mjs` |
 | `/mockup` | `row-actions.mjs` | `node .claude/skills/mockup/row-actions.mjs` |

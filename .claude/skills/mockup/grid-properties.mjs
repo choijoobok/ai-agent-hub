@@ -9,6 +9,10 @@ export const editablePolicy=v=>/가능|조건부|신규|^Y$|^true$/.test(plain(v
 export function rowEditPolicy(table,row,isNew=false){if(table.readonly)return '읽기전용';const explicit=get(table,row,isNew?'신규 편집':'조회 편집');if(explicit)return explicit;const legacy=get(table,row,'편집');return !isNew&&/신규/.test(legacy)?'불가(신규만 입력)':legacy;}
 export function canEditRow(table,row,isNew=false){return editablePolicy(rowEditPolicy(table,row,isNew));}
 export const gridWritable=table=>!table.readonly&&table.rows.some(row=>canEditRow(table,row,true)||canEditRow(table,row,false));
+export function validateRowDefaults(table,values){
+ if(!table||!values||typeof values!=='object'||Array.isArray(values))throw new Error('행 추가 초기값의 영역/객체가 잘못됐다');
+ for(const name of Object.keys(values)){const row=table.rows.find(row=>plain(row[0])===name);if(!row||!canEditRow(table,row,true))throw new Error('행 추가 초기값은 신규 편집 가능 컬럼만 지정한다: '+name);}
+}
 export function propertyAttributes(table,row,isNew=false){
  const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  return Object.entries({'grid-type':get(table,row,'그리드 타입'),'editor-type':get(table,row,'에디터'),'renderer-type':get(table,row,'렌더러'),'value-origin':get(table,row,'값 원천'),'storage-mode':get(table,row,'저장 방식'),'row-required':get(table,row,isNew?'신규 필수':'조회 필수'),'row-edit-policy':rowEditPolicy(table,row,isNew)}).map(([k,v])=>` data-${k}="${escape(v)}"`).join('');
