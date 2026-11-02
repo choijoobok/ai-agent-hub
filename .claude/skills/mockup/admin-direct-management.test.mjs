@@ -6,8 +6,8 @@ import path from 'node:path';
 const repo=path.resolve(import.meta.dirname,'../../..');
 const root=path.join(repo,'documents/screen/admin/hub');
 const read=name=>fs.readFileSync(path.join(root,name,'requirements.md'),'utf8');
-const removed=['asset-change-request','user-access-request','knowledge-review',...['catalog','business-api','business-tool','knowledge-tag','knowledge','query-example'].map(x=>x+'/change-request')];
-const assets=['catalog','catalog-relation','catalog-group','business-api','api-group','business-tool','knowledge','knowledge-tag','query-example','user-group','portal-user'];
+const removed=['catalog-group','api-group','asset-change-request','user-access-request','knowledge-review',...['catalog','business-api','business-tool','knowledge-tag','knowledge','query-example'].map(x=>x+'/change-request')];
+const assets=['catalog','catalog-relation','business-api','business-tool','knowledge','knowledge-tag','query-example','user-group','portal-user'];
 const controls=md=>{
  let header=[];const names=[];
  for(const line of md.split(/\r?\n/)){
@@ -20,7 +20,7 @@ const controls=md=>{
  return names;
 };
 const assertDirect=md=>assert.ok(!controls(md).some(x=>/승인|전결|반려|변경 요청 조회|그룹 추가 요청/.test(x)),'관리자 변경은 승인/전결 동작을 제공하지 않는다');
-test('철회된 관리자 요청·지식 검토 화면의 요건서가 남지 않는다',()=>{
+test('철회·통합된 관리자 요청·그룹 매핑·지식 검토 화면의 요건서가 남지 않는다',()=>{
  for(const name of removed)assert.equal(fs.existsSync(path.join(root,name,'requirements.md')),false,name);
 });
 test('모든 자산·그룹 변경 진입은 직접 저장하며 승인 절차를 다시 넣으면 검사에 실패한다',()=>{

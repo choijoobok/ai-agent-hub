@@ -167,8 +167,8 @@ requirements:
         - "FEAT-202"
         - "FEAT-204"
       screens:
-        - "SCR-007"
-        - "SCR-008"
+        - "SCR-003"
+        - "SCR-004"
         - "SCR-009"
         - "SCR-017"
     examples:

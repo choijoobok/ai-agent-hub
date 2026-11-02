@@ -14,7 +14,7 @@
 | 화면 / 기능 / 유즈케이스 | SCR-009 / FEAT-009 / UC-026 |
 | 상위 요구사항 | REQ-611·REQ-103 |
 | 페이지 경로 | `/admin/hub/query-policy` — 설계 경로 |
-| 메뉴코드 / 상위 메뉴 | `HUB_QUERY_POLICY` / `HUB_ACCESS` |
+| 메뉴코드 / 상위 메뉴 | `HUB_QUERY_POLICY` / `HUB_KNOWLEDGE` |
 | 화면 유형 | 마스터-디테일(상하) · 상단 그리드 / 하단 탭 |
 | 처리 유형 | 관리 |
 | 쓰는 액션 | READ · EXPORT · SAVE (세부 처리 권한은 §5) |

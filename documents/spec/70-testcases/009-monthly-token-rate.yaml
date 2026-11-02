@@ -27,3 +27,43 @@ testcases:
   - { id: TC-0186, feature: FEAT-016, usecase: UC-022, type: validation, title: "가격 부재와 캐시 단위 미지원의 산정 차단", actor: ACT-004, given: "대상 월1일 이전 가격 없음 또는 캐시 쓰기 가격 없음", when: "초안 생성과 유효 저장/쿼터 기준 고정", then: "미완료 항목·원 실적을 표시하고 유효 저장/고정 차단. 미래 단가 당겨쓰기·무료0/캐시 읽기 가격으로 대체 금지", status: planned }
   - { id: TC-0187, feature: FEAT-016, usecase: UC-022, type: concurrency, title: "재생성과 고정 중 가격 변경의 일관성", actor: ACT-004, given: "기존 보완 초안·새 적용 시작일 가격·원천 조회 실패·최초 고정 경합", when: "재생성/고정과 가격 저장의 순서를 바꿔 수행", then: "실적/가격 차이를 함께 비교·명시 재확인하고 낡은 기준본 거부. 부분 교체/중복 월/보완 유실·고정 월 변경 금지. 조회 실패 시 기존 초안 보존", status: planned }
   - { id: TC-0188, feature: FEAT-015, usecase: UC-002, type: permission, title: "가격 공유·참조 보호와 권한", actor: ACT-004, given: "같은 경로/모델의 서로 다른 effort 조합·가격/월 근거 참조와 권한 없음", when: "하단 가격 조회/저장·조합 삭제/코드 변경·이력/반출", then: "동일 가격 이력 공유·중복 입력 없음. 현재 권한/기준본 검사와 과거 근거 보호. 다른 effort 선택으로 잠금·삭제 보호 우회 금지", status: planned }
+
+  - id: TC-0189
+    feature: FEAT-046
+    usecase: UC-043
+    screens: [SCR-068, SCR-021, SCR-022]
+    type: business_exception
+    title: "월별 지급·추가 신청·실사용 결합의 중복 방지"
+    actor: ACT-004
+    given: "기본300만·부분 승인20만·취소/대기2건·실사용180만·승인 재수신·교체 예정본과 추가 신청 없는 다른 사용자"
+    when: "같은 적용 월 사용자별 지급/사용과 원 신청 내역을 조회한다"
+    then: "총 지급320만·잔여140만이고 원 신청별 요청/승인/상태를 구분한다. 승인과 유효 실지급은 한 번만 집계하며 신청0건 사용자도 남는다"
+    verification: "P4 통합에서 원 신청/호출 다대다 조인으로 지급/사용을 곱하거나 신청량/미승인량·예정본을 지급에 넣거나 일할 이중 가산을 허용하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/quota-status/requirements.md#QUOTA-01", "documents/screen/admin/hub/quota-status/requirements.md#QUOTA-03"]
+    status: planned
+  - id: TC-0190
+    feature: FEAT-046
+    usecase: UC-043
+    screens: [SCR-068]
+    type: business_exception
+    title: "월·동명이인·계량 미상·과거 승인 만료의 조회 경계"
+    actor: ACT-004
+    given: "동명이인 두 ID·여러 월·월 경계 호출/승인·계량 지연·지난 월 만료 승인과 양수/음수 잔여"
+    when: "월/사용자를 전환하고 조회·반출한다"
+    then: "같은 안정 ID/적용 월/조회 기준 시각만 결합한다. 사용만 있는 원천 불일치 행도 남기고 미상은0·확정 잔여로 표시하지 않는다. 선택 과거월 최종 유효 세트의 지급/사용·계량 출처와 완전성 상태를 보존하며 이월/현재 설정 재계산하지 않는다"
+    verification: "P4 통합에서 이름/신청일 기준 월 결합·오래된 상세 혼입·미상0 치환·지난 월 승인 만료로 과거 지급 삭제·운영 사용 개인 차감·예약/선차감 도입을 허용하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/quota-status/requirements.md#QUOTA-02", "documents/screen/admin/hub/quota-status/requirements.md#QUOTA-03"]
+    status: planned
+  - id: TC-0191
+    feature: FEAT-046
+    usecase: UC-043
+    screens: [SCR-068]
+    type: permission
+    title: "월별 쿼터 현황의 조회 전용·원천/반출 권한"
+    actor: ACT-004
+    given: "목록/상세/반출 범위 권한 회수·부분 원천 조회 실패와 확인 가능한 실제0"
+    when: "조회/상세/엑셀 및 원 배정·신청 승인/사용량 수정 요청을 시도한다"
+    then: "현재 범위로 조회·별도 EXPORT 검사하고 실패/미상·실제0을 구분한다. 조회 권한으로 승인/수정을 허용하지 않고 원천 기록을 변경하지 않는다"
+    verification: "목업에서 조회/상세/반출만 확인하고 편집·저장·승인 입력이 없어야 한다. P4 계약에서 권한 없는 원천/반출이나 조회를 통한 원장 변경이 가능하면 실패해야 한다"
+    screen_cases: ["documents/screen/admin/hub/quota-status/requirements.md#QUOTA-04"]
+    status: planned

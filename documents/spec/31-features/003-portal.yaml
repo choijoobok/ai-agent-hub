@@ -119,7 +119,7 @@ features:
     screen: SCR-109
     roadmap: RM-P1
     request_integrity: "REQ-601.request_integrity의 중복 요청 차단·제출본 고정·취소 후 재요청·오래된 승인 거부를 적용하며 해당 업무의 기존 승인/효력 규칙을 유지한다"
-    title: "이번 달 초과 토큰 사용 신청"
+    title: "이번 달 추가 토큰 사용 신청"
     detail: "사유와 이번 달에 필요한 추가 토큰을 신청하고, 승인된 한도(부분 승인 포함)·월말 만료일·처리 결과(미처리 자동 만료 포함)를 조회하고 결과 알림을 받는다"
     reqs: [REQ-119, REQ-041]
     nfrs: [NFR-011, NFR-028]

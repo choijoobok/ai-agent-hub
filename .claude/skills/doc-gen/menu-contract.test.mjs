@@ -23,3 +23,14 @@ test('철회된 요청 화면 연결을 다시 넣으면 메뉴 계약 검사가
   assert.ok(menuContractErrors(s).some(e=>e.startsWith(id+': 소유 자산')));
  }
 });
+
+test('중복 그룹 편집면 통합과 조회 정책·AI 운영 메뉴 이동',()=>{
+ const ids=spec.menu_tree.admin_groups.flatMap(g=>g.screens);
+ for(const id of ['SCR-007','SCR-008']){assert.ok(!ids.includes(id));assert.ok(!spec.screens.some(s=>s.id===id));}
+ for(const code of ['HUB_ACCESS','HUB_OPERATION'])assert.ok(!spec.menu_tree.admin_groups.some(g=>g.code===code));
+ for(const [id,parent,route]of[['SCR-009','HUB_KNOWLEDGE','/admin/hub/query-policy'],['SCR-017','HUB_AUDIT','/admin/hub/transfer-policy'],['SCR-020','HUB_AUDIT','/admin/hub/saved-query']]){
+  const screen=spec.screens.find(s=>s.id===id);assert.equal(screen.menu_parent,parent);assert.equal(screen.route,route);assert.ok(spec.menu_tree.admin_groups.find(g=>g.code===parent).screens.includes(id));
+ }
+ for(const [id,feature]of[['SCR-003','FEAT-007'],['SCR-004','FEAT-008']])assert.ok(spec.screens.find(s=>s.id===id).features.includes(feature));
+ assert.equal(spec.screens.find(s=>s.id==='SCR-046').menu_parent,'HUB_CHANGE_HISTORY');
+});

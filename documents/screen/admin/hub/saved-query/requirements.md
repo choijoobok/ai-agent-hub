@@ -14,7 +14,7 @@
 | 화면 / 기능 / 유즈케이스 | SCR-020 / FEAT-025 /  |
 | 상위 요구사항 | REQ-204·REQ-207·REQ-614 |
 | 페이지 경로 | `/admin/hub/saved-query` — 설계 경로 |
-| 메뉴코드 / 상위 메뉴 | `HUB_SAVED_QUERY` / `HUB_OPERATION` |
+| 메뉴코드 / 상위 메뉴 | `HUB_SAVED_QUERY` / `HUB_AUDIT` |
 | 화면 유형 | 마스터-디테일(상하) · 상단 그리드 / 하단 탭 |
 | 처리 유형 | 조회 전용 |
 | 쓰는 액션 | READ · EXPORT |

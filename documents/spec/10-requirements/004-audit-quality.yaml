@@ -315,7 +315,7 @@ requirements:
       interfaces: [IF-002]
     realization:
       features: [FEAT-003, FEAT-004, FEAT-007, FEAT-008, FEAT-019, FEAT-028, FEAT-201, FEAT-205]
-      screens: [SCR-003, SCR-004, SCR-007, SCR-008, SCR-017, SCR-029]
+      screens: [SCR-003, SCR-004, SCR-017, SCR-029]
     examples:
       - { kind: 정상, case: "고객 조회 API 응답의 customer.id(식별자)와 customer.phone(민감 값)이 명세돼 있으면 사용자 화면에는 둘 다 보이고, 실행 이력에는 customer.id는 그대로, phone은 가려진 값과 지문만 남는다" }
       - { kind: 예외, case: "레거시가 응답에 customer.email을 새로 넣으면 명세에 없는 경로라 화면에서 가려지고, 저장·모델 전송되지 않으며, 미지정 경로 경고가 남는다" }
