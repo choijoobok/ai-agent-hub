@@ -244,6 +244,7 @@ REQ ──→ UC ──→ FEAT ──┬──→ ENT   (테이블)
 | **AND / OR** | and / or | 조건을 모두 만족 / 적어도 하나 만족해야 하는 논리 결합. 괄호와 결합 위치에 따라 허용 데이터 범위가 달라진다 |
 | **논리 삭제 / 물리 삭제** | soft delete / hard delete | 삭제 표시를 바꾸되 데이터를 남기는 것 / 저장된 데이터를 실제로 제거하는 것. 제품의 대화·감사 규칙은 REQ-109가 정본이다 |
 | **추가 기록 방식** | append-only | 과거 사실을 덮어쓰지 않고 새 기록으로 사건·정정을 남기는 방식. 정책에 따른 보관 만료·파기 여부와는 별개다 |
+| **적용 설정 버전** | appliedSettingsId | 비밀을 제외한 최종 연결 설정과 비교 규칙의 동일성을 나타내는 값 지문. 기동/배포 허용·자격증명 동일성은 별도로 확인한다. [정본](../documents/spec/10-requirements/011-reference-integration.yaml)의 REQ-601.configuration_diagnosis 참조 |
 | **값 지문** | fingerprint | 내용의 동일성이나 변경 여부를 대조하기 위한 요약값. 원문 자체가 아니며 모든 민감 정보를 안전하게 익명화한다는 보장은 아니다 |
 
 Hub의 **DB 스키마(TRM-161)** 와 **스키마 카탈로그(TRM-162)** 는 [업무 용어 정본](../documents/spec/03-glossary/001-terms.yaml)과 [헷갈리는 짝](../documents/spec/03-glossary/011-confusions.yaml)을 참조한다. 여기서 제품 정의를 중복하지 않는다.
@@ -266,6 +267,8 @@ Hub의 **DB 스키마(TRM-161)** 와 **스키마 카탈로그(TRM-162)** 는 [�
 | **Spring Security Crypto** | Spring Security 암호 기능 모듈 | 문자열·바이트 암복호화, 키 생성, 비밀번호 해싱을 제공한다. YAML 설정 자동 복호화 연동은 제공하지 않아 별도 공통 구현이 필요하다. 제품 정책은 [REQ-403](../documents/spec/10-requirements/008-derived.yaml)이 정본이다 |
 | **마스터 키** | master key | 여러 비밀 설정값을 암복호화하는 기준 키. 제품의 키 관리 단위·보관·교체 규칙은 [REQ-403](../documents/spec/10-requirements/008-derived.yaml)이 정본이다 |
 | **TLS** | Transport Layer Security | HTTPS 등 통신 구간을 암호화하고 상대를 인증하는 프로토콜. 공개 인증서와 비밀인 개인키는 구분한다 |
+| **mTLS** | mutual TLS | 통신하는 양쪽이 인증서를 제시해 서로를 인증하는 TLS 방식 |
+| **인트로스펙션** | token introspection | 토큰의 현재 유효성과 관련 정보를 인증 서버에 확인하는 방식. 자체적으로 일회 소비를 뜻하지 않는다 |
 | **감사 이력** | audit log | 누가 언제 무엇을 했는지 추적하는 기록. 제품의 불변 기록·열람·보존·파기는 TRM-187과 REQ-107·108·109가 정본이다 |
 | **허용 목록 / 차단 목록** | allowlist / denylist | 등록된 대상만 허용하는 목록 / 지정 대상을 차단하는 목록. 미등록 대상을 어떻게 처리하는지가 다르다 |
 | **실패 폐쇄 · 기본 거부** | fail closed / default deny | 검사 실패·판정 불가 때 접근을 막는 원칙 / 명시적으로 허용된 근거가 없으면 거부하는 원칙 |

@@ -436,7 +436,7 @@ requirements:
       nfr: []
       interfaces: [IF-002]
     realization:
-      features: [FEAT-004, FEAT-105]
+      features: [FEAT-004, FEAT-105, FEAT-205]
       screens: [SCR-004, SCR-101]
     examples:
       - { kind: 정상, case: "같은 접수 요청의 응답이 유실돼 다른 인스턴스로 재전송돼도 기존 새 턴 결과를 반환한다. 사용자가 별도로 다시 요청하면 별도 턴으로 접수한다" }

@@ -90,8 +90,9 @@ entities:
     related_features: [FEAT-004, FEAT-005]
     external_observations: "연결 정의의 현재 로드 여부·불변 적용 설정 식별자·노드/확인 시점·조회 실패는 ARCH-028의 공개 관측으로 받는다. 이 엔티티의 편집 가능한 정상 상태로 저장하거나 배포 정의 사본으로 만들지 않는다"
     rules: ["REQ-604.authority·synchronization에 따라 YAML 기술 메타와 관리자 보완을 필드별로 분리한다. UI 신규/삭제·기본 연결·수동 시스템 사용 상태는 없다.", "성공한 전체 설정에서 제거된 키도 현재 행과 참조를 보존하고 불일치/실행 차단·경고로 연결한다.", "실제 비밀 없는 변경과 관리자 재정의만 관리 버전/이력을 갱신한다. 단순 재기동 관측은 최초/수정 감사를 덮지 않는다."]
+    configuration_diagnosis: "적용 설정 버전별 저장 판정은 ENT-098을 참조한다. 수동 편집/현재 자산 HIST 값으로 복제하지 않는다."
     state_machine:
-      configuration: "현재 적용 YAML 정의와 정확 ID/소속 대조에 따른 PRESENT/MISSING/UNKNOWN 파생 상태. 보존 행은 제거되지 않으며 관리자 입력 상태로 위조하지 않는다."
+      configuration: "REQ-601.configuration_diagnosis에 따라 ENT-098에 저장한 적용 설정 버전별 정확 ID/소속 판정. 보존 행은 제거되지 않으며 관리자 입력 상태로 위조하지 않는다."
       availability: "개별 API의 명시 연결 및 REQ-601.asset_availability와 현재 호출자 검사로 판정한다."
     audit: "반영 후 전체 구성은 ENT-003, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다"
     delete_policy: "UI/관리 API 물리 삭제 없음. YAML 제거는 DB 잔재·이력·참조를 보존하며 보존 종료 파기는 별도 정책이다."
@@ -274,7 +275,7 @@ entities:
         cardinality: "현재 대상 하나에서 반영 후 이력 0개 이상"
         description: "원 식별자와 변경 버전/순서로 연결하며 허용 삭제 뒤에도 과거 구성을 조회할 수 있다"
     related_features: [FEAT-003, FEAT-005, FEAT-006, FEAT-007, FEAT-014, FEAT-023]
-    external_observations: ["현재 설정 세대/node/boot·존재/DBMS 판별/연결 지원 상태는 공개 registry에서 안전하게 투영한다. 누락/로드 실패를 이전 연결로 대체하지 않는다."]
+    external_observations: ["REQ-601.configuration_diagnosis의 ENT-098 저장 판정과 현재 node/boot 준비·안전한 연결 관측을 분리한다. 판정은 기동 때 저장하고 일반 조회는 재대조하지 않는다. 누락/로드 실패를 이전 연결로 대체하지 않는다."]
     rules: ["REQ-603.yaml_authority·data_query_guides를 따른다. YAML 검증 성공 시 안정 키 upsert, 수동 메타·그룹·가이드·최초 감사 보존. UI 신규/삭제/연결 정정 없음.", "제거 항목의 현재 참조·이력을 보존하고 불일치 배지/업무 호출 차단/경고를 제공한다. JDBC URL·계정·비밀 참조 원문은 이 엔티티/관리 HIST에 저장하지 않는다.", "수동 메타·ENT-018 그룹·ENT-096 가이드를 같은 기대 리비전/전체 스냅샷으로 원자 적용한다. 원천 조회 결과/구조 비교는 별도 관측이다."]
     state_machine: ["PRESENT/MISSING/UNKNOWN은 현재 YAML 존재 상태다. DB 메타 완성과 실행 가능은 별도 판정이다."]
     audit: "반영 후 전체 구성은 ENT-004, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다"

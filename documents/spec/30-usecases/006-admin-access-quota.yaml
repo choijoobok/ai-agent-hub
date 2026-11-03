@@ -31,6 +31,7 @@ usecases:
     design_status: "draft"
     reqs:
       - "REQ-609"
+    identity_verification: "REQ-609.identity_verification의 발급/소비는 현재 매핑과 기본/변환 규칙·이용/권한 버전을 참조한다. 직접 변경/회수와 소비의 선후를 결정하며 이미 소비된 한 요청의 업무 취소를 소급 보장하지 않는다. 관리자 승인 절차는 추가하지 않는다."
     actors:
       primary: "ACT-002"
       secondary: []
