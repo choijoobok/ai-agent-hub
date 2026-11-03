@@ -212,7 +212,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
         content=rowNavigationCell(table,r,{...record,[plain(r[0])]:valueOf(r)},model);
       }else if(mode==='배지'){
         if(editable)throw new Error('진단 배지는 읽기 전용으로 선언한다');
-        content=badgeCell(value);
+        content=badgeCell(value,plain(cell(table,r,'설명')));
       }else if(switchColumn(mode)){
         if(mode==='스위치'&&editable)throw new Error('조회 결과 스위치는 읽기 전용으로 선언한다');
         switchKnown=switchState(valueOf(r))!==null;

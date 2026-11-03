@@ -62,13 +62,14 @@ function render(figure, fixture = model) {
 test('서버 진단 배지는 불일치·일치·확인 필요를 읽기 전용으로 구분하고 사용 스위치는 유지한다',()=>{
   const [figure]=declaredFigures(stateTable([['main','기본','없음','','조회·저장','가능','없음']]),plain);
   for(const value of ['불일치','일치','확인 필요']){
-    const fixture={...model,columns:[columns('목록',[
-      ['서버 설정 불일치','배지','읽기전용','',value],
+    const fixture={...model,columns:[{...columns('목록',[
+      ['서버 설정 불일치','배지','읽기전용','',value,'저장된 연결 기준. "저장 성공" 후 갱신'],
       ['사용 여부','설정 스위치','가능','','true'],
-    ])]};
+    ]),header:[...columns('',[]).header,'설명']}]};
     const html=render(figure,fixture);
     const diagnosis=html.match(/<td[^>]*data-row-field="서버 설정 불일치"[^>]*>([\s\S]*?)<\/td>/)?.[1];
     assert.match(diagnosis,new RegExp(`data-grid-badge>${value}<`));
+    assert.match(diagnosis,/title="저장된 연결 기준\. &quot;저장 성공&quot; 후 갱신"/);
     assert.doesNotMatch(diagnosis,/<button|data-cell-editor|role="switch"/);
     assert.match(html,/data-config-switch/);
   }
