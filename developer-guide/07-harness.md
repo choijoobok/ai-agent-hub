@@ -121,6 +121,7 @@
 | `/mockup` | `add-choice.mjs` | `node .claude/skills/mockup/add-choice.mjs` |
 | `/mockup` | `add-choice.test.mjs` | `node .claude/skills/mockup/add-choice.test.mjs` |
 | `/mockup` | `admin-direct-management.test.mjs` | `node .claude/skills/mockup/admin-direct-management.test.mjs` |
+| `/mockup` | `api-workspace.test.mjs` | `node .claude/skills/mockup/api-workspace.test.mjs` |
 | `/mockup` | `column-contract.mjs` | `node .claude/skills/mockup/column-contract.mjs` |
 | `/mockup` | `column-contract.test.mjs` | `node .claude/skills/mockup/column-contract.test.mjs` |
 | `/mockup` | `declared-layout.mjs` | `node .claude/skills/mockup/declared-layout.mjs` |
@@ -141,6 +142,7 @@
 | `/mockup` | `row-actions.mjs` | `node .claude/skills/mockup/row-actions.mjs` |
 | `/mockup` | `row-actions.test.mjs` | `node .claude/skills/mockup/row-actions.test.mjs` |
 | `/mockup` | `scaffold.mjs` | `node .claude/skills/mockup/scaffold.mjs` |
+| `/mockup` | `schema-workspace.test.mjs` | `node .claude/skills/mockup/schema-workspace.test.mjs` |
 | `/mockup` | `snapshot-view.mjs` | `node .claude/skills/mockup/snapshot-view.mjs` |
 | `/mockup` | `snapshot-view.test.mjs` | `node .claude/skills/mockup/snapshot-view.test.mjs` |
 | `/pm-status` | `deferred.mjs` | `node .claude/skills/pm-status/deferred.mjs` |

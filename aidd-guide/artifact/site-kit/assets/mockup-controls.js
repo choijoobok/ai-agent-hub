@@ -163,6 +163,7 @@ function bindDeclaredMockup(root) {
     if(!editor.open)return;
     if(editor.hasAttribute('data-cell-large-view')){editor.open=false;return;}
     const input=editor.querySelector('[data-edit-value]'),cell=editor.closest('[data-row-field]');
+    if(!cancel&&input.type==='number'&&!input.checkValidity()){input.reportValidity();return;}
     if(cancel)input.value=editingValues.get(editor)??input.value;
     if(!cancel&&!validateChoice(editor,input.value)){input.value=cell.dataset.rowValue;return;}
     if(cancel)editor.querySelector('[data-add-error]')?.remove();
@@ -320,7 +321,7 @@ function bindDeclaredMockup(root) {
       refreshRowConditions(row);markEdited(row);return;
     }
     const revertRow=target.closest('[data-revert-row]');
-    if(revertRow){restoreRow(revertRow.closest('tr'));return;}
+    if(revertRow){const row=revertRow.closest('tr');restoreRow(row);row.dispatchEvent(new CustomEvent('mockup:row-restored',{bubbles:true}));return;}
     const read=target.closest('[data-grid-read]'),save=target.closest('[data-grid-save]:not([data-native-save])');
     if((read&&!read.disabled)||(save&&!save.disabled)){
       const grid=(read||save).closest('[data-grid-view]');
@@ -560,4 +561,6 @@ function bindDeclaredMockup(root) {
   });
   if(typeof bindMockupMath==='function')bindMockupMath(root);
   if(typeof bindRelationWorkspace==='function')bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refreshGrid});
+  if(typeof bindApiMockup==='function')bindApiMockup(root,{appendRow,setCell,markEdited,refreshGrid});
+  if(typeof bindSchemaMockup==='function')bindSchemaMockup(root,{appendRow,setCell,markEdited,refreshGrid,setRowState});
 }
