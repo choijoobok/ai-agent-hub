@@ -441,11 +441,11 @@ testcases:
     usecase: UC-019
     screens: [SCR-019]
     type: business_exception
-    title: "도구 수동 사용 중지와 API 연결 유효성"
+    title: "내부 도구 수동 사용 중지와 구현 유효성"
     actor: ACT-003
-    given: "기존 노출 OFF 도구, 참조 API OFF/연결 무효인 API 기반 도구를 저장 정의/워크플로우가 직접 참조"
+    given: "사용 OFF 도구와 구현 없음/계약 불일치/확인 불가 도구를 저장 정의/워크플로우가 참조한다."
     when: "수동 설정 저장·권한 잠금·기술 장애/복구와 현재/저장 정의/워크플로우의 후속 사용을 검사한다"
-    then: "기존 노출 설정과 같은 useYn으로 후보와 모든 후속 호출을 차단하고 API/시스템/연결의 현재 유효성도 검사한다. 이미 접수/완료된 실행은 보존한다. 오류/복구는 수동 설정을 덮어쓰지 않는다"
+    then: "useYn으로 후보와 모든 후속 호출을 차단하고 실행 노드의 현재 구현/계약도 검사한다. 이미 발생한 효과는 보존하며 오류/복구는 수동 값을 덮지 않는다."
     verification: "OFF 또는 미확인 자산 사용 허용, 오류/복구의 수동 값 덮어쓰기, 현재 설정 재검사 생략, 완료 업무 소급 취소/자동 재전송을 허용하면 실패한다. 목업은 스위치/원복/잠금·진단 구분만 검증하며 실제 실행 통제는 제품 시험 후속이다"
     screen_cases: ["documents/screen/admin/hub/business-tool/requirements.md#SCR-019-UI-08"]
     status: planned
@@ -530,4 +530,163 @@ testcases:
     then: "REQ-304.batch_structure_comparison.summary대로 해당 없음/일부 확인/확인 불가/미검사/비교 대상 없음/0건 구분. 실패 범위의 이전 차이 보존·과거 근거 표시, 성공 재비교만 해소. 권한 밖 이름/건수 미노출"
     verification: "제품 구현 후 계약·통합·E2E. 원시 속성 행을 건수로 쓰거나 실패/빈 결과를 0건·권한 없음으로 바꾸거나 이전 차이를 삭제하는 반례에서 실패해야 한다. 목업은 표시·이동만 검증한다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-31","documents/screen/admin/system/dashboard/requirements.md#DS-37"]
+    status: planned
+
+  - id: TC-00423
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "10탭과 경로 변수 순서"
+    actor: ACT-003
+    given: "API 상대 경로에 회사·주문 두 변수 자리가 있다"
+    when: "순서 중복/누락·템플릿 중간 삽입·그리드 정렬·값의 경로 주입을 시도한다"
+    then: "API 판의 1..N 순서 키와 변수 자리 일대일 대응을 검증한다. 그리드 정렬은 키를 바꾸지 않고 의미가 바뀌면 재검증하며 주입값을 거부한다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+
+  - id: TC-00424
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "JSON 구조 가져오기와 보안 메타데이터 보존"
+    actor: ACT-003
+    given: "중첩/루트 배열·null·빈 배열·특수 키·기존 검수 필드가 있다"
+    when: "샘플 재가져오기·중복 키·타입 충돌·실패/취소를 수행한다"
+    then: "모든 항목의 구조/자료형을 도출하고 필수/개인정보는 미확인이다. 기존 가이드/분류/마스킹/코드명은 유지하며 자동 삭제/중복 추가·원샘플 저장을 하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+
+  - id: TC-00425
+    schema_sync_update: "2026-11-04: REQ-608/612.schema_sync가 기존 JSON 직접 필드 추가·빈 선택 자동 확정/탭별 비교 흐름을 대체한다. 신규 케이스 TC-00431·TC-02122를 함께 검증한다."
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "Portal 그룹별 덜 엄격한 마스킹과 이력 분리"
+    actor: ACT-003
+    given: "같은 유형의 이력 수준 강·활성 허용 그룹 A 강/B 약과 원문 허용/미전송 그룹이 있다"
+    when: "활성 소속/허용 그룹 조합과 누락/미지원/다른 유형 수준을 판정한다"
+    then: "원문 허용이 있으면 Portal 원문, 없으면 같은 유형의 덜 엄격한 수준을 선택한다. 미전송이 다른 허용을 취소하지 않으며 전부 미전송은 비노출이다. 이력은 강을 유지하고 미지원은 원문으로 대체하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+
+  - id: TC-00426
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "JSON 전용과 결과 상태 판정"
+    actor: ACT-003
+    given: "완료/접수/실패 값 매핑과 본문 없는 정상 계약이 있다"
+    when: "XML 오류·HTTP 성공/업무 실패·미등록 값·응답 없음·202 접수·204 무본문을 받는다"
+    then: "JSON 외 원문은 공개/저장/모델로 전송하지 않는다. 계약의 완료/접수·불명과 정상 무본문을 구분하며 결과 불명을 미실행으로 추정해 재전송하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+
+  - id: TC-00427
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "검수 메모와 멱등성 보장 경계"
+    actor: ACT-003
+    given: "메모와 미보장 API, 보장 근거/범위/기간/키 조건이 있다"
+    when: "메모에 검수 완료를 쓰거나 보장 조건 없이 보장 설정·실행 승인 생략을 시도한다"
+    then: "메모는 자유 기록이고 별도 구조화 근거/적용일 스케줄은 없다. 메모를 검수/오픈/권한으로 자동 해석하지 않는다. 멱등성 보장 조건과 필수 실행 승인은 유지한다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+
+  - id: TC-00428
+    feature: FEAT-004
+    features: [FEAT-008]
+    usecase: UC-018
+    reqs: [REQ-608, REQ-111, REQ-611]
+    screens: [SCR-004, SCR-043]
+    type: business_exception
+    title: "탭/상세 창의 입력 보존과 권한 잠금"
+    actor: ACT-003
+    given: "호출 계약 설명을 통합한 API 사용 가이드와 연결 지식 조회 전용 탭을 포함한 10탭, 필드값 의미 매핑과 결과 판정 상세 창이 있다"
+    when: "여러 판정/직접 코드 행 추가·탭 왕복·JSON 취소·조회 전용 상태를 검사한다"
+    then: "같은 API 입력은 유지되고 전체 저장 단위를 따른다. 조회 전용은 보되 편집/반영하지 못한다. 대응 도구·검수 근거 탭은 없으며 JSON 원샘플/보호 인증값을 저장하지 않는다. 호출 계약/사용처 보기 버튼은 없으며 연결 지식 탭에서 매핑을 추가/수정/삭제할 수 없다. 가이드 수정으로 서버 실행 조건·권한·재시도 제한을 변경하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: planned
+  - id: TC-00429
+    feature: "FEAT-004"
+    features: ["FEAT-008"]
+    usecase: "UC-018"
+    reqs: ["REQ-608","REQ-111","REQ-611"]
+    screens: ["SCR-004","SCR-043"]
+    type: "business_exception"
+    title: "필드값 의미 매핑의 참조 가이드/직접 등록"
+    actor: "ACT-003"
+    given: "같은 API의 경로/쿼리/헤더/바디/응답 필드가 있다"
+    when: "필드/방식/탭을 바꾸고 001 문자열·중복 값·모호한 명칭·미등록 조회를 시험한다 좌우 배치의 가운데 스플리터를 드래그/방향키로 조절한다."
+    then: "등록 스칼라 필드만 연결하고 행별 입력을 보존한다. GUIDE는 허용 실제 조회, INLINE은 정확 타입/값·명칭/조건을 제공한다. 허용값 검증/권한은 독립이며 모호하거나 조회 실패이면 입력을 추정해 호출하지 않는다. 좌측 목록과 우측 설정은 나란히 유지하고 너비 변경으로 선택 행·가이드·코드 입력을 초기화하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: "planned"
+  - id: TC-00430
+    feature: "FEAT-004"
+    features: ["FEAT-008"]
+    usecase: "UC-018"
+    reqs: ["REQ-608","REQ-111","REQ-611"]
+    screens: ["SCR-004","SCR-043"]
+    type: "business_exception"
+    title: "실행 결과 판정이 응답 코드 항목을 참조한다"
+    actor: "ACT-003"
+    given: "응답 결과 코드에 직접 등록 값과 판정 참조가 있다"
+    when: "입력 코드 또는 GUIDE 응답을 선택하거나 참조 항목의 코드/자료형/이름·방식을 변경/삭제한다"
+    then: "응답 실행 결과 필드의 직접 등록 항목만 판정에 사용한다. 원값/의미를 복제하지 않고 코드 변경·삭제를 재검증한다. 주문 상태 취소와 API 실패를 혼동하지 않는다."
+    verification: "목업은 표시·편집/가져오기·보존 경계를 검증한다. P4 제품 계약/통합에서 위 허용·차단 규칙을 반전하면 실패해야 한다. 현재 실제 외부 호출/서버 정책 시험 완료를 뜻하지 않는다."
+    status: "planned"
+  - id: TC-02121
+    schema_sync_update: "2026-11-04: REQ-608/612.schema_sync가 기존 JSON 직접 필드 추가·빈 선택 자동 확정/탭별 비교 흐름을 대체한다. 신규 케이스 TC-00431·TC-02122를 함께 검증한다."
+    feature: FEAT-021
+    usecase: UC-019
+    reqs: [REQ-612, REQ-114, REQ-608, REQ-601]
+    screens: [SCR-019, SCR-054]
+    type: business_exception
+    title: "내부 빈 자동 구조와 7탭 전체 구성·호출 통제"
+    actor: ACT-003
+    given: "허용 빈·프록시/제네릭·직렬화 별칭/제외·동적 미확정 타입과 입력/응답 코드·그룹별 마스킹이 있다."
+    when: "빈 선택/변경·상단 서비스 빈 정보 리로드·전체 입력/응답 명세 미리보기/명시 반영·7탭 편집·좌우 스플리터·전체 저장·권한/계약 변경·실행 시간 초과를 검사한다."
+    then: "실제 계약 구조만 자동 설정하며 동적 미확정은 명시 계약 전 호출 금지. 기존 보충 설정을 보존하고 코드/결과 참조·다른 도구 ID 혼입을 검증한다. 그룹별 덜 엄격한 허용 수준을 전달에만 적용한다. 신뢰 문맥·실행 승인·감사를 유지하고 초과를 롤백으로 추정하거나 재호출하지 않는다."
+    verification: "목업은 7탭·입력 보존·의미 매핑/JSON/숫자/잠금 표시만 검증한다. P4의 리플렉션·실제 호출·원자 저장/HIST·그룹 정책 계약/통합 시험에서 허용/차단 규칙을 반전하면 실패해야 한다. 제품 구현 완료를 뜻하지 않는다."
+    status: planned
+  - id: TC-00431
+    feature: FEAT-004
+    usecase: UC-018
+    screens: [SCR-004]
+    reqs: [REQ-608, REQ-612, REQ-601]
+    type: business_exception
+    title: "API 마스터 JSON 스키마와 필드 보존·정리"
+    actor: ACT-003
+    given: "원천과 같은/사라진/형이 바뀐 필드, 기존 가이드·마스킹·현재 참조가 있다."
+    when: "원본 수정 또는 빈 리로드·미리보기/취소·설정 복사/붙여넣기·불일치 일괄 삭제·전체 저장을 수행한다."
+    then: "신규만 자동 추가하고 같은 경로 ID/설정을 보존한다. 사라진 필드는 false, 형 변경은 true/재확인이다. 실패는 원천/판정 보존. 같은 대상/탭 호환 보충 설정만 명시 복사하고 true/null/참조 중 필드는 삭제 거부. 과거 이력은 유지하고 현재 실행에는 유효 필드만 사용한다."
+    verification: "목업은 편집/동기화/보존/복사/일괄 삭제 상호작용을 확인한다. 실제 서버의 원천 재조회·권한·전체 원자 저장/HIST·실행 제외는 P4 계약/통합에서 허용/거부를 반전하면 실패해야 한다."
+    status: planned
+  - id: TC-02122
+    feature: FEAT-021
+    usecase: UC-019
+    screens: [SCR-019]
+    reqs: [REQ-608, REQ-612, REQ-601]
+    type: business_exception
+    title: "서비스 빈 현재 명세 리로드와 필드 보존·정리"
+    actor: ACT-003
+    given: "원천과 같은/사라진/형이 바뀐 필드, 기존 가이드·마스킹·현재 참조가 있다."
+    when: "원본 수정 또는 빈 리로드·미리보기/취소·설정 복사/붙여넣기·불일치 일괄 삭제·전체 저장을 수행한다."
+    then: "신규만 자동 추가하고 같은 경로 ID/설정을 보존한다. 사라진 필드는 false, 형 변경은 true/재확인이다. 실패는 원천/판정 보존. 같은 대상/탭 호환 보충 설정만 명시 복사하고 true/null/참조 중 필드는 삭제 거부. 과거 이력은 유지하고 현재 실행에는 유효 필드만 사용한다."
+    verification: "목업은 편집/동기화/보존/복사/일괄 삭제 상호작용을 확인한다. 실제 서버의 원천 재조회·권한·전체 원자 저장/HIST·실행 제외는 P4 계약/통합에서 허용/거부를 반전하면 실패해야 한다."
     status: planned

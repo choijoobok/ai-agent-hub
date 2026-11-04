@@ -13,18 +13,18 @@ terms:
     definition: "업무 API의 요청 또는 응답 값 필드를 위치/경로로 식별하고 구조·업무 의미·검증·코드·개인정보 기준을 같은 계약 판에 보존한 명세"
     relation: "REQ-608.field_metadata. 입력 확보 가이드는 요청에만 적용하며 응답 필드 부재와 NULL·0·빈 문자열을 구분한다"
   - id: TRM-258
-    term: "API 코드명 제공 규칙"
+    term: "API 필드값 의미 매핑"
     key: apiCodeNameRule
     group: "데이터"
-    definition: "응답 코드형 필드의 원값과 표시명을 대응시키기 위해 API 계약에서 선택한 제공 방법·원천·전체 조건의 검수된 구성"
-    relation: "REQ-608.code_name_resolution. 응답 내 명칭·인라인 정의·공개 카탈로그 조회·조회용 API 중 명시한 방법을 사용하며 원 업무 결과와 이름 확인 결과는 별개다"
+    definition: "업무 API의 입력·응답 등록 필드에서 코드값과 명칭·의미/사용 조건을 참조 가이드 또는 직접 등록으로 제공하는 구성"
+    relation: "REQ-608.field_value_mapping. 기존 apiCodeNameRule 식별 키는 유지하며 두 설정 방식과 필드 안정 식별자를 사용한다. 실행 결과 판정은 응답 직접 등록 코드 항목을 참조한다."
   - id: TRM-259
     term: "등록 업무 도구"
     key: registeredBusinessTool
     db_token: BUSINESS_TOOL
     db_token_reason: "AI_ADMIN 접두어와 30자 테이블명 제한 안에서 등록 범위를 논리명으로 유지하고 물리 토큰은 BUSINESS_TOOL을 쓴다"
     group: "실행"
-    definition: "업무 API 또는 배포된 내부 서비스 구현을 참조하여 admin에서 계약·허용 그룹·노출을 관리하는 안정 등록 단위"
+    definition: "검증된 Hub 내부 서비스 빈을 참조해 admin에서 입출력·가이드·그룹·응답 정책·사용을 관리하는 안정 등록 단위. 외부 API 실행 기술자는 별도다."
     relation: "REQ-612. 일반 도구(TRM-007) 전체와 동일한 등록 범위라고 가정하지 않으며 커스텀 도구(TRM-024)의 코드 원문을 보관하는 단위도 아니다"
   - id: TRM-260
     term: "업무 도구 리비전"
@@ -32,5 +32,5 @@ terms:
     db_token: BIZ_TOOL_REVISION
     db_token_reason: "AI_ADMIN 접두어와 30자 테이블명 상한을 지키기 위해 명확한 약어를 사용한다"
     group: "실행"
-    definition: "등록 업무 도구의 구현/API 계약 참조·검증 근거·조회/실행 유형·허용 그룹·노출·공통 가이드의 전체 후보 및 당시 내용을 구분하는 판"
-    relation: "REQ-612·305·306. API 기반 도구의 계약과 가이드는 해당 API 리비전을 참조하고 지식의 매핑별 사용 설명을 복제하지 않는다"
+    definition: "내부 도구 구현 계약 참조와 7탭 전체 구성을 식별하는 적용 판"
+    relation: "REQ-612.workspace·ADR-042. 지식의 사용 설명과 외부 API 계약을 복제하지 않는다."

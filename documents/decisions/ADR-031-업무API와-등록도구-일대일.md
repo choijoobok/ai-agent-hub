@@ -2,6 +2,7 @@
 id: ADR-031
 title: "업무 API 하나당 등록 도구 하나"
 status: accepted
+superseded_by: ADR-042
 date: 2026-10-28
 deciders: ["제품 오너(사용자)"]
 ---
