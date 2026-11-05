@@ -124,8 +124,22 @@ const LABEL = {
   tool_reference: '대응 도구 참조', api_reference: 'API 원천 참조',
   contracts_from: '상세 계약 근거', shared_sequences: '공통 처리 연결',
   reading_order: '읽는 순서', transaction_boundary: '트랜잭션 경계',
+  admin_input_preparation: '관리 화면의 프롬프트 입력 준비',
 };
 const lab = (k) => LABEL[k] ?? k;
+const PROMPT_INPUT_LABEL = {
+  scope: '작성 범위', ownership: '정본과 책임', classification: '입력 분류',
+  llm: 'LLM 포함 후보', server: '서버 집행', audit: '관리·감사', default: '미분류 항목',
+  stages: '호출 단계별 제공', guides: '해석 가이드', next_design: '후속 설계',
+  sources: '화면별 원천 분류', conditions: '제공 조건', guide: '해석 방법',
+  identity: '대상 식별', structure: '필드 구조', values: '값과 자료형', acquisition: '입력값 확보',
+  meanings: '코드값 의미', relationship: '테이블 관계', outcome: '결과 판정', trust: '지침의 적용 경계',
+  model: '모델 관리', model_usage: '모델 용도·우선순위', portal_user: 'Portal 사용자 관리',
+  user_group: '사용자 그룹', token_rate: '토큰 기준 단가', quota_grade: '쿼터 등급',
+  quota_plan: '월별 개인 쿼터 기준', target_system: '대상 시스템', data_source: '데이터소스',
+  catalog_relation: '테이블 관계', business_api: '업무 API', business_tool: '업무 도구',
+};
+const promptInputLabel = (key) => PROMPT_INPUT_LABEL[key] ?? lab(key);
 
 /** 스칼라·리스트를 한 줄로. 리스트는 ` · ` 로 잇는다. */
 function flat(v) {
@@ -182,6 +196,26 @@ export function blocks(items, headKeys = ['id'], titleKey = 'title', level = '##
         out.push('', `[↑ 전체 흐름도로 돌아가기](#${String(it.id).toLowerCase()}-전체-흐름도)`, '');
       } else if (k === 'sequence_design' && /^UC-\d+$/.test(it.id ?? '') && v && typeof v === 'object' && !Array.isArray(v)) {
         out.push(`- **핵심 처리 시퀀스** — [별도 명세](33-시퀀스/${it.id}.md)`);
+      } else if (k === 'prompt_contract' && v?.admin_input_preparation) {
+        const { admin_input_preparation: preparation, ...contract } = v;
+        out.push(`- **${lab(k)}** — ${flat(contract)}`, '', `#### ${it.id} ${lab('admin_input_preparation')}`, '');
+        for (const [part, value] of Object.entries(preparation)) {
+          out.push(`##### ${promptInputLabel(part)}`, '');
+          if (part === 'sources' && value && typeof value === 'object' && !Array.isArray(value)) {
+            for (const [key, row] of Object.entries(value)) {
+              out.push(`###### ${row.screen} — ${promptInputLabel(key)}`, '');
+              for (const [field, item] of Object.entries(row)) {
+                if (field !== 'screen') out.push(`- **${promptInputLabel(field)}** — ${flat(item)}`);
+              }
+              out.push('');
+            }
+          } else if (Array.isArray(value)) {
+            for (const item of value) out.push(`- ${flat(item)}`);
+          } else if (value && typeof value === 'object') {
+            for (const [key, item] of Object.entries(value)) out.push(`- **${promptInputLabel(key)}** — ${flat(item)}`);
+          } else out.push(flat(value));
+          out.push('');
+        }
       } else if (['processing', 'state_machine'].includes(k) && v && typeof v === 'object' && !Array.isArray(v)) {
         out.push(`- **${lab(k)}**`);
         for (const [part, value] of Object.entries(v)) out.push(`  - **${lab(part)}** — ${flat(value)}`);

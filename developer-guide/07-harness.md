@@ -112,6 +112,7 @@
 | `/doc-gen` | `history-contract.test.mjs` | `node .claude/skills/doc-gen/history-contract.test.mjs` |
 | `/doc-gen` | `menu-contract.mjs` | `node .claude/skills/doc-gen/menu-contract.mjs` |
 | `/doc-gen` | `menu-contract.test.mjs` | `node .claude/skills/doc-gen/menu-contract.test.mjs` |
+| `/doc-gen` | `prompt-preparation.test.mjs` | `node .claude/skills/doc-gen/prompt-preparation.test.mjs` |
 | `/doc-gen` | `sequences.test.mjs` | `node .claude/skills/doc-gen/sequences.test.mjs` |
 | `/manual-site` | `build.mjs` | `node .claude/skills/manual-site/build.mjs` |
 | `/manual-site` | `capture.mjs` | `node .claude/skills/manual-site/capture.mjs` |
