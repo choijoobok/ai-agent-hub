@@ -55,10 +55,10 @@ apis:
     method: "POST"
     path: "/api/service/admin/catalog/getReferences"
     action: "READ"
-    summary: "현재 사용처/참조 조회"
+    summary: "연관 지식 역조회"
     request: "body=SearchRequest<RevisionKey>"
-    response: "ApiResponse<PageResponse<CatalogReferenceRow>>"
-    contract: "대상 안정 ID/종류·표시명·적용 리비전·연결 경로·현재 참조 여부를 현재 열람 권한 안에서 조회한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다."
+    response: "ApiResponse<PageResponse<CatalogKnowledgeReferenceRow>>"
+    contract: "FEAT-003.types.CatalogKnowledgeReferenceRow. 조회 시점의 연관 지식과 매핑 활성 여부를 현재 열람 권한 안에서 반환하고 기술 참조 문맥은 별도로 보존한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다."
   - id: API-027
     feature: FEAT-003
     implementation: planned
@@ -67,7 +67,8 @@ apis:
     action: READ
     summary: "양쪽 역할에서 보는 권장 관계"
     request: "body=SearchRequest<RevisionKey>"
-    response: "ApiResponse<PageResponse<CatalogReferenceRow>>"
+    response: "ApiResponse<PageResponse<CatalogRelationReferenceRow>>"
+    contract: "FEAT-003.types.CatalogRelationReferenceRow. 소유 관계와 양쪽 정확 객체/판·역할을 현재 관리 열람 권한 안에서 반환한다. 자기조인은 한 관계 행의 두 역할을 유지한다. FEAT-011.relation_read_contract의 모델/예제 작성용 필터 결과를 대신하지 않는다."
   - id: API-028
     feature: FEAT-003
     implementation: planned
@@ -149,4 +150,5 @@ apis:
     action: READ
     summary: "등록 객체·컬럼·키 참조 후보"
     request: "body=SearchRequest<ReferenceCandidateFilter>"
-    response: "ApiResponse<PageResponse<CatalogReferenceRow>>"
+    response: "ApiResponse<PageResponse<CatalogReferenceCandidateRow>>"
+    contract: "FEAT-003.types.ReferenceCandidateFilter·CatalogReferenceCandidateRow. 요청한 종류의 후보만 반환하며 정확 객체/판·컬럼 또는 전체 키·신규 편집 문맥을 구분한다. 현재 권한/참조를 검증하고 조회 실패·권한 제한·불완전을 정상0건으로 바꾸지 않는다."

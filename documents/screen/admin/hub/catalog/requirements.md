@@ -19,6 +19,7 @@
 | [REQ-304](../../../../spec/10-requirements/007-knowledge-catalog.yaml) | 공개 데이터 인터페이스 구조 변화의 보조 감지 | 연계·경계 | §6: 원천 비교는 SCR-002 참조, 자동 공개/수동 설정 덮어쓰기 없음 | CAT-13·CAT-35 |
 
 | [REQ-611](../../../../spec/10-requirements/013-reference-operations.yaml) | 보안·조회 정책 정의와 적용 대상 매핑 관리 | 지원 설정 | §4·§6: 소스 유틸이 제공한 정보 유형 선택과 지원/자료형 검증 | CAT-37 |
+| [REQ-610](../../../../spec/10-requirements/012-reference-business.yaml) | 프롬프트 규칙 정의·적용 조건·리비전 관리 | 연계·경계 | §6-4: 원천 항목의 LLM/서버/관리 분류·해석 가이드·호출 단계별 제공 조건 연결. 실제 조합은 agent 소유 | SCR-003-PROMPT-01 |
 
 ## 0. 메타
 
@@ -120,7 +121,7 @@
 
 ### 1-6. 저장 사유 입력창
 
-상단과 각 편집 탭의 저장 버튼은 소유 영역의 고정 saveTarget 코드를 전달한다. MASTER=마스터 데이터, COLUMNS=컬럼 정의, ACCESS_GROUPS=사용자 그룹, COLUMN_GROUP_EXCEPTIONS=컬럼 그룹 예외, INDEXES=인덱스, RELATIONSHIPS=별도 관계 편집이다. 변경 사유 레이어 팝업의 trim 후 비공백 reason과 해당 영역 변경값만 반영한다. 서버는 대상 코드·허용 필드·현재 권한/기준 리비전·전체 참조 무결성을 검증하며 다른 탭의 미저장값은 반영하지 않는다. saveTarget을 그대로 이력에 저장하고 실제 차이로 대상을 재계산하지 않는다. 변경 없음은 새 이력 없이 반환한다. 현재 확정 구성에 영역 변경을 합쳐 같은 HISTORY_NO의 전체 HIST를 복사하며 부모에 saveTarget과 HIST_REASON을 기록한다. 취소는 전송하지 않고 다른 탭 입력도 유지한다. 실패/충돌/결과 불명 및 동일 명령 재시도는 원 대상·reason·입력·commandKey를 보존한다. 성공 후 새 저장은 새 메모를 받고 다른 탭 편집은 보존한 채 최신 기준 리비전/참조를 재검사한다. SCR-042는 저장된 saveTarget 명칭과 메모를 변경 대상/변경 사유로 조회한다.
+상단과 각 편집 탭의 저장 버튼은 소유 영역의 고정 saveTarget 코드를 전달한다. MASTER=마스터 데이터, COLUMNS=컬럼 정의, ACCESS_GROUPS=사용자 그룹, COLUMN_GROUP_EXCEPTIONS=컬럼 그룹 예외, INDEXES=인덱스, RELATIONSHIPS=별도 관계 편집이다. 변경 사유 레이어 팝업의 trim 후 비공백 reason과 해당 영역 변경값만 반영한다. 단, ACCESS_GROUPS에서 그룹을 제거할 때 그 그룹의 저장된 컬럼 예외를 서버가 함께 정리하는 것은 동일 명령의 필수 연쇄 처리이며 다른 탭 입력 저장이 아니다. 삭제 대상 그룹에 속한 미저장 예외는 함께 폐기될 내용을 먼저 확인하고, 취소하면 그룹·예외 입력을 모두 보존한다. 다른 그룹의 예외 편집은 유지한다. 서버는 대상 코드·허용 필드·현재 권한/기준 리비전·전체 참조 무결성을 검증하며 다른 탭의 미저장값은 반영하지 않는다. saveTarget을 그대로 이력에 저장하고 실제 차이로 대상을 재계산하지 않는다. 변경 없음은 새 이력 없이 반환한다. 현재 확정 구성에 영역 변경을 합쳐 같은 HISTORY_NO의 전체 HIST를 복사하며 부모에 saveTarget과 HIST_REASON을 기록한다. 취소는 전송하지 않고 다른 탭 입력도 유지한다. 실패/충돌/결과 불명 및 동일 명령 재시도는 원 대상·reason·입력·commandKey를 보존한다. 성공 후 새 저장은 새 메모를 받고 다른 탭 편집은 보존한 채 최신 기준 리비전/참조를 재검사한다. SCR-042는 저장된 saveTarget 명칭과 메모를 변경 대상/변경 사유로 조회한다.
 
 변경 근거/근거 대상 원장은 품질 조사·구조 비교의 소유에서 관리하며 저장 메모와 합치지 않는다.
 
@@ -136,6 +137,12 @@
 | 사용자 그룹 | ACCESS_GROUPS | 사용자 그룹 |
 | 컬럼 그룹 예외 | COLUMN_GROUP_EXCEPTIONS | 컬럼 그룹 예외 |
 | 인덱스 | INDEXES | 인덱스 |
+
+| 저장 연쇄 정리 | 값(JSON) |
+| --- | --- |
+| 사용자 그룹 제거 | {"saveTarget":"ACCESS_GROUPS","parentGrid":"사용자 그룹","parentKey":"사용자 그룹","childGrid":"컬럼 그룹 예외","childKey":"대상 그룹"} |
+
+그룹 제거 저장 창에는 함께 정리될 예외의 그룹·건수를 표시한다. 예외 단독 제거와 매핑 OFF는 그룹 제거의 연쇄 삭제를 일으키지 않는다. 미저장 입력은 확인 전 보존하며 실제 정리는 서버 전체 저장 성공 때 반영한다.
 
 ### 목업 이동
 
@@ -361,7 +368,7 @@ REQ-611.masking_utility가 정본이다. 이름·전화번호·상세 주소·�
 ### 6-1. 검증
 
 - 그룹/컬럼 예외 편집은 이 화면의 사용자 그룹·컬럼 그룹 예외 탭에서만 제공한다(FEAT-007). 정의 편집 권한과 정책 영역의 현재 변경 권한을 별도로 검사한다. 정책만 변경 가능한 관리자는 마스터/컬럼 정의를 편집할 수 없고, 정의 편집 권한만으로 그룹/예외를 변경할 수 없다. 서버는 클릭한 저장 대상과 현재 권한에 맞는 필드만 허용하며 다른 영역의 저장된 값은 보존한다.
-- MASK는 컬럼 정의에서 선택한 현재 유효 maskingRef를 참조한다. 그룹별 마스킹 구현/파라미터를 따로 설정하지 않는다. 테이블 밖 그룹·중복 예외·미지원 유형/자료형을 거부하고 그룹 물리 제거 시 관련 예외를 명시 정리한다. 매핑 OFF는 예외를 휴면 보존한다. 여러 활성 그룹 합집합 판정과 개인정보 사본 마스킹은 기존 정책을 따른다.
+- MASK는 컬럼 정의에서 선택한 현재 유효 maskingRef를 참조한다. 그룹별 마스킹 구현/파라미터를 따로 설정하지 않는다. 테이블 밖 그룹·중복 예외·미지원 유형/자료형을 거부한다. 사용자 그룹 제거를 저장하면 서버는 제거한 그룹의 해당 카탈로그 컬럼 예외도 같은 트랜잭션으로 함께 삭제한다. 예외를 먼저 삭제하도록 요구하지 않는다. 컬럼 예외만 삭제하는 저장은 사용자 그룹을 유지하고 해당 컬럼의 그룹 기본 권한으로 복귀한다. 매핑 OFF는 제거와 달라 예외를 휴면 보존한다. 매핑 OFF는 예외를 휴면 보존한다. 여러 활성 그룹 합집합 판정과 개인정보 사본 마스킹은 기존 정책을 따른다.
 
 - 컬럼의 그룹 코드/상세 설명 정본은 REQ-301.value_domain이다. 공통 코드면 원천 그룹 코드를 전달해 데이터소스 가이드로 조회하고, 아니면 상세 설명의 명확한 하드 코딩 의미를 LLM이 해석한다. 모호하거나 없는 값을 만들어내지 않는다.
 - 실제 원천 조회 결과는 실행 근거이며 카탈로그 저장 자식이 아니다. 공통 코드가 아닌 경우 상세 설명의 명확한 값/의미를 사용하며 모호함은 확인한다.
@@ -371,7 +378,7 @@ REQ-611.masking_utility가 정본이다. 이름·전화번호·상세 주소·�
 
 
 - 자료형 선택은 `REQ-301.source_type_catalog`를 따른다. 공통 참조 조건 콤보 유틸/API-600에 그룹코드 `DBMS_DATA_TYPE`, 참조코드 `PARENT`, 참조값인 소속 DBMS 코드를 전달한다. DBMS별 활성 공통코드에서 선택하고 버전은 후보 필터로 쓰지 않는다. 코드 조회 실패/기존 비활성 코드/미등록 원천 타입을 표시하고 원문·입력을 보존한다. 자료형 코드와 당시 타입 원문을 따로 저장하며 실제 원천 자료형·치수 대조 전 검수 완료로 만들지 않는다.
-- 컬럼 예외는 `REQ-103.column_group_exclusions`의 HIDE/MASK를 따른다. 대상 그룹은 같은 후보의 테이블 허용 그룹에서만 고른다. 중복·사유/유형 누락·테이블 밖 그룹을 거부하고 MASK에는 유효한 컬럼 마스킹 유형을 요구한다. 테이블 그룹 물리 제거 시 해당 예외를 먼저 정리한다. 매핑 OFF는 삭제가 아니며 예외는 휴면 보존하고 다시 ON할 때 현재 마스킹/참조를 검증한다. 복수 그룹은 원본 > 마스킹 > 숨김의 기존 합집합 판정을 유지하며 개인정보 표시 컬럼의 이력 저장은 항상 마스킹한다.
+- 컬럼 예외는 `REQ-103.column_group_exclusions`의 HIDE/MASK를 따른다. 대상 그룹은 같은 후보의 테이블 허용 그룹에서만 고른다. 중복·사유/유형 누락·테이블 밖 그룹을 거부하고 MASK에는 유효한 컬럼 마스킹 유형을 요구한다. 테이블 그룹 물리 제거 시 해당 그룹의 예외를 같은 저장에서 함께 삭제한다. 매핑 OFF는 삭제가 아니며 예외는 휴면 보존하고 다시 ON할 때 현재 마스킹/참조를 검증한다. 복수 그룹은 원본 > 마스킹 > 숨김의 기존 합집합 판정을 유지하며 개인정보 표시 컬럼의 이력 저장은 항상 마스킹한다.
 
 - 전체 입력/자식·소유/종류·clientKey/안정 ID·기대 편집 버전·현재 권한을 서버에서 검증한다. 미완성 초안은 허용하되 존재하지 않는 참조·다른 소유·중복·비밀값·임의 SQL은 거부한다.
 - 정확 식별·이름 변경은 FEAT-003.identity_contract, 값·키·관계·검수는 composition_contract를 따른다. 모든 필드/목록을 명시하며 생략과 빈 목록을 합치지 않는다.
@@ -393,6 +400,12 @@ REQ-611.masking_utility가 정본이다. 이름·전화번호·상세 주소·�
 적용본 조회 → 영역별 편집 → 해당 영역 저장 버튼·고정 saveTarget → 사유 메모 → 권한·기준/전체 참조 검증 → 해당 영역 반영·전체 이력 원자 저장 → 해당 영역/기준 갱신, 다른 입력 보존.
 응답 유실은 원 키/입력으로 결과 확인·재시도한다. 동일 성공을 다시 반영하거나 리비전을 추가 증가시키지 않는다.
 
+### 6-4. LLM 입력 준비
+
+[REQ-610](../../../../spec/10-requirements/012-reference-business.yaml)의 `prompt_contract.admin_input_preparation.sources.catalog`가 이 화면의 **프롬프트 포함 후보 / 서버 집행 / 관리·감사 항목**, 해석 가이드 및 제공 단계·조건을 정의한다. §4의 실제 컬럼과 대응하며 공통 해석 규칙은 같은 절의 `guides`·`conditions`·`stages`를 따른다.
+
+화면 목록/상세 응답을 그대로 모델에 전달하지 않는다. 기존 관리 값을 사용하고 입력 분류용 컬럼·탭을 추가하지 않는다. 실제 조합·전송과 최종 JSON/CLI·API 계약은 업무 지식 관리·전체 흐름 합의 뒤 소유 작업흐름에서 구체화한다. 아래 검수는 설계 대조이며 목업에서 LLM 호출을 시연하거나 제품 실행 검증을 완료한 것으로 표시하지 않는다.
+
 ## 7. API
 
 | API | 동작 | 권한 | 입력 | 출력 |
@@ -402,12 +415,12 @@ REQ-611.masking_utility가 정본이다. 이름·전화번호·상세 주소·�
 | API-022 | getRevision | READ | body=RevisionKey | ApiResponse<RevisionDetail> |
 | API-023 | saveCreate | SAVE | body=ManagementChange | ApiResponse<ManagementResult> |
 | API-024 | saveChange | SAVE | body=ManagementChange | ApiResponse<ManagementResult> |
-| API-026 | getReferences | READ | body=SearchRequest<RevisionKey> | ApiResponse<PageResponse<CatalogReferenceRow>> |
+| API-026 | getReferences | READ | body=SearchRequest<RevisionKey> | ApiResponse<PageResponse<CatalogKnowledgeReferenceRow>> |
 | API-028 | getResolvedObject | READ | body=SourceObjectQuery | ApiResponse<SourceObjectResult> |
 | API-029 | getStructure | READ | body=StructureQuery | ApiResponse<StructureResult> |
 | API-034 | getCommandResult | READ | body=CatalogCommandKey | ApiResponse<CatalogCommandResult> |
 | API-035 | getValidation | READ | body=ValidationRequest | ApiResponse<ValidationResult> |
-| API-036 | getReferenceCandidates | READ | body=SearchRequest<ReferenceCandidateFilter> | ApiResponse<PageResponse<CatalogReferenceRow>> |
+| API-036 | getReferenceCandidates | READ | body=SearchRequest<ReferenceCandidateFilter> | ApiResponse<PageResponse<CatalogReferenceCandidateRow>> |
 
 API-034는 현재 READ+SAVE·주체/기능 결합을 검사한다. READ 메타데이터 권한을 원본 값 열람·정책 편집 권한으로 확대하지 않는다.
 
@@ -474,6 +487,8 @@ API-034는 현재 READ+SAVE·주체/기능 결합을 검사한다. READ 메타�
 
 | MAP-ACTIVE-01 | 매핑 활성 여부 변경/원복·저장·역조회·미상 | 소유 화면만 현재 권한으로 편집하고 원 현재값/전체 HIST와 함께 반영한다. 역조회는 읽기 전용, OFF 행 보존/활성 경로만 소비·미상 false 치환 금지. 자산 자체 사용/상위 권한·필수 SQL 참조 검증을 우회하지 않는다. | TC-00610 / 목업·후속 계약/통합 |
 
+| SCR-003-PROMPT-01 | 동명 다른 스키마 객체·미검수/숨김 컬럼·관리 후보 응답이 존재 | 선별한 정확 객체와 검수된 현재 허용 필드만 제공한다. 관리 응답 전체 전송·미상 NULL/뷰 키 추정·물리명을 사용자 답변에 그대로 노출하면 실패다. | REQ-610·REQ-009 / 설계 대조·후속 조립 계약 검수 |
+
 ## 10. 미결 · 확인 필요
 
 - 사용자 필수 답변 대기 없음. 화면 상세 검토·구현 승인은 별도다.
@@ -490,6 +505,7 @@ API-034는 현재 READ+SAVE·주체/기능 결합을 검사한다. READ 메타�
 
 | 일자 | 변경 |
 |---|---|
+| 2026-11-05 | 기존 관리 항목의 프롬프트 입력 분류·해석 가이드·제공 조건을 REQ-610에 연결하고 설계 검수 사례를 추가했다. 화면 조작과 최종 통신 포맷은 변경하지 않는다. |
 | 2026-10-29 | 사용자 피드백: 컬럼 정의 중심, 탭마다 단일 그리드, 코드 선택 창·관계 읽기 전용 요약과 별도 SCR-039 상세 설계 인계, 건수 탐색·이름 선택, 접근 그룹 후보와 사이즈/인덱스 메타데이터 범위 보완 |
 | 2026-10-29 | 상단 현재 항목·하단 후보 전체 그리드의 요건/목업 초안과 시험 연결 작성 |
 

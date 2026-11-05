@@ -36,7 +36,7 @@ terms:
     term: "API 결과 상태 대응"
     key: apiOutcomeMapping
     group: "실행"
-    definition: "한 응답 또는 한 결과 확인 참조는 검수한 상태 필드 하나와 값별 서로 겹치지 않는 EQ 규칙을 사용한다. 미등록/모호 값·호출 실패는 UNKNOWN이며 실패/미실행으로 추정하지 않는다"
+    definition: "각 API 자신의 응답은 검수한 상태 필드 하나와 값별 서로 겹치지 않는 EQ 규칙을 사용한다. 미등록/모호 값·호출 실패는 UNKNOWN이며 실패/미실행으로 추정하지 않는다"
     relation: "ENT-034 · REQ-608"
   - id: TRM-279
     term: "API 실행 기술자"

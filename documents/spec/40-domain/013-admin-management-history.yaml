@@ -635,21 +635,9 @@ entities:
         physical_name: "TIMEOUT_SECONDS"
         description: "개별 전체 호출 제한 초. null이면 공통값"
         pk: false
-      - name: "UNKNOWN/NOT_GUARANTEED/GUARANTEED"
-        physical_name: "IDEMPOTENCY_CD"
-        description: "UNKNOWN/NOT_GUARANTEED/GUARANTEED"
-        pk: false
-      - name: "보장하는 전체 효과·동일 키 조건·적용 범위"
-        physical_name: "IDEMPOTENCY_SCOPE"
-        description: "보장하는 전체 효과·동일 키 조건·적용 범위"
-        pk: false
-      - name: "제공자 보장 기간 초"
-        physical_name: "IDEMPOTENCY_SECONDS"
-        description: "제공자 보장 기간 초"
-        pk: false
-      - name: "제공자 멱등성 계약/검수 근거"
-        physical_name: "IDEMPOTENCY_EVIDENCE"
-        description: "제공자 멱등성 계약/검수 근거"
+      - name: "멱등성 보장 여부(boolean, 기본 false)"
+        physical_name: "IDEMPOTENCY_YN"
+        description: "멱등성 보장 여부(boolean, 기본 false)"
         pk: false
       - name: "UNKNOWN/NONE/CONTRACT"
         physical_name: "RETRY_MODE"
@@ -663,21 +651,9 @@ entities:
         physical_name: "SUCCESS_MEANING"
         description: "UNKNOWN/COMPLETE/ACCEPTED/MAPPED"
         pk: false
-      - name: "UNKNOWN/NONE/API"
-        physical_name: "RESULT_CHECK_MODE"
-        description: "UNKNOWN/NONE/API"
-        pk: false
-      - name: "권장 재확인 시간 초. 자동 폴링 지시 아님"
-        physical_name: "RECHECK_SECONDS"
-        description: "권장 재확인 시간 초. 자동 폴링 지시 아님"
-        pk: false
-      - name: "수동 확인·종료 안내"
-        physical_name: "MANUAL_CHECK_GUIDE"
-        description: "수동 확인·종료 안내"
-        pk: false
       - name: "API 사용 가이드"
         physical_name: "RESULT_GUIDE"
-        description: "파라미터 생성·응답 해석·호출 전후 확인/대화·멱등성 근거/조건·재실행/결과 확인의 통합 자연어 가이드"
+        description: "파라미터 생성·응답 해석·호출 전후 확인/대화·멱등성 보장 여부의 선택 설명·재실행/결과 확인의 통합 자연어 가이드"
         pk: false
       - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
         physical_name: "REVIEW_STATUS"
@@ -1469,6 +1445,8 @@ entities:
     history_copy_of: ENT-031
     history_parent: ENT-059
   - id: ENT-085
+    rules:
+      - "API_LOOKUP은 당시 선택한 안정 API_ID와 가이드를 복사하며 API_REVISION_ID는 null이다. 실제 호출 당시 대상 명세 판은 실행 이력에서 확인한다. 다른 정확 기술 참조는 해당 판을 보존한다."
     name: "API 계약 참조 적용 이력"
     term: TRM-276
     domain: "연동 자산"
@@ -1501,9 +1479,9 @@ entities:
         physical_name: "OWNER_FIELD_ID"
         description: "입력/값/코드명의 소유 필드. API 전체 후속이면 null"
         pk: false
-      - name: "INPUT_LOOKUP/FIELD_CODE/RESULT_CHECK/FOLLOWUP"
+      - name: "INPUT_LOOKUP/FIELD_CODE/FOLLOWUP"
         physical_name: "ROLE_CD"
-        description: "입력 확보·명시 허용값·결과 확인 참조. 의미 매핑의 참조 가이드를 자동 CODE_NAME 조회 설정으로 만들지 않는다."
+        description: "입력 확보·명시 허용값·후속 참조. 의미 매핑의 참조 가이드를 자동 CODE_NAME 조회 설정으로 만들지 않는다."
         pk: false
       - name: "API/CATALOG/TOOL"
         physical_name: "TARGET_KIND"
@@ -1513,9 +1491,9 @@ entities:
         physical_name: "API_ID"
         description: "참조 안정 API"
         pk: false
-      - name: "선택 API 내용 판"
+      - name: "선택 API 내용 판. API_LOOKUP은 고정하지 않고 null"
         physical_name: "API_REVISION_ID"
-        description: "선택 API 내용 판"
+        description: "선택 API 내용 판. API_LOOKUP은 고정하지 않고 null"
         pk: false
       - name: "참조 공개 카탈로그"
         physical_name: "CATALOG_ID"
@@ -1585,13 +1563,13 @@ entities:
         physical_name: "BINDING_NO"
         pk: false
         description: "판 안의 대응 번호"
-      - name: "이 대응을 사용하는 입력/코드 필드. 결과 확인 전체이면 null"
+      - name: "이 대응을 사용하는 입력/코드 필드"
         physical_name: "OWNER_FIELD_ID"
-        description: "이 대응을 사용하는 입력/코드 필드. 결과 확인 전체이면 null"
+        description: "이 대응을 사용하는 입력/코드 필드"
         pk: false
-      - name: "외부 조회/결과 확인 참조. 순수 내부 대응이면 null"
+      - name: "외부 입력 조회 참조. 순수 내부 대응이면 null"
         physical_name: "REFERENCE_NO"
-        description: "외부 조회/결과 확인 참조. 순수 내부 대응이면 null"
+        description: "외부 입력 조회 참조. 순수 내부 대응이면 null"
         pk: false
       - name: "ENT-032가 선택한 API 판"
         physical_name: "REFERENCE_API_REVISION_ID"
@@ -1603,7 +1581,7 @@ entities:
         pk: false
       - name: "LOOKUP_INPUT/MATCH_KEY/INPUT_VALUE/REQUEST_KEY/IDENTITY"
         physical_name: "PURPOSE_CD"
-        description: "기존 입력/결과 확인 대응. 필드값 의미 매핑은 CODE_VALUE/DISPLAY_NAME 정형 조회 엔진을 강제하지 않는다."
+        description: "입력 확보 대응. 필드값 의미 매핑은 CODE_VALUE/DISPLAY_NAME 정형 조회 엔진을 강제하지 않는다."
         pk: false
       - name: "LOCAL_FIELD/API_FIELD/CATALOG_COL/FIXED/SERVER"
         physical_name: "SOURCE_KIND"
@@ -1698,21 +1676,9 @@ entities:
         physical_name: "MAPPING_NO"
         pk: false
         description: "판 안의 상태 규칙 번호"
-      - name: "결과 확인 API 참조. 원 응답이면 null"
-        physical_name: "REFERENCE_NO"
-        description: "결과 확인 API 참조. 원 응답이면 null"
-        pk: false
-      - name: "결과 확인 대상의 정확 판"
-        physical_name: "REFERENCE_API_REVISION_ID"
-        description: "결과 확인 대상의 정확 판"
-        pk: false
       - name: "원 API의 등록 응답 상태 필드"
         physical_name: "LOCAL_FIELD_ID"
         description: "원 API의 등록 응답 상태 필드"
-        pk: false
-      - name: "결과 확인 API의 응답 상태 필드"
-        physical_name: "REFERENCE_FIELD_ID"
-        description: "결과 확인 API의 응답 상태 필드"
         pk: false
       - name: "COMPLETE/ACCEPTED/PROCESSING/FAILED/UNKNOWN"
         physical_name: "OUTCOME_CD"
@@ -1723,7 +1689,7 @@ entities:
         description: "실행 결과 상태 대응의 설명. 코드 명칭·의미는 참조 항목에서 읽으며 복제하지 않는다."
         pk: false
       - name: "응답 직접 등록 코드 항목"
-        description: "원 응답 또는 정확 결과 확인 API 판의 실행 결과 필드/ENT-030 MEANING 항목을 참조한다. 값·타입·명칭·의미를 복제하지 않는다. 물리명 미정"
+        description: "이 API 자신의 응답 실행 결과 필드/ENT-030 MEANING 항목을 참조한다. 값·타입·명칭·의미를 복제하지 않는다. 물리명 미정"
         pk: false
     relations:
       - entity: ENT-034
@@ -1742,6 +1708,8 @@ entities:
     history_copy_of: ENT-034
     history_parent: ENT-059
   - id: ENT-091
+    rules:
+      - "API_LOOKUP은 같은 소유 입력 필드의 INPUT_LOOKUP/API 참조만 사용하고 BINDING_NO는 null이다. 대상 API의 요청/응답 필드 참조를 저장하지 않는다. 현재 명세 해석/호출 검증은 REQ-608.input_api_lookup을 따른다."
     name: "API 입력 출처 적용 이력"
     term: TRM-281
     domain: "연동 자산"
@@ -1774,21 +1742,21 @@ entities:
         physical_name: "SOURCE_NO"
         pk: false
         description: "필드 안의 출처 번호"
-      - name: "USER/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
+      - name: "USER/API_LOOKUP/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
         physical_name: "SOURCE_KIND"
-        description: "USER/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
+        description: "USER/API_LOOKUP/LOOKUP/FIXED/DEFAULT/TRANSFORM/SERVER"
         pk: false
-      - name: "LOOKUP의 정형 조회 참조"
+      - name: "API_LOOKUP의 안정 API 또는 LOOKUP의 데이터 조회 참조"
         physical_name: "REFERENCE_NO"
-        description: "LOOKUP의 정형 조회 참조"
+        description: "API_LOOKUP의 안정 API 또는 LOOKUP의 데이터 조회 참조"
         pk: false
       - name: "FIXED/DEFAULT 정의 값"
         physical_name: "VALUE_NO"
         description: "FIXED/DEFAULT 정의 값"
         pk: false
-      - name: "추출/서버 주입 대응"
+      - name: "비API 조회 추출/서버 주입 대응. API_LOOKUP이면 null"
         physical_name: "BINDING_NO"
-        description: "추출/서버 주입 대응"
+        description: "비API 조회 추출/서버 주입 대응. API_LOOKUP이면 null"
         pk: false
       - name: "이 출처를 선택할 검수된 조건"
         physical_name: "SELECTION_GUIDE"

@@ -10,7 +10,7 @@ testcases:
     given: "목록·현재/선택 판·과거 열람 / 판 이력·폐기 항목 재진입 / 상단 목록·하단 탭·숨김 열 엑셀"
     when: "화면 사례의 조회/후보 편집·검증·소유 흐름 인계를 수행한다"
     then: "CAT-01·CAT-18·CAT-19와 REQ-301·FEAT-003/011의 해당 규칙을 만족한다"
-    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. 추가 검증: 단일 하단 그리드·관계 외 컬럼 건수로 탭 이동·0건 추가·미확인 표시·편집값 유지·복합 정의 전체 행 유지. 관계는 읽기 전용 요약이며 관계 탭/FK 직접 설정 창이 생기면 실패해야 한다"
+    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. 추가 검증: 단일 하단 그리드·관계 외 컬럼 건수로 탭 이동·0건 추가·미확인 표시·편집값 유지·복합 정의 전체 행 유지. 관계는 읽기 전용 요약이며 관계 탭/FK 직접 설정 창이 생기면 실패해야 한다 API-026은 CatalogKnowledgeReferenceRow로 지식 식별자/명칭·매핑 활성과 기술 참조 문맥을 분리한다. 관계/참조 후보 응답을 지식 응답형으로 반환하거나 mappingActive를 currentRef로 대체하면 실패한다. API-036은 COLUMN/JOIN_OBJECT/KEY별 CatalogReferenceCandidateRow를 반환하고 정확 객체/판·컬럼 또는 전체 복합키를 보존한다. 동명 객체 혼합·다른 편집본 clientKey·종류 밖 필드 혼합·일부 키를 완전한 후보로 반환하면 실패한다."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-01","documents/screen/admin/hub/catalog/requirements.md#CAT-18","documents/screen/admin/hub/catalog/requirements.md#CAT-19","documents/screen/admin/hub/catalog/requirements.md#CAT-26"]
     status: "planned"
   - id: TC-0032
@@ -192,7 +192,7 @@ testcases:
     given: "관계 관리측·반대편 조회/편집"
     when: "화면 사례의 조회/후보 편집·검증·소유 흐름 인계를 수행한다"
     then: "CAT-20와 REQ-301.relationship_metadata.workspace를 만족한다. SCR-003의 관계 탭/FK 직접 설정은 없고 요약은 읽기 전용이다. SCR-039에서 관리측을 생성 시 선택·고정하고 반대편은 같은 안정 관계/소유 판을 읽는다. 전체 후보/BASE_REVISION/API-023/024/025 재사용과 미저장 입력 보존·현재 권한 재검사를 상세 설계 후 시험한다"
-    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다"
+    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. API-027의 CatalogRelationReferenceRow는 안정 관계·소유 카탈로그/판·양끝점 정확 판과 업무 역할을 반환하며 반대편에서 열어도 저장 소유가 바뀌지 않는다. 지식 응답형으로 대체하거나 상대 객체 열람 권한을 확장하면 실패한다."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-20"]
     status: "planned"
   - id: TC-0112
@@ -205,7 +205,7 @@ testcases:
     given: "자기조인 두 역할·복합 컬럼쌍 / 1:N 집계와 불명 관계"
     when: "화면 사례의 조회/후보 편집·검증·소유 흐름 인계를 수행한다"
     then: "CAT-21·CAT-23·CAT-25와 REQ-301·FEAT-003/011의 해당 규칙을 만족한다"
-    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다"
+    verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. 관리 역조회는 자기조인 한 관계 행에 matchedSides=[LEFT,RIGHT]와 두 업무 역할을 보존한다. 관계 중복 행을 만들거나 양쪽 역할을 하나로 합치면 실패한다."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-21","documents/screen/admin/hub/catalog/requirements.md#CAT-23","documents/screen/admin/hub/catalog/requirements.md#CAT-25"]
     status: "planned"
   - id: TC-0113
@@ -272,7 +272,7 @@ testcases:
     actor: ACT-004
     given: "테이블 A/B·예외 없음/A 숨김/B 마스킹/모두 숨김·테이블 밖 C·중복·빈 사유·테이블 축소·A와 B 동시 소속·등록 근거 변조"
     when: "화면 조회·후보 선택/저장·검수·반영과 소비 문맥을 확인한다"
-    then: "CAT-31·REQ-103.column_group_exclusions와 동일 후보/원자적 반영 규칙을 만족한다"
+    then: "CAT-31·REQ-103.column_group_exclusions와 동일 후보/원자적 반영 규칙을 만족한다. 그룹 제거 저장은 그 그룹의 저장된 HIDE/MASK 예외를 같은 트랜잭션으로 함께 삭제한다. 중간 조회에 그룹만 살아 있거나 예외만 먼저 사라진 상태를 노출하지 않는다. 예외 단독 제거는 그룹을 유지한다. 그룹 OFF는 예외를 보존한다. 다른 그룹 예외·미저장 입력은 보존하고 취소/실패/경합은 부분 반영하지 않는다."
     verification: "계약/통합/E2E; 예외 없으면 원본, A HIDE/B MASK이면 A 단독은 카탈로그·SQL 참조 차단, B 또는 A+B는 마스킹이다. B 원본 승계이면 A+B는 원본이다. 모두 HIDE이면 차단한다. MASK 참조 누락을 원본으로 제공하거나 테이블 밖 C 허용·중복/사유 없음·등록자 위조·축소 후 고아 예외를 허용하면 실패"
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-31"]
     status: planned
