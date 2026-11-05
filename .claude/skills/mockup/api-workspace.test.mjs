@@ -40,3 +40,10 @@ test('코드 문자열을 숫자로 변환하는 반례는 검증에 실패한�
  const mutant=vm.createContext({});vm.runInContext(source.replace("if(type==='string')return text;","if(type==='string')return Number(text);"),mutant);
  assert.throws(()=>assert.equal(mutant.mockupCodeValue('001','string'),'001'));
 });
+test('단순값 배열은 원소형으로 의미를 매핑하고 컨테이너는 제외한다',()=>{
+ for(const type of ['string','integer','number','boolean'])assert.equal(context.mockupMeaningType('array',type),type);
+ assert.equal(context.mockupCodeValue('001',context.mockupMeaningType('array','string')),'001');
+ assert.throws(()=>context.mockupCodeValue('001',context.mockupMeaningType('array','integer')));
+ for(const type of ['object','array','확인 필요',''])assert.equal(context.mockupMeaningType('array',type),'');
+ assert.equal(context.mockupMeaningType('string',''),'string');assert.equal(context.mockupMeaningType('object',''),'');
+});

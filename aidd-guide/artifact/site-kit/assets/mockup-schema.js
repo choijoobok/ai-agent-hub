@@ -1,6 +1,6 @@
 /** API/내부 도구 목업의 원천 명세 동기화. 실제 서버·빈·DB를 호출하지 않는다. */
 const schemaStructural=['필드 경로','자료형','배열 항목 자료형','필수 여부','NULL 허용'];
-const schemaSupplement=['설명','값 출처','값 확보·설정 가이드','고정값·기본값','개인·민감정보 여부','이력 마스킹 유형','이력 마스킹 수준','마스킹 방법','실행 결과 관련 여부','결과 역할','결과 설명','의미·해석 가이드','해석 가이드'];
+const schemaSupplement=['설명','조회 API','값 출처','값 확보·설정 가이드','고정값·기본값','개인·민감정보 여부','이력 마스킹 유형','이력 마스킹 수준','마스킹 방법','실행 결과 관련 여부','결과 역할','결과 설명','의미·해석 가이드','해석 가이드'];
 function mockupSchemaFields(source){
   if(source===null)return [];
   if(typeof source==='string'){mockupJsonFields(source);source=JSON.parse(source);}

@@ -344,6 +344,18 @@ function bindDeclaredMockup(root) {
         }
         dialog.dataset.saveTarget=command.dataset.saveTarget;
         const summary=dialog.querySelector('[aria-label="변경 대상"]');if(summary)summary.value=command.dataset.saveTargetName;
+        const screen=command.closest('.screen'),rules=JSON.parse(screen.dataset.saveCascades||'[]');
+        let preview=dialog.querySelector('[data-save-cleanup-preview]');
+        if(!preview){preview=screen.ownerDocument.createElement('p');preview.dataset.saveCleanupPreview='';dialog.querySelector('[data-command-result]').before(preview);}
+        const messages=[];
+        for(const rule of rules.filter(r=>r.saveTarget===command.dataset.saveTarget)){
+          const grids=[...screen.querySelectorAll('[data-grid-name]')],parent=grids.find(g=>g.dataset.gridName===rule.parentGrid),child=grids.find(g=>g.dataset.gridName===rule.childGrid);
+          const value=(row,key)=>[...row.querySelectorAll('[data-row-field]')].find(c=>c.dataset.rowField===key)?.dataset.rowValue;
+          const removed=new Set([...(parent?.querySelectorAll('tbody tr[data-grid-row-state="D"]')||[])].map(r=>value(r,rule.parentKey)));
+          const related=[...(child?.querySelectorAll('tbody tr[data-grid-row-state]')||[])].filter(r=>removed.has(value(r,rule.childKey)));
+          if(removed.size)messages.push('제거할 그룹: '+[...removed].join(', ')+' · 함께 정리할 예외 '+related.length+'건. 같은 저장에서 함께 삭제하며 다른 그룹과 예외는 유지합니다.');
+        }
+        preview.textContent=messages.join(' ');preview.hidden=!messages.length;
       }
       dialog?.showModal(); return;
     }
@@ -561,6 +573,6 @@ function bindDeclaredMockup(root) {
   });
   if(typeof bindMockupMath==='function')bindMockupMath(root);
   if(typeof bindRelationWorkspace==='function')bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refreshGrid});
-  if(typeof bindApiMockup==='function')bindApiMockup(root,{appendRow,setCell,markEdited,refreshGrid});
+  if(typeof bindApiMockup==='function')bindApiMockup(root,{appendRow,setCell,markEdited,refreshGrid,refreshRowConditions});
   if(typeof bindSchemaMockup==='function')bindSchemaMockup(root,{appendRow,setCell,markEdited,refreshGrid,setRowState});
 }

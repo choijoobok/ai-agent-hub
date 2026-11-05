@@ -244,6 +244,7 @@ function screenModel(md, type, allowInheritance = true) {
     schemaWorkspace: (()=>{const t=findTable(composition,/^스키마 동기화$/);if(!t)return null;const rows=Object.fromEntries(t.rows.map(r=>[plain(r[0]),JSON.parse(r[1])]));const {설정:config,...sources}=rows;return {...config,sources};})(),
     commandFields: findTable(composition, /^명령 입력창$/),
     saveTargets: findTable(composition, /^저장 대상$/),
+    saveCascades: (findTable(composition,/^저장 연쇄 정리$/)?.rows??[]).map(row=>JSON.parse(row[1])),
     addChoices: findTable(composition, /^추가 방식$/),
     rowDefaults: Object.fromEntries((findTable(composition,/^행 추가 초기값$/)?.rows??[]).map(row=>[plain(row[0]),JSON.parse(row[1])])),
     figureNavigation: findTable(composition, /^목업 이동$/),

@@ -38,6 +38,19 @@ function bindApiMockup(root, api) {
   const dialogFor=(screen,name)=>[...screen.querySelectorAll('[data-api-dialog]')].find(d=>d.dataset.apiDialog===name);
   bindApiMeaningMockup(root,api);
   bindToolContractMockup(root,api);
+  root.querySelectorAll('[data-api-workspace][data-api-editable="true"]').forEach(screen=>{
+    const previous=new WeakMap();let scheduled=false;
+    const sync=()=>{scheduled=false;for(const row of screen.querySelectorAll('tr[data-grid-row-state]')){
+      const source=row.querySelector('[data-row-field="값 출처"]'),lookup=row.querySelector('[data-row-field="조회 API"]');if(!source||!lookup)continue;
+      const kind=source.dataset.rowValue,old=previous.get(row);previous.set(row,kind);
+      if(old==='API 조회'&&kind!=='API 조회'&&lookup.dataset.rowValue){api.setCell(lookup,'');api.markEdited(row);}
+      if(old!==kind)api.refreshRowConditions(row);
+      const select=lookup.querySelector('select[data-edit-value]'),summary=lookup.querySelector('[data-cell-editor] summary'),locked=lookup.querySelector('[data-locked-value]');
+      const label=lookup.dataset.rowValue?([...select?.options||[]].find(o=>o.value===lookup.dataset.rowValue)?.textContent||lookup.dataset.rowValue):'—';
+      if(summary)summary.textContent=label;if(locked)locked.textContent=label;
+    }};
+    new MutationObserver(changes=>{if(changes.some(c=>c.type==='attributes'||['TBODY','TR'].includes(c.target.tagName))&&!scheduled){scheduled=true;queueMicrotask(sync);}}).observe(screen,{subtree:true,childList:true,attributes:true,attributeFilter:['data-row-value']});sync();
+  });
   root.addEventListener('click',event=>{
     const close=event.target.closest('[data-api-close]');if(close){close.closest('dialog').close();return;}
     const button=event.target.closest('[data-api-action]');if(!button||button.disabled)return;
@@ -136,6 +149,10 @@ function mockupCodeValue(text,type) {
 }
 
 /** 의미 매핑의 필드별 편집 문맥을 보존한다. 실제 조회·저장은 수행하지 않는다. */
+function mockupMeaningType(type,itemType){
+  const scalar=['string','integer','number','boolean'];
+  return scalar.includes(type)?type:type==='array'&&scalar.includes(itemType)?itemType:'';
+}
 function bindApiMeaningMockup(root,api) {
   const doc=root.ownerDocument||root;let sequence=0;
   const cells=(row,name)=>[...row.querySelectorAll('[data-row-field]')].find(c=>c.dataset.rowField===name);
@@ -159,7 +176,7 @@ function bindApiMeaningMockup(root,api) {
     }
     const states=new Map();let selected=null,scheduled=false;
     const fieldSource={ '경로 변수':['경로 변수','순서'],'쿼리':['쿼리 파라미터','파라미터명'],'헤더':['헤더 파라미터','파라미터명'],'바디':['바디 JSON 스키마','필드 경로'],'입력':['입력 JSON 스키마','필드 경로'],'응답':['응답 JSON 스키마','필드 경로'] };
-    const fields=area=>{const source=fieldSource[area];if(!source)return [];const grid=[...screen.querySelectorAll('[data-grid-name]')].find(g=>g.dataset.gridName===source[0]);return rows(grid).filter(live).filter(r=>!cells(r,'스키마 일치 여부')||val(r,'스키마 일치 여부')==='true').filter(r=>!['object','array','확인 필요',''].includes(val(r,'자료형'))).map(r=>({key:val(r,source[1]),label:area==='경로 변수'?val(r,'순서')+' — '+val(r,'설명'):val(r,source[1]),type:val(r,'자료형'),result:val(r,'실행 결과 관련 여부')==='true'}));};
+    const fields=area=>{const source=fieldSource[area];if(!source)return [];const grid=[...screen.querySelectorAll('[data-grid-name]')].find(g=>g.dataset.gridName===source[0]);return rows(grid).filter(live).filter(r=>!cells(r,'스키마 일치 여부')||val(r,'스키마 일치 여부')==='true').map(r=>({key:val(r,source[1]),label:area==='경로 변수'?val(r,'순서')+' — '+val(r,'설명'):val(r,source[1]),type:mockupMeaningType(val(r,'자료형'),val(r,'배열 항목 자료형')),result:val(r,'자료형')!=='array'&&val(r,'실행 결과 관련 여부')==='true'})).filter(f=>f.type);};
     const state=row=>{if(!states.has(row)){const r=record(row);states.set(row,{id:r.mappingId||'M-NEW-'+(++sequence),guide:row.dataset.gridRowState==='C'?'':r['참조 가이드']||'',original:r['참조 가이드']||'',area:val(row,'필드 구분')});}return states.get(row);};
     const dirty=row=>{api.markEdited(row);if(state(row).guide!==state(row).original&&row.dataset.gridRowState===''){row.dataset.gridRowState='U';const label=row.querySelector('[data-row-state]');if(label)label.textContent='수정';const revert=row.querySelector('[data-revert-row]');if(revert)revert.hidden=false;}};
     function sync(){
@@ -175,7 +192,7 @@ function bindApiMeaningMockup(root,api) {
       api.refreshGrid(codes);const count=rows(codes).filter(r=>!r.hidden&&live(r)).length;codes.querySelector('.cnt').textContent=count+'건';codes.querySelector('.pg').textContent='선택 필드의 코드 '+count+'건 · 선택 대상 전체 저장';
       let message=current?'현재 필드: '+val(selected,'필드 구분')+' / '+val(selected,'대상 필드')+' · '+mode:'의미 매핑할 필드를 추가하세요.';
       if(current){const field=fields(val(selected,'필드 구분')).find(f=>f.key===val(selected,'대상 필드'));const duplicates=rows(list).filter(live).filter(r=>val(r,'필드 구분')===val(selected,'필드 구분')&&val(r,'대상 필드')===val(selected,'대상 필드')).length;
-        if(!field)message+=' — 등록 스칼라 필드를 선택하세요.';else if(duplicates>1)message+=' — 같은 필드의 중복 매핑입니다.';else if(mode==='직접 등록'){
+        if(!field)message+=' — 등록 값 필드 또는 단순값 배열 원소를 선택하세요.';else if(duplicates>1)message+=' — 같은 필드의 중복 매핑입니다.';else if(mode==='직접 등록'){
           const seen=new Set();try{for(const row of rows(codes).filter(r=>!r.hidden&&live(r))){const value=mockupCodeValue(val(row,'코드값'),field.type),key=typeof value+':'+JSON.stringify(value);if(seen.has(key))throw Error('중복 코드값입니다.');seen.add(key);if(!val(row,'명칭').trim())throw Error('코드 명칭이 필요합니다.');}if(!seen.size)throw Error('코드값을 등록하세요.');}catch(error){message+=' — '+error.message;}
         }else if(mode==='참조 가이드'&&!text.trim())message+=' — 참조 가이드를 입력하세요.';
       }

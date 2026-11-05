@@ -23,6 +23,8 @@ test('붙여넣기는 호환 보충 설정만 복사하며 구조/판정/ID를 �
  const source={'필드 경로':'old','자료형':'string',fieldId:'OLD','스키마 일치 여부':false,'설명':'가이드','NULL 허용':'허용'};
  const target={'필드 경로':'new','자료형':'string',fieldId:'NEW','스키마 일치 여부':true,'설명':'기존','NULL 허용':'불가'};
  assert.deepEqual(plain(ctx.mockupSchemaCopy(source,target)),{'설명':'가이드'});assert.throws(()=>ctx.mockupSchemaCopy(source,{...target,'자료형':'integer'}));
+ const lookup={...source,'값 출처':'API 조회','조회 API':'201',lookupResponseFieldId:'EXTERNAL-FIELD',lookupRevisionId:'OLD-REV'};
+ assert.deepEqual(plain(ctx.mockupSchemaCopy(lookup,{...target,'조회 API':'','값 출처':'사용자 입력'})),{'설명':'가이드','조회 API':'201','값 출처':'API 조회'});
 });
 test('샘플에서 구조만 추출하고 필수와 실제 값은 저장 원본에 추정하지 않는다',()=>{
  const s=plain(ctx.mockupSchemaFromSample('{"rows":[{"id":"001","name":"홍길동"},{"quantity":2}]}'));assert.equal(s.properties.rows.items.properties.id.type,'string');assert.equal(s.properties.rows.items.properties.quantity.type,'integer');assert.ok(!JSON.stringify(s).includes('홍길동'));assert.equal(s.required,undefined);assert.throws(()=>ctx.mockupSchemaFromSample('[1,"x"]'));
