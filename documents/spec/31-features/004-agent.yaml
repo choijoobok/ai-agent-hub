@@ -169,8 +169,8 @@ features:
   - id: FEAT-219
     module: agent
     roadmap: RM-P1
-    title: "인증 예제 쿼리 매칭과 파라미터 채움 실행"
-    detail: "직접 실행 경로. **SQL 통제 4단계를 그대로 적용한다**"
+    title: "인증 예제 SQL 변형 선택과 현재 입력 구성"
+    detail: "REQ-302.sql_variants.values·execution과 REQ-303.example_catalog_mapping.linked_example_filter를 따른다. 허용 SQL 변형과 묶음 리비전을 고정하고 설명/예시값·현재 카탈로그로 현재 입력을 구성한다. 별도 등록 파라미터 명세·문자열 단순치환·SQL 불변을 전제로 하지 않는다. 모호한 값은 확인하고 실행용 바인딩 및 SQL 통제 4단계를 유지한다."
     reqs: [REQ-302]
   - id: FEAT-220
     module: agent

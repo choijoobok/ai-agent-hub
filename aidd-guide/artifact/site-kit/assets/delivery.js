@@ -119,6 +119,11 @@
           if(!link)return;
           event.preventDefault();
           const query=request.getAttribute('href').split('?')[1]?.split('#')[0]??'';
+          if(new URLSearchParams(query).get('figure')==='restore'){
+            const destination=pages.find(p=>p.id===link.dataset.pageLink);
+            const dirty=[...destination.querySelectorAll('[data-mockup-body]')].some(host=>host.shadowRoot&&([...host.shadowRoot.querySelectorAll('[data-form-original]')].some(field=>field.value!==field.dataset.formOriginal)||host.shadowRoot.querySelector('[data-grid-row-state="U"],[data-grid-row-state="C"],[data-grid-row-state="D"]')));
+            if(dirty&&!confirm('미저장 편집이 있습니다. 기존 입력을 보존한 채 복원 편집 예시를 여시겠습니까?'))return;
+          }
           show(link.dataset.pageLink);
           const current=pages.find(p=>p.id===link.dataset.pageLink);
           openRequestMockup(current,query);
@@ -198,7 +203,7 @@
   function showHash() {
     const [id, query = ''] = location.hash.slice(1).split('?');
     if (!show(id, false)) return false;
-    if(new URLSearchParams(query).has('requestNo'))openRequestMockup(pages.find(p=>p.id===id),query);
+    if(new URLSearchParams(query).has('requestNo')||new URLSearchParams(query).has('figure'))openRequestMockup(pages.find(p=>p.id===id),query);
     let anchor = new URLSearchParams(query).get('anchor');
     if (!anchor) return true;
     try { anchor = decodeURIComponent(anchor); } catch { /* 잘못된 인코딩은 원 문자열로 탐색 */ }

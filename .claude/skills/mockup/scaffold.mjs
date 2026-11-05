@@ -18,6 +18,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import { declaredFigures, declaredScreen, searchComboScript } from './declared-layout.mjs';
 import {annotationBook, annotationIssues, surfaceRows, surfaceIntroduction, surfaceOf} from './presentation.mjs';
 import {genericScreen, areaTitle} from './generic-layout.mjs';
@@ -240,6 +241,7 @@ function screenModel(md, type, allowInheritance = true) {
     rowExamples: findTable(composition, /^그리드 예시$/),
     popups: findTable(composition, /^선택창$/),
     apiWorkspace: findTable(composition, /^(?:API|도구) 작업대$/),
+    queryExampleWorkspace: findTable(composition, /^SQL 예제 작업대$/),
     toolContracts: findTable(composition, /^구현 계약 예시$/),
     schemaWorkspace: (()=>{const t=findTable(composition,/^스키마 동기화$/);if(!t)return null;const rows=Object.fromEntries(t.rows.map(r=>[plain(r[0]),JSON.parse(r[1])]));const {설정:config,...sources}=rows;return {...config,sources};})(),
     commandFields: findTable(composition, /^명령 입력창$/),
@@ -513,7 +515,42 @@ function check(dir) {
   return problems;
 }
 
+/** 원 화면의 컬럼/탭 선언에서 이력 그림을 파생한다. 별도 요건서·목업 파일은 없다. */
+export function inheritedHistoryMockup(markdown, screen) {
+  if(screen.view_kind!=='change_history'||!screen.mockup_projection)throw new Error('명시된 이력 투영만 생성한다');
+  const model=screenModel(markdown,'마스터-디테일(상하)');
+  const projection=screen.mockup_projection;
+  for(const label of ['이력 저장일시 시작','이력 저장일시 종료']){
+    const row=[...model.search[0]];
+    for(const [key,value]of Object.entries({'조건':label,'입력방식':'일시','선택 출처':'직접 입력','검증':'보존된 이력 저장일시에 적용. 시작 이후 종료이며 운영 기간 상한은 후속 계약'})){
+      const index=model.searchTable.header.indexOf(key);if(index>=0)row[index]=value;
+    }
+    model.search.push(row);
+  }
+  model.columns=model.columns.filter(t=>!(projection.exclude_tabs??[]).includes(areaTitle(t)));
+  const master=model.columns[0];
+  master.rows=master.rows.filter(r=>!(projection.exclude_columns??[]).includes(plain(r[0])));
+  for(const label of screen.history_summary_columns??[]){
+    const row=[...master.rows[0]];
+    for(const [key,value]of Object.entries({'컬럼':label,'필드명':label,'설명':'선택한 과거 이력의 저장 메타데이터','예시':projection.examples?.[label]??'—','값 자료형':'string','그리드 타입':'text','에디터':'없음','렌더러':'없음','뷰어':'없음','값 원천':'DB 저장값 조회','생성·갱신':'선택한 이력 조회 시','선택 출처':'보존된 이력 메타데이터','검증':'읽기 전용','저장 방식':'이력에 보존된 값 조회'})){
+      const index=master.header.indexOf(key);if(index>=0)row[index]=value;
+    }
+    master.rows.push(row);
+  }
+  model.columns.forEach(t=>{t.readonly=true;t.rows=t.rows.filter(r=>!['수정자','수정일시'].includes(plain(r[0])));});
+  model.surfaces=model.surfaces.map(s=>({...s,buttons:[],workflow:'선택한 과거 이력에 저장된 내용을 읽기 전용으로 확인한다.',trigger:'이력 선택 시 같은 저장 건의 전체 구성 조회',save:'읽기 전용. 저장 대상 아님'}));
+  model.commandFields=null;model.figureNavigation=null;model.addRowTabs=[];model.apiWorkspace=null;
+  const book=annotationBook();
+  const figure={key:'history',caption:'선택한 과거 이력 — 읽기 전용',detail:areaTitle(model.columns[1]).split(' / ')[0],notice:screen.restore_handoff?'리비전 2의 전체 이력 예시입니다. 복원은 현재 지식 편집으로 인계하며 여기서 저장하지 않습니다.':'선택한 저장 시점의 전체 이력 예시입니다. 모든 SQL과 설명은 읽기 전용이며 현재 데이터로 대체하지 않습니다.',buttons:['조회','엑셀 다운로드'],editable:false,examples:projection.examples??{},emptyGrids:[]};
+  const content=declaredScreen(screen.title,model,figure,{annotator:()=>({badge:(...a)=>book.badge(...a),render:()=>''}),plain});
+  const handoff=screen.restore_handoff;
+  const action=handoff?`<p><a class="btn" href="../knowledge/mockup.html?figure=${html(handoff.target_figure)}&restoreRevision=${handoff.source_revision}" data-request-navigation data-request-screen="${html(handoff.target_screen)}">${html(handoff.label)}</a> — 이력 열람 및 현재 지식 변경 권한이 있는 예시. 현재 기준 ${handoff.current_revision}, 원본 이력 ${html(handoff.history_no)}. 실제 서버 조회·저장은 하지 않습니다.</p>`:'';
+  const historyStyle='.history-projection .sf{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr)}.history-projection .sf input,.history-projection .sf select{min-width:0;box-sizing:border-box}';
+  return {html:action+`<div class="history-projection">${content}</div>`+book.render(),style:styleBlock().replace(/^<style[^>]*>|<\/style>$/g,'')+historyStyle};
+}
+
 // ── 진입 ────────────────────────────────────────────────────────────
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
 const args = process.argv.slice(2);
 
 if (args.includes('--list')) {
@@ -588,3 +625,4 @@ if (!args.length) {
   process.exit(2);
 }
 process.stdout.write(scaffold(resolveScreen(args[0])));
+}

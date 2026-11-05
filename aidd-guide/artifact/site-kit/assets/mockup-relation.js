@@ -31,7 +31,7 @@ function bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refr
     const record=row=>{try{return JSON.parse(row?.dataset.relationRecord||'{}');}catch{return{};}};
     const rows=name=>[...grid(name).querySelectorAll('tbody tr[data-grid-row-state]')];
     const active=()=>master.querySelector('tbody tr.sel:not([data-grid-row-state="D"])');
-    const relation=()=>record(active()),idOf=row=>rowValues(row)['관계 식별자'];
+    const relation=()=>record(active()),idOf=row=>record(row).clientRowKey||rowValues(row)['관계 식별자'];
     const state=()=>active()&&active().dataset.masterLocked!=='true'&&screen.dataset.relationEditable==='true';
     const currentPairs=()=>rows(rule.pairs).filter(row=>record(row).relationId===idOf(active())&&row.dataset.gridRowState!=='D');
     const pairValues=()=>currentPairs().map(row=>({...record(row),order:rowValues(row)['순서']}));
@@ -60,8 +60,8 @@ function bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refr
       const target=event.target.closest('button');if(!target||target.disabled)return;
       const table=target.closest('[data-grid-name]');
       if(target.matches('[data-grid-add]')&&table===master){
-        event.preventDefault();event.stopImmediatePropagation();const id='REL-NEW-'+(++sequence),row=appendRow(master,{'관계 식별자':id,[rule.source]:'',[rule.left]:'',[rule.right]:''});
-        if(row){master.querySelectorAll('tbody tr.sel').forEach(item=>item.classList.remove('sel'));row.classList.add('sel');row.dataset.relationRecord=JSON.stringify({relationId:id});update();}return;
+        event.preventDefault();event.stopImmediatePropagation();const id='REL-NEW-'+(++sequence),row=appendRow(master,{'관계 식별자':'',[rule.source]:'',[rule.left]:'',[rule.right]:''});
+        if(row){master.querySelectorAll('tbody tr.sel').forEach(item=>item.classList.remove('sel'));row.classList.add('sel');row.dataset.relationRecord=JSON.stringify({clientRowKey:id});update();}return;
       }
       if(target.matches('[data-relation-open]')){
         event.preventDefault();event.stopImmediatePropagation();if(!state())return;

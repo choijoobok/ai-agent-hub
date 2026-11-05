@@ -19,6 +19,7 @@ import { themeAware } from '../manual-site/lib/page.mjs';
 import { buildFlowViews } from './lib/flow-view.mjs';
 import { createDesignNavigation } from './lib/design-navigation.mjs';
 import { historyViewMarkdown } from './lib/history-view.mjs';
+import { inheritedHistoryMockup } from '../mockup/scaffold.mjs';
 import { preparedMockupErrors } from './lib/prepared-mockups.mjs';
 import { orderByAdminMenu } from '../doc-gen/menu-contract.mjs';
 import { checkTableDocuments, checkSequenceDocuments } from '../doc-gen/gen.mjs';
@@ -245,12 +246,20 @@ function designChapters() {
   }
   for (const screen of specScreens.filter((item) => item.view_kind === 'change_history')) {
     const source = specScreens.find((item) => item.id === screen.source_screen);
+    const historyMarkdown=historyViewMarkdown(screen,source);
+    let tabs=null;
+    if(screen.mockup_projection){
+      const sourcePath=`documents/screen${source.route}/requirements.md`;
+      mockups[`${screen.id}/__design__`]=inheritedHistoryMockup(read(sourcePath),screen);
+      sourceFiles.add(sourcePath);
+      tabs=[{key:'requirements',label:'요건 정의서',markdown:historyMarkdown},{key:'mockup',label:'화면 목업',rendered:designMockupMarkup(screen.id)}];
+    }
     const moduleLabel = siteConfig.get('design').navigation?.module_labels?.[screen.module] ?? screen.module;
     const treePath = ['화면 요건·목업', moduleLabel, screen.group ?? '변경 이력'];
     chapters.push({ ...markdownChapter({
       id: `screen-${slug(screen.id)}`, group: treePath.join(' › '),
       path: `documents/spec/60-screens/010-change-history.yaml#${screen.id}`,
-      title: `${screen.id} ${screen.title}`, markdown: historyViewMarkdown(screen, source),
+      title: `${screen.id} ${screen.title}`, markdown: historyMarkdown, tabs,
     }), treePath, screenId: screen.id });
   }
   return orderByAdminMenu(screenSpec, chapters, (chapter) => chapter.screenId);
@@ -378,7 +387,7 @@ function renderSite(key, chapters) {
 <html lang="ko"${release ? ' class="release"' : ''}>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>${escapeHtml(cfg.title)}</title>
 <link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/delivery.css">
-<script src="../assets/icons.js" defer></script><script src="../assets/mermaid.min.js" defer></script><script src="../assets/mockups.js" defer></script><script src="../assets/mockup-math.js" defer></script><script src="../assets/mockup-relation.js" defer></script><script src="../assets/mockup-api.js" defer></script><script src="../assets/mockup-schema.js" defer></script><script src="../assets/mockup-controls.js" defer></script><script src="../assets/delivery.js" defer></script></head>
+<script src="../assets/icons.js" defer></script><script src="../assets/mermaid.min.js" defer></script><script src="../assets/mockups.js" defer></script><script src="../assets/mockup-math.js" defer></script><script src="../assets/mockup-relation.js" defer></script><script src="../assets/mockup-api.js" defer></script><script src="../assets/mockup-schema.js" defer></script><script src="../assets/mockup-query-example.js" defer></script><script src="../assets/mockup-controls.js" defer></script><script src="../assets/delivery.js" defer></script></head>
 <body class="${release ? 'release' : 'review'}"><header class="topbar"><button class="icon-btn menu-toggle" data-menu-toggle type="button" aria-label="목차 열기" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button><a class="brand" href="../index.html"><span class="logo"><svg class="icon sm"><use href="#i-book-open"/></svg></span><span>${escapeHtml(cfg.title)}</span></a><div class="current-path" data-current-path aria-live="polite"></div><div class="spacer"></div><div class="site-actions"><button data-print-page type="button">현재 페이지 인쇄·PDF</button><div class="ui-settings"><button class="icon-btn" data-ui-settings-toggle type="button" aria-label="보기 설정" aria-expanded="false" title="보기 설정"><svg class="icon"><use href="#i-settings"/></svg></button><div class="ui-settings-panel" data-ui-settings-panel hidden><label>본문 너비<select data-ui-width><option value="standard">읽기 편한 너비</option><option value="full">화면 100%</option></select></label><label>글꼴<select data-ui-font><option value="system">시스템 기본</option><option value="gothic">고딕</option><option value="serif">명조</option><option value="mono">고정폭</option></select></label><label>글자 크기<select data-ui-size><option value="90">90%</option><option value="100">100%</option><option value="110">110%</option><option value="120">120%</option><option value="130">130%</option><option value="140">140%</option><option value="150">150%</option></select></label><button data-ui-reset type="button">기본값 복원</button></div></div><button class="icon-btn" data-theme-toggle type="button" aria-label="라이트 테마로 전환" title="테마 전환"><svg class="icon theme-icon-dark"><use href="#i-sun"/></svg><svg class="icon theme-icon-light" hidden><use href="#i-moon"/></svg></button></div></header>
 <div class="sidebar-backdrop"></div><div class="layout"><aside class="sidebar" id="sidebar"><div class="sb-head">목차</div><div class="sb-filter"><input data-tree-filter type="search" placeholder="제목·본문 검색"></div><nav class="tree"><ul>${tree}</ul></nav></aside><div class="main-wrap"><main class="content">${bodies || '<div class="delivery-empty">표시할 문서가 없습니다.</div>'}</main></div></div><button type="button" class="back-to-top" data-back-to-top aria-label="맨 위로" hidden>↑ 맨 위로</button></body></html>`;
   write(resolve(OUT, key, 'index.html'), html);
@@ -432,7 +441,7 @@ if (mode === 'all' || standalone) rmSync(OUT, { recursive: true, force: true });
 else rmSync(resolve(OUT, mode), { recursive: true, force: true });
 ensure(resolve(OUT, 'assets'));
 copyFileSync(BUILD_README, resolve(REPO, 'build/README.txt'));
-for (const asset of ['guide.css', 'icons.js', 'delivery.css', 'delivery.js', 'mockup-math.js', 'mockup-relation.js', 'mockup-api.js', 'mockup-schema.js', 'mockup-controls.js']) {
+for (const asset of ['guide.css', 'icons.js', 'delivery.css', 'delivery.js', 'mockup-math.js', 'mockup-relation.js', 'mockup-api.js', 'mockup-schema.js', 'mockup-query-example.js', 'mockup-controls.js']) {
   const source = resolve(ASSET_SOURCE, asset);
   sourceFiles.add(norm(relative(REPO, source)));
   copyFileSync(source, resolve(OUT, 'assets', asset));
@@ -442,10 +451,10 @@ if (!existsSync(mermaidAsset)) issues.push({ site: 'all', level: 'error', messag
 else copyFileSync(mermaidAsset, resolve(OUT, 'assets/mermaid.min.js'));
 
 collectSharedMockups();
-write(resolve(OUT, 'assets/mockups.js'), `window.DELIVERY_MOCKUPS=${JSON.stringify(mockups).replace(/<\//g, '<\\/')};\n`);
 
 const makers = { design: designChapters, user: userChapters, operations: operationsChapters };
 const allChapters = Object.fromEntries(keys.map((key) => [key, makers[key]()]));
+write(resolve(OUT, 'assets/mockups.js'), `window.DELIVERY_MOCKUPS=${JSON.stringify(mockups).replace(/<\//g, '<\\/')};\n`);
 for (const key of keys) renderSite(key, allChapters[key]);
 
 let flowViews = [];

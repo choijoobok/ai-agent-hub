@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | [REQ-301](../../../../spec/10-requirements/007-knowledge-catalog.yaml) | 선별 공개 사실을 수집하고 업무 의미를 검수한다 | 직접 담당 | §1·§4·§6: 관계 작업대·동일 소스/양끝점·전체 쌍/순서·검수·저장 소유·매칭 누락 설명/프롬프트 소비 | REL-01·REL-02·REL-03·REL-04·REL-07·REL-08 |
 | [REQ-303](../../../../spec/10-requirements/007-knowledge-catalog.yaml) | 지식과 공개 데이터 인터페이스의 역할 경계 — 참조 링크 | 연계·경계 | §3·§6: 활성 직접/예제 경유 합집합의 연결 지식 역조회와 최종 선택 카탈로그의 관계 가이드 소비 경계 | REL-05·REL-08 |
-| [REQ-601](../../../../spec/10-requirements/011-reference-integration.yaml) | 기준정보 관리 범위·공통 속성·참조 보호 | 공통 제약 | §5·§6: 현재 권한·소유 영역 저장/전체 이력·매핑 활성 여부과 역조회 경계 | REL-04·REL-06 |
+| [REQ-601](../../../../spec/10-requirements/011-reference-integration.yaml) | 기준정보 관리 범위·공통 속성·참조 보호 | 공통 제약 | §5·§6: 현재 권한·소유 영역 저장/전체 이력·매핑 활성 여부과 역조회 경계 |REL-04·REL-06·SCR-039-ID-01 |
 | [REQ-610](../../../../spec/10-requirements/012-reference-business.yaml) | 프롬프트 규칙 정의·적용 조건·리비전 관리 | 연계·경계 | §6-4: 원천 항목의 LLM/서버/관리 분류·해석 가이드·호출 단계별 제공 조건 연결. 실제 조합은 agent 소유 | SCR-039-PROMPT-01 |
 
 ## 0. 메타
@@ -88,31 +88,31 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 | 그리드 예시 | 값(JSON) | 상태 |
 |---|---|---|
-| 테이블 관계 목록 | {"관계 식별자":"REL-ORDER-CUSTOMER","관계명":"주문 고객","데이터소스":"ERP-DB","왼쪽 객체":"orders","왼쪽 역할":"주문","오른쪽 객체":"customers","오른쪽 역할":"고객","관계 유형":"N:1","관계 설명":"회사 코드(tenant_id)와 고객 번호(customer_id)를 모두 일치시킨다. 이 예시 업무에서는 고객이 매칭되지 않는 주문이 있을 수 있고 주문이 없는 고객도 있다. 주문 전체가 대상이면 미매칭 주문도 유지하고 고객 정보는 NULL로 표시한다. 매칭 고객의 주문만 요청하면 그 주문으로 제한한다. 고객 전체가 대상이면 고객을 기준으로 주문 없는 고객도 포함한다.","검수 상태":"UNKNOWN","기준 리비전":"12","relationId":"REL-ORDER-CUSTOMER","dataSourceKey":"ERP-DB","leftCatalogId":"CAT-ORDER","rightCatalogId":"CAT-CUSTOMER","ownerCatalogId":"CAT-ORDER"} | — |
-| 테이블 선택 / 왼쪽 후보 | {"catalogId":"CAT-ORDER","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-ORDER","객체명":"orders","업무명":"주문","DB/스키마":"sales.public"} | — |
-| 테이블 선택 / 왼쪽 후보 | {"catalogId":"CAT-CUSTOMER","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-CUSTOMER","객체명":"customers","업무명":"고객","DB/스키마":"sales.public"} | — |
-| 테이블 선택 / 왼쪽 후보 | {"catalogId":"CAT-EMPLOYEE","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-EMPLOYEE","객체명":"employees","업무명":"직원","DB/스키마":"hr.public"} | — |
-| 테이블 선택 / 왼쪽 후보 | {"catalogId":"CAT-CRM","dataSourceKey":"CRM-DB","카탈로그 식별자":"CAT-CRM","객체명":"customers","업무명":"CRM 고객","DB/스키마":"crm.public"} | — |
-| 테이블 선택 / 오른쪽 후보 | {"catalogId":"CAT-ORDER","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-ORDER","객체명":"orders","업무명":"주문","DB/스키마":"sales.public"} | — |
-| 테이블 선택 / 오른쪽 후보 | {"catalogId":"CAT-CUSTOMER","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-CUSTOMER","객체명":"customers","업무명":"고객","DB/스키마":"sales.public"} | — |
-| 테이블 선택 / 오른쪽 후보 | {"catalogId":"CAT-EMPLOYEE","dataSourceKey":"ERP-DB","카탈로그 식별자":"CAT-EMPLOYEE","객체명":"employees","업무명":"직원","DB/스키마":"hr.public"} | — |
-| 테이블 선택 / 오른쪽 후보 | {"catalogId":"CAT-CRM","dataSourceKey":"CRM-DB","카탈로그 식별자":"CAT-CRM","객체명":"customers","업무명":"CRM 고객","DB/스키마":"crm.public"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-ORDER","columnId":"COL-ORDER-CUSTOMER","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-ORDER","columnId":"COL-ORDER-TENANT","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-CUSTOMER","columnId":"COL-CUSTOMER-ID","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-CUSTOMER","columnId":"COL-CUSTOMER-TENANT","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-EMPLOYEE","columnId":"COL-EMP-ID","typeGroup":"integer","컬럼 순서":1,"컬럼명":"employee_id","업무명":"직원 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"CAT-EMPLOYEE","columnId":"COL-EMP-MANAGER","typeGroup":"integer","컬럼 순서":2,"컬럼명":"manager_id","업무명":"관리자 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-ORDER","columnId":"COL-ORDER-CUSTOMER","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-ORDER","columnId":"COL-ORDER-TENANT","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-CUSTOMER","columnId":"COL-CUSTOMER-ID","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-CUSTOMER","columnId":"COL-CUSTOMER-TENANT","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-EMPLOYEE","columnId":"COL-EMP-ID","typeGroup":"integer","컬럼 순서":1,"컬럼명":"employee_id","업무명":"직원 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"CAT-EMPLOYEE","columnId":"COL-EMP-MANAGER","typeGroup":"integer","컬럼 순서":2,"컬럼명":"manager_id","업무명":"관리자 번호","자료형":"BIGINT"} | — |
-| 컬럼 쌍 / 관계 매핑 | {"순서":1,"왼쪽 컬럼":"customer_id","오른쪽 컬럼":"customer_id","relationId":"REL-ORDER-CUSTOMER","leftColumnId":"COL-ORDER-CUSTOMER","rightColumnId":"COL-CUSTOMER-ID"} | — |
-| 컬럼 쌍 / 관계 매핑 | {"순서":2,"왼쪽 컬럼":"tenant_id","오른쪽 컬럼":"tenant_id","relationId":"REL-ORDER-CUSTOMER","leftColumnId":"COL-ORDER-TENANT","rightColumnId":"COL-CUSTOMER-TENANT"} | — |
-| 연결 지식 | {"지식 ID":"KN-ORDER","지식명":"주문 조회","지식 리비전":"3","연결 경로":"직접+인증 예제","매핑 활성 여부":true,"direct":[{"catalogId":"CAT-ORDER","active":true}],"examples":[{"active":true,"complete":true,"catalogIds":["CAT-CUSTOMER"]}]} | — |
-| 연결 지식 | {"지식 ID":"KN-ONE","지식명":"주문 단독","지식 리비전":"1","연결 경로":"직접","매핑 활성 여부":true,"direct":[{"catalogId":"CAT-ORDER","active":true}],"examples":[]} | — |
+| 테이블 관계 목록 | {"관계 식별자":"401","관계명":"주문 고객","데이터소스":"ERP-DB","왼쪽 객체":"orders","왼쪽 역할":"주문","오른쪽 객체":"customers","오른쪽 역할":"고객","관계 유형":"N:1","관계 설명":"회사 코드(tenant_id)와 고객 번호(customer_id)를 모두 일치시킨다. 이 예시 업무에서는 고객이 매칭되지 않는 주문이 있을 수 있고 주문이 없는 고객도 있다. 주문 전체가 대상이면 미매칭 주문도 유지하고 고객 정보는 NULL로 표시한다. 매칭 고객의 주문만 요청하면 그 주문으로 제한한다. 고객 전체가 대상이면 고객을 기준으로 주문 없는 고객도 포함한다.","검수 상태":"UNKNOWN","기준 리비전":"12","relationId":"401","dataSourceKey":"ERP-DB","leftCatalogId":"301","rightCatalogId":"302","ownerCatalogId":"301"} | — |
+| 테이블 선택 / 왼쪽 후보 | {"catalogId":"301","dataSourceKey":"ERP-DB","카탈로그 식별자":"301","객체명":"orders","업무명":"주문","DB/스키마":"sales.public"} | — |
+| 테이블 선택 / 왼쪽 후보 | {"catalogId":"302","dataSourceKey":"ERP-DB","카탈로그 식별자":"302","객체명":"customers","업무명":"고객","DB/스키마":"sales.public"} | — |
+| 테이블 선택 / 왼쪽 후보 | {"catalogId":"306","dataSourceKey":"ERP-DB","카탈로그 식별자":"306","객체명":"employees","업무명":"직원","DB/스키마":"hr.public"} | — |
+| 테이블 선택 / 왼쪽 후보 | {"catalogId":"307","dataSourceKey":"CRM-DB","카탈로그 식별자":"307","객체명":"customers","업무명":"CRM 고객","DB/스키마":"crm.public"} | — |
+| 테이블 선택 / 오른쪽 후보 | {"catalogId":"301","dataSourceKey":"ERP-DB","카탈로그 식별자":"301","객체명":"orders","업무명":"주문","DB/스키마":"sales.public"} | — |
+| 테이블 선택 / 오른쪽 후보 | {"catalogId":"302","dataSourceKey":"ERP-DB","카탈로그 식별자":"302","객체명":"customers","업무명":"고객","DB/스키마":"sales.public"} | — |
+| 테이블 선택 / 오른쪽 후보 | {"catalogId":"306","dataSourceKey":"ERP-DB","카탈로그 식별자":"306","객체명":"employees","업무명":"직원","DB/스키마":"hr.public"} | — |
+| 테이블 선택 / 오른쪽 후보 | {"catalogId":"307","dataSourceKey":"CRM-DB","카탈로그 식별자":"307","객체명":"customers","업무명":"CRM 고객","DB/스키마":"crm.public"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"301","columnId":"502","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"301","columnId":"501","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"302","columnId":"504","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"302","columnId":"503","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"306","columnId":"505","typeGroup":"integer","컬럼 순서":1,"컬럼명":"employee_id","업무명":"직원 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 왼쪽 테이블 | {"catalogId":"306","columnId":"506","typeGroup":"integer","컬럼 순서":2,"컬럼명":"manager_id","업무명":"관리자 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"301","columnId":"502","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"301","columnId":"501","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"302","columnId":"504","typeGroup":"integer","컬럼 순서":1,"컬럼명":"customer_id","업무명":"고객 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"302","columnId":"503","typeGroup":"text","컬럼 순서":2,"컬럼명":"tenant_id","업무명":"회사 코드","자료형":"VARCHAR"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"306","columnId":"505","typeGroup":"integer","컬럼 순서":1,"컬럼명":"employee_id","업무명":"직원 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 오른쪽 테이블 | {"catalogId":"306","columnId":"506","typeGroup":"integer","컬럼 순서":2,"컬럼명":"manager_id","업무명":"관리자 번호","자료형":"BIGINT"} | — |
+| 컬럼 쌍 / 관계 매핑 | {"순서":1,"왼쪽 컬럼":"customer_id","오른쪽 컬럼":"customer_id","relationId":"401","leftColumnId":"502","rightColumnId":"504"} | — |
+| 컬럼 쌍 / 관계 매핑 | {"순서":2,"왼쪽 컬럼":"tenant_id","오른쪽 컬럼":"tenant_id","relationId":"401","leftColumnId":"501","rightColumnId":"503"} | — |
+| 연결 지식 | {"지식 ID":"601","지식명":"주문 조회","지식 리비전":"3","연결 경로":"직접+인증 예제","매핑 활성 여부":true,"direct":[{"catalogId":"301","active":true}],"examples":[{"active":true,"complete":true,"catalogIds":["302"]}]} | — |
+| 연결 지식 | {"지식 ID":"604","지식명":"주문 단독","지식 리비전":"1","연결 경로":"직접","매핑 활성 여부":true,"direct":[{"catalogId":"301","active":true}],"examples":[]} | — |
 
 ### 저장 사유 입력창
 
@@ -143,6 +143,8 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 관리 역조회는 현재 관리 READ/대상 열람 범위를 검사하며 지식/예제 본문이나 운영 의미 검토를 수집하지 않는다. 불완전/실패한 예제 참조를 빈 정상 집합으로 바꾸거나 관계의 상대 객체/지식 권한을 확대하지 않는다. 실제 예제 소비의 Portal 접근 필터와 실제 호출의 정확 catalogId/revisionId·전체 쌍 검증은 기존 계약을 별도로 적용한다. 조회 실패/제한은 성공0건과 구분한다.
 
+내부 자동 번호와 참조값은 [REQ-601의 자동 식별자 규칙](../../../../spec/10-requirements/011-reference-integration.yaml)을 따른다. 읽기 전용 번호는 입력하지 않는다. 신규 행에는 저장 전 번호가 없고 저장 성공 후 표시된다. 대상 선택은 이름으로 하며 저장되는 참조는 같은 숫자 식별자다. 업무 코드·설정 키·순번·리비전과 구분한다.
+
 ## 4. 컬럼
 
 각 그리드의 공통 감사4개는 원 정의/매핑 행의 서버 감사이며 신규 로컬 행은 저장 전 확정값을 채우지 않는다. 가운데 매핑은 순서(드래그 미지원 폴백)·왼쪽 컬럼·오른쪽 컬럼과 감사만 제공한다. No/상태/삭제는 공통 시스템 컬럼이다. 별도 누락 사유 열은 제공하지 않는다.
@@ -151,7 +153,7 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 후보 예시 | 편집 조건 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 관계 식별자 | 후속 상세 설계 | 후속 상세 설계 | relationId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 서버가 부여한 안정 관계 ID | 현재 대상·참조와 완전성을 검증한다 | — | 신규는 서버 저장 전 임시 식별값; 저장 소유는 비표시 ownerCatalogId | REL-ORDER-CUSTOMER | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 서버가 부여한 안정 관계 ID | 소유 정본의 저장값/참조 투영 | — |
+| 관계 식별자 | 후속 상세 설계 | 후속 상세 설계 | relationId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 서버 자동 발급 | 현재 대상·참조와 완전성을 검증한다 | — | 저장 소유는 비표시 ownerCatalogId; REQ-601.surrogate_identifier의 자동 번호. 신규 저장 전 비어 있음 | 401 | — | — | string | bigint | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | 서버 생성 | 최초 저장 성공 시 발급; 이후 조회는 같은 번호 | 서버가 부여한 안정 관계 ID | 서버 발급 번호 저장; 클라이언트 임의 지정 불가 | — |
 | 관계명 | 후속 상세 설계 | 후속 상세 설계 | relationName | 텍스트 | 160/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — |  | 주문 고객 | — | — | string | text | text | 없음 | 없음 | 저장 시 | 가능 | 저장 시 | 가능 | 사용자 입력 | 로컬 변경 후 소유 카탈로그 관계 영역 저장 성공 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 카탈로그 관계 구성과 전체 HIST에 저장 | — |
 | 데이터소스 | 후속 상세 설계 | 후속 상세 설계 | dataSourceKey | 선택 | 160/좌 | 저장 시 | 조건부(신규만 입력) | 현재 READ/SAVE 범위의 등록 데이터소스 | 현재 대상·참조와 완전성을 검증한다 | — | 신규 후보 필터·검증 문맥이다. 조회/이력은 정확한 양끝점 카탈로그의 소속에서 도출한다. 별도 관계 소스값을 저장하지 않는다 | ERP-DB | ERP-DB·CRM-DB | — | string | code | select | 없음 | 없음 | 저장 시 | 가능 | 입력 대상 아님 | 불가 | 로컬 후보 필터 입력; 조회 시 양끝점에서 도출 | 신규 소스 선택·양끝점 적용/현재 또는 HIST 조회 시 | left/right catalog의 소속 데이터소스 일치; 저장 직전 서버 재검사 | 비저장 후보 필터/도출 투영; 양끝점 안정 ID와 정확 판만 소유 관계에 저장 | — |
 | 왼쪽 객체 | 후속 상세 설계 | 후속 상세 설계 | leftObjectName | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 같은 데이터소스의 테이블 선택 팝업 왼쪽 선택 | 현재 대상·참조와 완전성을 검증한다 | — | catalogId를 저장하고 객체명은 표시한다. 직접 문자열 입력 없음 | orders | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 같은 데이터소스의 테이블 선택 팝업 왼쪽 선택 | 소유 정본의 저장값/참조 투영 | — |
@@ -193,7 +195,7 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 후보 예시 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 지식 ID | 미정 | 미정 | 미정 | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한의 사용처 조회 | 조회 실패·미상을 빈 참조로 취급하지 않음 | — | 현재 참조의 안정 식별자 | KN-ORDER | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정; 현재 권한의 사용처 조회 | 소유 정본의 저장값 | — |
+| 지식 ID | 미정 | 미정 | 미정 | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한의 사용처 조회 | 조회 실패·미상을 빈 참조로 취급하지 않음 | — | 현재 참조의 안정 식별자; REQ-601.surrogate_identifier의 숫자 식별자 참조(문자열 전송) | 601 | — | string | bigint | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정; 현재 권한의 사용처 조회 | 소유 정본의 저장값 | — |
 | 지식명 | 미정 | 미정 | 미정 | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한의 사용처 조회 | 조회 실패·미상을 빈 참조로 취급하지 않음 | — | 현재 권한으로 열람 가능한 표시명 | 주문 조회 지식 | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정; 현재 권한의 사용처 조회 | 소유 정본의 저장값 | — |
 | 지식 리비전 | 미정 | 미정 | 미정 | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한의 사용처 조회 | 조회 실패·미상을 빈 참조로 취급하지 않음 | — | 현재 적용 지식의 리비전 | 3 | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정; 현재 권한의 사용처 조회 | 소유 정본의 저장값 | — |
 | 연결 경로 | 미정 | 미정 | 미정 | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한의 사용처 조회 | 조회 실패·미상을 빈 참조로 취급하지 않음 | — | 직접 또는 인증 예제 경유 참조 경로 | 직접 연결 | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정; 현재 권한의 사용처 조회 | 소유 정본의 저장값 | — |
@@ -203,7 +205,7 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 후보 예시 | 편집 조건 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 카탈로그 식별자 | 후속 상세 설계 | 후속 상세 설계 | catalogId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 데이터소스 후보 조회의 안정 catalogId | 현재 대상·참조와 완전성을 검증한다 | — |  | CAT-ORDER | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 데이터소스 후보 조회의 안정 catalogId | 소유 정본의 저장값/참조 투영 | — |
+| 카탈로그 식별자 | 후속 상세 설계 | 후속 상세 설계 | catalogId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 데이터소스 후보 조회의 안정 catalogId | 현재 대상·참조와 완전성을 검증한다 | — | ; REQ-601.surrogate_identifier의 숫자 식별자 참조(문자열 전송) | 301 | — | — | string | bigint | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 데이터소스 후보 조회의 안정 catalogId | 소유 정본의 저장값/참조 투영 | — |
 | 객체명 | 후속 상세 설계 | 후속 상세 설계 | objectName | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — | DB/스키마/객체 전체 식별을 함께 확인한다 | orders | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
 | 업무명 | 후속 상세 설계 | 후속 상세 설계 | businessName | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — |  | 주문 | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
 | DB/스키마 | 후속 상세 설계 | 후속 상세 설계 | namespace | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — |  | sales.public | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
@@ -212,7 +214,7 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 후보 예시 | 편집 조건 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 카탈로그 식별자 | 후속 상세 설계 | 후속 상세 설계 | catalogId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 데이터소스 후보 조회의 안정 catalogId | 현재 대상·참조와 완전성을 검증한다 | — |  | CAT-ORDER | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 데이터소스 후보 조회의 안정 catalogId | 소유 정본의 저장값/참조 투영 | — |
+| 카탈로그 식별자 | 후속 상세 설계 | 후속 상세 설계 | catalogId | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 데이터소스 후보 조회의 안정 catalogId | 현재 대상·참조와 완전성을 검증한다 | — | ; REQ-601.surrogate_identifier의 숫자 식별자 참조(문자열 전송) | 301 | — | — | string | bigint | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 데이터소스 후보 조회의 안정 catalogId | 소유 정본의 저장값/참조 투영 | — |
 | 객체명 | 후속 상세 설계 | 후속 상세 설계 | objectName | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — | DB/스키마/객체 전체 식별을 함께 확인한다 | orders | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
 | 업무명 | 후속 상세 설계 | 후속 상세 설계 | businessName | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — |  | 주문 | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
 | DB/스키마 | 후속 상세 설계 | 후속 상세 설계 | namespace | 조회 | 160/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 등록 카탈로그 | 현재 대상·참조와 완전성을 검증한다 | — |  | sales.public | — | — | string | text | 없음 | 없음 | 없음 | 입력 대상 아님 | 불가 | 입력 대상 아님 | 불가 | DB 저장값 조회 | 현재 문맥 조회/선택 적용 시 | 현재 권한으로 조회한 등록 카탈로그 | 소유 정본의 저장값/참조 투영 | — |
@@ -286,6 +288,8 @@ catalogId/columnId·dataSourceKey·ownerCatalogId·typeGroup은 시연 메타데
 | MAP-ACTIVE-01 | 매핑 활성 여부 변경/원복·저장·역조회·미상 | 소유 화면만 현재 권한으로 편집하고 원 현재값/전체 HIST와 함께 반영한다. 역조회는 읽기 전용, OFF 행 보존/활성 경로만 소비·미상 false 치환 금지. 자산 자체 사용/상위 권한·필수 SQL 참조 검증을 우회하지 않는다. | TC-00610 / 목업·후속 계약/통합 |
 
 | SCR-039-PROMPT-01 | 자기조인·복합 쌍·한쪽만 선별된 관계·문맥 축소 | 최종 집합의 정확 양끝점/판과 전체 쌍·역할/설명·대응 수/유일성·근거/검수 요약을 유지한다. 부분 쌍 전송·중간 테이블 자동 추가·관계 유형만으로 JOIN 고정·조회 실패의 정상 0건 치환은 실패다. | REQ-610·REQ-009 / 설계 대조·후속 조립 계약 검수 |
+| SCR-039-ID-01 | 신규/기존 내부 식별자·대상 참조·큰 번호 | 신규 번호는 비어 있고 편집할 수 없다. 기존 번호는 숫자 문자열로 표시/참조하며 이름·순번 변경 후 유지한다. 9007199254740993의 숫자가 표시·선택·후속 저장 입력에서 바뀌지 않아야 한다. 업무 코드/설정 키는 그대로다. | TC-0233 / 목업·후속 계약 시험 |
+
 
 ## 10. 미결 · 확인 필요
 

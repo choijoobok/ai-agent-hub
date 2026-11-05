@@ -45,7 +45,7 @@ test('두 소속 탭은 같은 8개 저장 항목·감사를 유지하며 Portal
   if(file==='portal-user')assert.match(allRows.find(line=>line.startsWith('| 그룹명 |')),/\| 조회 \|[^|]+\| 입력 대상 아님 \| 읽기전용 \|/);
   for(const row of rows.filter(c=>/^(등록|수정)/.test(c[0])))assert.equal(row[7],'읽기전용');
   assert.equal(rows.find(c=>c[0]==='활성화 여부')[4],'설정 스위치');
-  const row=md.split('\n').find(line=>line.startsWith(`| ${title} | {`)&&line.includes('"사용자 아이디":"portal.user"')&&line.includes('"사용자 그룹 식별자":"GRP-LOGISTICS"'));
+  const row=md.split('\n').find(line=>line.startsWith(`| ${title} | {`)&&line.includes('"사용자 아이디":"portal.user"')&&line.includes('"사용자 그룹 식별자":"42"'));
   const data=JSON.parse(row.split('|')[2]);examples.push(Object.fromEntries(fields.map(key=>[key,data[key]])));
  }
  assert.deepEqual(examples[0],examples[1]);
@@ -67,11 +67,11 @@ test('사용자 그룹의 자산 네 탭은 현재 매핑 조회만 제공한다
  const membership=md.match(/### 4-2\. 사용자\r?\n([\s\S]*?)(?=\r?\n### )/)?.[1];
  assert.match(membership,/\| 설정 스위치 \|/);
 });
-test('인증 예제는 직접 그룹 탭 없이 모든 참조 카탈로그의 현재 접근을 요구한다',()=>{
+test('인증 예제는 직접 그룹 탭 없이 SQL별 모든 필수 참조의 현재 접근을 요구한다',()=>{
  const md=read('query-example');
  assert.doesNotMatch(md,/^### 4-\d+\. 노출 그룹|^\| 노출 그룹 \| 탭 \|/m);
  assert.ok(!controls(md).some(x=>/그룹 추가|그룹 제거/.test(x)));
- assert.match(md,/모든 매핑 카탈로그가 그 집합에 빠짐없이/);assert.match(md,/그 예제 전체만 제외/);assert.match(md,/다른 통과 예제/);
+ assert.match(md,/SQL별 모든 필수 참조를 검사/);assert.match(md,/해당 SQL 전체만 포함\/제외/);assert.match(md,/같은 묶음의 다른 허용 SQL과 지식\/다른 예제를 함께 제외하지 않는다/);
  const groups=read('user-group');assert.doesNotMatch(groups,/"EX-ORDER"/);
  for(const name of ['현재 접근','처리 상태','제약·근거'])assert.doesNotMatch(groups,new RegExp('^\\| '+name+' \\|','m'));
 });

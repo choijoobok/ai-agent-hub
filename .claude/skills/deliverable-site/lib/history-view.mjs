@@ -20,7 +20,7 @@ export function historyViewMarkdown(screen, source) {
 | 행 선택 | 원 ID와 HISTORY_NO로 같은 시점의 하단 세트 조회 |
 | 하단 탭 | 같은 이력 번호로 복사한 당시 행만 표시 |
 | 기본 감사 컬럼 | 추가 전용 행의 등록자·등록일시 두 컬럼을 항상 표시. 원본 등록/수정 감사값은 스냅샷에 별도로 보존 |
-| 저장·실행 | 편집·추가·삭제·승인·실행·복원 동작 없음 |
+| 저장·실행 | ${screen.restore_handoff?'이력 편집·저장 없음. 복원 버튼은 현재 지식 편집으로 인계':'편집·추가·삭제·승인·실행·복원 동작 없음'} |
 | 키 | 각 _HIST 표의 HIST_ID는 서로게이트 PK, HISTORY_NO는 세트 연결 키 |
 | 시각 | 원 REG_DTM/MOD_DTM 보존, HIST_DTM은 마스터에만 저장하고 자식은 HISTORY_NO로 참조 |
 
@@ -29,6 +29,8 @@ ${screen.access}
 ${screen.empty_state}
 
 ${screen.history_summary_rule??''}
+
+${screen.restore_handoff?.rule??''}
 
 원 화면에 있던 실시간 관측·타 소유 사용처 등 비저장 영역에는 현재값을 대신 채우지 않습니다. 저장·요약·권한·보존의 정본은 REQ-601.change_history와 ADR-035입니다.
 `;

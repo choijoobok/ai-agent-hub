@@ -13,6 +13,7 @@ const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/
 const relationControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-relation.js', import.meta.url), 'utf8');
 const schemaControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-schema.js', import.meta.url), 'utf8');
 const apiControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-api.js', import.meta.url), 'utf8');
+const queryExampleControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-query-example.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const titleOf = (table) => table.heading.replace(/^\d+(?:-\d+)?\.?\s*/, '').replace(/\s*—\s*(폼|그리드)$/, '');
 const tabOf = (table) => titleOf(table).split(' / ')[0];
@@ -40,7 +41,7 @@ function searchCombo(id, label, value, examples, locked, parent = '', mapping = 
 
 /** 검색 문자열은 선택값을 변경하지 않으며 실제 선택 이벤트만 현재 값을 표시한다. */
 export function searchComboScript() {
-  return `<script>${math}\n${relationControls}\n${apiControls}\n${schemaControls}\n${controls}\nbindDeclaredMockup(document);
+  return `<script>${math}\n${relationControls}\n${apiControls}\n${schemaControls}\n${queryExampleControls}\n${controls}\nbindDeclaredMockup(document);
 function openDeclaredCell() {
   document.querySelectorAll('[data-auto-editor]').forEach(function(editor){editor.open=editor.closest('.screen').id===location.hash.slice(1);});
 }
@@ -251,7 +252,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const rowEditable=table.rows.some(r=>editableNow(r,record,rowIndex>=rows.length));
     const rowDeleteAllowed=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
     const [lockField,lockValue]=(model.masterEditRule??'').split('=');
-    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${model.apiWorkspace?` data-api-record="${escape(JSON.stringify(record))}"`:''}${model.relationWorkspace?` data-relation-record="${escape(JSON.stringify(record))}"`:''}${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
+    return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${model.queryExampleWorkspace?` data-query-record="${escape(JSON.stringify(record))}"`:''}${model.apiWorkspace?` data-api-record="${escape(JSON.stringify(record))}"`:''}${model.relationWorkspace?` data-relation-record="${escape(JSON.stringify(record))}"`:''}${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
     };
     const body = empty ? `<tr><td class="empty" colspan="${table.rows.length+1+(multiple?1:0)+(showState?1:0)+(showDelete?1:0)}">${escape(contextEmpty?'선택한 문맥에 해당하지 않는 목록입니다.':figure.notice)}</td></tr>` : rows.map(renderRow).join('');
     const excel=figure.buttons.includes('엑셀 다운로드')?`<details data-excel-menu><summary>엑셀 다운로드 ▾${badge('엑셀 다운로드','현재 페이지 또는 전체를 선택한다. 현재 표시한 열과 순서, 반출 권한을 적용하며 숨긴 열은 자동 포함하지 않는다.','common:excel')}</summary><span>현재 페이지 · 전체</span></details>`:'';
@@ -276,7 +277,8 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const addRef=addRefRow?{search:plain(addRefRow[1]),key:plain(addRefRow[2]),rate:plain(addRefRow[3]),values:JSON.parse(addRefRow[4])}:null;
     const saveLocked=(!model.masterLink&&!editableHere&&writable)||!figure.editable||!figure.buttons.includes('저장')||figure.disabledButtons?.includes('저장')||Boolean(model.saveTargets&&figure.key==='new'&&table!==model.columns[0]);
     const saveControl=commandDeclared('저장')?`<span data-grid-save data-native-save>${button('저장',label,saveLocked)}</span>`:standardButton('저장','save',saveLocked,'요건서의 전체 저장 단위를 검증한다. 하위 탭 버튼도 소유 저장 범위를 유지한다.');
-    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?saveControl:'') ,actions,tools:excel+settings});
+    const childQuery=Boolean(model.queryExampleWorkspace&&table!==model.columns[0]);
+    const header=chrome({title:label,count:`${empty?0:rows.length}건`,read:childQuery?'':standardButton('조회','read',['saving','unknown','denied'].includes(figure.key)||figure.disabledButtons?.includes('조회'),'이 그리드의 현재 대상/조건을 조회한다. 미저장 입력 확인 후 조회하며 독립 저장 계약을 만들지 않는다.'),add:(writable&&createDeclared)||commandAdd?addControl:'' ,save:childQuery?'':approvalControl||((writable||(table===model.columns[0]&&figure.buttons.includes('저장')))?saveControl:'') ,actions,tools:excel+settings});
     const [contextField,contextValue]=(model.masterEditRule??'').split('=');
     return `<div data-grid-view="${gridId}" data-grid-name="${escape(label)}"${model.rowDefaults?.[label]?` data-row-defaults="${escape(JSON.stringify(model.rowDefaults[label]))}"`:''}${table.auditPolicy?` data-grid-audit="${escape(table.auditPolicy.kind)}"`:''}${addChoice?` data-add-choice="${escape(JSON.stringify(addChoice))}"`:''}${addRef?` data-add-reference="${escape(JSON.stringify(addRef))}"`:''} data-grid-selection="${multiple?'multiple':'single'}" data-grid-role="${table===model.columns[0]?'master':'detail'}">${header}${canAdd||(model.schemaWorkspace?.areas.includes(label)&&figure.editable)?`<template data-row-template>${renderRow({...addChoice?.defaults,...(model.masterLink?{[contextField]:contextValue}:{})},rows.length)}</template>`:''}
       <div class="grid" style="overflow:auto"><table style="width:100%;table-layout:fixed;min-width:${table.rows.filter(r=>!optional(r)).reduce((n,r)=>n+width(r),systemWidth(showState,multiple,showDelete))}px"><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>
@@ -292,7 +294,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const control = /검색콤보/.test(input)
       ? searchCombo(fieldId, label, value, plain(cell(table, r, '후보 예시')), ro)
       : /장문/.test(input)
-      ? `<textarea aria-label="${escape(label)}" data-form-value="${escape(label)}" id="${fieldId}" rows="${model.apiWorkspace&&/^(API|도구) 사용 가이드$/.test(label)?14:4}" style="width:100%;box-sizing:border-box" ${ro ? 'readonly' : ''}>${escape(value)}</textarea>`
+      ? `<textarea aria-label="${escape(label)}" data-form-value="${escape(label)}" data-form-original="${escape(value)}" id="${fieldId}" rows="${(titleOf(table)==='지식 내용'||model.apiWorkspace&&/^(API|도구) 사용 가이드$/.test(label))?14:model.queryExampleWorkspace&&label==="SQL"?18:model.queryExampleWorkspace&&label==="상세 설명"?5:4}" style="width:100%;box-sizing:border-box" ${ro ? 'readonly' : ''}>${escape(value)}</textarea>`
       : /선택|셀렉트/.test(input)
         ? `<select id="${fieldId}" ${ro ? 'disabled' : ''}><option>${escape(value || '미지정')}</option></select>`
         : `<input id="${fieldId}" value="${escape(value)}" ${ro ? 'readonly' : ''}>`;
@@ -308,6 +310,11 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
   const areaTables=name=>details.filter(table=>tabOf(table)===name);
   const renderArea=name=>{
     const tables=areaTables(name),horizontal=model.relationWorkspace&&tables.some(table=>titleOf(table)===model.relationWorkspace.pairs);
+    if(model.queryExampleWorkspace&&name==='SQL 예제'){
+      const list=tables.find(table=>titleOf(table)==='SQL 예제 / 목록');
+      const form=tables.find(table=>titleOf(table)==='SQL 예제 / 편집');
+      return `<div data-query-example-board data-query-editable="${figure.editable}" style="overflow-x:auto"><div class="splitrow" data-query-split style="min-width:1180px"><section class="pane" data-query-list style="flex:40 1 0;min-width:0">${detailTable(list)}</section><div class="split v" data-query-splitter role="separator" tabindex="0" aria-label="SQL 목록과 편집 영역 너비 조절" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="65" aria-valuenow="40" style="flex-shrink:0;touch-action:none"><span class="hnd">⋮</span></div><section class="pane" data-query-editor style="flex:60 1 0;min-width:0">${detailTable(form)}</section></div><p class="hint" data-query-status role="status"></p></div>`;
+    }
     if(model.apiWorkspace&&name==='필드값 의미 매핑'){
       const list=tables.find(table=>titleOf(table).endsWith(' / 필드 목록'));
       const detailTables=tables.filter(table=>table!==list);
@@ -325,7 +332,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const choices = plain(cell(model.searchTable, r, '선택 출처')).replace(/^상수\s*/, '').split('·');
     const control = /셀렉트|선택/.test(mode)
       ? `<select aria-label="${escape(label)}" ${locked ? 'disabled' : ''}><option>전체</option>${choices.map((x) => `<option>${escape(x.includes('=') ? x.slice(x.indexOf('=')+1) : x)}</option>`).join('')}</select>`
-      : `<input aria-label="${escape(label)}" placeholder="${escape(label)}" ${locked ? 'readonly' : ''}>`;
+      : `<input${mode==='일시'?' type="datetime-local"':''} aria-label="${escape(label)}" placeholder="${escape(label)}" ${locked ? 'readonly' : ''}>`;
     return `<label>${escape(label)}${n.badge(searchExplanation(model.searchTable,r),`search:${label}`)}</label>${control}`;
   }).join('');
   const master = compact ? '' : /—\s*폼$/.test(model.columns[0]?.heading??'') ? `<div data-summary-panel>${formView(model.columns[0])}</div>` : tableView(model.columns[0],!showData);

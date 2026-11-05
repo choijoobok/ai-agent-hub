@@ -1,6 +1,11 @@
 /** 정본에서 생성한 목업의 탐색·선택 시연. 서버 저장이나 권한 판정을 수행하지 않는다. */
 function applyRequestContext(root, query) {
   const params=new URLSearchParams(query), requestNo=params.get('requestNo');
+  const figure=params.get('figure');
+  if(figure==='restore'&&params.get('restoreRevision')==='2'){
+    const screen=root.querySelector('.screen[id="restore"]');
+    if(screen){for(let parent=screen.parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;screen.scrollIntoView({block:'start'});}
+  }
   const targetId=params.get('targetId');
   if(targetId&&/^[a-zA-Z0-9_-]+$/.test(targetId))root.querySelectorAll('[data-master-link="시스템 식별자"]').forEach(screen=>{
     const rows=[...screen.querySelectorAll('[data-grid-role="master"] tbody tr')],row=rows.find(row=>row.querySelector('[data-row-field="시스템 식별자"]')?.dataset.rowValue===targetId);
@@ -35,7 +40,7 @@ function bindDeclaredMockup(root) {
   applyRequestContext(root,location.search);
   const rowValues=row=>Object.fromEntries([...row.querySelectorAll('[data-row-field]:not([data-calculated-value])')].map(cell=>[cell.dataset.rowField,cell.dataset.rowValue]));
   const originals=new WeakMap();
-  root.querySelectorAll('tbody tr[data-grid-row-state]').forEach(row=>originals.set(row,{values:rowValues(row),html:row.innerHTML,relationRecord:row.dataset.relationRecord}));
+  root.querySelectorAll('tbody tr[data-grid-row-state]').forEach(row=>originals.set(row,{values:rowValues(row),html:row.innerHTML,relationRecord:row.dataset.relationRecord,queryRecord:row.dataset.queryRecord}));
   const refreshGrid=grid=>{
     if(!grid)return;
     const header=grid.querySelector(':scope > .grid > table > thead > tr');
@@ -88,7 +93,7 @@ function bindDeclaredMockup(root) {
   };
   const markEdited=row=>{
     if(!row?.hasAttribute('data-grid-row-state')||['C','D'].includes(row.dataset.gridRowState))return;
-    setRowState(row,JSON.stringify(rowValues(row))===JSON.stringify(originals.get(row)?.values)?'':'U');
+    setRowState(row,JSON.stringify(rowValues(row))===JSON.stringify(originals.get(row)?.values)&&row.dataset.queryRecord===originals.get(row)?.queryRecord?'':'U');
   };
   const setCell=(cell,value)=>{
     value=String(value??'');cell.dataset.rowValue=value;
@@ -140,6 +145,7 @@ function bindDeclaredMockup(root) {
     const selected=row.querySelector('[data-grid-select-row]')?.checked;
     row.innerHTML=originals.get(row).html;setRowState(row,'');
     if(originals.get(row).relationRecord!==undefined)row.dataset.relationRecord=originals.get(row).relationRecord;
+    if(originals.get(row).queryRecord!==undefined)row.dataset.queryRecord=originals.get(row).queryRecord;
     const select=row.querySelector('[data-grid-select-row]');if(select)select.checked=selected;
     refreshGrid(row.closest('[data-grid-view]'));
   };
@@ -575,4 +581,5 @@ function bindDeclaredMockup(root) {
   if(typeof bindRelationWorkspace==='function')bindRelationWorkspace(root,{rowValues,setCell,markEdited,appendRow,refreshGrid});
   if(typeof bindApiMockup==='function')bindApiMockup(root,{appendRow,setCell,markEdited,refreshGrid,refreshRowConditions});
   if(typeof bindSchemaMockup==='function')bindSchemaMockup(root,{appendRow,setCell,markEdited,refreshGrid,setRowState});
+  if(typeof bindQueryExampleMockup==='function')bindQueryExampleMockup(root,{setCell,markEdited,refreshGrid});
 }

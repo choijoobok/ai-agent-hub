@@ -118,7 +118,7 @@ testcases:
     when: "현재 사용처를 다시 조회"
     then: "현재 허용 범위에서 직접/예제 경유 참조 경로를 구분한다. 사용처 변화만으로 업무 의미 영향을 판정·보완 작업 생성·지식 자동 수정하지 않는다. 삭제/비활성화 참조 보호와 자기 기준본 검증은 유지한다."
     status: "planned"
-    group_boundary: "REQ-302.catalog_access. 예제 직접 그룹 매핑 없음. 현재 사용자 그룹 전체의 허용 카탈로그 합집합에 모든 예제 매핑 카탈로그가 있어야 사용 가능. 하나라도 미허용/미확인이면 예제 전체 제외."
+    group_boundary: "REQ-302.catalog_access. 예제 직접 그룹 매핑 없음. 현재 사용자 그룹 전체의 허용 카탈로그 합집합에 그 SQL 변형의 모든 필수 카탈로그가 있어야 사용 가능. 하나라도 미허용/미확인이면 해당 SQL 변형 전체 제외. 같은 묶음의 다른 허용 SQL 변형은 유지한다."
     verification: "요구사항 검수 시 반례 대조. 제품 구현 시 단위/통합 시험으로 연결하며 문서 검증을 실제 저장/동시성 실행 시험으로 표시하지 않는다."
   - id: TC-0148
     feature: FEAT-014
@@ -231,11 +231,53 @@ testcases:
     reqs: [REQ-303, REQ-302, REQ-103]
     screens: [SCR-011, SCR-012]
     type: business_exception
-    title: "지식에 연결된 인증 예제의 전체 카탈로그 접근 필터"
+    title: "지식 연결 예제의 SQL 변형별 전체 카탈로그 접근 필터"
     actor: ACT-001
-    given: "접근 가능한 지식 K에 E1(C1/C2), E2(C1)가 연결됨. C1은 G1, C2는 G2 허용. 사용자 G1+G2/G1만 및 C2 미확인/회수"
-    when: "해당 지식의 연결 인증 예제 목록을 사용자 현재 그룹 전체 기준으로 각각 필터링"
-    then: "G1+G2이면 E1/E2 모두 남는다. G1만 또는 C2 미허용/미확인이면 E1만 제외하고 E2와 지식 자체는 각자의 기존 사용 조건에 따라 유지한다. 예제의 미허용 참조만 잘라 일부 사용하지 않는다. 예제 직접 그룹은 없다."
+    given: "지식 K에 묶음 E1의 SQL1(C1)·SQL2(C1/C2), E2의 SQL3(C1)가 연결됨. C1은 G1, C2는 G2 허용. G1+G2/G1만 및 C2 미확인/회수."
+    when: "현재 활성 그룹의 허용 카탈로그 합집합으로 sqlExampleId별 필수 참조 전체를 검사한다"
+    then: "G1+G2는 모든 SQL, G1만이면 SQL1/SQL3 유지·SQL2만 제외. SQL2에서 C2만 잘라 제공하거나 E1 전체를 제외하지 않는다. 지식 합산도 통과한 SQL 참조만 포함하며 다른 직접 경로는 유지한다."
     verification: "참조 하나만 통과하면 허용, 모든 사용자 그룹에 공통 허용을 강요해 합집합을 교집합으로 변경, 미허용 참조 제거 후 부분 예제 사용, 빈/불완전 매핑 우회, 과거 권한 재사용을 허용하면 실패. 실제 제품 계약/통합/E2E는 구현 후 검증."
     screen_cases: ["documents/screen/admin/hub/query-example/requirements.md#EX-CATALOG-ACCESS"]
+    status: planned
+
+  - id: TC-01422
+    feature: FEAT-014
+    usecase: UC-010
+    reqs: [REQ-303, REQ-601]
+    screens: [SCR-011, SCR-048]
+    type: business_exception
+    title: "지식 본문·매핑·원천 가이드의 소유 분리"
+    actor: ACT-003
+    given: "현재 3·과거 2 지식과 원천 API/도구, 현재/과거 다른 사용 설정·그룹 및 성공/실패 임베딩 작업"
+    when: "편집·복원·저장·임베딩 관측과 검색을 수행한다"
+    then: "업무 전체의 설명·판단 기준·진행 절차는 지식 본문, 연결별 용도·사용 조건은 지식 매핑, 공통 입력 확보·호출 전후 대화·응답 해석·질문/후속 안내는 API·도구 자체 가이드가 정본이다. 원천 입출력·코드 의미 명세를 지식에 복사하지 않는다."
+    verification: "반대 동작을 허용하면 실패해야 한다. 목업은 표시/입력/인계만 검증하며 실제 DB/권한/검색·경합은 제품 구현 후 시험한다."
+    status: planned
+
+  - id: TC-01423
+    feature: FEAT-014
+    usecase: UC-010
+    reqs: [REQ-303, REQ-601]
+    screens: [SCR-011, SCR-048]
+    type: business_exception
+    title: "이력 복원과 현재 리비전 증가·정책 보존"
+    actor: ACT-003
+    given: "현재 3·과거 2 지식과 원천 API/도구, 현재/과거 다른 사용 설정·그룹 및 성공/실패 임베딩 작업"
+    when: "편집·복원·저장·임베딩 관측과 검색을 수행한다"
+    then: "현재 3에서 과거 2를 불러와 저장하면 4, 다음 수정 성공은 5. 같은 ID/현재 useYn·그룹 유지. 원 HIST 불변. 충돌/실패/취소는 현재값 유지, 동일 명령 재전송은 중복 증가 없음."
+    verification: "반대 동작을 허용하면 실패해야 한다. 목업은 표시/입력/인계만 검증하며 실제 DB/권한/검색·경합은 제품 구현 후 시험한다."
+    status: planned
+
+  - id: TC-01424
+    feature: FEAT-014
+    usecase: UC-010
+    reqs: [REQ-303, REQ-601]
+    screens: [SCR-011, SCR-048]
+    type: business_exception
+    title: "임베딩 관측과 태그 검색 독립"
+    actor: ACT-003
+    given: "현재 3·과거 2 지식과 원천 API/도구, 현재/과거 다른 사용 설정·그룹 및 성공/실패 임베딩 작업"
+    when: "편집·복원·저장·임베딩 관측과 검색을 수행한다"
+    then: "본문/모델 변경은 갱신 필요. 그룹만 변경하면 벡터 무효화 없음. 실패 시 실제 적용 모델 유지, 늦은 이전 결과 덮어쓰기 차단. 임베딩 OFF·실패에도 허용 태그 검색 유지, 벡터만 현재 일치 조건 검사."
+    verification: "반대 동작을 허용하면 실패해야 한다. 목업은 표시/입력/인계만 검증하며 실제 DB/권한/검색·경합은 제품 구현 후 시험한다."
     status: planned
