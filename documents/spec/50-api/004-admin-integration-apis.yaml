@@ -7,7 +7,7 @@ apis:
   - { id: API-005, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/save, action: SAVE, summary: "대상 시스템 표시 보완 저장", request: "body=TargetSystemSave", response: "ApiResponse<AssetMutationResult>" }
   - { id: API-007, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getHistory, action: READ, summary: "대상 시스템 변경 이력 목록", request: "body=SearchRequest<TargetSystemHistoryFilter>", response: "ApiResponse<PageResponse<TargetSystemHistoryRow>>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
   - { id: API-008, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getHistoryOne, action: READ, summary: "대상 시스템 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
-  - { id: API-009, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getCommandResult, action: READ, summary: "대상 시스템 저장 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
+  - { id: API-009, feature: FEAT-001, implementation: planned, method: POST, path: /api/service/admin/targetSystem/getCommandResult, action: READ, summary: "대상 시스템 관리 명령 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
   - { id: API-010, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getList, action: READ, summary: "데이터소스 목록", request: "body=SearchRequest<DataSourceFilter>", response: "ApiResponse<PageResponse<DataSourceRow>>" }
   - { id: API-011, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getOne, action: READ, summary: "데이터소스 상세", request: "body=AssetDetailKey", response: "ApiResponse<DataSourceDetail>" }
   - id: API-012
@@ -39,7 +39,7 @@ apis:
     response: "ApiResponse<AssetMutationResult>"
   - { id: API-016, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getHistory, action: READ, summary: "데이터소스 변경 이력 목록", request: "body=SearchRequest<DataSourceHistoryFilter>", response: "ApiResponse<PageResponse<DataSourceHistoryRow>>", history_menu: HUB_DATA_SOURCE_HISTORY }
   - { id: API-017, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getHistoryOne, action: READ, summary: "데이터소스 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_DATA_SOURCE_HISTORY }
-  - { id: API-018, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getCommandResult, action: READ, summary: "데이터소스 저장 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
+  - { id: API-018, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getCommandResult, action: READ, summary: "데이터소스 관리 명령 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
   - { id: API-062, feature: FEAT-002, implementation: planned, method: POST, path: /api/service/admin/dataSource/getTimezoneList, action: READ, summary: "데이터소스 시간대 선택 후보", request: "body={}", response: "ApiResponse<List<String>>", contract: "FEAT-002.timezone_contract. HUB_DATA_SOURCE READ로 조회하며 support.time.Timezones.candidates(calendar.zone())를 재사용한다. 배치 스케줄 메뉴 권한을 요구하지 않는다" }
 
   - id: API-070
@@ -71,3 +71,39 @@ apis:
     request: "body=SearchRequest<DataQueryGuideFilter>"
     response: "ApiResponse<PageResponse<DataQueryGuideRow>>"
     contract: "admin 화면 READ 조회. agent는 FEAT-002.query_guide_read_contract의 현재 Portal 권한을 검사하는 별도 내부 공개 계약을 사용하며 이 관리자 REST를 직접 사용하지 않는다."
+  - id: API-073
+    feature: "FEAT-001"
+    path: "/api/service/admin/targetSystem/getConfigurationCleanupPreview"
+    action: "READ"
+    summary: "서버 설정 누락 시스템·연결 정리 미리보기"
+    request: "body=ConfigurationCleanupQuery(scope=SYSTEM 또는 CONNECTION, parentId/검색조건)"
+    response: "ApiResponse<ConfigurationCleanupPreview>; 현재 READ+SAVE 검사"
+    implementation: "planned"
+    method: "POST"
+  - id: API-074
+    feature: "FEAT-001"
+    path: "/api/service/admin/targetSystem/deleteConfigurationMismatches"
+    action: "SAVE"
+    summary: "확정 누락 시스템·연결 일괄 정리"
+    request: "body=ConfigurationCleanupCommand"
+    response: "ApiResponse<ConfigurationCleanupResult>"
+    implementation: "planned"
+    method: "POST"
+  - id: API-075
+    feature: "FEAT-002"
+    path: "/api/service/admin/dataSource/getConfigurationCleanupPreview"
+    action: "READ"
+    summary: "서버 설정 누락 데이터소스 정리 미리보기"
+    request: "body=ConfigurationCleanupQuery(scope=DATASOURCE, 검색조건)"
+    response: "ApiResponse<ConfigurationCleanupPreview>; 현재 READ+SAVE 검사"
+    implementation: "planned"
+    method: "POST"
+  - id: API-076
+    feature: "FEAT-002"
+    path: "/api/service/admin/dataSource/deleteConfigurationMismatches"
+    action: "SAVE"
+    summary: "확정 누락 데이터소스 일괄 정리"
+    request: "body=ConfigurationCleanupCommand"
+    response: "ApiResponse<ConfigurationCleanupResult>"
+    implementation: "planned"
+    method: "POST"

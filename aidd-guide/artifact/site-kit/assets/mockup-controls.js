@@ -608,4 +608,5 @@ function bindDeclaredMockup(root) {
   if(typeof bindPromptRuleMockup==='function')bindPromptRuleMockup(root,{setCell,markEdited,refreshGrid});
   if(typeof bindRichTextMockup==='function')bindRichTextMockup(root);
   if(typeof bindHelpMockup==='function')bindHelpMockup(root);
+  if(typeof bindMismatchDeleteMockup==='function')bindMismatchDeleteMockup(root,{refreshGrid});
 }

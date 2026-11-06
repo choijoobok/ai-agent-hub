@@ -10,6 +10,7 @@ import {canEditRow,gridWritable,propertyAttributes} from './grid-properties.mjs'
 import {relationPicker} from './relation-workspace.mjs';
 import {richTextBrowserScripts} from './rich-text.mjs';
 import {helpWorkspaceView} from './help-workspace.mjs';
+import {mismatchDeleteMarkup} from './mismatch-delete.mjs';
 const controls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-controls.js', import.meta.url), 'utf8');
 const math = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-math.js', import.meta.url), 'utf8');
 const relationControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-relation.js', import.meta.url), 'utf8');
@@ -20,6 +21,7 @@ const queryPolicyControls = readFileSync(new URL('../../../aidd-guide/artifact/s
 const promptRuleControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-prompt-rule.js', import.meta.url), 'utf8');
 const richTextControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-rich-text.js', import.meta.url), 'utf8');
 const helpControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-help.js', import.meta.url), 'utf8');
+const mismatchDeleteControls = readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-mismatch-delete.js', import.meta.url), 'utf8');
 const escape = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const titleOf = (table) => table.heading.replace(/^\d+(?:-\d+)?\.?\s*/, '').replace(/\s*—\s*(폼|그리드)$/, '');
 const tabOf = (table) => titleOf(table).split(' / ')[0];
@@ -47,7 +49,7 @@ function searchCombo(id, label, value, examples, locked, parent = '', mapping = 
 
 /** 검색 문자열은 선택값을 변경하지 않으며 실제 선택 이벤트만 현재 값을 표시한다. */
 export function searchComboScript({promptRule=false,richText=false}={}) {
-  return `<script>${promptRule||richText?richTextBrowserScripts():''}\n${math}\n${relationControls}\n${apiControls}\n${schemaControls}\n${queryExampleControls}\n${queryPolicyControls}\n${richTextControls}\n${promptRuleControls}\n${helpControls}\n${controls}\nbindDeclaredMockup(document);
+  return `<script>${promptRule||richText?richTextBrowserScripts():''}\n${math}\n${relationControls}\n${apiControls}\n${schemaControls}\n${queryExampleControls}\n${queryPolicyControls}\n${richTextControls}\n${promptRuleControls}\n${helpControls}\n${mismatchDeleteControls}\n${controls}\nbindDeclaredMockup(document);
 function openDeclaredCell() {
   document.querySelectorAll('[data-auto-editor]').forEach(function(editor){editor.open=editor.closest('.screen').id===location.hash.slice(1);});
 }
@@ -124,6 +126,11 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
   };
   const buttons = () => compact ? '' : figure.buttons.filter((name) => name !== '엑셀 다운로드').map(name=>button(name)).join('');
   const promptAction=(html,name)=>model.promptRuleWorkspace&&['전체 규칙 검토','본문 크게 편집','Markdown 미리보기'].includes(name)?html.replace('<button ','<button data-prompt-action="'+({'전체 규칙 검토':'review','본문 크게 편집':'edit','Markdown 미리보기':'preview'}[name])+'" '):html;
+  const mismatchAction=(html,name,area)=>{
+    const config=model.mismatchDeleteWorkspace,index=config?.scopes.findIndex(scope=>scope.area===area)??-1;if(index<0||name!==config.action)return html;
+    const scope=config.scopes[index],locked=!figure.editable||!scope.permission;
+    return html.replace('<button ',`<button data-mismatch-delete-open="${index}"${scope.parent?'':' data-selection-independent'}${locked&&!/<button[^>]* disabled/.test(html)?' disabled':''} `);
+  };
   const localAction=(name,prefix,action)=>{
     const table=model.actionTables?.find(table=>table.rows.some(row=>plain(row[0])===name)),row=table?.rows.find(row=>plain(row[0])===name)??model.actions.find(row=>plain(row[0])===name);
     if(!row)throw new Error('작업대 모달 버튼이 §5에 없다: '+name);
@@ -162,7 +169,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const writable=gridWritable(table);
     const showState=writable&&figure.editable;
     const multiple=model.selectionModes?.[label]==='다중';
-    const deletionDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
+    const deletionDeclared=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>name!==model.mismatchDeleteWorkspace?.action&&/삭제$|제거$/.test(name));
     const showDelete=showState&&deletionDeclared&&!model.schemaWorkspace?.areas.includes(label);
     const optional = (r) => plain(cell(table,r,'기본 표시')) === '선택 표시';
     const hidden = (r) => optional(r) ? ' hidden' : '';
@@ -263,7 +270,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const protection = model.removeGuardField ? String(record[model.removeGuardField]??'').trim() : '';
     const protectedRow = protection && !['—','없음','0'].includes(protection);
     const rowEditable=table.rows.some(r=>editableNow(r,record,rowIndex>=rows.length));
-    const rowDeleteAllowed=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>/삭제$|제거$/.test(name));
+    const rowDeleteAllowed=(model.addRowTabs??[]).includes(label)||(surfaceOf(model,label)?.buttons??[]).some(name=>name!==model.mismatchDeleteWorkspace?.action&&/삭제$|제거$/.test(name));
     const [lockField,lockValue]=(model.masterEditRule??'').split('=');
     return `<tr class="${!multiple&&rowIndex===0?'sel':''}" data-grid-row-state="${figure.key==='new'||rowIndex>=rows.length?'C':''}"${model.promptRuleWorkspace?` data-prompt-record="${escape(JSON.stringify(record))}"`:''}${model.queryPolicyWorkspace?` data-policy-record="${escape(JSON.stringify(record))}"`:''}${model.queryExampleWorkspace?` data-query-record="${escape(JSON.stringify(record))}"`:''}${model.apiWorkspace?` data-api-record="${escape(JSON.stringify(record))}"`:''}${model.relationWorkspace?` data-relation-record="${escape(JSON.stringify(record))}"`:''}${table===model.columns[0]&&model.masterLink?` data-master-locked="${!figure.editable||Boolean(model.masterEditRule&&String(record[lockField])!==lockValue)}"`:''}${protectedRow?` data-remove-blocked="${escape(protection)}"`:''} data-row-context="${escape(JSON.stringify(String(record['문맥'] || record['컬럼명'] || '').split(',')))}">${stateCells(showState,['saving','unknown','denied'].includes(figure.key),multiple,rowIndex,figure.key==='new'||rowIndex>=rows.length)}${vals}${deleteCell(showDelete,!rowEditable||!rowDeleteAllowed,protectedRow?model.removeGuardField+': '+protection+' — 참조/보존 조건으로 삭제 불가':'')}</tr>`;
     };
@@ -281,7 +288,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     const globalButtons=table===model.columns[0]&&!compact?figure.buttons.filter(name=>!/^조회$|^저장$|^엑셀 다운로드$/.test(name)&&!rowAction(name)&&!cellActionNames.has(name)&&!model.surfaces?.some(s=>s.buttons.includes(name))):[];
     const saveButtons=surface?.buttons??figure.buttons;
     const approvalSave=saveButtons.includes('승인 요청')&&!saveButtons.includes('저장')&&figure.buttons.includes('승인 요청');
-    const actions=[...new Set([...surfaceButtons,...globalButtons])].filter(name=>name!=='승인 요청'||(figure.buttons.includes('승인 요청')&&!approvalSave)).map(name=>promptAction(button(name,label),name)).join('');
+    const actions=[...new Set([...surfaceButtons,...globalButtons])].filter(name=>name!=='승인 요청'||(figure.buttons.includes('승인 요청')&&!approvalSave)).map(name=>mismatchAction(promptAction(button(name,label),name),name,label)).join('');
     const approvalControl=approvalSave?'<span data-grid-save data-native-save>'+button('승인 요청',label)+'</span>':'';
     const newNavigation=table===model.columns[0]&&figure.buttons.includes('신규')&&model.figureNavigation?.rows.some(row=>plain(row[0])==='신규');
     const wantsAdd=(writable&&createDeclared)||Boolean(commandAdd);
@@ -395,5 +402,5 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
   const promptLocalButton=(name,action)=>localAction(name,'prompt',action);
   const promptDialogs=!prompt||compact?'':`<dialog class="command-dialog" data-prompt-dialog="edit" aria-label="본문 크게 편집" style="resize:both;overflow:auto;width:min(1200px,94vw);height:min(720px,86vh);min-width:min(480px,94vw);min-height:min(320px,86vh);max-width:94vw;max-height:90vh"><div style="display:flex;flex-direction:column;height:100%;min-height:0"><h3 style="flex-shrink:0">본문 크게 편집</h3><textarea data-prompt-buffer aria-label="본문 임시 편집" rows="22" style="flex:1;min-height:0;width:100%;box-sizing:border-box;font-family:monospace;resize:none"></textarea><p role="status" data-prompt-modal-status style="flex-shrink:0"></p><div class="row actions" style="flex-shrink:0">${promptLocalButton('반영','apply')}${promptLocalButton('취소','cancel')}</div></div></dialog><dialog class="command-dialog" data-prompt-dialog="preview" aria-label="Markdown 미리보기" style="width:min(1200px,94vw)"><h3>Markdown 미리보기</h3><div data-prompt-preview style="max-height:72vh;overflow:auto;white-space:normal;overflow-wrap:anywhere"></div><p class="hint">안전한 Markdown 표시 예시입니다. HTML과 외부 미디어는 실행하지 않으며 링크 이동은 하지 않습니다.</p><div class="row actions">${promptLocalButton('닫기','close')}</div></dialog><dialog class="command-dialog" data-prompt-dialog="review" aria-label="전체 규칙 검토" style="width:min(1200px,94vw)"><h3>전체 규칙 검토</h3><p>목업이 보유한 예시 전체에서 사용 ON·삭제되지 않은 공통 본문을 조합합니다. 현재 선택·검색·페이지 범위로 제한하지 않습니다. 실제 서버는 저장 전체와 미저장 편집본을 합쳐 검토하며 단계별 기술 템플릿·출력 계약은 후속입니다.</p><textarea data-prompt-review-input aria-label="전체 규칙 검토 입력" readonly rows="20" style="width:100%;box-sizing:border-box;font-family:monospace"></textarea><p role="status" data-prompt-review-result>실제 LLM 호출 전의 조합 예시입니다.</p><div class="row actions">${promptLocalButton('검토 실행','execute')}${promptLocalButton('닫기','close')}</div></dialog>`;
   return `<div class="screen leaf" id="${escape(figure.key)}"${model.queryPolicyWorkspace?` data-query-policy-workspace="${escape(JSON.stringify(model.queryPolicyWorkspace))}" data-policy-editable="${figure.editable}"`:''}${model.saveCascades?.length?` data-save-cascades="${escape(JSON.stringify(model.saveCascades))}"`:""}${model.apiWorkspace?` data-api-workspace data-api-editable="${figure.editable}"${model.schemaWorkspace?` data-schema-workspace="${escape(JSON.stringify(model.schemaWorkspace))}"`:""}${model.toolContracts?` data-tool-contracts="${escape(JSON.stringify(Object.fromEntries(model.toolContracts.rows.map(row=>[plain(row[0]),JSON.parse(row[1])]))))}"`:""}`:''}${interactive?' data-interactive-tabs':''}${model.relationWorkspace?` data-relation-workspace="${escape(JSON.stringify(model.relationWorkspace))}" data-relation-editable="${figure.editable}"`:''}${model.masterLink?` data-master-link="${escape(model.masterLink)}" data-master-initial="${escape(figure.masterValue??'')}" data-calculation-rules="${escape(JSON.stringify(model.calculations??[]))}" data-calculation-guard="${escape(JSON.stringify(model.calculationGuardButtons??[]))}"${model.allocationValidity?` data-allocation-validity="${escape(JSON.stringify(model.allocationValidity))}"`:''}${figure.editable?'':' data-calculation-readonly'}`:''}${manualKey ? ` data-manual="${escape(figure.key)}"` : ''}>
-    <div class="bar">${escape(title)} · ${escape(figure.caption)} · 검토용 예시</div><div class="body">${main}${model.masterLink?'<p class="notes" role="status" data-calculation-status hidden></p>':''}</div>${commands}${apiDialogs}${promptDialogs}${model.relationWorkspace&&!compact?relationPicker(model.relationWorkspace,name=>tableView(model.columns.find(table=>titleOf(table)===name)),badge):''}</div>\n${n.render()}`;
+    <div class="bar">${escape(title)} · ${escape(figure.caption)} · 검토용 예시</div><div class="body">${main}${model.masterLink?'<p class="notes" role="status" data-calculation-status hidden></p>':''}</div>${commands}${apiDialogs}${promptDialogs}${!compact?mismatchDeleteMarkup(model.mismatchDeleteWorkspace,figure,{action:(name,action)=>localAction(name,'mismatch-delete',action),badge}):''}${model.relationWorkspace&&!compact?relationPicker(model.relationWorkspace,name=>tableView(model.columns.find(table=>titleOf(table)===name)),badge):''}</div>\n${n.render()}`;
 }

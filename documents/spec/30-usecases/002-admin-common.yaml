@@ -1,6 +1,7 @@
 # 영역: admin 공통 관리·승인 흐름
 usecases:
   - id: UC-001
+    configuration_cleanup: "REQ-601.configuration_cleanup. 해당 대상의 현재 조회 범위 전체에서 누락 확정 후보 확인 → 차단 사용처 해소 → 새 사유·명시 실행 → 서버 전체 재검증·원자 정리·이력. 미저장/불명/낡은 미리보기는 실행하지 않는다."
     name: "관리 대상의 원천·변경 영향·처리 경로를 확인한다"
     workstream: "admin"
     design_status: "draft"
@@ -47,6 +48,7 @@ usecases:
       - "@defer P3 — 대상별 참조 조회 계약·삭제 후 과거 참조 표시·권한별 공개 필드는 각 기능의 데이터/API/화면 설계에서 확정한다"
     storage_context: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
   - id: UC-002
+    configuration_cleanup: "REQ-601.configuration_cleanup. 해당 대상의 현재 조회 범위 전체에서 누락 확정 후보 확인 → 차단 사용처 해소 → 새 사유·명시 실행 → 서버 전체 재검증·원자 정리·이력. 미저장/불명/낡은 미리보기는 실행하지 않는다."
     name: "직접 관리 대상의 변경을 검증하고 반영한다"
     workstream: "admin"
     design_status: "draft"

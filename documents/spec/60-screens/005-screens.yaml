@@ -2,6 +2,7 @@ screens:
 # ══ admin — 연동 관리 (3.1) ══════════════════════════════════════
 # 카탈로그는 구조·업무 의미·관계를 관리한다. 행 스코프·기본 필터·조회 제약은 SCR-009가 관리한다.
   - id: SCR-001
+    configuration_cleanup: "REQ-601.configuration_cleanup. 상단 조회조건 전체의 확정 누락 건 일괄 삭제를 제공한다. 연결 정보 탭은 선택 시스템 아래 정확 연결 범위만 별도로 정리한다. 현재 SAVE·미리보기·새 사유·전체 재검증·참조 보호를 적용한다."
     type: "list_detail"
     route: "/admin/hub/target-system"
     history_entry: "/admin/hub/target-system/history?targetId={원ID}&historyNo={선택세트번호}. 이력 번호 생략 시 당시 값/기간 조건으로 목록을 조회하며 별도 이력 메뉴 권한을 검사한다."
@@ -32,6 +33,7 @@ screens:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
   - id: SCR-002
+    configuration_cleanup: "REQ-601.configuration_cleanup. 상단 조회조건 전체의 확정 누락 건 일괄 삭제를 제공한다. 현재 SAVE·미리보기·새 사유·전체 재검증·참조 보호를 적용한다."
     features: [FEAT-002, FEAT-003]
     comparison: "REQ-304.batch_structure_comparison. 스케줄 배치 결과·선택 데이터소스의 수동 일괄 비교 버튼과 컬럼 불일치·인덱스 불일치 탭별 단일 그리드를 제공한다. 성공 확인된 해소만 현재 목록에서 제거하며 실패·부분 비교/오래된 결과로 삭제하지 않는다"
     dbms_fields: "상단 DBMS는 YAML URL 도출 읽기 전용이며 버전 문자열을 수동 관리한다. SQL 파서·최근 비교 컬럼은 선택 열에도 없다. 불일치 검사 요약은 REQ-304.batch_structure_comparison.summary의 현재 탭별 건수/확인 상태를 읽기 전용으로 표시한다. DB·DW 유형 옆의 동기화 방식은 DW에서 편집하는 선택 참고 메모다. 연결 관측 제안/불일치와 관리값을 구분하고 이력에 당시 값을 표시한다. 상세는 target_doc·REQ-603.dbms_context를 따른다"

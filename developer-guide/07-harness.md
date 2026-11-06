@@ -136,6 +136,8 @@
 | `/mockup` | `grid-properties.test.mjs` | `node .claude/skills/mockup/grid-properties.test.mjs` |
 | `/mockup` | `help-workspace.mjs` | `node .claude/skills/mockup/help-workspace.mjs` |
 | `/mockup` | `help-workspace.test.mjs` | `node .claude/skills/mockup/help-workspace.test.mjs` |
+| `/mockup` | `mismatch-delete.mjs` | `node .claude/skills/mockup/mismatch-delete.mjs` |
+| `/mockup` | `mismatch-delete.test.mjs` | `node .claude/skills/mockup/mismatch-delete.test.mjs` |
 | `/mockup` | `presentation.mjs` | `node .claude/skills/mockup/presentation.mjs` |
 | `/mockup` | `presentation.test.mjs` | `node .claude/skills/mockup/presentation.test.mjs` |
 | `/mockup` | `prompt-rule-workspace.mjs` | `node .claude/skills/mockup/prompt-rule-workspace.mjs` |

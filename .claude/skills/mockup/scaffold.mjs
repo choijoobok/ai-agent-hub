@@ -29,6 +29,7 @@ import {relationWorkspace} from './relation-workspace.mjs';
 import {queryPolicyWorkspace} from './query-policy-workspace.mjs';
 import {promptRuleWorkspace} from './prompt-rule-workspace.mjs';
 import {helpWorkspace} from './help-workspace.mjs';
+import {mismatchDeleteWorkspace} from './mismatch-delete.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../../..');
 const SCREENS = path.join(REPO, 'documents/screen');
@@ -296,6 +297,7 @@ function screenModel(md, type, allowInheritance = true) {
   model.queryPolicyWorkspace=queryPolicyWorkspace(findTable(composition,/^조회 정책 작업대$/),model);
   model.promptRuleWorkspace=promptRuleWorkspace(findTable(composition,/^프롬프트 규칙 작업대$/),model);
   model.helpWorkspace=helpWorkspace(findTable(composition,/^도움말 작업대$/),model);
+  model.mismatchDeleteWorkspace=mismatchDeleteWorkspace(findTable(composition,/^서버 설정 불일치 일괄 삭제$/),model);
   for(const [area,values]of Object.entries(model.rowDefaults)){
     const table=model.columns.find(table=>areaTitle(table)===area);
     validateRowDefaults(table,values);
@@ -545,7 +547,7 @@ export function inheritedHistoryMockup(markdown, screen) {
   }
   model.columns.forEach(t=>{t.readonly=true;t.rows=t.rows.filter(r=>!['수정자','수정일시'].includes(plain(r[0])));});
   model.surfaces=model.surfaces.map(s=>({...s,buttons:[],workflow:'선택한 과거 이력에 저장된 내용을 읽기 전용으로 확인한다.',trigger:'이력 선택 시 같은 저장 건의 전체 구성 조회',save:'읽기 전용. 저장 대상 아님'}));
-  model.commandFields=null;model.figureNavigation=null;model.addRowTabs=[];model.apiWorkspace=null;
+  model.commandFields=null;model.figureNavigation=null;model.addRowTabs=[];model.apiWorkspace=null;model.mismatchDeleteWorkspace=null;
   const book=annotationBook();
   const figure={key:'history',caption:'선택한 과거 이력 — 읽기 전용',detail:areaTitle(model.columns[1]).split(' / ')[0],notice:screen.restore_handoff?'리비전 2의 전체 이력 예시입니다. 복원은 현재 지식 편집으로 인계하며 여기서 저장하지 않습니다.':'선택한 저장 시점의 전체 이력 예시입니다. 모든 SQL과 설명은 읽기 전용이며 현재 데이터로 대체하지 않습니다.',buttons:['조회','엑셀 다운로드'],editable:false,examples:projection.examples??{},emptyGrids:[]};
   const content=declaredScreen(screen.title,model,figure,{annotator:()=>({badge:(...a)=>book.badge(...a),render:()=>''}),plain});
