@@ -7,7 +7,7 @@ testcases:
     type: business_exception
     title: "두 입력 값 차이와 인증 바인딩 분리"
     actor: ACT-003
-    given: "REQ-611의 기간 상한 정책과 사용자 입력 두 개, 서버 인증 신원 바인딩이 있다"
+    given: "REQ-611의 기간 상한 항목 하나만 사용 중이며 사용자 입력 두 개와 서버 인증 신원 바인딩이 있다"
     when: "누락·역전·형식 오류·상한 초과·경계값을 입력하거나 사용자 ID 바인딩을 요청 값으로 덮으려 한다"
     then: "정상 경계만 수락하고 나머지는 SQL 실행 전에 거부/보완 질문한다. 인증 바인딩은 서버 신원에서만 얻는다"
     verification: "잘못된 차이를 WHERE false에 넣어 빈 결과 성공으로 처리하거나 신원 덮어쓰기를 허용하면 실패해야 한다"
@@ -19,9 +19,9 @@ testcases:
     type: business_exception
     title: "입력 검증과 실제 SQL 조건 일치"
     actor: ACT-003
-    given: "허용 범위의 두 값과 대상 컬럼·조건 템플릿이 검수된 조회 정책"
+    given: "등록한 기간 후보를 충족하는 두 값과 대상 컬럼이 있으며 다른 충족 후보는 없다"
     when: "SQL이 다른 컬럼/값을 사용하거나 조건을 생략하거나 OR·하위 질의·UNION의 일부 참조에서 제약을 우회한다"
-    then: "모든 실제 대상 참조에 정책 조건과 동일 바인딩이 적용됐음이 검증되지 않으면 실행하지 않는다"
+    then: "모든 실제 대상 참조에 등록 후보 중 하나 이상과 동일 바인딩이 적용됐음이 검증되지 않으면 실행하지 않는다"
     verification: "모델의 충족 표식 또는 두 값 차이만 검사하여 우회 SQL이 실행되면 실패해야 한다. 지원 밖 구문은 검증 불가로 처리한다"
     status: planned
   - id: TC-0123
@@ -34,7 +34,7 @@ testcases:
     given: "현재 조회 제약 2건과 이전 카탈로그 버전, 정책 조회 실패/권한 제한 상태"
     when: "카탈로그를 복원하고 조회 제약 셀을 열거나 정책을 변경한 뒤 저장 조회를 새로 실행한다"
     then: "복원은 정책을 바꾸지 않는다. 조회 성공 시만 유효 건수를 표시하고 catalogId·QUERY_CONSTRAINT로 정책 화면을 연다. 새 실행은 현재 정책 리비전으로 재검증한다"
-    verification: "미로드/실패를 0건으로 표시하거나 카탈로그 복사에 정책 사본을 포함하거나 필수 제약을 선택 제외하면 실패해야 한다"
+    verification: "미로드/실패를 0건으로 표시하거나 카탈로그 복사에 정책 사본을 포함하거나 해제 불가 제약을 선택 제외하거나 해제 허용·명시 근거를 검증하지 않으면 실패해야 한다"
     status: planned
 
   - id: TC-0071
@@ -67,4 +67,74 @@ testcases:
     then: "영역별 현재 권한과 필드 허용 범위·참조·기대 리비전을 검사해 잘못된 변경을 거부하고 기존 권한/입력/다른 구성을 보존한다. 정상 저장은 소유 현재 구성과 전체 이력·사유에 원자 반영한다. 독립 그룹 매핑 메뉴/저장소/리비전은 없다"
     verification: "P4 계약·통합에서 정책 권한만으로 정의를 변경하거나 그 반대가 가능하면 실패해야 한다. 누락 탭을 삭제로 해석·부분 이력·미지원 MASK·전송 동의 우회·조회 실패의 0건 처리를 허용해도 실패해야 한다. 목업에서는 기존 입력 보존·로컬 행 추가/제거·잠금만 확인한다"
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-41", "documents/screen/admin/hub/business-api/requirements.md#API-ACL-01"]
+    status: planned
+
+  - id: TC-0124
+    feature: FEAT-009
+    usecase: UC-026
+    reqs: [REQ-611, REQ-103, REQ-601]
+    screens: [SCR-009]
+    type: business_exception
+    title: "카탈로그 선행 선택·서버 ID·전체 세 탭 분리"
+    actor: ACT-003
+    given: "현재 규칙과 두 카탈로그, 미저장 입력"
+    when: "추가/취소/실패/단일 선택·부모 왕복·권한 없음"
+    then: "선택 완료 시만 신규 행 생성. 참조 세 컬럼 readonly·규칙ID 미발급. 로컬 문맥과 세 탭을 부모별 분리하며 저장/이력은 원자적"
+    verification: "반대 규칙을 허용하면 실패해야 한다. 목업은 편집/전환/잠금 시연이며 실제 서버·DB·파서·정책 집행은 제품 구현 후 시험한다."
+    status: planned
+
+  - id: TC-0125
+    feature: FEAT-009
+    usecase: UC-026
+    reqs: [REQ-611, REQ-103, REQ-601]
+    screens: [SCR-009]
+    type: business_exception
+    title: "스코프별 파라미터 추출과 서버 예약 신원"
+    actor: ACT-003
+    given: "두 스코프·userId/langCd·일반변수·중복·문자열/주석 토큰"
+    when: "조건식 수정/재추출·행/탭 왕복·원복·예약값 덮기"
+    then: "동명 설명 보존·삭제 변수 제거·추출 최신성 확인. 예약값 서버 공급·일반 업무 설명 확보. SQL 문자열 치환·신원 조작·추출 불일치 저장 거부"
+    verification: "반대 규칙을 허용하면 실패해야 한다. 목업은 편집/전환/잠금 시연이며 실제 서버·DB·파서·정책 집행은 제품 구현 후 시험한다."
+    status: planned
+
+  - id: TC-0126
+    feature: FEAT-012
+    usecase: UC-026
+    reqs: [REQ-611, REQ-103, REQ-601]
+    screens: [SCR-009]
+    type: business_exception
+    title: "기본 상태 조건과 타입·NULL 경계"
+    actor: ACT-003
+    given: "컬럼별 상태값·선행0·NULL 행·useYn/removable"
+    when: "deleted_yn=N·use_yn=Y를 등록해 조회하고 사용OFF·명시 해제를 적용한다"
+    then: "두 값과 모두 일치하는 행만 조회한다. deleted_yn의 Y·NULL은 N과 일치하지 않아 제외된다. 선행 0 보존·빈값의 NULL 치환 금지. OFF/유효 해제 외 필터 유지"
+    verification: "등록값 제외 방식으로 뒤집거나 두 기본 필터를 OR로 적용하면 실패해야 한다. 실제 SQL/DB 시험은 제품 구현 후 수행한다."
+    status: planned
+
+  - id: TC-0127
+    feature: FEAT-012
+    usecase: UC-026
+    reqs: [REQ-611, REQ-103, REQ-601]
+    screens: [SCR-009]
+    type: business_exception
+    title: "필수 조건 OR와 자료형·30일 경계"
+    actor: ACT-003
+    given: "사용 ON인 주문번호 동일 값과 주문일 날짜 범위 최대 차이 30, 문자/숫자/날짜 후보"
+    when: "주문번호만·기간만·둘 다 없음·31일만·31일과 주문번호·문자 범위·타입 변경을 요청한다"
+    then: "주문번호만 또는 30일 이하 범위만 충족하면 통과한다. 둘 다 미충족·31일만이면 보완/거부한다. 31일과 정상 주문번호는 주문번호로 통과하고 사용자 날짜 조건은 유지한다. 문자 범위는 설정 거부, 동일값 전환 시 최대 차이 정리. 참조마다 하나 이상 실제 SQL/동일 바인딩 검증"
+    verification: "OR를 AND로 바꾸거나 미충족 후보 때문에 정상 주문번호 조회를 거부하면 실패해야 한다. 다른 테이블/한 분기의 충족을 전체로 재사용하거나 SQL OR 우회를 허용해도 실패해야 한다. 실제 서버 시험은 구현 후 수행한다."
+    status: planned
+
+  - id: TC-0128
+    feature: FEAT-012
+    usecase: UC-026
+    reqs: [REQ-611, REQ-103, REQ-601]
+    screens: [SCR-009]
+    type: business_exception
+    title: "세 조건 사용/해제 집행과 결과 안내"
+    actor: ACT-003
+    given: "각 종류 useYn/removable 조합·현재 리비전·명시 사용자 근거"
+    when: "기본 실행·일부/전체 유효 해제·부적격 해제·정책변경·저장조회 재실행"
+    then: "서버 검증한 해제만 반영한다. 스코프/기본 필터 AND, 필수 조건은 남은 후보 OR이며 일부 해제로 나머지 미충족을 통과시키지 않는다. 남은 후보 0개는 제약 없음이지만 독립 통제 유지. 실제 충족·미충족 대안·비사용·해제를 구분해 결과 안내하며 날짜 불필요를 해제로 기록하지 않는다."
+    verification: "반대 규칙을 허용하면 실패해야 한다. 목업은 편집/전환/잠금 시연이며 실제 서버·DB·파서·정책 집행은 제품 구현 후 시험한다."
     status: planned

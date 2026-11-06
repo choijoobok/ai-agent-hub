@@ -1,0 +1,90 @@
+testcases:
+  - id: TC-0101
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "구분별 단일 본문과 선택 문맥 보존"
+    given: "고정 세 구분과 서로 다른 미저장 원문/형식"
+    when: "구분 왕복·형식 변경·선택 구분 조회/취소"
+    then: "코드/명칭/위치/시점은 고정이고 콘텐츠 목록/자산매핑은 없다. 구분별 편집본을 유지하며 형식 변경은 원문을 변환하지 않는다. 다른 구분의 편집본은 재조회/취소로 바뀌지 않는다"
+    verification: "구분을 임의 추가/삭제하거나 다른 구분 본문을 덮거나 형식 변경으로 원문을 변환하면 실패"
+    status: planned
+
+  - id: TC-0102
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "세 형식의 안전 미리보기와 큰 편집창"
+    given: "Markdown·HTML·TEXT와 script/event/위험링크/외부media/스타일 및 긴 본문"
+    when: "미리보기·큰 편집창 마우스 확대/축소·반영/취소/Esc"
+    then: "허용 형식/태그/스타일만 동일 정책으로 표시하고 외부 요청/스크립트 실행 없음. TEXT는 문법을 그대로 표시. 현재 구분 원문을 보존하고 큰 편집 반영만 로컬 원문 변경"
+    verification: "금지 요소 실행/자동 미디어 로드·원문 손실·취소 반영·편집창 크기 조절 시 입력 유실을 허용하면 실패"
+    status: planned
+
+  - id: TC-0103
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "선택 구분만 직접 저장하고 충돌을 거부"
+    given: "여러 구분 편집·빈 본문/안전 렌더 후 빈 내용·사유 누락·동료 저장"
+    when: "선택 구분 사유 저장 및 낡은 기준/변경된 대상 요청"
+    then: "선택 코드의 형식·원문만 현재 권한/기대 버전/사유로 검증하고 현재값·불변 판·전체 이력·성공 결과를 원자 저장. 다른 구분 draft 불변. 실패/낡은 문맥 거부"
+    verification: "모든 구분 일괄 저장·지식 리비전 변경·빈 본문 저장·늦은 결과 덮기·이력만 성공·실패를 성공으로 표시하면 실패"
+    status: planned
+
+  - id: TC-0104
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "agent 제공 Portal 표시 계약과 초기 안내"
+    given: "세 고정 코드·유효/미설정 판·미지원 형식·표시 실패"
+    when: "도움말 열기·새 대화·제출 전 입력창 표시·재조회"
+    then: "정해진 위치/시점에 같은 code/name/format/body/revision 판을 agent 계약으로 표시. 모델 재작성·새 턴/모델 호출·admin 직접조회·임의 업무문구 폴백 없음. 원문 언어 정책 유지"
+    verification: "표시명으로 코드를 추측·서로 다른 판 조합·본문을 모델로 재작성·초기 표시를 새 턴으로 접수하면 실패"
+    status: planned
+
+  - id: TC-0105
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "독립 이력과 권한별 편집 잠금"
+    given: "서로 다른 콘텐츠 버전·지식 이력·조회 전용/권한 없음"
+    when: "현재 저장·SCR-069 과거 판 조회/반출·편집 시도"
+    then: "과거 코드의 당시 형식/원문/버전·사유/시각을 독립 이력에서 읽고 현재값으로 합성하지 않는다. 조회 전용은 미리보기만, 권한 없음은 본문 미제공. 지식 이력/원천 불변"
+    verification: "과거 판을 최신본문으로 대체·이력에서쓰기·조회 권한만으로 수정·지식 이력에 혼입하면 실패"
+    status: planned
+
+  - id: TC-0106
+    feature: FEAT-010
+    features: [FEAT-107]
+    usecase: UC-021
+    reqs: [REQ-308, REQ-106, REQ-009, REQ-601]
+    screens: [SCR-014, SCR-069, SCR-101]
+    type: business_exception
+    actor: ACT-003
+    title: "제출 당시 주의사항·동적 전송 정보와 지식 경계"
+    given: "INPUT_NOTICE 표시 뒤 콘텐츠/공급경로 변경·누락·버전/범위 불일치·사용법 질문"
+    when: "직접 입력 제출 및 실제 모델 전송 전 검사·대화형 안내"
+    then: "실제 표시한 정적 안내 판과 처리 목적/자료 범위/후보 경로·설정 근거를 요청에 연결해 검증한다. 누락/불일치/표시불가는 전송 전 차단하고 재표시 후 사용자 제출을 받는다. 이미 전송한 사실을 사후동의로 바꾸지 않음. 사용법 질문은 허용 활성 지식 검색이며 표시 콘텐츠 자동복제/임베딩 없음"
+    verification: "최신 안내로 제출 당시판 덮기·본문 변수치환으로 동적경로 위조·실패를정상동의·모델생성동의·구분저장으로 지식자동변경하면 실패"
+    status: planned

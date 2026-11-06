@@ -26,6 +26,9 @@ import {requestDeclaration, inheritRequest} from './request-layout.mjs';
 import {withAuditColumns} from './column-contract.mjs';
 import {withGridProperties,gridPropertyIssues,validateRowDefaults} from './grid-properties.mjs';
 import {relationWorkspace} from './relation-workspace.mjs';
+import {queryPolicyWorkspace} from './query-policy-workspace.mjs';
+import {promptRuleWorkspace} from './prompt-rule-workspace.mjs';
+import {helpWorkspace} from './help-workspace.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../../..');
 const SCREENS = path.join(REPO, 'documents/screen');
@@ -290,6 +293,9 @@ function screenModel(md, type, allowInheritance = true) {
     return withGridProperties({...withAuditColumns(table,policy),declaredHeader:sourceHeader,declaredRows:table.rows},{canCreate});
   });
   model.relationWorkspace=relationWorkspace(findTable(composition,/^관계 작업대$/),model);
+  model.queryPolicyWorkspace=queryPolicyWorkspace(findTable(composition,/^조회 정책 작업대$/),model);
+  model.promptRuleWorkspace=promptRuleWorkspace(findTable(composition,/^프롬프트 규칙 작업대$/),model);
+  model.helpWorkspace=helpWorkspace(findTable(composition,/^도움말 작업대$/),model);
   for(const [area,values]of Object.entries(model.rowDefaults)){
     const table=model.columns.find(table=>areaTitle(table)===area);
     validateRowDefaults(table,values);
@@ -348,7 +354,7 @@ function scaffold(dir) {
   const renderFigure = (figure,options={}) => model.figures.length
     ? declaredScreen(title, model, figure, { annotator:sharedAnnotator, plain, manualKey: keys.some((k) => k.key === figure.key), ...options })
     : genericScreen(title, model, figure, { annotator:sharedAnnotator, manualKey:keys.some(k=>k.key===figure.key),...options});
-  const areas=[...new Set(model.columns.slice(1).filter(t=>!['탭 내부','팝업'].includes(surfaceOf(model,areaTitle(t))?.kind)).map(t=>model.figures.length?areaTitle(t).split(' / ')[0]:areaTitle(t)))];
+  const areas=model.promptRuleWorkspace||model.helpWorkspace?[]:[...new Set(model.columns.slice(1).filter(t=>!['탭 내부','팝업'].includes(surfaceOf(model,areaTitle(t))?.kind)).map(t=>model.figures.length?areaTitle(t).split(' / ')[0]:areaTitle(t)))];
   const used=new Set([figures[0].key]);
   const walkthrough=areas.map((name,index)=>{
     const candidates=figures.slice(1).filter(f=>f.detail===name&&!/실패|없|충돌|잠금|확인 중|거부/.test(f.caption));
@@ -426,7 +432,7 @@ function scaffold(dir) {
   L.push('</footer>');
   L.push('');
   L.push('</main>');
-  L.push(searchComboScript());
+  L.push(searchComboScript({richText:Boolean(model.promptRuleWorkspace||model.helpWorkspace)}));
   L.push('');
   return L.join('\n');
 }

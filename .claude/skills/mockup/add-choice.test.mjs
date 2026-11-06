@@ -22,3 +22,17 @@ test('추가 선언의 키/원천/후보를 검사하고 실패 상태와 안전
  const bad=structuredClone(table);bad.rows[0][9]='[{"사용자":"u1"},{"사용자":"u1"}]';assert.throws(()=>addChoiceFor({addChoices:bad},'사용자',{}),/중복/);
  assert.equal(addChoiceFor(model,'없는 탭',{}),null);
 });
+test('부모 없는 카탈로그 추가와 다중 일괄 검증은 표시값을 주입하고 부분 성공을 만들지 않는다',()=>{
+ const parentless={...rule,parent:'',fixed:'',selection:'다중',displayFields:['이름'],records:[{사용자:'u1',이름:'첫째'},{사용자:'u2',이름:'둘째'}]};
+ const plans=runtime.resolveMockupLookupBatch(parentless,'',['u1','u2'],[]);assert.equal(plans.length,2);assert.equal(plans[0].values.이름,'첫째');assert.ok(!Object.hasOwn(plans[0].values,''));
+ const existing=[{사용자:'u2',활성:true}];assert.throws(()=>runtime.resolveMockupLookupBatch(parentless,'',['u1','u2'],existing),/이미/);assert.deepEqual(existing,[{사용자:'u2',활성:true}]);
+ assert.throws(()=>runtime.resolveMockupLookupBatch(parentless,'',[],[]),/선택/);assert.throws(()=>runtime.resolveMockupLookupBatch(parentless,'',['u1','u1'],[]),/중복/);
+ assert.throws(()=>runtime.resolveMockupLookupBatch({...parentless,selection:'단일'},'',['u1','u2'],[]),/하나/);
+ assert.throws(()=>resolve('g1','u1',[{그룹:'g1',사용자:'u1',활성:false}],{...rule,reactivate:'금지'}),/이미/);
+});
+test('선택 방식은 단일 기본이고 없음 부모와 다중 선택을 명시할 수 있다',()=>{
+ const t=structuredClone(table);t.header.push('선택 방식','재활성화');t.rows[0][3]='없음';t.rows[0][4]='없음';t.rows[0].push('다중','금지');const parsed=addChoiceFor({addChoices:t},'사용자',{});
+ assert.equal(parsed.selection,'다중');assert.equal(parsed.parent,'');assert.equal(parsed.fixed,'');assert.equal(parsed.reactivate,'금지');assert.match(lookupAddDialog(parsed,()=>''),/선택 항목 추가/);
+ assert.equal(addChoiceFor({addChoices:table},'사용자',{}).selection,'단일');
+ t.rows[0][4]='그룹';assert.throws(()=>addChoiceFor({addChoices:t},'사용자',{}),/원천/);
+});

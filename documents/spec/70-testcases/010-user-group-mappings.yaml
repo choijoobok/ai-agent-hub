@@ -13,7 +13,7 @@ testcases:
     feature: FEAT-006
     features: [FEAT-002, FEAT-003, FEAT-007, FEAT-008, FEAT-020, FEAT-021, FEAT-023, FEAT-024, FEAT-034]
     usecase: UC-025
-    screens: [SCR-002, SCR-003, SCR-004, SCR-005, SCR-006, SCR-010, SCR-011, SCR-012, SCR-014, SCR-019, SCR-039]
+    screens: [SCR-002, SCR-003, SCR-004, SCR-005, SCR-006, SCR-010, SCR-011, SCR-012, SCR-019, SCR-039]
     type: business_exception
     title: "모든 관리 자산 링크의 매핑 활성·소유/역조회·전체 이력"
     actor: ACT-003

@@ -21,3 +21,5 @@ spec_set:
     - 010-user-group-mappings.yaml
     - 011-target-system-availability.yaml
     - 012-identity-verification.yaml
+    - 013-prompt-rule.yaml
+    - 014-chat-help.yaml

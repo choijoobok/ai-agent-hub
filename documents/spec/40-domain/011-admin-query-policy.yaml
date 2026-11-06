@@ -9,36 +9,17 @@ entities:
     design_stage: logical
     features: [FEAT-012]
     reqs: [REQ-611]
-    description: "행 스코프·필터 관리에서 대상 테이블에 적용하는 직접 조회 정책. 카탈로그 내용 버전과 독립된 규칙/정책 리비전을 가진다"
+    description: "카탈로그별 직접 조회 정책 묶음의 논리 설계. 규칙 숫자 ID·현재 정책 리비전·규칙명/설명·안정 카탈로그 참조와 스코프/기본 필터/필수 조건 집합을 소유한다. 카탈로그 내용 버전과 독립이다."
     attributes:
-      - {name: "규칙 식별자·정책 리비전", description: "관리 변경/실행 적용 근거. 카탈로그 REVISION_ID가 소유 키가 아니다"}
-      - {name: "업무명·이유·사용자 질문 안내", description: "필요한 입력과 제한을 업무 언어로 전달"}
-      - {name: "대상 카탈로그·컬럼 참조", description: "정책에서 안정 catalogId/columnId로 연결하며 조회 시 필요한 정확 내용 버전을 대조"}
-      - {name: "명명 파라미터·출처·자료형", description: "사용자 입력과 서버 인증 신원을 구분. 필수/NULL·시간대/형식 포함"}
-      - {name: "조건 템플릿·값 검증식", description: "두 값 비교/차이의 최소·최대·단위·경계 및 실제 SQL 조건 바인딩. 허용 문법은 후속 설계"}
-      - {name: "검수·적용 상태·변경 근거", description: "미로드/미검수/불가를 제약 없음으로 취급하지 않음"}
+      - {"name":"규칙 식별자·정책 리비전","description":"REQ-601.surrogate_identifier의 기존 서버 시퀀스 숫자. 문자열 전송·미발급/클라이언트 행 키 분리. 전체 저장마다 정책 리비전 증가"}
+      - {"name":"규칙명·규칙 설명·카탈로그 참조","description":"선택 카탈로그 ID는 불변 참조, 데이터소스/명칭은 조회 투영. 실행 조건식과 업무 설명 구분"}
+      - {"name":"스코프 조건 집합","description":"각 항목 안정 ID·이름·SQL 조각·추출 파라미터의 이름/출처/설명·useYn/removable. 예약값은 서버 공급. 사용/해제 후 남은 스코프는 AND"}
+      - {"name":"기본 필터 집합","description":"각 항목 안정 ID·현재 컬럼 참조·자료형에 맞는 단일 상태값·useYn/removable. 등록값 일치 조건이며 복수 AND"}
+      - {"name":"필수 조건 집합","description":"각 항목 안정 ID·컬럼 참조·동일 값 매칭/범위 유형·최대 차이·useYn/removable. 날짜 정수 일수/숫자 차이. 사용/해제 후 남은 항목 중 하나 충족(OR). 별도 대체 키 없음"}
+      - {"name":"전체 변경 이력·사유","description":"현재 구성과 같은 원자 저장 단위. 수동 검수 상태 없음, 서버 검증은 유지"}
     relations:
       - {entity: ENT-005, cardinality: "규칙별 적용 대상 테이블", description: "카탈로그는 역조회만 하며 규칙 목록을 후보에 복사하지 않음"}
       - {entity: ENT-007, cardinality: "대상 컬럼 1개 이상", description: "현재 사용한 카탈로그 참조 버전/권한과 함께 검증"}
-      - {entity: ENT-026, cardinality: "규칙별 등록 대체 키 0개 이상", description: "해당 규칙에만 허용하는 명시 예외"}
-    rules: ["REQ-611.query_constraints를 따른다", "기본 필터 제외·실행 승인·카탈로그 과거 복원으로 해제하지 않는다", "값 검증과 실제 SQL/최종 바인딩의 제약 적용을 모두 확인한다"]
+    rules: ["REQ-611.query_constraints를 따른다", "해제는 REQ-611.condition_exclusions로만 허용하며 실행 승인·카탈로그 복원으로 대체하지 않는다", "값 검증과 실제 SQL/최종 바인딩의 제약 적용을 모두 확인한다"]
     delete_policy: "현재 조회 정책의 변경/보존 절차로 관리하며 카탈로그 후보 삭제·복원과 함께 바꾸지 않는다"
     pending: ["@defer P3 access_policy SCR-009 — 통합 규칙/파라미터/조건·검증식·적용 매핑/버전·이력 물리 모델과 공개 API, 카탈로그 건수 역조회 계약 설계", "@defer P3 agent·integration — 지원 DBMS/표현식·차이 단위·모든 참조 조건 주입·최종 SQL/바인딩/정책 변경 경합 검증"]
-  - id: ENT-026
-    name: "조회 제약 대체 키"
-    term: TRM-270
-    domain: "이용자·접근 정책"
-    module: admin
-    implementation: planned
-    design_stage: logical
-    features: [FEAT-012]
-    reqs: [REQ-611]
-    attributes:
-      - {name: "소유 제약·정책 리비전", description: "독립 조회 정책에 속하며 카탈로그 후보 자식이 아니다"}
-      - {name: "대상 카탈로그·키 참조", description: "허용한 전체 유일키의 안정 대상·정확 카탈로그 버전/키 식별 참조"}
-    relations:
-      - {entity: ENT-009, cardinality: "제약별 대체 키 0개 이상", description: "각 키가 하나의 독립 대안"}
-      - {entity: ENT-021, cardinality: "대체 하나당 전체 키 하나", description: "ENT-022 전체 구성과 현재 참조 유효성을 검증"}
-    rules: ["같은 요청 전체에서 하나의 고정된 전체 키 동등 조건임을 검증해야 기간 대체 가능", "복합 키 일부·NULL·여러 값·분기/반복 우회는 허용하지 않음"]
-    delete_policy: "소유 정책의 변경·이력·보존을 따른다"
-    pending: ["@defer P3 access_policy — ENT-009 통합 정책 물리 설계에서 정책 소유 키/참조·변경 보호·현재 검수 계약 확정"]

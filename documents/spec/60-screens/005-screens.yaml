@@ -219,7 +219,7 @@ screens:
       - FEAT-012
     usecases:
       - UC-026
-    design_handoff: "REQ-611.query_constraints. 규칙 종류/대상 테이블·컬럼/조건 템플릿/명명 파라미터/두 값 비교·차이 범위/출처·단위·경계/질문 안내/검수·현재 적용·정책 이력을 상세 설계한다. 행 스코프 인증 바인딩과 일반 입력을 구분하고 조회 제약을 선택 제외로 해제하지 않는다"
+    design_handoff: "REQ-611.screen_contract·condition_exclusions·query_constraints. 카탈로그 단일 팝업 선행 추가, 규칙 숫자 ID와 읽기 전용 참조, 규칙 설명, 스코프 설정/기본 필터 설정/필수 조건 제약 3탭이다. 스코프 좌 목록·우 SQL/파라미터 설명과 타입별 조건 유형/최대 차이·조건별 사용/해제·결과 안내를 검토한다. 기본 필터 등록값 일치·스코프 AND·필수 조건 OR를 반영한다. 공개/물리/파서 상세는 후속이며 화면 전체 승인 전이다."
     catalog_entry: "catalogId와 규칙 종류 QUERY_CONSTRAINT를 전달받아 해당 테이블로 필터링한다. 이름 대신 안정 ID를 사용하고 현재 메뉴/대상 권한을 다시 검사한다. 직접 진입에서는 허용된 카탈로그에서 테이블을 고른다"
     pending:
       - "@defer P3 access_policy — 요건서/목업과 ENT-009/026 통합 규칙·파라미터 물리 모델, 관리/역조회/실행 공개 계약 및 DBMS 검증을 함께 작성"
@@ -315,7 +315,7 @@ screens:
     feature: FEAT-013
     roadmap: "RM-P1"
     agent_contact: "설정"
-    note: "REQ-610의 전사 공통 자연어 지침 본문·규칙 관리 속성·조건·리비전을 편집하고 의미 검토 결과·관리자 판단·변경 이력을 조회한다. 변수 치환·기술 템플릿·응답 스키마 편집은 제공하지 않는다. 관리 데이터 저장 검증과 문구 의미 검토의 표시·처리는 REQ-610.prompt_contract를 따른다. 실제 화면 요건서·목업은 P3에서 정한다. SQL 원문·물리명 비노출 지침의 초기 적용·한계는 REQ-104.initial_control을 참조한다."
+    note: "REQ-610.prompt_contract.editor·review_set. 좌측 목록은 숨김 내부 식별자·제목·사용 여부·감사4, 우측 설명/Markdown 본문 textarea 두 개다. 큰 편집창·미리보기와 전체 사용 규칙의 실제 전송 가공본 검토를 제공한다. 설명은 운영/검토 프롬프트에서 제외하며 검토 최신성/실패와 관리자 판단을 구분한다. 소스 템플릿·통신 계약·서버 통제 경계는 유지한다."
     route: "/admin/hub/prompt-rule"
     menu_code: "HUB_PROMPT_RULE"
     menu_parent: "HUB_KNOWLEDGE"
@@ -334,22 +334,21 @@ screens:
     title: "채팅 도움말·주의사항"
     feature: FEAT-010
     roadmap: "RM-P1"
-    agent_contact: "없음"
-    note: "portal 의 도움말로 노출된다 개인정보 직접 입력 주의와 전송 안내의 범위는 REQ-106.input_notice를 따른다."
+    agent_contact: "표시 계약"
+    note: "REQ-308.portal_content의 세 고정 구분·작성 형식·단일 본문 편집 화면이다. 지식 목록/매핑을 제거하고 안전 미리보기·마우스 크기 조절 큰 편집·구분별 버전/독립 이력을 제공한다. Portal은 agent가 제공한 동일 판을 계약 위치/시점에 표시하고 INPUT_NOTICE를 실제 전송 안내/제출 근거에 연결한다."
     route: "/admin/hub/chat-help"
     menu_code: "HUB_CHAT_HELP"
     menu_parent: "HUB_KNOWLEDGE"
     target_doc: "documents/screen/admin/hub/chat-help/requirements.md"
-    screen_role: "shared_composition"
+    screen_role: "management"
     design_status: "screen_draft"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
-      kind: "shared_owner"
-      source_screen: SCR-011
-      rule: "REQ-308의 사용 안내 지식은 SCR-011이 소유하는 같은 지식 전체 구성이다. 안내 지식 범위로 지식 변경 이력을 조회하며 독립 사본 이력을 만들지 않는다."
-    history_view: "SCR-048"
-    request_owner: "SCR-011"
-    request_boundary: "별도 승인 루트를 만들지 않고 소유 자산의 전체 구성/요청번호와 전용 변경 요청 화면을 재사용한다. 요청 화면 이동은 현재 권한과 해당 대상/매핑 문맥을 유지한다."
+      kind: "independent"
+      rule: "REQ-601.change_history. 선택 구분의 형식·본문·리비전·사유를 원 화면 상속 이력에서 조회한다. 지식 이력과 분리한다."
+    history_view: "SCR-069"
+    usecases: [UC-021]
+    save_boundary: "REQ-601.direct_management에 따라 선택 구분의 현재값/전체 이력을 현재 권한·기대 버전·사유 검증 후 원자 저장한다. 관리자 승인 요청 경로를 두지 않는다."
   - id: SCR-015
     module: "admin"
     entry: "menu"
@@ -761,7 +760,7 @@ screens:
     user_language: "RM-P4에서 REQ-020의 Portal 지정 언어·LLM 설명/정형 메시지 분리·원값 및 승인 의미 보존·이후 응답 적용·표현 실패 안내/재시도를 제공한다. 언어 선택 위치·저장/동기화·폴백의 화면 요건과 목업은 해당 차수에서 정한다"
     features: [FEAT-101, FEAT-102, FEAT-103, FEAT-104, FEAT-105, FEAT-106, FEAT-107, FEAT-108, FEAT-109, FEAT-111, FEAT-112, FEAT-114, FEAT-121, FEAT-124]
     result_paging: "REQ-011·NFR-002·003의 페이지 상한 초과 안내와 후속 페이지 요청/표시를 제공한다. 다음 페이지 조작·페이징 지원 그리드 등 구체 방식은 portal이 P3 화면 요건/목업에서 결정하며 현재 범위·미상 전체 건수·로딩/끝/실패/만료를 구분한다. 대화 이력 페이징과 조회 결과 페이징은 별개다"
-    privacy_notice: "REQ-106.input_notice의 개인정보 직접 입력 주의와 전송 안내를 제출 전에 확인할 수 있게 한다. 본문 만료/파기와 재요청 불가 안내는 REQ-109를 따르며 실제 문구·배치는 P3에서 설계한다"
+    privacy_notice: "REQ-308.portal_content의 세 구분을 agent 제공 계약으로 표시한다. REQ-106.input_notice의 정적 주의사항 판과 동적 전송 정보를 제출 전에 확인하고 버전/표시 실패를 검증한다. 본문 만료/파기와 재요청 불가 안내는 REQ-109를 따르며 실제 문구·배치는 P3에서 설계한다"
     token_usage: "REQ-006.personal_usage에 따라 각 질의·응답의 수행 시간과 사용 토큰을 함께 표시하고, 별도 영역에 본인의 당월 잔여 총 토큰과 추가 질의 예상 횟수를 표시한다. 구체 배치·표본 근거의 상세 보기·갱신 계약은 P3 화면 요건서·목업에서 정한다"
     model_failure: "REQ-602의 주 추론 일시 장애/사용 불가 복구 구분, 보조 대체 진행·최종 실패·관리자 확인 안내와 REQ-106의 후보 경로 사전 안내/동의를 설계한다. TC-1011·1012를 화면 테스트에 연결하고 모델 선택만으로 자동 전송하지 않는다"
     roadmap: RM-P1

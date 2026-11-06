@@ -54,14 +54,14 @@ function rememberMockupDetailSelection(state, key, current, visible) {
 function bindMockupMath(root) {
   const screens=[...root.querySelectorAll('[data-master-link]')];
   if(!screens.length)return;
-  const rowsOf=grid=>[...grid.querySelectorAll(':scope > .grid > table > tbody > tr[data-row-context]')];
+  const rowsOf=grid=>[...grid.querySelector('.grid > table > tbody')?.children||[]].filter(row=>row.hasAttribute('data-row-context'));
   const allocationInputs=new WeakMap();
   const detailSelections=new WeakMap();
   const controls=screen=>[...screen.querySelectorAll('button[data-grid-save],button[data-grid-add],button[data-edit-action],button[data-config-switch]')];
   const refresh=screen=>{
     const master=screen.querySelector('[data-grid-role="master"]'),selected=master?.querySelector('tbody tr.sel');
     if(!selected)return;
-    const key=selected.querySelector(`[data-row-field="${screen.dataset.masterLink}"]`)?.dataset.rowValue;
+    const key=selected.dataset.masterClientKey||selected.querySelector(`[data-row-field="${screen.dataset.masterLink}"]`)?.dataset.rowValue;
     const locked=selected.dataset.masterLocked==='true';
     if(screen.dataset.allocationValidity){
       const rule=JSON.parse(screen.dataset.allocationValidity),cell=name=>[...selected.querySelectorAll('[data-row-field]')].find(node=>node.dataset.rowField===name);

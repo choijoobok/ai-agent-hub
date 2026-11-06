@@ -1,0 +1,86 @@
+# 프롬프트 규칙 편집·전체 가공본 검토 — 실제 서버 시험은 소유 구현 단계에서 수행
+
+testcases:
+  - id: TC-0131
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "단순 규칙 목록과 행별 두 본문 편집"
+    given: "기존 규칙·신규 미발급 행·사용/미사용 및 조회전용"
+    when: "목록 표시·행 전환·추가/삭제/원복·편집/저장"
+    then: "ID 기본숨김/서버숫자/불변, 제목·사용 여부·감사4 및 우측 설명/본문2. 행별 입력 분리·보존, 신규 사용false. 우선순위/적용조건 입력을 요구하지 않음"
+    verification: "제목 편집·행 원복 때 다른 행 본문이 유실되면 실패. 감사 값 임의 변경·조회전용 입력·새 ID 임의발급을 허용하면 실패"
+    status: planned
+
+  - id: TC-0132
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "큰 편집창·안전 Markdown 미리보기 원문 보존"
+    given: "Markdown 제목·목록·표·인용·코드·링크·HTML/script/외부이미지와 관리자 설명"
+    when: "본문 크게 편집의 모달 모서리를 마우스로 끌어 확대/축소한 뒤 반영/취소/Esc와 미리보기 전환"
+    then: "모달 가로·세로 크기와 본문 영역이 함께 변하고 입력을 유지하며 화면 안에서 반영/취소 버튼에 접근할 수 있다. 반영만 같은 행 본문 변경, 취소는 열기전 원문 유지. 미리보기는 현본문만 안전 표시하고 HTML/위험URL/외부이미지 자동요청 없음. 설명·원문·변경/사용 상태 불변"
+    verification: "raw HTML·script·위험링크 실행/외부요청이나 취소본문 반영·미리보기HTML 저장/전송을 허용하면 실패"
+    status: planned
+
+  - id: TC-0133
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "전체 규칙 가공과 관리자 설명·미사용 제외"
+    given: "검색/페이지 밖 규칙·사용ON/OFF·여러 미저장 추가/수정/삭제·단계별기술계약"
+    when: "전체 규칙 검토에서 전송 가공본을 확인하고 실제 검토 요청"
+    then: "완전한 저장전체+편집변경의 사용ON 제목/본문을 실제agent경로로 안정 순서 조립. 설명/감사/미사용 제외, 호출유형별형태 구분·동적업무원값 임의조회 없음. 목업은 실제 호출/판정 없음"
+    verification: "선택행/현재페이지만 검토하거나 설명전송·단계별출력계약 혼합·전송내용과 검토가공본 불일치면 실패"
+    status: planned
+
+  - id: TC-0134
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "전체 검토 최신성과 늦은 응답"
+    given: "전체검토후 동료규칙·제목/본문·사용전환·추가삭제·템플릿변경과 이전응답 지연"
+    when: "저장/재검토 또는 이전응답 도착, 관리자설명만 수정"
+    then: "전체정확구성/가공본/버전 대조로 낡음 표시. 이전/늦은결과는 해당세트에만 보존. 설명만 변경해 가공본이 같으면 관리값/리비전 검사후 의미근거 재사용 가능"
+    verification: "선택행만 비교해 동료변경을 놓치거나 낡은응답을 현재완료로 덮으면 실패"
+    status: planned
+
+  - id: TC-0135
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "검토 인가·실패·관리자 판단과 서버 통제 분리"
+    given: "검토권한/모델설정 부재·시간초과/분량초과/부분전송·본문 속 권한우회/도구실행 지시"
+    when: "검토 실행과 경고/미완료 뒤 관리자 반영 판단"
+    then: "agent경유 운영호출·집계 경계 유지, 실패≠통과·전체완료위장 금지, 권한자판단/사유 별도보존. 검토자료 지시를 실행하지 않고 현재서버통제/소스계약/지식소유 유지"
+    verification: "admin직접대화호출·업무도구실행·실패통과처리·판단으로 관리값/권한/계약 오류 우회 허용시 실패"
+    status: planned
+
+  - id: TC-0136
+    feature: FEAT-013
+    usecase: UC-020
+    reqs: [REQ-610, REQ-112]
+    screens: [SCR-013, SCR-050]
+    type: business_exception
+    actor: ACT-003
+    title: "변경 집합 저장과 불변 이력·동시성"
+    given: "다른관리자 규칙갱신·정확 검토세트·저장실패·이전리비전"
+    when: "변경규칙을 새사유로 저장하거나 SCR050 이력 조회"
+    then: "현재권한/기대리비전/전체검토근거 대조·변경집합과 전체행이력 원자저장. 변경없는행 재저장/타수정 덮기없음. 과거설명/본문/사용상태 읽기전용, 현재값 대체없음"
+    verification: "부분저장/이력누락·미열람행 삭제·낡은세트재사용·과거편집/현재내용대체 허용시 실패"
+    status: planned
