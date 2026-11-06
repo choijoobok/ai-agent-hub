@@ -38,6 +38,7 @@ features:
     pending:
       - "@defer agent P3 — FEAT-021.registry_contract의 리플렉션 기반 공개 계약·실행 노드/버전 관측·고정 진입점/신뢰 문맥을 상세화한다. 외부 API는 REQ-608.runtime_tool/ENT-035로 구성하고 별도 업무 도구 등록·이중 그룹 검사는 하지 않는다. 공통 실행 승인·현재 원천 권한/사용·연결/신원 통제는 유지한다."
   - id: FEAT-204
+    join_constraint_validation: "REQ-611.query_constraints.join_rule. 정확 관계/판·양쪽 별칭/역할·전체 복합키와 선택 컬럼 전체를 최종 SQL에서 확인하고 대상별 OR를 판정한다. LLM 충족 표식/판단은 실행 허가 근거가 아니다. 기존 AUTHZ-030 파싱 오류 재작성과 REQ-025 정책 미충족 처리를 구분한다."
     datasource_sql_validation: "REQ-603.dbms_context·REQ-301.source_type_catalog를 따른다. 모델 입력에 사용한 DBMS/버전과 실제 실행 연결의 차이·관리 변경을 확인하고 불일치이면 재확인 전 실행하지 않는다. 공통코드 선택/파서 통과는 해당 버전의 실제 타입·집계 함수 지원 보증이 아니며 기존 실행 오류 분류와 재작성 절차를 유지한다"
     module: agent
     roadmap: RM-P1

@@ -15,7 +15,7 @@ entities:
       - {"name":"규칙명·규칙 설명·카탈로그 참조","description":"선택 카탈로그 ID는 불변 참조, 데이터소스/명칭은 조회 투영. 실행 조건식과 업무 설명 구분"}
       - {"name":"스코프 조건 집합","description":"각 항목 안정 ID·이름·SQL 조각·추출 파라미터의 이름/출처/설명·useYn/removable. 예약값은 서버 공급. 사용/해제 후 남은 스코프는 AND"}
       - {"name":"기본 필터 집합","description":"각 항목 안정 ID·현재 컬럼 참조·자료형에 맞는 단일 상태값·useYn/removable. 등록값 일치 조건이며 복수 AND"}
-      - {"name":"필수 조건 집합","description":"각 항목 안정 ID·컬럼 참조·동일 값 매칭/범위 유형·최대 차이·useYn/removable. 날짜 정수 일수/숫자 차이. 사용/해제 후 남은 항목 중 하나 충족(OR). 별도 대체 키 없음"}
+      - {"name":"필수 조건 집합","description":"각 항목 안정 ID·EQ/RANGE/JOIN 유형·EQ/RANGE 단일 columnId 또는 JOIN의 중복 없는 정확 columnIds 배열·최대 차이·useYn/removable. JOIN은 컬럼 모두 실제 조인되어야 한 항목 충족, 자료형/최대 차이는 해당 없음. 화면 콤마 문자열은 비저장 표시다. 날짜 정수 일수/숫자 차이. 사용/해제 후 남은 항목 중 하나 충족(OR). 별도 대체 키 없음"}
       - {"name":"전체 변경 이력·사유","description":"현재 구성과 같은 원자 저장 단위. 수동 검수 상태 없음, 서버 검증은 유지"}
     relations:
       - {entity: ENT-005, cardinality: "규칙별 적용 대상 테이블", description: "카탈로그는 역조회만 하며 규칙 목록을 후보에 복사하지 않음"}

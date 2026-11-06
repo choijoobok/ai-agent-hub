@@ -11,5 +11,10 @@ export function queryPolicyWorkspace(table,model){
  if(!Array.isArray(config.columns)||config.columns.some(column=>!column||typeof column['컬럼명']!=='string'||typeof column['자료형']!=='string'))throw new Error('조회 정책 작업대 컬럼 후보를 확인한다');
  const keys=config.columns.map(column=>String(column[config.catalogKey]??'')+'\0'+column['컬럼명']);
  if(new Set(keys).size!==keys.length)throw new Error('조회 정책 작업대 컬럼 후보가 중복이다');
+ if(config.columnKey!==undefined){
+  if(typeof config.columnKey!=='string'||!config.columnKey||typeof config.selectionKey!=='string'||!config.selectionKey)throw new Error('조회 정책 작업대의 정확 컬럼 키·선택 배열 키를 확인한다');
+  const ids=config.columns.map(column=>column[config.columnKey]);
+  if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw new Error('조회 정책 작업대 컬럼 식별자가 없거나 중복이다');
+ }
  return config;
 }

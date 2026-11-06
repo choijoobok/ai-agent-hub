@@ -107,6 +107,7 @@ usecases:
     pending:
       - "@defer P3 — 그룹 참조/사용 상태·허용 비활성화/삭제·식별자 보호와 영향 표시를 상세화한다"
   - id: UC-026
+    join_constraint: "REQ-611.query_constraints.join_rule. 조건 유형을 먼저 고르고 조인이면 현재 카탈로그 컬럼을 팝업에서 다중 선택한다. 정확 배열·콤마 표시를 유지하고 상대 테이블/컬럼은 등록 관계로 판별한다. 한 항목의 전체 컬럼 충족과 항목 간 OR를 구분한다."
     name: "자산 접근 매핑과 직접 보안 정책을 정해진 경로로 변경한다"
     workstream: "admin"
     design_status: "draft"

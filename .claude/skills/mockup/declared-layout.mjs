@@ -198,7 +198,7 @@ export function declaredScreen(title, model, figure, { annotator, plain, searchC
     };
     const editableHere=rows.some(record=>table.rows.some(r=>editableNow(r,record)));
     const renderRow = (record, rowIndex) => {
-    const valueOf = r => exampleContext(record)&&Object.hasOwn(figure.examples,plain(r[0])) && (!figure.examples['컬럼명'] || figure.examples['컬럼명']===record['컬럼명']) ? figure.examples[plain(r[0])] : Object.hasOwn(record,plain(r[0])) ? String(record[plain(r[0])]) : exampleContext(record)?example(table,r):plain(cell(table,r,'예시'));
+    const valueOf = r => exampleContext(record)&&Object.hasOwn(figure.examples,plain(r[0])) && (!figure.examples['컬럼명'] || figure.examples['컬럼명']===record['컬럼명']) ? figure.examples[plain(r[0])] : Object.hasOwn(record,plain(r[0])) ? String(record[plain(r[0])]??'') : exampleContext(record)?example(table,r):plain(cell(table,r,'예시'));
     const vals = table.rows.map((r,i) => {
       const condition=plain(cell(table,r,'편집 조건'));
       const rowRules = condition && condition !== '—' ? condition.split('&&').map(rule => {

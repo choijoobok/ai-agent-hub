@@ -3,6 +3,7 @@ import {queryPolicyWorkspace} from './query-policy-workspace.mjs';import {declar
 const requireFrontend=createRequire(new URL('../../../sources/frontend/package.json',import.meta.url)),{JSDOM}=requireFrontend('jsdom');
 const source=readFileSync(new URL('../../../aidd-guide/artifact/site-kit/assets/mockup-query-policy.js',import.meta.url),'utf8'),ctx=vm.createContext({});vm.runInContext(source,ctx);const json=value=>JSON.parse(JSON.stringify(value));
 const config={scopeList:'스코프 설정 / 목록',scopeForm:'스코프 설정 / 조건식',parameters:'스코프 설정 / 파라미터',constraints:'필수 조건 제약',filters:'기본 필터 설정',master:'규칙 목록',catalogKey:'카탈로그 식별자',columns:[{'카탈로그 식별자':'901','컬럼명':'order_date','자료형':'날짜'},{'카탈로그 식별자':'901','컬럼명':'order_no','자료형':'문자'},{'카탈로그 식별자':'901','컬럼명':'amount','자료형':'숫자'},{'카탈로그 식별자':'902','컬럼명':'other','자료형':'문자'}]};
+config.columnKey='컬럼 식별자';config.selectionKey='선택 컬럼 식별자';config.columns.forEach((column,index)=>column[config.columnKey]=['9007199254740993','90102','90103','90201'][index]);
 const table=(heading,rows)=>({heading,header:['컬럼','입력방식','편집','검증','예시'],rows});
 function fixture(){return {
  interactive:true,masterLink:'규칙 ID',vertical:true,queryPolicyWorkspace:structuredClone(config),search:[],
@@ -43,13 +44,13 @@ test('주석·문자열·식별자·dollar quote의 토큰을 무시하고 이�
 test('자료형·카탈로그 소속과 범위의 최대 차이를 검증하며 동일값 전환은 값을 비운다',()=>{
  const columns=json(ctx.mockupPolicyColumns(config,'901'));assert.equal(columns.length,3);assert.equal(ctx.mockupPolicyColumns(config,'999').length,0);
  const check=(name,kind,max)=>json(ctx.mockupPolicyConstraint({'컬럼명':name,'조건 유형':kind,'최대 차이':max},columns));
- assert.deepEqual(check('order_no','범위','30').allowed,['동일 값 매칭']);assert.equal(check('order_no','범위','30').values['조건 유형'],'');assert.equal(check('order_no','범위','30').values['최대 차이'],'');
+ assert.deepEqual(check('order_no','범위','30').allowed,['동일 값 매칭','조인']);assert.equal(check('order_no','범위','30').values['조건 유형'],'');assert.equal(check('order_no','범위','30').values['최대 차이'],'');
  for(const max of ['','-1','1.5','NaN'])assert.ok(check('order_date','범위',max).error);assert.equal(check('order_date','범위','0').error,'');assert.equal(check('amount','범위','1.5').error,'');assert.equal(check('order_date','동일 값 매칭','30').values['최대 차이'],'');
- assert.deepEqual(check('missing','범위','30').allowed,['동일 값 매칭']);
+ assert.deepEqual(check('missing','범위','30').allowed,['동일 값 매칭','조인']);
 });
 test('문자형 범위 허용으로 업무 규칙을 뒤집으면 반례가 실패한다',()=>{
  const mutant=vm.createContext({});vm.runInContext(source.replace("range=type==='날짜'||type==='숫자'","range=true"),mutant);
- assert.throws(()=>assert.deepEqual(json(mutant.mockupPolicyConstraint({'컬럼명':'order_no','조건 유형':'범위'},config.columns)).allowed,['동일 값 매칭']));
+ assert.throws(()=>assert.deepEqual(json(mutant.mockupPolicyConstraint({'컬럼명':'order_no','조건 유형':'범위'},config.columns)).allowed,['동일 값 매칭','조인']));
 });
 for(const shadow of [false,true])test(`스코프·부모·탭 왕복과 추출·한 행 원복을 보존한다 (${shadow?'최종 HTML ShadowRoot':'독립 문서'})`,async()=>{
  const ui=await mount({shadow});try{
@@ -74,7 +75,7 @@ test('카탈로그 선택 신규 규칙은 미발급 ID와 기존 하단을 분�
 });
 test('제약 컬럼 변경은 읽기 전용 자료형·유형 후보·최대 차이를 갱신한다',async()=>{
  const ui=await mount();try{
- const row=ui.visible(config.constraints)[0];await ui.edit(ui.field(row,'컬럼명'),'order_no');assert.equal(ui.field(row,'자료형').dataset.rowValue,'문자');assert.equal(ui.field(row,'조건 유형').dataset.rowValue,'');assert.equal(ui.field(row,'최대 차이').dataset.rowValue,'');assert.deepEqual([...ui.field(row,'조건 유형').querySelector('select').options].map(option=>option.value),['','동일 값 매칭']);
+ const row=ui.visible(config.constraints)[0];await ui.edit(ui.field(row,'컬럼명'),'order_no');assert.equal(ui.field(row,'자료형').dataset.rowValue,'문자');assert.equal(ui.field(row,'조건 유형').dataset.rowValue,'');assert.equal(ui.field(row,'최대 차이').dataset.rowValue,'');assert.deepEqual([...ui.field(row,'조건 유형').querySelector('select').options].map(option=>option.value),['','동일 값 매칭','조인']);
  await ui.edit(ui.field(row,'컬럼명'),'order_date');await ui.edit(ui.field(row,'조건 유형'),'범위');const input=ui.field(row,'최대 차이').querySelector('input');assert.equal(input.required,true);assert.equal(input.min,'0');assert.equal(input.step,'1');input.value='1.5';assert.equal(input.checkValidity(),false);
  }finally{ui.dom.window.close();}
 });
@@ -119,4 +120,54 @@ test('스코프 상세는 오른쪽 조건식 아래 파라미터와 추출 버�
 test('부모 식별자가 업무 컬럼에 없어도 같은 문맥의 기존 매핑 중복을 차단한다',async()=>{
  const model=fixture();model.addChoices.rows.push([config.filters,'조회 팝업','필터 후보','규칙 ID','규칙 ID','필터명','없음','필터명','필터명','[{"필터명":"기본 필터"},{"필터명":"추가"}]','{}','—']);
  const ui=await mount({model});try{const grid=ui.grid(config.filters),dialog=grid.querySelector('dialog');assert.equal(grid.querySelector('[data-row-field="규칙 ID"]'),null);await ui.click(grid.querySelector('[data-grid-add]'));await ui.click(dialog.querySelector('[data-lookup-search]'));const choices=[...dialog.querySelectorAll('[data-lookup-choice]')];assert.equal(choices[0].disabled,true);assert.equal(choices[1].disabled,false);}finally{ui.dom.window.close();}
+});
+function joinFixture(){
+ const model=fixture(),ids=[config.columns[0][config.columnKey],config.columns[1][config.columnKey]];
+ model.rowExamples.rows.push([config.constraints,JSON.stringify({'문맥':'101','조건 유형':'조인','컬럼명':'order_date, order_no','자료형':null,'최대 차이':null,'사용 여부':true,'해제 허용':false,[config.selectionKey]:ids})],[config.constraints,JSON.stringify({'문맥':'102','조건 유형':'조인','컬럼명':'amount','자료형':null,'최대 차이':null,'사용 여부':true,'해제 허용':false,[config.selectionKey]:[config.columns[2][config.columnKey]]})]);return model;
+}
+const policyRecord=row=>JSON.parse(row.dataset.policyRecord),joinRow=ui=>ui.visible(config.constraints).find(row=>ui.field(row,'조건 유형').dataset.rowValue==='조인');
+const joinDialog=ui=>ui.root.querySelector('[data-policy-join-dialog]');
+const checkJoin=async(ui,ids)=>{for(const input of joinDialog(ui).querySelectorAll('[data-policy-join-choice]'))if(input.checked!==ids.includes(input.value))await ui.click(input);};
+test('컬럼 식별자 선언과 조인 선택은 정확 ID·현재 카탈로그·중복·빈 선택을 검증한다',()=>{
+ const columns=config.columns.filter(column=>column[config.catalogKey]==='901'),ids=columns.slice(0,2).map(column=>column[config.columnKey]);assert.deepEqual(json(ctx.mockupPolicyJoinSelection(ids,columns,config.columnKey)).map(column=>column[config.columnKey]),ids);
+ for(const selection of [[],[ids[0],ids[0]],['90201'],[ids[0],'90201'],[Number(ids[0])],['없는 컬럼']])assert.throws(()=>ctx.mockupPolicyJoinSelection(selection,columns,config.columnKey));
+ const parsed=json(ctx.mockupPolicyConstraint({'조건 유형':'조인','컬럼명':'이 표시 문자열은 신뢰하지 않는다'},columns,{ids,key:config.columnKey,confirmed:true}));assert.equal(parsed.values['자료형'],null);assert.equal(parsed.values['최대 차이'],null);assert.equal(parsed.error,'');
+ const bad=structuredClone(config);bad.columns[1][config.columnKey]=bad.columns[0][config.columnKey];assert.throws(()=>queryPolicyWorkspace({rows:[['설정',JSON.stringify(bad)]]},fixture()),/식별자/);
+});
+test('선택 컬럼 중 일부만 유효해도 통과시키는 반전은 원자 선택 반례를 통과하지 못한다',()=>{
+ const mutant=vm.createContext({});vm.runInContext(source.replace('selected.some(column=>!column)','selected.every(column=>!column)'),mutant);const columns=config.columns.filter(column=>column[config.catalogKey]==='901');assert.throws(()=>assert.throws(()=>mutant.mockupPolicyJoinSelection([columns[0][config.columnKey],'90201'],columns,config.columnKey)));
+});
+for(const shadow of [false,true])test(`조인 다중 선택은 ID 배열로 원자 적용하고 행·탭·부모 왕복·원복을 유지한다 (${shadow?'최종HTML':'독립문서'})`,async()=>{
+ const model=joinFixture();model.queryPolicyWorkspace.columns[1]['컬럼명']='order,no';model.rowExamples.rows[model.rowExamples.rows.length-2][1]=JSON.stringify({...JSON.parse(model.rowExamples.rows[model.rowExamples.rows.length-2][1]),'컬럼명':'order_date, order,no'});const ui=await mount({model,shadow});try{
+ await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));const row=joinRow(ui),original=row.dataset.policyRecord;assert.equal(row.dataset.gridRowState,'');assert.equal(ui.field(row,'자료형').textContent,'해당 없음');assert.equal(ui.field(row,'최대 차이').querySelector('input'),null);
+ await ui.click(row.querySelector('[data-policy-join-open]'));assert.deepEqual([...joinDialog(ui).querySelectorAll('[data-policy-join-choice]:checked')].map(input=>input.value),[config.columns[0][config.columnKey],config.columns[1][config.columnKey]]);assert.match(joinDialog(ui).textContent,/선택한 모든 컬럼.*실제 조인/);assert.match(joinDialog(ui).textContent,/OR/);
+ await checkJoin(ui,[config.columns[1][config.columnKey],config.columns[2][config.columnKey]]);assert.equal(row.dataset.policyRecord,original);await ui.click(joinDialog(ui).querySelector('[data-policy-join-apply]'));assert.equal(joinDialog(ui).open,false);assert.deepEqual(policyRecord(row)[config.selectionKey],[config.columns[1][config.columnKey],config.columns[2][config.columnKey]]);assert.equal(ui.field(row,'컬럼명').dataset.rowValue,'order,no, amount');assert.equal(policyRecord(row)['자료형'],null);assert.equal(policyRecord(row)['최대 차이'],null);
+ await ui.click(ui.root.querySelector('[data-detail-tab="스코프 설정"]'));await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));await ui.click(ui.rows(config.master)[1]);assert.deepEqual(policyRecord(joinRow(ui))[config.selectionKey],[config.columns[2][config.columnKey]]);await ui.click(ui.rows(config.master)[0]);assert.deepEqual(policyRecord(row)[config.selectionKey],[config.columns[1][config.columnKey],config.columns[2][config.columnKey]]);
+ await ui.click(row.querySelector('[data-revert-row]'));assert.equal(row.dataset.policyRecord,original);assert.deepEqual(policyRecord(row)[config.selectionKey],[config.columns[0][config.columnKey],config.columns[1][config.columnKey]]);
+ }finally{ui.dom.window.close();}
+});
+test('조인 팝업 취소·ESC·빈 적용은 기존 정확 선택 배열을 보존한다',async()=>{
+ const ui=await mount({model:joinFixture()});try{
+ await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));const row=joinRow(ui),original=row.dataset.policyRecord;await ui.click(row.querySelector('[data-policy-join-open]'));await checkJoin(ui,[]);await ui.click(joinDialog(ui).querySelector('[data-policy-join-apply]'));assert.match(joinDialog(ui).querySelector('[data-policy-join-status]').textContent,/하나 이상/);assert.equal(row.dataset.policyRecord,original);await ui.click(joinDialog(ui).querySelector('[data-policy-join-cancel]'));assert.equal(row.dataset.policyRecord,original);
+ await ui.click(row.querySelector('[data-policy-join-open]'));await checkJoin(ui,[config.columns[2][config.columnKey]]);joinDialog(ui).dispatchEvent(new ui.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(joinDialog(ui).open,false);assert.equal(row.dataset.policyRecord,original);
+ }finally{ui.dom.window.close();}
+});
+test('단일에서 조인으로 전환한 후보는 적용 전 미확정이고 조인에서 단일은 다시 선택한다',async()=>{
+ const ui=await mount();try{
+ await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));const row=ui.visible(config.constraints)[0];await ui.edit(ui.field(row,'조건 유형'),'조인');assert.deepEqual(policyRecord(row)[config.selectionKey],[]);assert.equal(policyRecord(row).joinSelectionConfirmed,false);assert.equal(policyRecord(row)['최대 차이'],null);await ui.click(row.querySelector('[data-policy-join-open]'));assert.deepEqual([...joinDialog(ui).querySelectorAll('[data-policy-join-choice]:checked')].map(input=>input.value),[config.columns[0][config.columnKey]]);await ui.click(joinDialog(ui).querySelector('[data-policy-join-cancel]'));assert.deepEqual(policyRecord(row)[config.selectionKey],[]);await ui.click(ui.grid(config.master).querySelector('[data-grid-save]'));assert.match(ui.grid(config.master).querySelector('.pg').textContent,/선택 적용/);
+ await ui.click(row.querySelector('[data-policy-join-open]'));await checkJoin(ui,[config.columns[0][config.columnKey],config.columns[1][config.columnKey]]);await ui.click(joinDialog(ui).querySelector('[data-policy-join-apply]'));await ui.edit(ui.field(row,'조건 유형'),'범위');assert.deepEqual(policyRecord(row)[config.selectionKey],[]);assert.equal(ui.field(row,'컬럼명').dataset.rowValue,'');assert.equal(ui.field(row,'조건 유형').dataset.rowValue,'범위');await ui.edit(ui.field(row,'컬럼명'),'amount');assert.deepEqual(policyRecord(row)[config.selectionKey],[config.columns[2][config.columnKey]]);assert.equal(ui.field(row,'자료형').dataset.rowValue,'숫자');assert.equal(ui.field(row,'최대 차이').querySelector('input').step,'any');
+ }finally{ui.dom.window.close();}
+});
+test('부모·숨김 탭·유형·후보·권한 변경 뒤 조인 팝업은 이전 선택을 덮어쓰지 않는다',async()=>{
+ for(const change of ['parent','tab','kind','columns','readonly']){const ui=await mount({model:joinFixture()});try{
+ await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));const row=joinRow(ui),original=policyRecord(row)[config.selectionKey];await ui.click(row.querySelector('[data-policy-join-open]'));await checkJoin(ui,[config.columns[2][config.columnKey]]);
+ if(change==='parent'){await ui.click(ui.rows(config.master)[1]);await ui.click(ui.rows(config.master)[0]);}if(change==='tab'){await ui.click(ui.root.querySelector('[data-detail-tab="스코프 설정"]'));await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));}if(change==='kind')await ui.edit(ui.field(row,'조건 유형'),'동일 값 매칭');if(change==='columns'){const next=JSON.parse(ui.root.querySelector('.screen').dataset.queryPolicyWorkspace);next.columns[0]['컬럼명']='renamed';ui.root.querySelector('.screen').dataset.queryPolicyWorkspace=JSON.stringify(next);}if(change==='readonly')ui.root.querySelector('.screen').dataset.policyEditable='false';
+ joinDialog(ui).querySelector('[data-policy-join-apply]').dispatchEvent(new ui.window.MouseEvent('click',{bubbles:true}));await tick();assert.equal(joinDialog(ui).open,true);assert.match(joinDialog(ui).querySelector('[data-policy-join-status]').textContent,/낡았습니다/);if(change==='kind'){assert.equal(ui.field(row,'조건 유형').dataset.rowValue,'동일 값 매칭');assert.deepEqual(policyRecord(row)[config.selectionKey],[]);}else assert.deepEqual(policyRecord(row)[config.selectionKey],original);
+ }finally{ui.dom.window.close();}}
+});
+test('신규 조인 추가·삭제와 다른 부모의 유형 변경은 기존 행의 ID 배열을 유지한다',async()=>{
+ const ui=await mount({model:joinFixture()});try{
+ await ui.click(ui.root.querySelector('[data-detail-tab="필수 조건 제약"]'));const old=joinRow(ui),ids=policyRecord(old)[config.selectionKey];await ui.click(ui.grid(config.constraints).querySelector('[data-grid-add]'));const created=ui.visible(config.constraints).find(row=>row.dataset.gridRowState==='C');await ui.edit(ui.field(created,'조건 유형'),'조인');await ui.click(created.querySelector('[data-policy-join-open]'));await checkJoin(ui,[config.columns[2][config.columnKey]]);await ui.click(joinDialog(ui).querySelector('[data-policy-join-apply]'));assert.deepEqual(policyRecord(created)[config.selectionKey],[config.columns[2][config.columnKey]]);await ui.click(created.querySelector('[data-grid-delete]'));assert.equal(created.isConnected,false);assert.deepEqual(policyRecord(old)[config.selectionKey],ids);
+ await ui.click(ui.rows(config.master)[1]);await ui.edit(ui.field(joinRow(ui),'조건 유형'),'동일 값 매칭');await ui.click(ui.rows(config.master)[0]);assert.deepEqual(policyRecord(old)[config.selectionKey],ids);
+ }finally{ui.dom.window.close();}
 });

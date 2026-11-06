@@ -138,3 +138,42 @@ testcases:
     then: "서버 검증한 해제만 반영한다. 스코프/기본 필터 AND, 필수 조건은 남은 후보 OR이며 일부 해제로 나머지 미충족을 통과시키지 않는다. 남은 후보 0개는 제약 없음이지만 독립 통제 유지. 실제 충족·미충족 대안·비사용·해제를 구분해 결과 안내하며 날짜 불필요를 해제로 기록하지 않는다."
     verification: "반대 규칙을 허용하면 실패해야 한다. 목업은 편집/전환/잠금 시연이며 실제 서버·DB·파서·정책 집행은 제품 구현 후 시험한다."
     status: planned
+  - id: TC-0129
+    title: "조인 다중 컬럼 선택과 유형 전환"
+    given: "현재 정책의 정확 컬럼 ID와 단일/복수 선택, 다른 부모·조회전용·범위 설정"
+    when: "유형 선행 선택·다중 팝업 적용/취소·행/탭/부모 왕복·단일 전환"
+    then: "정확 ID 배열에서 콤마 표시하며 취소는 보존한다. JOIN 자료형/최대 차이 해당 없음, 단일 전환은 재선택하고 숨은 다중/범위 잔재 없음"
+    verification: "표시 문자열을 식별자로 파싱·다른 카탈로그 선택·readonly 반영·임의 첫 컬럼 선택 시 실패"
+    feature: "FEAT-012"
+    usecase: "UC-026"
+    screens: ["SCR-009"]
+    reqs: ["REQ-611","REQ-103"]
+    type: "business_exception"
+    actor: "ACT-003"
+    status: "planned"
+  - id: TC-01210
+    title: "조인 항목 전체 컬럼 충족과 항목 간 OR"
+    given: "조인 컬럼 A/B·복합 키·다른 EQ/RANGE 항목과 별칭/CTE/UNION 참조"
+    when: "A만/모두 실제 조인·LEFT 전체 키쌍 충족·A/B를 서로 다른 두 등록 관계로 모두 충족·부분 복합키·CROSS/ON true·다른 별칭·독립 조건 충족 여부 비교"
+    then: "JOIN 하나는 모든 선택 컬럼과 사용하는 관계의 전체 키쌍 검증 필요. LEFT 전체 키쌍과 두 관계를 통한 전체 컬럼 충족도 성공이며 INNER나 한 관계만으로 제한하지 않는다. 대안 중 하나 충족 시 집합 통과. 각 대상 참조를 별도로 검사하고 스코프·기본 필터·권한은 유지"
+    verification: "한 컬럼으로 JOIN충족·JOIN 별도 AND 강제·다른 별칭/분기의 충족 재사용·OR 1=1 우회가 허용되면 실패"
+    feature: "FEAT-012"
+    usecase: "UC-026"
+    screens: ["SCR-009"]
+    reqs: ["REQ-611","REQ-103"]
+    type: "business_exception"
+    actor: "ACT-003"
+    status: "planned"
+  - id: TC-01211
+    title: "서버 검증 불가와 모델 판단 분리"
+    given: "관계 모호/미검수/실패·미지원 주입/조건 표현식 및 LLM 충족 주장"
+    when: "SQL 생성/재작성·서버 주입·최종 검증"
+    then: "LLM 판단으로 강제 조건을 면제하거나 실행 허가하지 않는다. 기존 AUTHZ-030 파싱 오류 재작성 후에도 현재 정책으로 검증한다. 미충족 JOIN만 있어도 다른 유효 대안이 충족되면 집합 통과하되 실제 SQL의 접근/구문 오류는 별도 거부"
+    verification: "관계 추측·명칭/테이블 등장만으로 충족·검증 불가 자동 승인·무제한 재작성·허용 범위 확대가 통과하면 실패"
+    feature: "FEAT-012"
+    usecase: "UC-026"
+    screens: ["SCR-009"]
+    reqs: ["REQ-611","REQ-103"]
+    type: "business_exception"
+    actor: "ACT-003"
+    status: "planned"

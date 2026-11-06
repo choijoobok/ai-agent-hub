@@ -132,6 +132,7 @@ feature_contracts:
     implementation: "planned"
     response_rule: "양쪽 카탈로그의 관리용 getRelatedJoins(API-027)는 FEAT-003.types.CatalogRelationReferenceRow로 같은 소유 관계와 양쪽 역할을 반환한다. 편집은 별도 SCR-039에서 관리 카탈로그의 초안으로 연결하고 현재 권한을 검사한다. 이 관리용 역조회는 LLM/예제 작성의 범위 제한 공통 조회를 대신하지 않는다"
     relation_read_contract:
+      join_constraint_consumer: "FEAT-204의 REQ-611.query_constraints.join_rule 검증도 이 정확 카탈로그/판·허용 컬럼 범위를 사용한다. JOIN 항목의 모든 선택 컬럼과 사용하는 관계 전체 쌍을 검사하며 관리 역조회로 후보/권한을 확대하지 않는다."
       design_status: "입력/필터/소비 경계 합의. 구체 DTO·모듈 공개 방식·엔드포인트는 후속 P3에서 확정"
       consumers:
         - "FEAT-202"
