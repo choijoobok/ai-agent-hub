@@ -11,6 +11,7 @@ import {
   workstreamGateStatus,
   currentWorkstream,
   readState,
+  parseYaml,
   gateStatus,
   requirementBelongsToWorkstream,
   unrealizedRequirementDeferral,
@@ -27,6 +28,7 @@ import {
 } from '../../.claude/hooks/screen-registry.mjs';
 import { crashOutput, patchTargets as bootstrapTargets } from '../../aidd-guide/harness/runtime/pretool-bootstrap.mjs';
 import { SESSION_NOTICE, SESSION_NOTICE_CONTEXT } from './session-notice.mjs';
+import { loadSpecSet } from '../../aidd-guide/harness/runtime/spec-set.mjs';
 import { testSpecSet } from '../../aidd-guide/harness/runtime/spec-set.self-test.mjs';
 
 testSpecSet();
@@ -105,7 +107,10 @@ const workstreamReason = workstreamDenied
   .map((x) => x?.hookSpecificOutput?.permissionDecisionReason ?? '')
   .join('\n');
 const liveState = readState();
-const integrationG3 = workstreamGateStatus(liveState, 'integration');
+const probeFeature = loadSpecSet({ repo: REPO, name: '31-features', parseYaml }).document.features.find((feature) => feature.id === 'FEAT-126');
+assert.ok(probeFeature, '소유 작업흐름 검사용 기능이 정본에 있어야 한다');
+const probeOwner = featureWorkstream(probeFeature);
+const integrationG3 = workstreamGateStatus(liveState, probeOwner);
 const shouldDenyWorkstream = gateStatus(liveState, 'P3_design') !== 'approved'
   && liveState?.current?.template_maintenance !== true
   && integrationG3 !== 'approved';
@@ -113,7 +118,7 @@ assert.equal(
   workstreamDenied.some((x) => x?.hookSpecificOutput?.permissionDecision === 'deny'),
   shouldDenyWorkstream,
 );
-if (shouldDenyWorkstream) assert.match(workstreamReason, new RegExp(`integration\\(G3=${integrationG3}\\)`));
+if (shouldDenyWorkstream) assert.match(workstreamReason, new RegExp(`${probeOwner}\\(G3=${integrationG3}\\)`));
 assert.equal(featureWorkstream({ module: 'common' }), 'integration');
 assert.equal(featureWorkstream({ module: 'portal', workstream: 'integration' }), 'integration');
 const workstreamFixture = {

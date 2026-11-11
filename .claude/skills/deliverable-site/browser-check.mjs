@@ -1,4 +1,6 @@
-/** 실제 Chromium에서 탐색·설정·목업 격리·Mermaid 렌더링을 검사한다. */
+/** 실제 Chromium에서 탐색·설정·목업 격리·Mermaid 렌더링을 검사한다.
+ * --model-contracts는 비저장/물리 모델 분류 변경의 집중 재검증이며 전체 화면 순회를 대체하지 않는다.
+ */
 import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -9,6 +11,8 @@ import { loadSpecSet } from '../../../aidd-guide/harness/runtime/spec-set.mjs';
 
 const rootArg = process.argv.slice(2).find((arg) => arg.startsWith('--root='))?.slice('--root='.length);
 const site = process.argv.slice(2).find((arg) => !arg.startsWith('--')) ?? 'design';
+const modelContractFocus = process.argv.includes('--model-contracts');
+if (modelContractFocus && site !== 'design') throw new Error('--model-contracts는 design 검사에만 사용한다.');
 const root = resolve(REPO, rootArg || 'build/deliverables');
 const requireFrontend = createRequire(resolve(REPO, 'sources/frontend/package.json'));
 const { chromium } = requireFrontend('playwright');
@@ -16,9 +20,12 @@ const channel = process.argv.slice(2).find((arg) => arg.startsWith('--browser=')
 if (channel && !['chrome', 'msedge'].includes(channel)) throw new Error('--browser는 chrome 또는 msedge다.');
 const browser = await chromium.launch({ headless: true, ...(channel ? { channel } : {}) });
 const errors = [];
+if (modelContractFocus) console.log('집중 검사: 비저장/물리 모델 분류와 공통 브라우저 동작. 전체 화면 순회는 별도다.');
 
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  page.setDefaultTimeout(20000);
+  page.on('pageerror', (error) => errors.push(`브라우저 스크립트 오류: ${error.message}`));
   await page.goto(pathToFileURL(resolve(root, site, 'index.html')).href, { waitUntil: 'load' });
   await page.evaluate(() => window.DELIVERY_READY);
   const openHash = async (id) => {
@@ -54,27 +61,42 @@ try {
       .filter((node) => node.dataset.pagePath?.includes('테이블 목록·명세서') && / — /.test(node.textContent))
       .map((node) => ({ id: node.dataset.pageLink, path: node.dataset.pagePath,
         logical: node.textContent.includes('물리명 미정'),
+        nonpersistent: node.textContent.includes(' (비저장) — '),
         planned: planned.includes(node.textContent.split(' — ')[0].trim()),
       })), plannedTables);
-    const physicalPage = tablePages.find((entry) => !entry.logical && !entry.planned);
+    const physicalPage = tablePages.find((entry) => !entry.logical && !entry.planned && !entry.nonpersistent);
     const plannedPages = tablePages.filter((entry) => entry.planned);
     const logicalPages = tablePages.filter((entry) => entry.logical);
+    const nonpersistentPages = tablePages.filter((entry) => entry.nonpersistent);
+    const expectedNonpersistent = loadSpecSet({ repo: REPO, name: '40-domain', parseYaml }).document.entities
+      .filter((entity) => entity.storage_kind === 'nonpersistent').length;
     if (!physicalPage) errors.push('물리 테이블 상세 명세의 모듈별 목차가 없다.');
     if (plannedPages.length !== plannedTables.length) errors.push('미구현 물리 설계의 테이블 목차 수가 정본과 다르다.');
-    for (const tablePage of [...(physicalPage ? [physicalPage] : []), ...plannedPages, ...logicalPages]) {
+    if (nonpersistentPages.length !== expectedNonpersistent) errors.push('비저장 모델의 목차 수가 정본과 다르다.');
+    const tableChecks = [...(physicalPage ? [physicalPage] : []), ...(modelContractFocus ? [] : [...plannedPages, ...logicalPages]), ...nonpersistentPages];
+    let checkedTables = 0;
+    console.log(`데이터 모델 순회 시작: ${tableChecks.length}개`);
+    for (const tablePage of tableChecks) {
       await openHash(tablePage.id);
       const text = await page.locator(`[data-page][id="${tablePage.id}"]`).innerText();
-      const labels = tablePage.logical
+      const labels = tablePage.nonpersistent
+        ? ['비저장 논리 투영 · 테이블 없음', '비저장 계약', '독립 테이블·컬럼·키·HIST·Liquibase changeset의 대상이 아니다.']
+        : tablePage.logical
         ? ['논리 설계 · 물리명 미정', '논리 속성', '업무 모델 연결', '아직 설계하지 않았다']
         : ['NULL 허용', '기본값', '키·제약', tablePage.planned ? '설계 초안 · 미구현' : 'Liquibase 변경 근거'];
       for (const label of labels) if (!text.includes(label)) errors.push(`${tablePage.path} 명세 항목 누락: ${label}`);
+      if (tablePage.nonpersistent && ['## 물리 컬럼', '## Liquibase 변경 근거'].some((label) => text.includes(label.slice(3)))) errors.push(`${tablePage.path} 비저장 모델에 물리 테이블 명세가 섞였다.`);
       if (await page.locator('[data-current-path]').textContent() !== tablePage.path) errors.push('테이블 명세의 현재 경로가 다르다.');
+      checkedTables++;
+      if (checkedTables % 20 === 0 || checkedTables === tableChecks.length) console.log(`데이터 모델 순회: ${checkedTables}/${tableChecks.length}`);
     }
-    console.log(`데이터 모델 표시: 구현 명세 ${physicalPage ? 1 : 0}개 · 물리 초안 ${plannedPages.length}개 · 논리 초안 ${logicalPages.length}개`);
-    const plannedScreens = loadSpecSet({ repo: REPO, name: '60-screens', parseYaml }).document.screens
+    console.log(`데이터 모델 표시: 구현 명세 ${physicalPage ? 1 : 0}개 · 물리 초안 ${plannedPages.length}개 · 논리 초안 ${logicalPages.length}개 · 비저장 ${nonpersistentPages.length}개`);
+    const plannedScreens = modelContractFocus ? [] : loadSpecSet({ repo: REPO, name: '60-screens', parseYaml }).document.screens
       .filter((screen) => screen.target_doc && existsSync(resolve(REPO, screen.target_doc)));
     const usecases = loadSpecSet({ repo: REPO, name: '30-usecases', parseYaml }).document.usecases;
     let sequenceTabs = 0, initialTabs = 0, themeRace = null;
+    let checkedScreens = 0;
+    console.log(`설계 화면 순회 시작: ${plannedScreens.length}개`);
     for (const screen of plannedScreens) {
       const linkId = await page.locator('[data-page-link]').evaluateAll((nodes, id) => nodes.find((node) => node.textContent.trim().startsWith(id + ' '))?.dataset.pageLink, screen.id);
       if (!linkId) { errors.push(`${screen.id}: 설계 화면 목차가 없다.`); continue; }
@@ -166,6 +188,8 @@ try {
         themeRace = { pageId: linkId, tab: `sequence-${id}` };
         sequenceTabs++;
       }
+      checkedScreens++;
+      if (checkedScreens % 10 === 0 || checkedScreens === plannedScreens.length) console.log(`설계 화면 순회: ${checkedScreens}/${plannedScreens.length}`);
     }
     if (themeRace) {
       await openHash(themeRace.pageId);
@@ -194,7 +218,7 @@ try {
       if (actual.theme !== 'light' || actual.actor !== expectedActor) errors.push('이전 다크 렌더와 라이트 선택이 겹치면 최종 SVG 테마가 남는다.');
       console.log('테마 경합: 라이트→지연된 다크→라이트 최종 색상 확인');
     }
-    for (const uc of usecases.filter((item) => item.sequence_design?.shared_sequences?.length)) {
+    for (const uc of (modelContractFocus ? [] : usecases.filter((item) => item.sequence_design?.shared_sequences?.length))) {
       const linkId = await page.locator('[data-page-link]').evaluateAll((nodes, id) => nodes.find((node) => node.textContent.trim().startsWith(id + ' '))?.dataset.pageLink, uc.id);
       if (!linkId) continue;
       for (const shared of uc.sequence_design.shared_sequences) {
@@ -270,5 +294,5 @@ try {
 }
 
 for (const error of errors) console.log(`오류: ${error}`);
-console.log(errors.length ? `빨강 — ${errors.length}건` : '초록 — 실제 브라우저 동작이 완결됐다.');
+console.log(errors.length ? `빨강 — ${errors.length}건` : modelContractFocus ? '초록 — 비저장/물리 모델 경계 집중 검사가 완결됐다.' : '초록 — 실제 브라우저 동작이 완결됐다.');
 process.exitCode = errors.length ? 1 : 0;

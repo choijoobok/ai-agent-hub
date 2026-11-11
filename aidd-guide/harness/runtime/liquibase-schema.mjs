@@ -182,6 +182,15 @@ export function physicalContract(table) {
 
 /** G3에서 요구할 물리 설계의 완성 조건. 초안 허용 여부와 분리한다. */
 export function entityDesignIssues(entity) {
+  if (entity.storage_kind !== undefined) {
+    if (entity.storage_kind !== 'nonpersistent') return ['storage_kind는 nonpersistent만 명시할 수 있다'];
+    const issues = [];
+    if (entity.design_stage !== 'logical' || !entity.name || !entity.module) issues.push('비저장 투영은 logical·논리명·소유 모듈이 필요하다');
+    if (typeof entity.nonpersistent_reason !== 'string' || !entity.nonpersistent_reason.trim()) issues.push('비저장 근거(nonpersistent_reason) 없음');
+    for (const key of ['table', 'physical', 'columns', 'history_storage']) if (Object.hasOwn(entity, key)) issues.push(`비저장 투영에 ${key} 지정 금지`);
+    if ((entity.attributes ?? []).some((a) => Object.hasOwn(a, 'physical_name'))) issues.push('비저장 투영에 physical_name 지정 금지');
+    return issues;
+  }
   if (entity.design_stage === 'logical') return ['논리 설계 중 — 소유 작업흐름 G3 전에 물리명·키·제약을 확정한다'];
   const issues = [];
   if (!entity.table) issues.push('물리 테이블명 미정');
@@ -213,6 +222,10 @@ export function schemaDifferences(entities, catalog, external = []) {
   for (const e of entities) {
     if (!['planned', 'implemented'].includes(e.implementation)) { errors.push(`${e.id}: implementation 누락`); continue; }
     if (e.design_stage !== undefined && !['logical', 'physical'].includes(e.design_stage)) errors.push(`${e.id}: design_stage는 logical/physical이어야 한다`);
+    if (e.storage_kind !== undefined) {
+      errors.push(...entityDesignIssues(e).map((message) => `${e.id}: ${message}`));
+      continue; // 실제 테이블을 분류한 것으로 세지 않는다. catalog 미분류 검사는 유지한다.
+    }
     if (e.design_stage === 'logical') {
       if (e.implementation !== 'planned' || e.table || e.physical) errors.push(`${e.id}: 논리 설계는 planned이며 table/physical을 아직 지정하지 않는다`);
       if (!e.name || !e.module) errors.push(`${e.id}: 논리명/소유 모듈 누락`);

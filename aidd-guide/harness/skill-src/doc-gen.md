@@ -96,7 +96,7 @@ node .claude/skills/doc-gen/gen.mjs --check            # 생성물이 spec 을 �
 | 운영런북 | `gen` | `documents/generated/80-운영런북.md` | 80-operations |
 | 시퀀스 | `gen` | `documents/generated/33-시퀀스/UC-###.md` (Mermaid sequenceDiagram) + `_index.md` | 30-usecases.sequence_design (50-api 등 상세 계약 참조) |
 
-**`prose`는 DDL 하나다.** 승인된 물리 변경이 생길 때 생성기로 옮긴다.
+**`prose`는 DDL 하나다.** 승인된 물리 변경이 생길 때 생성기로 옮긴다. 명시 `storage_kind: nonpersistent`는 DDL 대상이 아니며 테이블 목록에 비저장 근거를 표시한다. 일반 logical 초안의 물리 미완성과 구별한다.
 기능별 요건정의서는 정본의 모든 필드와 정규화한 화면/API 연결을 생성한다.
 시퀀스는 [정본 서식](../../../aidd-guide/artifact/spec-schema.md#핵심-처리-시퀀스)의 UC `sequence_design`에서
 Mermaid·읽는 순서·API/시험·후속 계약을 함께 생성한다. 작성하지 않은 UC의 완료를 추정하지 않으며

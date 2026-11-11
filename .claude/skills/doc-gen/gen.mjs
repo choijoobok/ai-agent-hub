@@ -494,13 +494,12 @@ function 요구사항정의서() {
       + CH.map(([f, d, src, st]) => `| [${f.replace('.md', '')}](./${f}) | ${d} | \`${src}.yaml\` | ${STAT[st] ?? st} |`).join('\n'),
     '## 읽는 순서\n\n'
       + '**위에서 아래로다.** 목적(00)이 액터(01)를 정하고, 제약(02)이 선택지를 좁히고, 용어(03)가\n'
-      + '말을 고정한 뒤에야 요구사항(04)이 읽힌다. 프로세스(05)가 비어 있어 **요구사항의 우선순위가\n'
-      + '업무 가치가 아니라 기술 의존으로 정해져 있다** — 그것이 지금 이 문서의 가장 큰 약점이다.',
-    '## 아직 답이 없는 것\n\n| ID | 무엇 | 어디 |\n|---|---|---|\n'
-      + '| `OQ-002` | 1차 적용 업무를 무엇으로 할 것인가 — **고객사가 없어 답할 수 없다** | 05장 |\n'
-      + '| `ASM-002` | 성능·비용의 목표 수치를 실측 뒤에 세운다 | 06장 |\n'
-      + '| `ASM-003` | 오케스트레이션은 LangGraph4j 로 확정된 것으로 본다 | `ADR-001`·`ADR-003` |\n'
-      + '| `ASM-004` | 고객사 없이 제품을 먼저 만든다 | 00장의 경제성 전체 |',
+      + '말을 고정한 뒤에야 요구사항(04)이 읽힌다. 프로세스(05)에서 요구사항을 실제 업무 흐름과\n'
+      + '연결하고, 비기능(06)과 외부 인터페이스(07)에서 실행 조건과 시스템 경계를 확인한다.',
+    '## 질문과 가정의 현재 상태\n\n'
+      + '사용자 답변이 필요한 질문은 [프로젝트 상태](../../project.state.yaml)의 `open_questions`, '
+      + '가정의 확인·기각과 근거는 [가정 원장](../../decisions/ASSUMPTIONS.md)을 따른다. '
+      + '이 목차에 과거 미결 목록을 고정 복제하지 않는다.',
   ]);
 }
 
@@ -901,11 +900,13 @@ function ERD() {
   const items = d.entities ?? [];
   const diagram = ['```mermaid', 'erDiagram'];
   for (const ent of items) {
-    if (ent.design_stage === 'logical') continue;
+    if (ent.storage_kind === 'nonpersistent' || ent.design_stage === 'logical') continue;
     diagram.push(`  ${ent.table ?? ent.id} {`);
+    const physicalTypes = new Map((ent.physical?.attributes ?? []).map((column) => [column.name, column.type]));
     for (const attr of ent.attributes ?? []) {
       const flags = [attr.pk ? 'PK' : '', attr.fk ? 'FK' : ''].filter(Boolean).join(',');
-      diagram.push(`    ${String(attr.type ?? 'string').replace(/[^A-Za-z0-9_]/g, '_')} ${attr.physical_name ?? attr.name}${flags ? ` ${flags}` : ''}`);
+      const type = physicalTypes.get(attr.physical_name ?? attr.name) ?? attr.type ?? 'string';
+      diagram.push(`    ${String(type).replace(/[^A-Za-z0-9_]/g, '_')} ${attr.physical_name ?? attr.name}${flags ? ` ${flags}` : ''}`);
     }
     diagram.push('  }');
   }
@@ -954,8 +955,9 @@ function 테이블명세서(verify = false, snapshot = schema(), capture = null)
     const file = `${folder}${e.key}.md`, physical = e.physical;
     const actual = catalog.tables.get(e.table);
     const logical = e.design_stage === 'logical';
-    const state = logical ? '논리 설계 · 물리명 미정' : e.implementation === 'implemented' ? '소스 기준 물리 정의' : '설계 초안 · 미구현';
-    const display = e.table ?? `${e.name} (물리명 미정)`;
+    const nonpersistent = e.storage_kind === 'nonpersistent';
+    const state = nonpersistent ? '비저장 논리 투영 · 테이블 없음' : logical ? '논리 설계 · 물리명 미정' : e.implementation === 'implemented' ? '소스 기준 물리 정의' : '설계 초안 · 미구현';
+    const display = e.table ?? `${e.name} (${nonpersistent ? '비저장' : '물리명 미정'})`;
     rows.push({ module: e.module, table: `[${display}](${e.key}.md)`, entity: e.id ?? '기술 기반', description: e.description, state });
     const parts = [head(`TABLE-${e.key}`, `${display} — ${e.name ?? e.description}`, specSource('40-domain'), e.implementation === 'implemented' ? 'current_source' : 'draft', null, e.id ? [e.id, ...(e.features ?? [])] : []).replace('generated_from:', `module: ${e.module}\ngenerated_from:`),
       `**${state}** — 실제 DB 적용 확인을 뜻하지 않는다.`,
@@ -977,7 +979,8 @@ function 테이블명세서(verify = false, snapshot = schema(), capture = null)
         '## 키·제약\n\n' + (constraints.length ? table(constraints, ['name', 'definition']) : '명시된 물리 제약 없음'),
         '## 별도 인덱스\n\n' + ((physical.indexes ?? []).length ? table(physical.indexes, ['name', 'unique', 'method', 'definition']) : '별도 인덱스 없음'),
         '기본키·유일성 제약이 생성하는 인덱스는 키·제약에 포함한다. 논리 관계를 물리 외래키로 간주하지 않는다. 컬럼 설명이 미기재이면 이름으로 의미를 추정하지 않는다.');
-    } else parts.push('## 물리 상세\n\n아직 설계하지 않았다. 컬럼·키·제약을 확정할 때 40-domain의 physical을 작성한다.');
+    } else if (nonpersistent) parts.push(`## 비저장 계약\n\n${flat(e.nonpersistent_reason)}\n\n독립 테이블·컬럼·키·HIST·Liquibase changeset의 대상이 아니다.`);
+    else parts.push('## 물리 상세\n\n아직 설계하지 않았다. 컬럼·키·제약을 확정할 때 40-domain의 physical을 작성한다.');
     if (e.id) parts.push('## 업무 모델 연결\n\n' + blocks([{ id: e.id, name: e.name, term: e.term, domain: e.domain, attributes: logical ? e.attributes : undefined, rules: e.rules, relations: e.relations, audit: e.audit, delete_policy: e.delete_policy, retention: e.retention, state_machine: e.state_machine, planned_changes: e.planned_changes }], ['id'], 'name', '###'));
     if (actual) {
       parts.push('## Liquibase 변경 근거\n\n' + table(actual.changesets.map((c) => ({ file: `[${c.file}](${posix.relative(folder, c.file)})`, author: c.author, change_id: c.id })), ['file', 'author', 'change_id']),

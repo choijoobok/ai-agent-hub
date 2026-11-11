@@ -41,6 +41,7 @@ tags: [data, schema, liquibase, trace]
 - `attributes`·`relations`·`rules`·`state_machine`: 업무 속성·논리 관계·불변식. 논리 관계가
   있다고 DB 외래키가 존재하는 것은 아니다. 기존 `columns` 이름 목록은 호환하며 신규 문서에는 중복하지 않는다.
   논리 속성의 `name`은 한글로 유지하고 물리 설계에서 `physical_name`을 연결한다. 기존 영문 name 입력은 호환한다.
+- `revision_column`: 관리 마스터의 업무 버전 열. 생략하면 `REVISION`이며 기존 `MANAGEMENT_VERSION`처럼 이름이 다르면 명시한다. 선언한 열의 존재와 이력 동형 복사를 검사하며 자식의 독립 버전을 허용하는 설정은 아니다.
 - `physical.attributes`: 전체 컬럼의 순서·`name`·정확한 `type`·`nullable`·`default`(없으면 null).
   실제 DB 주석은 선택 `comment`, 업무 설명은 논리 속성의 `description`에 둔다.
 - `physical.constraints`: 이름과 전체 `definition`. 기본키·유일성·외래키·CHECK를 포함하고

@@ -56,6 +56,20 @@ INSERT INTO child (note) VALUES ('ALTER TABLE child; DROP TABLE parent;');
   const logical = { id: 'ENT-10', name: '논리 업무 항목', module: 'test', implementation: 'planned', design_stage: 'logical', attributes: [{ name: '업무 항목 식별자' }] };
   assert.deepEqual(schemaDifferences([...entities, logical, { ...logical, id: 'ENT-11' }], c), []);
   assert.ok(entityDesignIssues(logical).length);
+  const projection = { ...logical, id: 'ENT-12', storage_kind: 'nonpersistent', nonpersistent_reason: '현재 계약에서 파생하며 독립 저장/DDL을 갖지 않는다.' };
+  assert.deepEqual(entityDesignIssues(projection), []);
+  assert.deepEqual(schemaDifferences([...entities, projection], c), []);
+  assert.deepEqual(schemaDifferences([...entities, { ...projection, implementation: 'implemented' }], c), []);
+  for (const patch of [{ nonpersistent_reason: '' }, { storage_kind: 'unknown' }, { table: 'CHILD' }, { physical: {} }, { columns: [] }, { history_storage: {} }, { attributes: [{ name: '식별자', physical_name: 'ID' }] }]) {
+    assert.ok(entityDesignIssues({ ...projection, ...patch }).length, JSON.stringify(patch));
+    assert.ok(schemaDifferences([...entities, { ...projection, ...patch }], c).length, JSON.stringify(patch));
+  }
+  const projectionDocs = renderTableDocuments({ domain: { entities: [projection], conventions: { liquibase: { technical_tables: [] } } }, catalog: { tables: new Map() } });
+  const projectionDoc = projectionDocs.get('documents/generated/41-테이블명세서/ENT-12.md');
+  assert.ok(projectionDoc.includes('비저장 논리 투영 · 테이블 없음'));
+  assert.ok(projectionDoc.includes(projection.nonpersistent_reason));
+  assert.ok(!projectionDoc.includes('물리명 미정'));
+  assert.ok(!projectionDoc.includes('아직 설계하지 않았다'));
   assert.ok(entityDesignIssues({ ...future, design_stage: 'physical', attributes: [{ name: 'ID', pk: true }] }).some((s) => s.includes('physical')));
   const draftDocs = renderTableDocuments({ domain: { entities: [logical], conventions: { liquibase: { technical_tables: [] } } }, catalog: { tables: new Map() } });
   const draft = draftDocs.get('documents/generated/41-테이블명세서/ENT-10.md');

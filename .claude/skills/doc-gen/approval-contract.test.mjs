@@ -13,6 +13,17 @@ const historyOnly=()=>({entities:[
  {id:'MASTER',attributes:attrs('ID','REVISION'),copy_mapping:{history:'HISTORY'}},
  {id:'HISTORY',storage_role:'history',history_copy_of:'MASTER',attributes:attrs('HIST_ID','HISTORY_NO','ID','REVISION','HIST_DTM')}
 ]});
+
+test('명시한 관리 버전 열을 인정하되 없는 열 선언은 거부한다',()=>{
+ const d=historyOnly();
+ d.entities[0].revision_column='MANAGEMENT_VERSION';
+ for(const e of d.entities)for(const a of e.attributes)if(a.physical_name==='REVISION')a.physical_name='MANAGEMENT_VERSION';
+ assert.deepEqual(approvalContractErrors(d),[]);
+ d.entities[0].revision_column='MISSING_VERSION';
+ assert.ok(approvalContractErrors(d).some(e=>e.includes('업무 리비전')));
+ delete d.entities[0].revision_column;
+ assert.ok(approvalContractErrors(d).some(e=>e.includes('업무 리비전')));
+});
 test('이력만 선언한 직접 저장 계약에는 승인 스냅샷을 요구하지 않는다',()=>{
  assert.deepEqual(approvalContractErrors(historyOnly()),[]);
  const missing=historyOnly();delete missing.entities[0].copy_mapping.history;

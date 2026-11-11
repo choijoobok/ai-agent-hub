@@ -17,7 +17,7 @@ export function approvalContractErrors(domain){
    if(kind==='snapshot')for(const n of ['BASE_REVISION','APPLIED_REVISION'])if(ns.has(n)===isChild)fail('기준/결과 리비전은 마스터 SNP에만 필요하다.');
    if(kind==='history'&&ns.has('HIST_DTM')===isChild)fail('저장일시는 마스터 HIST에만 필요하다.');
    if(isChild){const p=byId.get(copy[kind+'_parent']);if(!p||p.storage_role!==kind)fail('같은 문맥의 마스터 복사 참조가 필요하다.');if(names(source).has('REVISION'))fail('현재 자식에 독립 업무 리비전을 두지 않는다.');}
-   else if(!names(source).has('REVISION'))fail('현재 마스터에 업무 리비전이 필요하다.');
+   else if(!names(source).has(source.revision_column??'REVISION'))fail('현재 마스터에 업무 리비전이 필요하다.');
   }
  }
  return errors;
