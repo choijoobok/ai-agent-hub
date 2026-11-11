@@ -7,6 +7,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework:spring-orm")
 
     // @Operation — 시드의 API_NM · API_DESC 원천(backend/api.md). 프로필로 가르지 않는다:
     // 빼면 생성기가 이름을 못 만들고 그 사실이 조용하다.
@@ -21,4 +22,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testRuntimeOnly("com.h2database:h2")
+    testRuntimeOnly("org.postgresql:postgresql")
 }

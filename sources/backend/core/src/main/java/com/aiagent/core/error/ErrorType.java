@@ -1,7 +1,7 @@
 package com.aiagent.core.error;
 
 /**
- * 에러가 어떤 HTTP 상태로 나가는지. 코드마다 숫자를 적지 않고 이 다섯 중 하나를 고른다.
+ * 에러가 어떤 HTTP 상태로 나가는지. 코드마다 숫자를 적지 않고 정의된 상태 중 하나를 고른다.
  *
  * <p>목록은 backend/api.md 의 상태 코드 표와 1:1 이다 — 200 은 여기 없다(성공은 에러가 아니다).
  */
@@ -23,7 +23,10 @@ public enum ErrorType {
     CONFLICT(409),
 
     /** 그 밖. 스택트레이스를 응답에 담지 않는다 — {@code traceId} 만 준다(backend/security.md). */
-    INTERNAL_ERROR(500);
+    INTERNAL_ERROR(500),
+
+    /** 인증 문맥·저장소 판정 불가. 안전 실패하며 자동 명령 재시도를 요구하지 않는다. */
+    SERVICE_UNAVAILABLE(503);
 
     private final int status;
 

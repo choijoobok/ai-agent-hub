@@ -40,8 +40,10 @@ tags: [backend, time, clock, timezone, business-calendar]
 | `ZoneId.systemDefault()` | `calendar.zone()` |
 | DB 함수 `SYSDATE` · `NOW()` | 위와 같다 — **금지의 뿌리가 같다**([persistence.md](./persistence.md)) |
 
-**예외는 `Clock` 을 넘겨받은 호출뿐이다.** `Instant.now(clock)` 은 인자가 단일 출처이므로
-규약을 지킨다 — 괄호가 빈 것만 금지다.
+`Instant.now(clock)`은 인자가 단일 출처이므로 규약을 지킨다. 괄호가 빈 호출은 금지다.
+승인된 분산 세션 저장 계약이 DB 시각으로 만료·저장 시점을 판정하도록 정한 경우에는
+해당 세션 어댑터가 DB의 UTC 시각을 단일 출처로 사용한다. 앱 시계와의 차이로 유효한 행을
+삭제하지 않는 반례를 검증하며, 이 예외를 업무 사건 시각·업무 달력 날짜로 확대하지 않는다.
 
 ## 3. 쓰는 모양 — 생성자 주입
 

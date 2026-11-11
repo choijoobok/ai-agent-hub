@@ -1,4 +1,5 @@
 MSG_KEY,USE_SCOPE,MSG_DESC
+AUTH_CONTEXT_UNAVAILABLE,BACK,인증 문맥/세션 저장소 판정 불가. API-601의503이며 인증 명령을 자동 재전송하지 않는다.
 accessLog.anonymous,FRONT,사용자 칸이 빈 행의 표시 — screen/admin/system/log/access/requirements.md. 빈칸으로 두면 *수집이 안 된 것*과 구분되지 않는다. 미인증 요청에 `USER_ID` 가 없는 것은 정상이다. /
 accessLog.col.clientIp,FRONT,IP 컬럼.
 accessLog.col.creDtm,FRONT,일시 컬럼 — 정렬이 열린 유일한 컬럼이다(screen/admin/system/log/access/requirements.md).

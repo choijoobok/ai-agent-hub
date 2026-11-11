@@ -140,7 +140,7 @@ private String parameters;
 
 ## 6. 그 밖의 벤더 규칙
 
-- **현재시각을 SQL 로 구하지 않는다** — `SYSDATE`·`NOW()`·`GETDATE()` 금지.
+- **업무 시각을 SQL로 구하지 않는다** — `SYSDATE`·`NOW()`·`GETDATE()` 금지. 명시된 분산 세션 DB 시각 계약의 한정 예외는 [time.md](./time.md)를 따른다.
   애플리케이션이 주입한다.
 - **`ORDER BY` 에 PK tie-breaker 를 붙인다** — 없으면 페이지 경계에서 행이 새거나 겹친다.
 - MyBatis 쿼리는 **`databaseIdProvider` 로 벤더 분기 가능**하게 쓴다.

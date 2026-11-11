@@ -30,6 +30,9 @@ public final class MsgKey {
     /** 세션이 없거나 만료됐다. 프론트가 로그인 화면으로 돌린다. */
     public static final String ERR_UNAUTHENTICATED = "err.unauthenticated";
 
+    /** 인증 문맥/세션 저장소 판정 불가. API-601의503이며 인증 명령을 자동 재전송하지 않는다. */
+    public static final String ERR_AUTH_CONTEXT_UNAVAILABLE = "AUTH_CONTEXT_UNAVAILABLE";
+
     /** 인가 거부의 기본 문구. 원인 넷이 이 하나를 공유한다(backend/security.md). */
     public static final String ERR_FORBIDDEN = "err.forbidden";
 

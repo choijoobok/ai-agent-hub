@@ -7,15 +7,14 @@ class: policy
 created: 2026-05-04
 updated: 2026-09-13
 status: active
-sources: ["sources/backend/"]
+sources: ["sources/backend/", "sources/backend/core/src/main/java/com/aiagent/core/security/"]
 tier: 2
 tags: [backend, module, package, naming, transaction]
 ---
 
 # 백엔드 구조 — 모듈 · 패키지 · 이름 · 트랜잭션
 
-> **무엇을 어디에 두고 무엇이라 부르는가.** 새 기능을 만들 때 가장 먼저 정해지고,
-> 한 번 틀리면 가장 늦게 드러나는 것들이다.
+> 새 기능의 모듈·패키지·이름을 정하고 의존 방향을 지킨다.
 
 ## 1. 모듈과 소유권
 
@@ -47,8 +46,9 @@ sources/backend/
 (`SystemInfoController`)·`trace`만 둔다. 이들은 HTTP·Security·요청 경계 공통물이므로
 `core`나 `support`로 옮기지 않는다. 제품 업무는 `modules/{모듈}`로 이행한다.
 
-> **왜 헥사고날이 아닌가.** 포트/어댑터 전면 도입 대신 교체 가능성이 실제로 있는
-> 락·엑셀·스토리지만 `support`로 갈라 짧고 공통화된 소스를 유지한다(AGENTS.md §1).
+공유 인증 입력·결과와 순수 Java 포트는 `core/security`, Servlet·Security·JDBC 세션 조립은 `api/auth/boundary`, 업무 계정·권한 판정은 소유 모듈에 둔다. `bootstrap`에서 연결하며 중립 포트에 프레임워크 타입을 노출하지 않는다.
+
+> 포트/어댑터를 전면 도입하지 않는다. 교체할 락·엑셀·스토리지는 `support`, 공유 인증 계약은 `core`로 분리한다(AGENTS.md §1).
 
 ## 2. 패키지 — `com.aiagent`
 

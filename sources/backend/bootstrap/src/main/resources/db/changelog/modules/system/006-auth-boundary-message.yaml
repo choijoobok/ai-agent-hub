@@ -1,0 +1,72 @@
+# @feat FEAT-301
+# 공통 인증 조립의 판정 장애 메시지. 기존 기준선은 수정하지 않는다.
+databaseChangeLog:
+  - changeSet:
+      id: system-006-auth-boundary-message
+      author: codex
+      changes:
+        - insert:
+            tableName: SYS_MESSAGE_KEY
+            columns:
+              - column:
+                  name: MSG_KEY
+                  value: AUTH_CONTEXT_UNAVAILABLE
+              - column:
+                  name: USE_SCOPE
+                  value: BACK
+              - column:
+                  name: MSG_DESC
+                  value: 인증 문맥/세션 저장소 판정 불가. API-601의 503이며 인증 명령을 자동 재전송하지 않는다.
+        # 누적 data/ CSV는 빌드 입력이며 제품 JAR에서 제외된다. 런타임 증분은 자체 완결한다.
+        - insert:
+            tableName: SYS_MESSAGE
+            columns:
+              - column:
+                  name: MSG_KEY
+                  value: AUTH_CONTEXT_UNAVAILABLE
+              - column:
+                  name: LANG_CD
+                  value: ko
+              - column:
+                  name: MSG_VAL
+                  value: 인증 상태를 확인할 수 없습니다. 잠시 후 다시 접속해 주세요
+        - insert:
+            tableName: SYS_MESSAGE
+            columns:
+              - column:
+                  name: MSG_KEY
+                  value: AUTH_CONTEXT_UNAVAILABLE
+              - column:
+                  name: LANG_CD
+                  value: en
+              - column:
+                  name: MSG_VAL
+                  value: Authentication status is unavailable. Please reconnect shortly.
+        - update:
+            tableName: SYS_CACHE_VERSION
+            columns:
+              - column:
+                  name: VERSION
+                  valueComputed: VERSION + 1
+              - column:
+                  name: MOD_DTM
+                  valueComputed: CURRENT_TIMESTAMP
+            where: "CACHE_NAME = 'message'"
+      rollback:
+        - delete:
+            tableName: SYS_MESSAGE
+            where: "MSG_KEY = 'AUTH_CONTEXT_UNAVAILABLE'"
+        - delete:
+            tableName: SYS_MESSAGE_KEY
+            where: "MSG_KEY = 'AUTH_CONTEXT_UNAVAILABLE'"
+        # 롤백도 새 번들로 인식하도록 버전을 단조 증가시킨다.
+        - update:
+            tableName: SYS_CACHE_VERSION
+            columns:
+              - column:
+                  name: VERSION
+                  valueComputed: VERSION + 1
+              - column:
+                  name: MOD_DTM
+                  valueComputed: CURRENT_TIMESTAMP
+            where: "CACHE_NAME = 'message'"

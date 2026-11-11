@@ -14,3 +14,7 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/system/005-password-change-message-cache.yaml
       relativeToChangelogFile: false
+  # 인증 조립의 새 오류 키/번역은 system 메시지 기준선 뒤에 적재한다.
+  - include:
+      file: db/changelog/modules/system/006-auth-boundary-message.yaml
+      relativeToChangelogFile: false

@@ -5,7 +5,7 @@ category: standard
 type: operation
 class: none
 created: 2026-09-07
-updated: 2026-10-14
+updated: 2026-11-10
 status: active
 sources: ["sources/frontend/src/", "sources/backend/core/", "sources/backend/support/"]
 tier: 1
@@ -53,6 +53,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-025` | core | `core/message/` | 2 | [../knowledge/sys/message.md](../knowledge/sys/message.md) |
 | `CMP-026` | core | `core/response/` | 1 | [./backend/api.md](./backend/api.md) |
 | `CMP-027` | core | `core/search/` | 19 | [./backend/persistence.md](./backend/persistence.md) · [./backend/search-spec.md](./backend/search-spec.md) · [./backend/search.md](./backend/search.md) 외 1 |
+| `CMP-034` | core | `core/security/` | 7 | [./backend/packages.md](./backend/packages.md) |
 | `CMP-028` | support | `support/config/` | 26 | [../knowledge/sys/config.md](../knowledge/sys/config.md) |
 | `CMP-029` | support | `support/excel/` | 1 | [../playbook/excel-download.md](../playbook/excel-download.md) |
 | `CMP-030` | support | `support/lock/` | 9 | [./backend/batch.md](./backend/batch.md) |
@@ -79,7 +80,7 @@ tags: [standard, registry, shared, commons]
 그러면 **같은 공통물이 ID 둘**을 갖는다. ② 정말 지웠다 — 그러면 그것을 설명하던 문서가
 아직 있는지 본다(AGENTS.md §4-4). **번호는 어느 쪽이든 비워 둔 채로 남는다.**
 
-## 어디를 읽나가 빈 것 — 0 / 33
+## 어디를 읽나가 빈 것 — 0 / 34
 
 없다.
 

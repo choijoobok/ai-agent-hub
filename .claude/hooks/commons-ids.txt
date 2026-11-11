@@ -47,3 +47,4 @@ CMP-030  sources/backend/support/src/main/java/com/aiagent/support/lock
 CMP-031  sources/backend/support/src/main/java/com/aiagent/support/logging
 CMP-032  sources/backend/support/src/main/java/com/aiagent/support/mail
 CMP-033  sources/backend/support/src/main/java/com/aiagent/support/time
+CMP-034  sources/backend/core/src/main/java/com/aiagent/core/security
