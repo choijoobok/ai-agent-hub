@@ -30,7 +30,7 @@ tags: [convention, naming, encoding, comment]
 |---|---|
 | 테이블 | **30자 이내**, 공통은 `SYS_` 접두, 샘플은 `SMPL_`. 예약어 회피 |
 | 컬럼 | `_DT`(날짜) · `_DTM`(일시) · `_YN`(플래그) · `_CD`(코드) · `_NM`(이름) |
-| API 경로 | 기본 `/api/{계층}/{도메인}/{동작}` · 모듈러 제품 `/api/{계층}/{모듈}/{도메인}/{동작}` — **보안 계층이 먼저**, camelCase 단수 |
+| API 경로 | 기본 `/api/{계층}/{도메인}/{동작}` · 모듈러 제품 `/api/{모듈}/{계층}/{도메인}/{동작}` — **모듈 뒤에 보안 계층**, camelCase 단수 |
 | 자바 서비스 | 조회 `<기능>QueryService` · 명령 `<기능>Service` · 충돌 시만 `Admin` |
 | 자바 레코드 | 행 `*Row` · 저장 입력 `*SaveRow` · 단건 키 `*Params` · 화이트리스트 `*Spec` |
 | 프론트 폴더 | 소문자 붙여쓰기 — `batchschedule` · `notirequest`(백엔드 애그리거트와 대체로 대응) |

@@ -26,6 +26,8 @@ features:
       - AUTHZ-090
       - AUTHZ-001
       - ADR-046
+      - ADR-049
+      - CR-036
     workstream: integration
     apis:
       - API-301
@@ -40,6 +42,8 @@ features:
       - ENT-254
       - ENT-255
       - ENT-256
+      - ENT-267
+      - ENT-268
   - id: FEAT-302
     module: common
     roadmap: RM-P1

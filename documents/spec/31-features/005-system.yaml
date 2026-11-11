@@ -181,7 +181,8 @@ features:
     reqs: [REQ-509]
     usecases: [UC-509]
     entities: [ENT-525, ENT-526, ENT-527]
-    apis: [API-576, API-577, API-578, API-579, API-580, API-581, API-582, API-583, API-584, API-585, API-586, API-587, API-588]
+    apis: [API-576, API-577, API-578, API-579, API-580, API-581, API-582, API-583, API-584, API-585, API-586, API-587, API-588, API-602]
+    technical_support: API-602는 현재 알림 영역 SystemInfoPopover가 소비하는 시스템 정보 보조 조회의 추적 연결이다. 기존 공통 구현/데이터 소유를 바꾸거나 새 알림 업무를 추가하지 않는다.
     screens: [SCR-521, SCR-522, SCR-523, SCR-524]
     actors: [ACT-001, ACT-012]
     complexity: medium
@@ -197,7 +198,8 @@ features:
     reqs: [REQ-510]
     usecases: [UC-510]
     entities: [ENT-528, ENT-529, ENT-530, ENT-531]
-    apis: [API-589, API-590, API-591, API-592, API-593, API-594, API-595, API-596, API-597, API-598, API-599]
+    apis: [API-589, API-590, API-591, API-592, API-593, API-594, API-595, API-596, API-597, API-598, API-599, API-603]
+    technical_support: API-603은 관리 콘솔의 본인 진행률 공통 조회를 빠뜨리지 않기 위한 보조 API 연결이다. SYS_JOB_PROGRESS의 platform 저장 소유와 REQ-510 제외 범위를 유지하며 새 사용자 상태 저장 기능을 추가하지 않는다.
     screens: [SCR-525]
     actors: [ACT-012]
     complexity: "medium"

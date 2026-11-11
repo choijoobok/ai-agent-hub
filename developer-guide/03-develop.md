@@ -80,6 +80,36 @@ AI 가 확인한 것 / 확인하지 못한 것을 가른다.
 > 테스트가 실패하는지까지 확인한다(**규칙 뒤집기** —
 > [`quality/redteam.md`](../aidd-guide/quality/redteam.md)). 그래도 위 오른쪽 칸은 남는다.
 
+### 관리자 인증·배치 실제 PostgreSQL 시험
+
+`sources/`에서 `./gradlew.bat :backend:bootstrap:systemAuthTest -PskipFrontend`를 별도로 실행한다.
+일반 `check`의 단위·통합 시험에 더하여 실제 제품 bootstrap·HTTP·JPA·동시 트랜잭션을 검증하는 태스크다.
+`SYSTEM_AUTH_JDBC`, `SYSTEM_AUTH_USER`, `SYSTEM_AUTH_PASSWORD`를 작업 전용 PostgreSQL에 설정해야 한다.
+JDBC URL은 `jdbc:postgresql://127.0.0.1:<port>/auth520<고유이름>` 형식만 허용하며, 빈 DB에 제품 Liquibase를 적용한다.
+기존 개발·운영 DB를 연결하지 않는다. DB 설정이 없거나 형식이 다르면 시험을 생략하지 않고 준비 오류로 실패한다.
+시험은 HTTP 서버·클라이언트를 종료하며, DB 클러스터를 직접 기동했다면 실행자가 같은 전용 클러스터를 종료한다.
+
+### 공통 JDBC/Redis v2 실제 시험
+
+`sources/`에서 `./gradlew.bat :backend:api:authV2LiveTest -PskipFrontend`를 별도로 실행한다.
+`AUTH_V2_TEST_JDBC=jdbc:postgresql://127.0.0.1:<port>/auth308<고유이름>`,
+`AUTH_V2_TEST_USER`, `AUTH_V2_TEST_PASSWORD`, `AUTH_V2_REDIS_PORT`, `AUTH_V2_REDIS_PASSWORD`는 작업 전용 환경만 지정한다.
+실제 Redis 중단/재기동 시험은 workspace 안의 `AUTH_V2_REDIS_SERVER` 실행 파일과
+`AUTH_V2_REDIS_CONFIG` 설정 파일도 요구한다. 서비스/PATH 등록 없이 loopback 임의 포트에서 실행한다.
+설정이 없거나 기존 DB 형식이면 준비 실패이며 skip하지 않는다. 실행자가 최초/재기동 Redis와 PG의 포트 종료까지 확인한다.
+일반 `check`는 이 실환경 태스크를 대신하지 않는다. Windows에서 실행한 community redis-windows 빌드의
+실제 프로토콜 시험은 Linux 운영 배포 수락과 구별한다.
+
+SLICE-308의 공개 설치점은 `SessionV2Assembly.create`와 `verifyInstallation`이다.
+후자는 자동 Spring Session/이전 필터 중복과 관측된 정확 handler/method/template을 함께 확인한다.
+서블릿 fixture의 `verifyFilterInstallation`만으로 실제 MVC 등록 대조를 완료했다고 하지 않는다.
+관리조회 준비는 정확 operation의 `Preflight`에서 입력을 읽고 `SessionInspectionPort.prepare`로 만들며,
+같은 본문을 controller가 재독한 뒤 `Scope.inspectionFor`로 대상 일치를 재검사한다.
+Redis 네트워크를 소유 guard 안에서 호출하지 않는다. 실제 system 설치/경로·화면 활성화는 SLICE-520에서 한다.
+
+변이 시험은 `-PmutationTargets=... -PmutationTests=... -PmutationThreads=1`로 범위를 명시한다.
+공유 Redis를 실제 중단하는 시험은 직렬 독립 실행하고, PIT에서도 함께 실행할 경우 직렬화한다.
+
 ## 5. ⑥ 개선 요청 — 어디로 돌아가나
 
 | 요청의 성격 | 어디로 |

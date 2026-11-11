@@ -1,4 +1,25 @@
 terms:
+  - id: TRM-309
+    term: 인증 저장소 설정판
+    key: authProviderEpoch
+    db_token: AUTH_DOMAIN_STATE
+    db_token_reason: 영역별 저장소 선택과 전환의 확정 기준
+    group: 인증
+    definition: DB에 확정한 provider/설치 식별자/epoch. 운영 전환에서만 변경하며 각 노드 기동은 이 값과 배포 설정의 일치만 검사한다.
+  - id: TRM-310
+    term: 인증 세션 수락 원장
+    key: authSessionGrant
+    db_token: AUTH_SESSION_GRANT
+    db_token_reason: 선택 저장소 payload와 별개인 현재 보안 수락/회수 근거
+    group: 인증
+    definition: DB의 영역·주체·현재 generation·기한·epoch·수락 상태. 비밀번호/CSRF/payload를 복제하지 않으며 Redis 복구 후 폐기된 접속 수락을 막는다.
+  - id: TRM-311
+    term: 세션 관리 참조
+    key: sessionManagementRef
+    db_token: MANAGEMENT_REF
+    db_token_reason: 인증 쿠키와 독립인 관리 API의 외부 참조
+    group: 인증
+    definition: 세션 조회/선택 종료를 위한 독립 불투명 난수. 인증/CSRF/물리 저장소 키로 사용할 수 없고 현재 영역·주체 소유·generation을 서버 재확인한다.
   - id: TRM-295
     term: 인증 세션
     key: authSession

@@ -35,7 +35,7 @@ module_boundaries:
       - "제품 모듈과 `core`·`support`·`api`는 sample을 참조하지 않는다. `bootstrap`만 조립·실행을 위해 sample 모듈을 포함한다"
       - "프런트의 sample 밖 코드는 `modules/sample/**`을 참조하지 않는다. 라우터·메뉴 등록처럼 조립에 필요한 진입점만 명시적으로 가져온다"
     compatibility:
-      - "local 변형에서는 외부 화면 주소 `/sample/**`와 API 주소 `/api/service/sample/**`를 유지한다. 제품 변형에는 둘 다 존재하지 않으며 구 소스 경로 별칭은 남기지 않는다"
+      - "local 변형의 화면 주소 `/sample/**`는 유지한다. CR-038에서 API는 현재 `/api/service/sample/{동작}`을 `/api/sample/service/{동작}`으로 전환하고 도메인 생략 예외만 유지한다. 제품 변형에는 코드/화면/API/시드가 모두 없으며 호환 별칭은 남기지 않는다"
       - "`SMPL_*` 테이블·메뉴·권한·메시지 시드는 local Liquibase context와 local 시드 생성에만 포함한다"
       - "고객 전달 시 sample 모듈·진입점·`SMPL_*` 시드를 한 절차로 제거할 수 있어야 하며, build·`.gradle`·`node_modules` 생성 폴더는 제거 대상이 아니다"
     verification: "신규 모듈 존재와 구 `api/sample`·`domain/sample`·`features/sample` 부재를 먼저 실패하는 구조 계약으로 고정하고, 전체 빌드·시드 생성·프로파일별 빌드 변형·활성 프로파일 누락 거부·샘플 규칙 반전 시험으로 확인한다"

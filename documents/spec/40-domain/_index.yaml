@@ -62,3 +62,4 @@ spec_set:
     - 028-external-user-change.yaml
     - 029-model-call-usage.yaml
     - 030-external-change-support.yaml
+    - 031-auth-session-admission.yaml

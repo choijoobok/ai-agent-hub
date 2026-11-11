@@ -65,7 +65,7 @@ configure(listOf(
         pitestVersion.set(pitestCoreVersion)
         junit5PluginVersion.set(pitestJunit5Version)
         mutationThreshold.set(75)
-        threads.set(Runtime.getRuntime().availableProcessors().coerceAtMost(4))
+        threads.set(providers.gradleProperty("mutationThreads").map(String::toInt).getOrElse(Runtime.getRuntime().availableProcessors().coerceAtMost(4)))
         outputFormats.set(setOf("XML", "HTML"))
         timestampedReports.set(false)
     }

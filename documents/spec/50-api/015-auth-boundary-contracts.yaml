@@ -1,7 +1,19 @@
 feature_contracts:
   FEAT-301:
-    design_status: 소유 G3 동결 범위와 승인일은 project.state.yaml의 integration/system P3_design을 따른다. 다른 소유 원장/제품 UI의 승인 상태와 구별한다.
-    implementation: 공통 core/security·api/auth/boundary 조립은 SLICE-307이 소유한다. 실제 관리자 소비 전환은 SLICE-520, Portal 물리 원장/자격·외부 인증은 SLICE-301/306이다. 구현 검증과 G4 상태는 project.state.yaml을 따른다.
+    api_path_transition:
+      change: CR-038
+      baseline: integration 소유 경로 영향 G3에서 동결했다. 승인 일자/범위는 project.state.yaml의 integration.P3_design.path_change_recheck를 따른다. system 실제 페이지/API·권한 연결 소비 상세와 제품 전환 수락은 별도다.
+      convention: ARCH-021.api. 모듈 우선 A를 확정했으며 public/common/service 의미·인증 영역/메뉴 액션·HTTP method·요청/응답은 유지한다. 현재 소스/완료 시험을 새 경로 검증으로 표시하지 않는다.
+      namespace: 제품 system/admin/portal/agent, 기존 원천 검증 integration, local 참조 sample을 명시 허용한다. 모르는 module/layer/method/path는 닫으며 sys 별칭·부분 문자열 추정·포괄 public 허용을 추가하지 않는다. integration/public은 SourceChangeVerifier/NONE이며 브라우저 익명 허용이 아니다.
+      catalog: ExactApiCatalog·ApiLayer·SecurityConfig·AuthorizationInterceptor·제한 세션/CSRF 경로·인증 전문 로그 제외를 같은 목표 카탈로그로 대조한다. 모듈과 계층의 순서를 바꿔도 정확 method/handler/path·인증 영역 매핑은 유지한다. current_path는 문서상 비교 값이며 런타임 허용 목록으로 읽지 않는다.
+      special_handlers: 진행률 조회는 system/common의 서버 소유 사용자 검사로 유지한다. 등록한 단일 jobId 경로 변수만 허용하는 정확 handler/method/template를 기동 때 검증하고 값의 형식/본인 소유를 검사한다. 가변 일반 prefix나 service 경로 변수를 허용하지 않는다. system 정보 조회도 현재 ADMIN 공통 인증·응답 범위를 보존한다. sample은 도메인 생략만 예외다.
+      database: 기존 데이터를 보존해 전환하는 환경의 계약이다. SYS_API.API_URL과 SYS_MENU_API.API_URL의 기존 키/연결은 새 changeset으로 한 트랜잭션에서 옛→새 정확 매핑한다. 부모/자식 FK 순서를 고려해 새 부모 생성→연결 복사/대조→구 연결/부모 제거 순서로 처리하며 원 메뉴/액션·감사 값·권한 수와 사용자/역할 부여를 보존한다. 대상키 충돌/미등록 구값·양방향 중복은 중단하고 덮어쓰지 않는다. 적재 changeset 수정0·단순 CSV 재적재로 기존 권한 유실0. rollback은 원 키/연결 복구 후 이전 artifact로 통제 전환한다. 보존할 데이터가 없는 현재 개발 환경에서 사용자가 선택한 CR-039 빈 DB 재기준선의 적용/복구는 FEAT-501.route_cutover.development_rebaseline/rollback을 따른다. 이 초기 설치 결과로 보존 이관 성공을 주장하지 않는다.
+      seeds_and_clients: generateApiSeed/생성 검증·프런트 endpoints/예외 하드코딩·OpenAPI 선언·구조/보안 시험을 같은 매핑표로 대조한다. system99·공통2의 현재 핸들러와 sample20을 기준으로 누락/중복0을 확인하며 public/common도 목록에 포함한다. 메뉴 인가 시드는 service만 생성한다. 실제 개수는 전환 시 소스를 다시 집계한다.
+      cutover: 기동/인증 접수 배출→DB 키/연결 전환→새 artifact/정적 파일 동시 배포→카탈로그·권한 연결·새 URL/구 URL 거부 smoke→재개한다. 구 URL 별칭/redirect/이중 등록을 남기지 않는다. 저장소 전환 세대/재로그인 정책은 session_store_v2를 재사용하며 경로만 바꾸기 위해 새 저장 원장을 추가하지 않는다.
+      ownership: integration은 공통 경로 해석/카탈로그·생성 규칙·정확 핸들러/원천 수신·local sample 예외, system은 실제 관리자101경로/프런트 소비·DB API/메뉴 연결을 소유한다. 두 영향 G3 뒤 SLICE-308 G4는 새 카탈로그 capability의 독립 fixture 검증까지이며 현재 제품 parser/seed를 새 경로 전용으로 활성화하지 않는다. SLICE-520에서 공통 분류기/생성기와 실제 system/sample endpoint·호출자·DB 연결을 같은 cutover로 활성화한다. 308 완료조건에520 실제전환을 넣어 순환시키지 않으며 새/구 혼합 제품을 배포하지 않는다. 계획 admin/portal/agent API는 각 소유 구현 때 목표 경로로 시작한다.
+      verification: TC-30129·TC-50117. 실제 HTTP의 모든 현재 핸들러 method/path·영역/계층/CSRF/제한 세션·동적 progress 소유 검사, 구 경로 거부, 실제 DB 권한 연결/rollback·시드 일치·sample local/제품 제외를 검증한다. 307 v1/308 저장소 시험 통과와 이 경로 전환 완료는 별개다.
+    design_status: 기존 v1/JDBC 동결·SLICE-307 G4 승인 사실은 유지한다. CR-036의 provider 독립 v2와 CR-038 경로 계약은 integration 영향 G3에서 동결됐으며 system 소비 변경 상세도 소유 영향 G3에서 승인됐다. 구현/검증은 SLICE-308부터 계획 순서로 진행한다. 현재 목표 저장/발급/관리 참조는 session_store_v2가 정본이고 승인 상태/일자는 project.state.yaml을 따른다.
+    implementation: 기존 v1 core/security·api/auth/boundary 조립은 SLICE-307 완료다. CR-036 v2 공통 조립·DB 수락 원장·선택 provider는 SLICE-308, 실제 관리자 소비는 SLICE-520, Portal 물리 원장/자격·외부 인증은 SLICE-301/306이다.
     decision: ADR-046
     change: CR-033
     reqs:
@@ -47,9 +59,9 @@ feature_contracts:
     session_isolation:
       cookies: ADMIN=AIHUB_ADMIN_SESSION, PORTAL=AIHUB_PORTAL_SESSION. 별도 불투명 난수·서버 저장 문맥, HttpOnly·Path=/·SameSite=Lax·HostOnly(Domain 미설정). 운영 HTTPS에서 Secure 필수이며 local HTTP 예외는 local 프로파일에만 둔다. Path를 보안 경계로 믿지 않고 정확 API에 맞는 쿠키 하나만 해석한다.
       csrf: ADMIN=AIHUB_ADMIN_CSRF/X-AIHUB-ADMIN-CSRF, PORTAL=AIHUB_PORTAL_CSRF/X-AIHUB-PORTAL-CSRF. 프런트에서 읽는 CSRF 쿠키와 HttpOnly 인증 쿠키를 구별한다. 세션/로그인 문맥과 바인딩하고 해당 영역의 unsafe 요청만 동일 출처 Origin·헤더/토큰을 검증한다. 다른 영역 토큰/헤더는 거부한다.
-      store: ADMIN은 기존 SPRING_SESSION 계열, PORTAL은 ENT-252/253의 JDBC 저장소와 주체 인덱스를 분리한다. 기본 JDBC/공유 PostgreSQL·ON_SET_ATTRIBUTE를 유지한다. 정확 조립·만료·복구·동시 로그인 계약은 portal_session_storage다. 공통 조립 소스는 admin_interface_v1.implementation_refs, Portal 물리 원장/업무 소비는 SLICE-301을 따른다.
+      store: CON-010·session_store_v2의 JDBC 기본/Redis 기동 설정 선택과 DB 수락 원장을 사용한다. JDBC는 ADMIN 기존 SPRING_SESSION·PORTAL ENT-252/253의 표준 저장/인덱스를 분리한다. Redis도 domain/epoch namespace와 원천 수락 검사를 분리하며 WAS/자동 폴백은 금지한다.
       lifecycle: 로그인 성공·비밀번호 변경 성공 때 해당 영역 sessionId/CSRF를 회전하고 이전 식별자를 폐기한다. 초기화/자격 변경 시 LOCAL credentialVersion 불일치 세션은 다음 보호 요청에401이다. 한 영역 logout/만료는 상대 영역 세션·쿠키를 지우지 않는다. 상태 확인/로그아웃/암호 변경만 제한 세션에 허용한다.
-      frontend: authStore/adminApiClient와 portalAuthStore/portalApiClient를 논리 분리하고 각각 자기 CSRF 헤더만 보낸다. 인증 자격/세션ID를 localStorage에 저장하지 않는다. 라우트 가드는 안내이며 서버 검사를 대신하지 않는다.
+      frontend: authStore/adminApiClient와 portalAuthStore/portalApiClient를 논리 분리하고 각각 자기 CSRF 헤더만 보낸다. 인증 자격/세션ID를 localStorage에 저장하지 않는다. 라우트 가드는 안내이며 서버 검사를 대신하지 않는다. 현재 전역 ADMIN fetchMe·RequireAuth/wildcard의 영역 제한과 API-508 발급 실패 소비는 FEAT-501.auth_precondition.frontend_consumption을 따른다.
       return_url: ADMIN은 /admin 또는 허용 /admin/**, PORTAL은 / 또는 허용 /portal/**에만 복귀한다. 외부 URL·//·스킴/인코딩 우회·상대 영역·반복 로그인 목적지는 거부하고 자기 시작 경로로 돌아간다. /internal/** 복귀는 디버그 전용 두 주체 계약으로 검증한다.
     admin_authority_guard:
       next_request: 비활성화 커밋 뒤 시작하는 모든 보호 요청은 현재 SYS_USER 존재/USE_YN/기간/잠금/휴면 등 수락 조건을 원천에서 확인한다. dirty 유실·타 노드·같은 날짜의 세션 캐시로 생략하지 않는다. 비활성은401과 해당 ADMIN 세션 무효화이며 PORTAL에는 전파하지 않는다. IP 재검증 정책은 기존 system 계약을 따른다.
@@ -98,14 +110,14 @@ feature_contracts:
       - ENT-255
       - ENT-256
     portal_session_storage:
-      implementation: portal 제품 모듈의 FEAT-301 어댑터와 integration의 공통 조립이 소유한다. ADMIN 저장소를 바꾸지 않고 JDBC 세션 표준 스키마를 분리한다. 새 서버/브로커/Redis 운영 의존은 추가하지 않는다.
+      implementation: Portal 제품 어댑터와 integration 공통 v2 조립이 소유한다. JDBC 표준 분리 테이블과 Redis 선택 provider는 session_store_v2를 따른다. 기존 v1은 JDBC로 검증했으며 Redis 실증은 후속이다.
       attributes: PORTAL_SECURITY_CONTEXT(최소 안정 ID·인증 수준·모드), PORTAL_CREDENTIAL_VERSION, PORTAL_CSRF, PORTAL_BROWSER_BIND, schemaVersion만 허용한다. principal index는 PORTAL:<ID>, 익명은 null이다. 비밀번호/원 외부 증거/역할·그룹 입력을 저장하지 않는다.
       defaults: 설계 초기값은 현 ADMIN의 30분 유휴 만료·동시 세션1·신규 로그인 허용 후 기존 세션 종료 정책을 영역별 설정으로 분리 재사용한다. Portal 익명 문맥은10분, 외부 challenge는최대5분이며 증거 만료가 더 빠르면 그 값을 쓴다. 각 값/설정은 integration G3 승인 대상이며 운영 설정은 제품 화면에서 편집하지 않는다.
       config: app.auth.portal.session.timeout/max-sessions/prevent-login, anonymous-timeout, external.challenge-timeout을 계획한다. timeout은 양수, max-sessions>=1, challenge<=anonymous-timeout을 검증한다. 기존 spring.session/app.security는 ADMIN으로 해석하며 Portal에 묵시 합성하지 않는다. 유효 스토어/네임스페이스/TTL·설정 버전만 비밀 없이 기동 로그로 확인한다.
       transactions: Spring Session JDBC 기본 REQUIRES_NEW를 인증 원장과 원자적이라고 가정하지 않는다. Portal 인증 조립은 같은 PostgreSQL DataSource/TransactionManager의 REQUIRED TransactionOperations를 명시 주입하고 성공 세션을 응답 전 명시 flush한다. filter의 뒤늦은 저장에 성공 커밋을 맡기지 않는다. 일반 조회의 최종 접근시각 갱신은 별도 짧은 트랜잭션일 수 있으나 인증 성공/회전/증거 소비 경계를 바꾸지 않는다.
       admission: admin 공개 인증 포트가 LOCAL 로그인은 처음부터 Portal 정책 배타 보호(실패 잠금 변경 포함), EXTERNAL 수락은 정책 공유 보호 → 안정 사용자 행 → 자격 행(LOCAL) 순으로 잠근다. 한 요청 안에서 정책 공유→배타 승격을 하지 않는다. 그 안에서 Portal principal index를 조회해 한도를 적용하고 새 세션 저장/기존 종료/성공 사건을 함께 확정한다. 서로 다른 영역의 principal/세션은 조회하지 않는다.
       rotation: 로그인 성공은 익명 세션을 폐기하고 새 인증 ID/CSRF를 발급한다. 암호 변경은 credential DB+이력+사건을 먼저 확정하고 새 자격세대 세션으로 회전한다. 회전 실패 시 이전 세대는 다음 보호 요청에서401이며 API-304는 PASSWORD_CHANGED_REAUTH_REQUIRED와 재로그인 경로를 반환한다. 원 암호 변경 요청을 자동 재전송하지 않는다.
-      concurrency: shared_session_adapter.late_write의 PRIMARY_ID+요청 시작 SESSION_ID를 세대 비교자로 사용한다. 새 generation 컬럼을 가정하지 않는다. 부모 행 잠금과 WHERE SESSION_ID=expectedId/기한 조건의 UPDATE 결과0은 폐기하며 기존 요청 save를 INSERT로 바꾸지 않는다. 속성 쓰기도 같은 유효 부모 보호 안에서만 수행한다. TC-30110/30112로 검증한다.
+      concurrency: provider 공통 비교자는 DB grant의 현재 generation/epoch다. JDBC 안에서는 기존 PRIMARY_ID+expected SESSION_ID 부모행 CAS를 함께 유지하고 표준 세션 테이블에 generation 열을 추가하지 않는다. Redis 세대/revision CAS와 복구 수락은 session_store_v2.redis를 따른다.
       expiry: DB의 UTC 현재시각과 EXPIRY_TIME으로 매 수락을 검사하고 청소 지연을 유효 기간 연장으로 해석하지 않는다. heartbeat는 유효 세션만 연장하며 만료/종료한 세션을 부활시키지 않는다. 만료 시 Portal 쿠키/문맥만 정리한다.
       restart: 동일 호환 버전의 다른 노드/재시작에서 복구한다. 역직렬화/버전 불일치는401 재로그인, DB 불가는503이다. 로컬 메모리 세션으로 자동 폴백하지 않는다. 인증 세션 만료는 대화·턴/기록 삭제나 자동 업무 재실행이 아니다.
       cleanup: FEAT-301의 내부 만료 정리가 만료 세션/속성과 challenge/증거를 별도 짧은 청크 트랜잭션으로 정리한다. 기본 매분·1000행, 중단/다중노드 반복 실행은 같은 만료 조건으로 안전하다. 정리 전에 만료 검사로 접근을 막는다.
@@ -133,17 +145,17 @@ feature_contracts:
     migration_detail:
       prepare: 기존 SYS_USER/권한/SPRING_SESSION 스키마는 보존하고 Portal ENT-252~256만 새 Liquibase로 추가한다. 스키마 먼저 적용하되 새 인증 경로는 검수 전 닫는다.
       cutover: 영역 없는 현 세션 형식과 새 형식은 같은 트래픽 구간에 혼용하지 않는다. ADR-028의 비호환 전환으로 신규 접수 차단·배출 확인 후 노드/프런트를 같은 호환 버전으로 전환한다. 관리자 기존 세션을 종료하고 ADMIN 전용 쿠키/CSRF로 재인증한다. 일반 순차 배포가 무중단이라고 주장하지 않는다.
-      rollback: 신규 접수/인증을 닫고 배출 후 구 버전으로 돌릴 때도 세션을 종료해 재인증한다. Portal 신규 테이블/감사·이미 변경된 자격정보는 DROP/되감기하지 않는다. 구 버전은 Portal 경로를 닫고 구 공통 쿠키를 Portal로 해석하지 않는다.
-      acceptance: 두 노드 동시 로그인/회전/종료·dirty 유실·권한 회수·DB 중단·재시작·구/신 쿠키·로그 비밀 탐지·롤백을 검증한다. 검수 전 제품 인증 경로를 운영 완료로 표시하지 않는다.
+      rollback: session_store_v2.transition을 따른다. 같은 v2 artifact의 provider 되돌림은 새 epoch/전체 재로그인으로 구 provider 자료를 불수락한다. 원장 검사가 없는 v1 바이너리 rollback은 진입 차단·양 provider payload 무효화 검증을 별도 수행한다. 자격/이력/원장은 DROP하거나 과거로 되감지 않는다.
+      acceptance: 기존 두 노드/영역·현재 권한·late write/비밀/복구 시험에 session_store_v2.verification의 설정 전환·DB/Redis 독립 장애·snapshot/epoch·관리참조 검증을 추가한다. v1 시험을 v2 실제 Redis/제품 소비 완료로 표시하지 않는다.
     shared_session_adapter:
       owner: integration의 영역 공통 SessionPersistencePort/필터 조립을 ADMIN과 PORTAL에 각각 인스턴스화한다. system은 ADMIN 저장소용 어댑터를 공개 포트로 호출하고 Portal은 자기 저장소만 호출한다. 서버 입력 domain/SessionRef는 검증된 문맥에서만 만든다.
-      repositories: ADMIN은 기존 SPRING_SESSION과 표준 SecurityContext/principal 인덱스, PORTAL은 ENT-252/253과 명시 Portal resolver를 사용한다. 각 repository의 TransactionOperations를 동일 DataSource/TransactionManager REQUIRED로 조립하며 무트랜잭션 작업은 짧은 새 트랜잭션으로 감싼다. 전역 기본 REQUIRES_NEW 빈을 그대로 둔 채 원자적이라고 주장하지 않는다. ADMIN 인덱스 키/전용 주입과 PORTAL 비Primary 규칙은 admin_interface_v1.repository_binding을 따른다.
+      repositories: 선택 provider는 session_store_v2.selection/neutral_types를 따른다. JDBC ADMIN/PORTAL은 같은 AI DB/REQUIRED로 표준 테이블/주체 인덱스를 분리한다. Redis는 원장/업무만 같은 DB REQUIRED이며 payload는 DB 확정 후 별도 발행·활성화한다. 모든 store를 같은 물리 DB 커밋으로 가정하지 않는다.
       operations: load(domain,sessionId) -> Current(snapshot,ref)|Absent|Expired|Unavailable; prepareCsrf(ref) -> Prepared(CsrfIssue)|Stale|Unavailable; createAnonymous(AnonymousSessionCreation) / createAuthorized(AuthorizedSessionCreation) -> Created(PersistedSession,CsrfIssue)|Rejected|Unavailable; updateExisting(ref,SessionDelta) -> Applied|Stale|Unavailable; rotate(ref,AuthorizedSessionRotation) -> Rotated(PersistedSession,CsrfIssue)|Rejected|Stale|Unavailable; delete(ref) -> Deleted|Stale|Unavailable. 일반 요청 flush는 updateExisting만 호출하고 생성/회전 권한이 없다. 반환 성공은 커밋 확인 전 결과이며 HTTP 발급은 commit_delivery를 따른다.
-      late_write: 갱신/회전/종료는 부모 세션 행을 잠그고 PRIMARY_ID와 요청 시작 SESSION_ID·현재 만료를 비교한다. 기존 ID 불일치/행 없음은 갱신0이며 INSERT/속성 upsert를 하지 않는다. 부모가 유효한 잠금 안에서만 속성 변경을 저장한다. 회전 때 새SESSION_ID를 기록한 뒤 오래된 요청의 기대 ID가 같을 수 없게 한다.
+      late_write: 공통 grant/generation/epoch 확인과 기존행만 갱신하는 CAS가 필수다. JDBC의 PRIMARY_ID+expected SESSION_ID/기한·부모행 잠금은 유지하고 Redis는 존재/현재 generation/revision 조건으로만 갱신한다. 부재/낡은 세대의 insert/upsert는 금지한다. 세부는 session_store_v2다.
       flush: 명시 생성/갱신/회전/종료가 시작되면 요청 wrapper를 PENDING_COMMIT으로 바꾼다. commit_delivery의 완료 상태 뒤 filter는 별도 save를 하지 않는다. 일반 읽기 요청만 기존행 updateExisting을 사용하며 Stale이면 폐기한다. 이미 확정한 업무 효과를 세션 flush 오류 때문에 자동 재실행하지 않는다.
-      admin_password: system 본인 암호 변경은 ADMIN guard 배타·현재 본인/세션 확인 뒤 해시/이력·원 세션 삭제/새 세션/CSRF 저장을 같은 물리 트랜잭션에서 수행한다. 새 쿠키는 커밋 뒤 보낸다. 커밋 전 장애 전체 롤백, 커밋 후 응답 유실은 재로그인으로 복구한다.
+      admin_password: ADMIN 배타 보호·현재 본인/세션 검사는 유지한다. JDBC는 암호/이력/이전 세대 폐기/새 payload까지 같은 물리 커밋이다. Redis는 DB 자격/이력/이전 세대 폐기 확정 뒤 새 발행 실패 시 새 암호 재로그인이다. session_store_v2의 분산 확정·단일 writer·불명 결과를 적용하며 원 변경 명령을 재실행하지 않는다.
       admin_current_session: ADMIN 보호 판정 포트는 계정/액션뿐 아니라 서버에서 받은 해당 sessionRef가 현재 저장소에 존재하고 만료/회전/종료되지 않았는지도 같은 보호 구간 안에서 재확인한다. 요청 시작 SecurityContext만으로 killSession 이후의 저장을 허용하지 않는다.
-      wiring_check: admin_interface_v1.startup_assertions의6항목을 모두 만족해야 기동한다. SLICE-307의 소유 조립/구조 시험, SLICE-520/301의 실제 명령/다중노드 회귀를 구분한다.
+      wiring_check: v1 startup_assertions의 영역/단일성·정확 카탈로그/무자격 주입 금지는 유지한다. v2는 선택 provider/DB 설정판/원장 REQUIRED와 JDBC 참여 또는 Redis 후처리 capability를 구분해 검사한다. 새 조립 반례는 SLICE-308, 실제 소비는 SLICE-520/301이다.
       csrf_prepare: 현재 부모 행/기대 SESSION_ID·만료를 잠금 안에서 확인한다. 유효 세션의 세대/주체/인증 수준은 유지하고 기존 CSRF 비밀을 같은 영역 writer에만 재발급한다. 비밀이 없으면 생성·저장 확정 뒤 발급한다. 일반 getCsrf마다 토큰을 회전해 다른 탭을 무효화하지 않는다. 이미 폐기된 세대는 새 인증 문맥으로 부활시키지 않는다.
       commit_delivery:
         transaction_owner: HTTP 조립의 바깥 경계가 인증/세션 참여 트랜잭션의 최종 commit 완료를 확인한다. 참여 서비스가 반환했다는 이유로 commit 완료로 보지 않는다. TransactionSynchronization의 afterCompletion(COMMITTED)로 발급 가능 결과를 표시하고 HTTP 응답 작성은 그 뒤 한 writer가 한 번 수행한다. rollback/UNKNOWN에서 쿠키를 발급하지 않는다.
@@ -152,7 +164,7 @@ feature_contracts:
         permit: permit/rotation admission은 단일 요청·단일 트랜잭션 시도에만 유효하다. 롤백 뒤 같은 인메모리 증거를 재사용하지 않고 새 자격/현재 상태 확인부터 시작한다. 서버 내부 타입을 브라우저 재시도 키로 사용하지 않는다.
     admin_interface_v1:
       version: admin-auth-boundary/v1
-      status: 소유 G3 동결판의 공통 core/API 조립 소스와 실제 HTTP/DB 계약 시험을 제공한다. 승인 범위·승인일·G4 상태는 project.state.yaml이 정본이다. system 실제 소비 전환은 SLICE-520, Portal 업무 소비는 SLICE-301/306이다.
+      status: v1/JDBC baseline 구현·SLICE-307 G4 완료 사실이다. CR-036의 provider 독립 v2는 session_store_v2에 정의하며 이 v1 타입/물리 원자성을 Redis에 그대로 전이하지 않는다. 실제 소비는 v2 변경 상세 승인 뒤 이행한다.
       ownership: 중립 contracts의 순수 Java 입력/결과와 bootstrap 조립은 integration, ADMIN 계정/권한 조회·자격 변경 callback은 system이다. 서블릿/SDK/JPA 엔티티나 상대 Repository를 인터페이스에 노출하지 않는다.
       types: AuthDomain=ADMIN|PORTAL; PrincipalRef={domain,subjectId}; SessionRef={domain,primaryId,sessionId}. primaryId/sessionId는 서버 저장소에서 얻은 불투명 값이고 브라우저 본문으로 신뢰하지 않는다. CurrentAdminContext={principal,sessionRef,operationId,requiredAction,requestTraceId}; operationId는 정확 method/path에 연결한 서버 등록 키다.
       guard: AdminAuthorityPort.withShared(context,callback) / withExclusive(context,callback). callback 이전에 현재 세션/계정/액션을 검사하고 같은 DataSource/TransactionManager REQUIRED 보호 트랜잭션에서 실행한다. 보호 모드는 FEAT-501.guard_modes의 서버 정적 매핑이며 클라이언트가 지정하지 않는다. public login/recovery는 별도 검증된 자격 문맥으로 exclusive를 진입한다.
@@ -192,17 +204,17 @@ feature_contracts:
       repository_binding:
         principal_keys: ADMIN 인덱스 키는 기존 SYS_USER.USER_ID 원문, PORTAL은 PORTAL:<stableId>다. PrincipalRef의 영역 표시와 ADMIN 기존 인덱스 문자열을 혼동하지 않는다.
         injection: ADMIN FindByIndexNameSessionRepository/SessionRegistry 조회는 명명 qualifier 또는 ADMIN 전용 조회 포트로 SecurityConfig.sessionRegistry·AuthzInvalidator·UserSessionService에만 주입한다. PORTAL 저장소를 전역 기본/Primary로 노출하지 않는다. 두 저장소가 있어도 무자격 타입 자동 선택·상대 인덱스 조회가 없어야 한다.
-        transaction: 두 저장소는 각각 올바른 테이블/직렬화/인덱스만 사용하되 같은 AI DB의 DataSource/TransactionManager를 명시한다. ADMIN credential/password history/session 원자성 경로는 REQUIRED다. 기존 ADMIN SYS_LO_LOGIN의 독립 저장/실패 정책은 FEAT-501.login_failure_commit대로 유지하며 Portal 필수 사건 정책과 섞지 않는다.
+        transaction: v1 baseline은 두 영역 JDBC가 같은 AI DB/REQUIRED다. v2 JDBC도 이를 보존하며 Redis의 원장/자격 DB와 외부 payload를 분리한다. SYS_LO_LOGIN의 독립 실패 정책은 계속 FEAT-501.login_failure_commit을 따른다. v2 분산 발급은 session_store_v2다.
       source_transition:
         security_chain: 현재 단일 SecurityFilterChain과 /api/public/** permitAll·CSRF ignore를 정확 카탈로그/영역 조립으로 교체한다. unknown method/path는 닫고 API-501 로그인도 자기 영역 CSRF/Origin을 검사한다. API 전체 prefix 허용을 남기지 않는다.
         interceptor: dispatcher는 SecurityContext 로드·CSRF·MVC 인가보다 먼저 영역을 정한다. PORTAL/NONE은 system AuthorizationInterceptor/ADMIN SecurityContextRepository에 진입하지 않는다. ADMIN interceptor는 ADMIN adapter 뒤에서만 실행한다. InterceptorConfig의 전역 등록도 같은 대상 영역으로 제한한다.
         consumers: SecurityConfig의 기본 HttpSessionSecurityContextRepository, LoginService의 saveContext/직접 HttpSession 쓰기, SessionPrincipal의 new HttpSessionSecurityContextRepository를 SLICE-520에서 ADMIN adapter 경로로 교체한다. 영역 adapter 밖의 직접 세션 생성/독립 saveContext를 허용하지 않는다.
-        login_admission: 정확 경로의 CSRF/Origin 확인→system의 exclusive guard 안에서 현재 계정/자격 검증과 실패횟수 또는 성공 수락→검증된 LOGIN admission→영역 세션 명시 생성/저장→최종 commit 확인→단일 cookie writer. SYS_LO_LOGIN은 기존 login_failure_commit 정책을 유지한다. 외부 네트워크 검증을 guard 안에 넣지 않는다.
+        login_admission: 정확 경로의 CSRF/Origin 확인→system의 exclusive guard 안에서 현재 계정/자격 검증과 실패횟수 또는 성공 수락→검증된 LOGIN admission의 1회 소비다. JDBC는 영역 세션과 같은 물리 커밋, Redis는 PENDING의 1차 DB 커밋까지 보호한다. Redis는 모든 잠금 해제 뒤 요청에 결합한 publication으로 저장하고 새 보호/짧은 REQUIRED에서 현재 계정/권한·epoch·PENDING·접속 한도를 재검사해 ACTIVE를 확정한다. 선택 provider의 최종 확정 뒤 단일 cookie writer를 사용한다. 종료 admission 재사용0·잠금 안 네트워크0이며 SYS_LO_LOGIN은 기존 login_failure_commit 정책을 유지한다. 세부 프로토콜은 session_store_v2다.
         mutations: SLICE-520은 AuthController.changePassword의 제한 플래그 직접 제거, LoginService.logout의 invalidate, SessionEvictedStrategy의 invalidate, AuthorizationInterceptor의 비활성 세션 invalidate를 rotate/delete와 요청 완료 상태로 이행한다. 현재 소스 동작은 새 원자성 보장의 근거가 아니다. 단순 getSession(false) 읽기는 dispatcher 뒤 ADMIN 전용인지 검증하고 전면 삭제하지 않는다.
       startup_assertions:
         - 활성 영역의 session/CSRF cookie와 header가 session_isolation의 정확 이름이며 중복0. HostOnly·HttpOnly 구분·Path=/·SameSite=Lax, 비local 운영 HTTPS Secure 필수. local HTTP 예외만 명시 프로파일로 허용한다.
         - ADMIN/PORTAL repository와 principal resolver 각1개, 테이블/인덱스 prefix가 일치하고 기존 ADMIN 인덱스 소비자는 ADMIN qualifier로만 주입된다.
-        - domain→DataSource/TransactionManager/TransactionOperations의 식별과 REQUIRED 전파가 명세와 일치한다. 서로 다른 DB 또는 기본 REQUIRES_NEW 저장이면 기동 실패다.
+        - v1/JDBC의 domain→DataSource/TransactionManager/REQUIRED 동일성을 확인한다. v2는 ADMIN guard/원장 DB의 동일 REQUIRED와 선택 provider capability를 검증한다. Redis payload를 같은 DB인 것처럼 조립하거나 DB 잠금 안에서 네트워크를 호출하면 실패다.
         - 한 요청은 해당 영역의 SessionRepositoryFilter/SecurityContext/CSRF 조립을 정확1회 거친다. 자동 기본 filter와 명시 filter가 중복 등록되면 기동 실패다.
         - 정확 API 카탈로그의 영역/공개/CSRF/인증수준/액션 매핑이 빠지거나 충돌하면 기동 실패다. PORTAL 경로가 ADMIN interceptor에 매핑되거나 넓은 public 예외가 있으면 실패다.
         - 공통 진입부/소유 전환 소비자에서 전역 무자격 repository 주입·직접 raw session 생성/독립 SecurityContext 저장0을 구조 검사한다. 반례 조립과 실제 HTTP 두 영역 경계는 TC-30116/30117로 검증한다.

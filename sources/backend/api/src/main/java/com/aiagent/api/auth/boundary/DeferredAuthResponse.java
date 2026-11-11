@@ -7,10 +7,10 @@ import java.io.IOException;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 /** 인증 명령은 JSON 응답만 사용한다. 최종 커밋 전 즉시 응답/리다이렉트를 금지한다. */
-final class DeferredAuthResponse extends ContentCachingResponseWrapper {
+public final class DeferredAuthResponse extends ContentCachingResponseWrapper {
     private boolean cookieWriter;
-    DeferredAuthResponse(HttpServletResponse response) { super(response); }
-    void writeCookies(Runnable command) {
+    public DeferredAuthResponse(HttpServletResponse response) { super(response); }
+    public void writeCookies(Runnable command) {
         if(cookieWriter)throw new IllegalStateException("쿠키 writer가 중복 진입했다");
         cookieWriter=true;
         try{command.run();}finally{cookieWriter=false;}

@@ -3,15 +3,28 @@ application_entry:
   decision: ADR-034
   ui:
     - { path: "/", owner: portal, meaning: "portal 기본 진입" }
+    - { path: "/portal/login", owner: portal, meaning: "Portal 독립 로그인" }
+    - { path: "/portal/password/reset", owner: portal, meaning: "Portal 자체 비밀번호 찾기·재설정" }
+    - { path: "/portal/password/change", owner: portal, meaning: "Portal 자체 비밀번호 변경" }
     - { path: "/portal/**", owner: portal, meaning: "portal 기능 깊은 경로" }
     - { path: "/admin", owner: system, meaning: "관리 콘솔 진입과 허용된 첫 화면 선택" }
+    - { path: "/admin/login", owner: system, meaning: "관리자 독립 로그인·기존 재설정 단계" }
+    - { path: "/admin/password/change", owner: system, meaning: "관리자 독립 비밀번호 변경" }
     - { path: "/admin/system/**", owner: system, meaning: "기존 백오피스 시스템 관리" }
     - { path: "/admin/hub/**", owner: admin, meaning: "AI Hub 관리" }
     - { path: "/internal/**", owner: integration-debug, meaning: "메뉴에 노출하지 않는 내부 시험 화면" }
+  page_route_transition:
+    change: CR-037
+    decision: 사용자가 관리자 화면을 모두 /admin 아래로 통일하고 기존 관리자 주소의 호환 처리를 남기지 않도록 확정했다. Portal 인증 세 화면과 / 기본 진입, SCR-112의 /internal/chat-test는 별도 영역이다.
+    implementation: SLICE-520에서 /login→/admin/login, /password/change→/admin/password/change로 라우터·내부 링크·로그인/로그아웃·강제 변경·재인증/안전 복귀·시험을 함께 전환한다. 기존 URL alias/redirect는 만들지 않으며 미등록 경로가 관리자 셸로 들어가지 않게 한다.
+    scope: 경로 확정과 화면 내용/구현 승인을 구별한다. 관리자 현재 구현 경로는 각 SCR의 current_route이며 Portal 제품 요건·목업·복구 방식 상세는 FEAT-128의 후행 소유 설계다. 세션 만료/프로필 모달에는 독립 URL을 만들지 않는다.
   api:
-    convention: "/api/{계층}/{모듈}/{도메인}/{동작}"
+    convention: "/api/{모듈}/{계층}/{도메인}/{동작}"
     layers: [public, common, service]
-    hard_rule: "모듈은 계층 뒤에 둔다. system/admin 관리 service API는 관리자 인증과 SYS_API·SYS_MENU_API 완전 일치 유효 권한을 요구한다. Portal용 public/common/service API는 별도 Portal 인증·현재 이용/본인 범위 공개 계약으로 검증한다. 계층이 public/common이라는 이유나 경로 접두사만으로 상대 인증 영역을 허용하지 않는다. 정확한 소유 API/전환은 P3에서 정한다"
+    change: CR-038
+    hard_rule: "모듈은 /api 바로 뒤, 접근 계층은 모듈 뒤에 둔다. system/admin 관리 service API는 관리자 인증과 SYS_API·SYS_MENU_API 완전 일치 유효 권한을 요구한다. Portal용 public/common/service API는 별도 Portal 인증·현재 이용/본인 범위 공개 계약으로 검증한다. 계층이 public/common이라는 이유나 경로 접두사만으로 상대 인증 영역을 허용하지 않는다. 정확한 소유 API/전환은 FEAT-301.api_path_transition을 따른다"
+    module_names: system/admin/portal/agent를 제품 모듈명으로 쓰며 sys 약칭을 추가하지 않는다. 기존 외부 인사 수신 integration은 기술 수신 namespace, sample은 local 참조 namespace로 보존하며 별도 제품 모듈을 추가하지 않는다.
+    layer_meaning: public은 정확 허용 목록의 인증 전/원천 검증 진입, common은 해당 인증 영역의 공통·본인 범위 기능, service는 해당 업무 권한을 추가 확인하는 기능이다. common을 모듈/인증 영역 간 공용 권한으로 해석하지 않는다.
   login_redirect:
     order:
       - "요청한 영역의 인증 흐름을 선택한다. /admin·관리 API는 관리자, /·/portal/**·Portal 업무 API는 Portal 인증을 요구한다"
@@ -19,9 +32,9 @@ application_entry:
       - "현재 영역의 인증과 권한이 유효한 안전한 동일 출처 목적지로만 복귀한다"
       - "관리자는 /admin, Portal 이용자는 /의 허용 시작 화면으로 이동한다. 다른 영역으로 자동 로그인 전환하지 않는다"
       - "현재 영역에 접근 권한이 없으면 사유를 알리고 그 영역 인증/권한 확인으로 종료한다. 다른 영역 세션을 대신 수락하거나 반복 이동하지 않는다"
-    hard_rule: "ADMIN 같은 역할명이 아니라 인증 영역·현재 계정/세션과 그 영역의 서버 권한으로 판정한다. 로그인 URL·안전한 복귀·동시 탭·쿠키/저장 키 분리와 로그아웃은 ARCH-050의 P3 후속이다"
+    hard_rule: "ADMIN 같은 역할명이 아니라 인증 영역·현재 계정/세션과 그 영역의 서버 권한으로 판정한다. 로그인 URL은 이 문서의 ui, 안전한 복귀·쿠키/저장 키·로그아웃은 ARCH-050과 FEAT-301의 영역별 계약을 따른다. URL 결정이 제품 Portal 화면/구현 승인을 대신하지 않는다"
   internal_screen:
-    rule: "주소를 아는 것은 권한이 아니다. `/internal/**`은 내비게이션에서 숨기되 화면과 `/api/service/**`를 같은 유효 권한으로 보호한다"
+    rule: "주소를 아는 것은 권한이 아니다. `/internal/**`은 내비게이션에서 숨기되 화면과 해당 모듈의 service API를 같은 유효 권한으로 보호한다"
     note: "역할은 이 권한을 배포하는 기본 묶음으로 사용할 수 있다. 저장 모델은 P3에서 메뉴 노출 속성 또는 별도 권한 자원을 비교해 확정한다"
   traces_to: [ARCH-012, ARCH-020, AUTHZ-090]
 

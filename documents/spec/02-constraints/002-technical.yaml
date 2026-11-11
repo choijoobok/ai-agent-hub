@@ -38,7 +38,8 @@ technical:
     constraint: "필요 시 **agent 만** 분리해 스케일 아웃한다. DB 는 분리하지 않는다"
   - id: CON-010
     area: "세션 저장소"
-    constraint: "멀티 인스턴스 운영 시 Redis 또는 Spring JDBC Session. **턴 처리는 화면 세션에 의존하지 않는다**"
+    constraint: "JDBC 기본·Redis 선택을 같은 제품 artifact의 기동 설정으로 교체한다. WAS 메모리 세션·장애 시 자동 저장소 폴백은 금지한다. DB 세션별 수락/회수 원장과 전환 epoch를 항상 검사한다. 설정 변경과 통제된 재시작/전체 재로그인으로 전환·되돌림하며, 매 노드 기동에서 epoch를 자동 증가시키지 않는다. CR-036 A 정책 승인·변경 상세 G3 재검토. **턴 처리는 화면 세션에 의존하지 않는다**"
+    traces_to: [CR-036, FEAT-301]
   - id: CON-011
     area: "비밀 값"
     constraint: "접속 인증정보·키의 실제 원문은 설정 파일·소스에 평문으로 두지 않는다. **Spring Security Crypto 기반 암호화 yml·자체 공통 설정 복호화 연동 + 환경별 외부 활성 마스터 키 하나**를 기본 정책으로 채택한다(ADR-022). 공통 대상·저장/키 관리·화면 참조 경계와 현재 구현 여부는 REQ-403이 정본이다"

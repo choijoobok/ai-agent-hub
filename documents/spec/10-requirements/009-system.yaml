@@ -153,7 +153,7 @@ requirements:
     permissions: "UC-502·연결 화면/API의 기존 public·common·service 구분과 행위별 유효 권한을 적용한다"
     audit: "기존 구현의 이력과 UC-502의 처리 근거를 유지한다. 이번 카드 작성으로 별도 감사 저장소를 추가하지 않는다"
     volume: "현재 화면·API의 조회/처리 범위와 기존 제한을 유지한다. 새로운 용량·성능 목표를 부여하지 않는다"
-    config: "공유 세션은 인덱스 있는 저장소와 ON_SET_ATTRIBUTE 저장 모드를 사용한다. 인덱스 없는 개발용 컨테이너 세션은 현재 요청 세션만 무효화할 수 있다. 세션 형식 변경 시 노드 일괄 전환과 기존 세션 종료·재로그인을 적용한다"
+    config: "CON-010·CR-036: JDBC 기본/Redis 선택과 DB 세션별 수락/회수 원장을 사용한다. WAS 컨테이너/메모리 세션·자동 fallback은 금지한다. 설정 교체와 통제된 재시작/전체 재로그인 및 새 epoch를 적용하며 기동 때 epoch를 자동 증가시키지 않는다. provider 선택·원자성/발급 실패 차이는 FEAT-301.session_store_v2가 정본이다"
     risk: "실제 JDBC 세션 저장 경합과 메모리 세션을 검사했다. 권한 변경 트랜잭션은 모의 입력이며 PostgreSQL·Redis 배포, 무효화 저장 자체의 실패, 이미 인가된 요청의 소급 취소를 검증한 것은 아니다. 운영 반영은 일괄 전환·기존 세션 종료 조건을 따른다"
     relations: {"depends_on":[],"constrains":[],"conflicts_with":[],"nfr":[],"interfaces":[]}
     realization: {"features":["FEAT-502"],"screens":["SCR-507","SCR-508","SCR-509"]}

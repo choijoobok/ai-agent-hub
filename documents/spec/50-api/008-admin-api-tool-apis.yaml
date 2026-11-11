@@ -4,7 +4,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getList
+    path: /api/admin/service/businessApi/getList
     action: READ
     summary: "업무 API 목록"
     request: "body=SearchRequest<BusinessApiFilter>"
@@ -13,7 +13,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getOne
+    path: /api/admin/service/businessApi/getOne
     action: READ
     summary: "현재 업무 API"
     request: "body=BusinessApiKey"
@@ -22,7 +22,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getRevisions
+    path: /api/admin/service/businessApi/getRevisions
     action: READ
     summary: "API 내용 판 목록"
     request: "body=SearchRequest<BusinessApiKey>"
@@ -31,7 +31,7 @@ apis:
     feature: FEAT-004
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessApi/getRevision"
+    path: "/api/admin/service/businessApi/getRevision"
     action: "READ"
     summary: "명시한 현재/적용 이력의 전체 구성"
     request: "body=BusinessApiRevisionKey"
@@ -41,7 +41,7 @@ apis:
     feature: FEAT-004
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessApi/saveCreate"
+    path: "/api/admin/service/businessApi/saveCreate"
     action: "SAVE"
     summary: "업무 API 신규 직접 저장"
     request: "body=ManagementChange"
@@ -51,7 +51,7 @@ apis:
     feature: FEAT-004
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessApi/saveChange"
+    path: "/api/admin/service/businessApi/saveChange"
     action: "SAVE"
     summary: "업무 API 전체 구성 직접 저장"
     request: "body=ManagementChange"
@@ -61,7 +61,7 @@ apis:
     feature: FEAT-004
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessApi/getReferences"
+    path: "/api/admin/service/businessApi/getReferences"
     action: "READ"
     summary: "현재 사용처/참조 조회"
     request: "body=SearchRequest<AssetReferencesQuery>"
@@ -71,7 +71,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getValidation
+    path: /api/admin/service/businessApi/getValidation
     action: READ
     summary: "API 후보 검수/누락 확인"
     request: "body=AssetValidationQuery"
@@ -80,7 +80,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getReferenceCandidates
+    path: /api/admin/service/businessApi/getReferenceCandidates
     action: READ
     summary: "API 정형 참조 선택 후보"
     request: "body=SearchRequest<AssetReferenceQuery>"
@@ -89,7 +89,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getConnectionCheck
+    path: /api/admin/service/businessApi/getConnectionCheck
     action: READ
     summary: "API 현재 연결/지원 관측"
     request: "body=ApiConnectionQuery"
@@ -98,7 +98,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getCommandResult
+    path: /api/admin/service/businessApi/getCommandResult
     action: READ
     summary: "API 편집 결과 확인"
     request: "body=AssetCommandQuery"
@@ -107,7 +107,7 @@ apis:
     feature: FEAT-004
     implementation: planned
     method: POST
-    path: /api/service/admin/businessApi/getToolMapping
+    path: /api/admin/service/businessApi/getToolMapping
     action: READ
     summary: "API 현재 도구 대응과 예약"
     request: "body=ApiToolMappingQuery"
@@ -116,7 +116,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getList
+    path: /api/admin/service/businessTool/getList
     action: READ
     summary: "업무 도구 목록"
     request: "body=SearchRequest<BusinessToolFilter>"
@@ -125,7 +125,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getOne
+    path: /api/admin/service/businessTool/getOne
     action: READ
     summary: "현재 업무 도구"
     request: "body=BusinessToolKey"
@@ -134,7 +134,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getRevisions
+    path: /api/admin/service/businessTool/getRevisions
     action: READ
     summary: "도구 내용 판 목록"
     request: "body=SearchRequest<BusinessToolKey>"
@@ -143,7 +143,7 @@ apis:
     feature: FEAT-021
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessTool/getRevision"
+    path: "/api/admin/service/businessTool/getRevision"
     action: "READ"
     summary: "명시한 현재/적용 이력의 전체 구성"
     request: "body=BusinessToolRevisionKey"
@@ -153,7 +153,7 @@ apis:
     feature: FEAT-021
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessTool/saveCreate"
+    path: "/api/admin/service/businessTool/saveCreate"
     action: "SAVE"
     summary: "도구 신규 직접 저장"
     request: "body=ManagementChange"
@@ -163,7 +163,7 @@ apis:
     feature: FEAT-021
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessTool/saveChange"
+    path: "/api/admin/service/businessTool/saveChange"
     action: "SAVE"
     summary: "도구 전체 구성 직접 저장"
     request: "body=ManagementChange"
@@ -173,7 +173,7 @@ apis:
     feature: FEAT-021
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/businessTool/getReferences"
+    path: "/api/admin/service/businessTool/getReferences"
     action: "READ"
     summary: "현재 사용처/참조 조회"
     request: "body=SearchRequest<AssetReferencesQuery>"
@@ -183,7 +183,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getValidation
+    path: /api/admin/service/businessTool/getValidation
     action: READ
     summary: "도구 후보 검수/누락 확인"
     request: "body=AssetValidationQuery"
@@ -192,7 +192,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getReferenceCandidates
+    path: /api/admin/service/businessTool/getReferenceCandidates
     action: READ
     summary: "도구 원천/후속 참조 후보"
     request: "body=SearchRequest<AssetReferenceQuery>"
@@ -201,7 +201,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getImplementations
+    path: /api/admin/service/businessTool/getImplementations
     action: READ
     summary: "검증된 배포 구현 목록"
     request: "body=SearchRequest<ImplementationQuery>"
@@ -210,7 +210,7 @@ apis:
     feature: FEAT-021
     implementation: planned
     method: POST
-    path: /api/service/admin/businessTool/getCommandResult
+    path: /api/admin/service/businessTool/getCommandResult
     action: READ
     summary: "도구 편집 결과 확인"
     request: "body=AssetCommandQuery"

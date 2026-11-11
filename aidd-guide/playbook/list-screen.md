@@ -101,7 +101,7 @@ public class AccessLogQueryService {
 ### 컨트롤러
 
 ```java
-@RequestMapping("/api/service/system/accessLog") // /api/{계층}/{모듈}/{도메인} — 접두가 액션을 정한다
+@RequestMapping("/api/system/service/accessLog") // /api/{모듈}/{계층}/{도메인} — 접두가 액션을 정한다
 @Operation(summary = "사용 이력 목록 조회", description = "…")     // 시드 CSV 와 글자까지 같다
 @PostMapping("/getList")
 public ApiResponse<PageResponse<AccessLogRow>> getList(@RequestBody @Valid SearchRequest<Void> request) {

@@ -125,6 +125,39 @@ L·R·S(점유 유지·갱신 주기·스위퍼 주기)는 **실행 제한·운�
 - **모니터링 화면은 제품 기능이 아니다.** 고객사 도구가 담당한다.
 - **자체 rate limit 을 약속하지 않는다.** 대상 시스템의 제한 응답을 존중해 백오프한다.
 
+## 공통 인증 저장소 설정판 운영
+
+v2 공통 설치는 같은 artifact에서 `app.auth.session.provider=jdbc|redis`를 읽는다(기본 `jdbc`).
+`app.auth.session.epoch`와 `app.auth.session.store-instance`는 필수이며 서버의 정확 Origin도
+`app.auth.session.origin`으로 지정한다. HTTP는 명시적 `local-http=true`인 개발 환경만 허용한다.
+활성 영역은 기본 ADMIN이며 Portal은 `app.auth.session.domains.portal.enabled=true`로 별도 연다.
+영역별 `domains.<admin|portal>.epoch/store-instance`는 global 값을 덮어쓸 수 있다.
+각 노드는 DB 설정판과 불일치하면 기동/수락을 거부하며 기동 자체가 epoch를 바꾸지 않는다.
+실제 제품 설치는 SLICE-520이고, 공통 조립의 구현/실환경 검증과 구별한다.
+
+운영 도구는 `sources/`의 `./gradlew.bat :backend:api:authSessionStore`다.
+연결은 `AUTH_SESSION_JDBC`, `AUTH_SESSION_USER`, `AUTH_SESSION_PASSWORD` 환경변수만 받는다.
+아래 값은 형식 예이며 실행 전 실제 대상과 기대 판을 확인한다. 비밀번호를 명령 인자에 쓰지 않는다.
+
+```powershell
+# 새 원장/설정판 migration 뒤 최초 영역 초기화. 이미 있는 영역을 덮어쓰지 않는다.
+.\gradlew.bat :backend:api:authSessionStore '-PauthStoreArgs=init ADMIN jdbc <epoch-UUID> <store-instance>'
+# 먼저 외부 신규수락을 닫고 진행 보호TX 배출을 확인한다.
+.\gradlew.bat :backend:api:authSessionStore '-PauthStoreArgs=drain ADMIN jdbc <기대epoch> <기대instance>'
+.\gradlew.bat :backend:api:authSessionStore '-PauthStoreArgs=switch ADMIN jdbc <기대epoch> <기대instance> redis <새epoch> <새instance>'
+# 만료 JDBC 부모/속성 및 보존기간이 지난 원장을 청크로 정리한다. Redis payload는 Redis TTL이 정리한다.
+.\gradlew.bat :backend:api:authSessionStore '-PauthStoreArgs=cleanup ADMIN redis <현재epoch> <현재instance>'
+```
+
+활성 Portal에도 같은 절차를 수행하고 모든 노드의 provider/epoch/instance를 맞춰 재시작한 뒤
+양 영역 재로그인 smoke 후 외부 수락을 연다. `drain`은 설정판 공유 잠금이 끝날 때까지 기다리고,
+`switch`는 기대 provider/epoch/instance와 DRAINED를 원자적으로 확인해 구 grant를 회수한다.
+JDBC→Redis→JDBC 되돌림도 새 epoch와 전체 재로그인이 필요하다.
+DB/Redis 과거 백업 복구 때는 외부 수락을 계속 닫고 구 artifact/구 설정 노드를 재개하지 않는다.
+복구 후 두 영역 새 epoch/구 grant 회수→모든 노드 일치→재로그인을 마친 뒤 수락한다.
+v1 바이너리로 돌아가는 절차는 v2 provider 전환과 다르므로 기존 세션 정리/별도 검증 없이 실행하지 않는다.
+cleanup은 주기적으로 반복하여 청크를 비우며, 실제 공통 스케줄 소비 설치는 후속 system 구현에서 한다.
+
 ## 관련
 
 - 실행 점유의 지표 판독 — [`documents/design/turn-execution.md`](../documents/design/turn-execution.md) §7

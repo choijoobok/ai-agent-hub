@@ -173,6 +173,9 @@ core 2 · max 4 · queue 20 · thread "progress-" · shutdown 대기 60초
 
 폴링 경로는 **`/api/common/progress/{jobId}`** — 메뉴에 매이지 않는 공통 API 다.
 화면마다 엔드포인트를 두면 **인가 시드가 그것을 전부 나열하게 된다.**
+Hub CR-038의 목표는 `/api/system/common/progress/getProgress/{jobId}`다. 현재 구현과 구별하고
+정확한 handler/method/template·단일 jobId·현재 ADMIN 본인 소유 검사를 유지한다. 플랫폼 저장
+소유를 system 사용자 상태 저장으로 옮기지 않는다.
 
 ## 9. 체크리스트
 

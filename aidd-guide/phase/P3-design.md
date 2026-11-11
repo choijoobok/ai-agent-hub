@@ -174,7 +174,7 @@ conventions:
 - id: API-031
   feature: FEAT-012
   method: POST
-  path: /api/service/admin/schemaCatalog/create
+  path: /api/admin/service/schemaCatalog/create
   summary: 스키마 카탈로그 등록
   auth: required
   roles: [ROLE-004, ROLE-003]
@@ -246,10 +246,10 @@ sequenceDiagram
   participant NOTI as 알림
 
   V->>UI: 대상 테이블 선택
-  UI->>API: POST /api/service/admin/schemaCatalog/getColumns
+  UI->>API: POST /api/admin/service/schemaCatalog/getColumns
   API-->>UI: 컬럼 목록
   V->>UI: 수량 입력 후 저장
-  UI->>API: POST /api/service/admin/schemaCatalog/create
+  UI->>API: POST /api/admin/service/schemaCatalog/create
   API->>SVC: create(cmd)
   SVC->>DB: BEGIN
   SVC->>DB: SELECT 카탈로그 FOR UPDATE

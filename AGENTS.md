@@ -178,7 +178,7 @@ node aidd-guide/harness/runtime/harness-check.mjs && node aidd-guide/meta/_meta/
 [`developer-guide/07-harness.md`](developer-guide/07-harness.md)가 갖는다. 사람이 판단할 핵심 규약은:
 
 - 조회는 `<기능>QueryService`, 명령은 `<기능>Service`; 쓰기 메서드는 트랜잭션을 표시한다.
-- API는 `/api/{계층}/{도메인}/{동작}`이며 `service`는 POST다.
+- API는 `/api/{모듈}/{계층}/{도메인}/{동작}`이며 계층은 `public/common/service`, `service`는 POST다. CR-038 이행 전 현재 소스는 정본의 `current_path`로 구별한다.
 - 화면 뼈대는 `<FillColumn>` · `useSearchFormHeader()` · `auditColumns()` · `useGridController`를 따른다.
 - HTTP 호출은 `api/{도메인}Api.ts`, URL 선언은 `features/{도메인}/api/endpoints.ts`에만 둔다.
 - 공통물은 두 번째 사용에 `shared/`로 올리고 등록한 뒤 원본을 지운다. 복사하지 않는다.

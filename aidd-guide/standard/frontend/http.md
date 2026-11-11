@@ -114,7 +114,7 @@ import { post } from '@/shared/api/request';                    // ❌ ESLint
 ## 6. 새 API 를 부를 때
 
 1. 컨트롤러 경로를 `/api/service/{도메인}/{동작}`으로 짓는다. 모듈 제품은
-   `/api/service/{모듈}/{도메인}/{동작}`, sample은 기존 계약 `/api/service/sample/{동작}`을 쓴다.
+   `/api/{모듈}/service/{도메인}/{동작}`, sample은 `/api/sample/service/{동작}`의 도메인 생략 예외를 쓴다. 기존 소스의 계층 우선 경로는 CR-038 이행 대상이다.
 2. `endpoints.ts` 에 상수를 더한다.
 3. `{도메인}Api.ts` 에 함수를 더한다 (그리드 선언은 예외).
 4. **`./gradlew generateApiSeed`** — 잊으면 **403** 이다.

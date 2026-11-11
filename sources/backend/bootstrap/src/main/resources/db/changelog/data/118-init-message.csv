@@ -1,0 +1,3 @@
+MSG_KEY,LANG_CD,MSG_VAL
+PASSWORD_CHANGED_REAUTH_REQUIRED,ko,새 비밀번호로 다시 로그인해 주세요
+PASSWORD_CHANGED_REAUTH_REQUIRED,en,Please sign in again with your new password.

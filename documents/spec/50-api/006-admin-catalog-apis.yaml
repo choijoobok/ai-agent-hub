@@ -4,7 +4,7 @@ apis:
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/catalog/getList"
+    path: "/api/admin/service/catalog/getList"
     action: "READ"
     summary: "카탈로그 목록"
     request: "body=SearchRequest<CatalogFilter>"
@@ -14,7 +14,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getOne
+    path: /api/admin/service/catalog/getOne
     action: READ
     summary: "카탈로그 현재 항목"
     request: "body=CatalogKey"
@@ -23,7 +23,7 @@ apis:
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/catalog/getRevision"
+    path: "/api/admin/service/catalog/getRevision"
     action: "READ"
     summary: "명시한 현재/적용 이력의 전체 구성"
     request: "body=RevisionKey"
@@ -33,7 +33,7 @@ apis:
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/catalog/saveCreate"
+    path: "/api/admin/service/catalog/saveCreate"
     action: "SAVE"
     summary: "카탈로그 신규 직접 저장"
     request: "body=ManagementChange"
@@ -43,7 +43,7 @@ apis:
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/catalog/saveChange"
+    path: "/api/admin/service/catalog/saveChange"
     action: "SAVE"
     summary: "카탈로그 지정 영역 직접 저장"
     request: "body=ManagementChange"
@@ -53,7 +53,7 @@ apis:
     feature: FEAT-003
     implementation: "planned"
     method: "POST"
-    path: "/api/service/admin/catalog/getReferences"
+    path: "/api/admin/service/catalog/getReferences"
     action: "READ"
     summary: "연관 지식 역조회"
     request: "body=SearchRequest<RevisionKey>"
@@ -63,7 +63,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getRelatedJoins
+    path: /api/admin/service/catalog/getRelatedJoins
     action: READ
     summary: "양쪽 역할에서 보는 권장 관계"
     request: "body=SearchRequest<RevisionKey>"
@@ -73,7 +73,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getResolvedObject
+    path: /api/admin/service/catalog/getResolvedObject
     action: READ
     summary: "선정 공개 객체의 정확 식별"
     request: "body=SourceObjectQuery"
@@ -82,7 +82,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getStructure
+    path: /api/admin/service/catalog/getStructure
     action: READ
     summary: "데이터소스 일괄 비교에서 재사용할 등록 객체 구조 사실 조회"
     request: "body=StructureQuery"
@@ -92,7 +92,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/runSample
+    path: /api/admin/service/catalog/runSample
     action: EXECUTE
     summary: "허용된 등록 컬럼 수동 샘플링"
     request: "body=SampleRequest"
@@ -101,7 +101,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getEvidenceList
+    path: /api/admin/service/catalog/getEvidenceList
     action: READ
     summary: "카탈로그 변경 근거 목록"
     request: "body=SearchRequest<EvidenceFilter>"
@@ -110,7 +110,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getEvidenceOne
+    path: /api/admin/service/catalog/getEvidenceOne
     action: READ
     summary: "카탈로그 변경 근거 상세"
     request: "body=EvidenceKey"
@@ -119,7 +119,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/saveEvidence
+    path: /api/admin/service/catalog/saveEvidence
     action: SAVE
     summary: "변경 통지·업무 변경 근거 접수"
     request: "body=EvidenceSave"
@@ -128,7 +128,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getCommandResult
+    path: /api/admin/service/catalog/getCommandResult
     action: READ
     summary: "초안 편집·근거 접수 결과 확인"
     request: "body=CatalogCommandKey"
@@ -137,7 +137,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getValidation
+    path: /api/admin/service/catalog/getValidation
     action: READ
     summary: "후보 전체 구성의 현재 검증"
     request: "body=ValidationRequest"
@@ -146,7 +146,7 @@ apis:
     feature: FEAT-003
     implementation: planned
     method: POST
-    path: /api/service/admin/catalog/getReferenceCandidates
+    path: /api/admin/service/catalog/getReferenceCandidates
     action: READ
     summary: "등록 객체·컬럼·키 참조 후보"
     request: "body=SearchRequest<ReferenceCandidateFilter>"

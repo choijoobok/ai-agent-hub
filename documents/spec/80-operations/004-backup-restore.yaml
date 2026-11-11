@@ -11,5 +11,7 @@ backup_restore:
       - "P5 전용 데이터베이스를 재생성하고 백업을 복구한다"
     verify: "Liquibase 미실행, JPA validate, 기준선 건수, sample 테이블 부재, API 인가 사실 수와 미매핑 0건을 확인한다"
     evidence: "documents/project.state.yaml workstreams.system.gates.P5_verify.note"
+    development_rebaseline: "CR-039·FEAT-501.route_cutover.development_rebaseline은 미배포 개발 DB의 전량 초기화/초기 기준선 재작성 계획이다. 운영 복구 또는 기존 데이터 보존 이행이 아니다. 실제 대상과 실행 승인 뒤 모든 대상 객체/Liquibase 관리 테이블을 함께 초기화하며 선택 저장소의 구 인증 상태를 재사용하지 않는다. 이 절의 과거 verified는 당시 복구 근거이고 새 기준선 초기 설치 검증은520 후속이다."
+    auth_store_v2: "CR-036·ADR-049·FEAT-301.session_store_v2.transition. DB 백업 복구는 인증 수락을 닫고 진행 요청을 배출한 상태에서 수행한다. 복구 뒤 양 영역의 새 epoch와 구 grant 회수를 확정하고 모든 노드 설정 일치·구 쿠키 거부·전체 재로그인을 확인한 뒤에만 수락을 재개한다. Redis 과거 snapshot 또는 기존 JDBC payload가 복구된 DB와 일치해도 구 epoch로 접속을 허용하지 않는다. 같은 v2 artifact의 provider 전환/되돌림도 전체 재로그인하며, 이를 이유로 자격·이력을 삭제하거나 과거로 되돌리지 않는다. v1 바이너리로 되돌릴 때는 원장 검사 부재 때문에 양 provider 인증 payload 무효화·검증이 선행돼야 한다. 양 provider 실제 복구 시험은 SLICE-308/520 후속이며 기존 RUN-301 verified는 당시 v1/JDBC 검증 사실이다."
     customer_values: "@defer P6 — 실제 주기·보관기간·저장 위치는 고객사 백업 정책과 CON 항목 확정 뒤 기록한다"
     status: verified

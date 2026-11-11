@@ -232,6 +232,7 @@ delivery_strategy:
       implementation_dependencies:
         order:
           - 'SLICE-307: integration 공통 영역/세션/CSRF·트랜잭션 조립과 닫힌 Portal 슬롯'
+          - 'SLICE-308: integration 영향 G3에서 동결한 CR-036 공통 계약을 기준으로 system 소비 영향 G3 승인에 따라 provider 독립 v2·DB 수락 원장·JDBC/Redis 실제 계약 구현/검증과 G4. 기존307 done은 유지'
           - 'SLICE-501/504: 기존 완료 관리자 골격·관리 화면을 SLICE-520 착수 시 대조한다. 새 CR-028/033 시험과 인증 조립 변경은 SLICE-520으로 단일화'
           - 'SLICE-520: system 정확 인증 API·세션 회전·현재 권한 보호와 수동 배치 접수/중단·종결 이력 경합'
           - 'SLICE-521: system 지정 관리자 역할 수신자·인앱 공개 결과와 기존 알림 회귀'
@@ -240,7 +241,10 @@ delivery_strategy:
           - 'SLICE-306: 고객별 실제 외부 로그인 어댑터/콜백 검증'
         gates: 각 소유 G3 동결 범위와 project.state.yaml의 승인 기록을 따른다. 공통 integration 계약 슬라이스의 G4 승인에 따라 기존 system 계약 영향 대조를 먼저 마치고 관리자 소비를 진행한다. 후속 구현은 슬라이스별 검증/확인을 따른다. SLICE-307의 실제 DB/HTTP·자격 생산자 대역 검증은 SLICE-520 실제 관리자 전환 또는 SLICE-301 실제 Portal 인증 완료가 아니다.
         integration_g2_evidence: ARCH-028.p2_operations·ARCH-032.p2_evidence/boot_design에 개발 CLI 실측과 제품 동등 부팅/키 교체·복구 근거를 반영했다. 승인 상태는 project.state.yaml이 관리한다. 운영 API 실증은 CON-033·034의 사용자 A에 따라 구독 확보 후이며 전체 설정/운영 도구·실제 배포 시험은 후속 소유 단계다.
-        shared_contract_version: FEAT-301.admin_interface_v1의 소유 G3 동결판을 구현한다. SLICE-307은 기존 system 구현 골격과 중립 포트 대역을 사용한다. 기존 SLICE-501/504 완료는 보존하고 CR-028/033의 계약 영향 대조와 실제 인증 소비 변경은 SLICE-520으로 단일화한다. 기존 완료 슬라이스를 되돌려 새 G4를 반복 청구하지 않는다.
+        shared_contract_version: SLICE-307의 admin-auth-boundary/v1 JDBC 검증/G4는 완료 이력으로 보존한다. CR-035/036 A와 최대60초 복구 대기를 수용한 integration 영향 G3로 FEAT-301.session_store_v2를 동결했다. system 소비 영향 G3 승인→SLICE-308 공통 양 provider G4→SLICE-520/301/306 소비 순서다. 기존501/504 완료는 보존하고520 미완료 부분만 새 의존에 따라 재설계 대기로 둔다. 실제 Redis/제품 시험은 소유 구현에서 수행하며 승인 상태/일자는 project.state.yaml을 따른다.
+        system_consumer_followup: FEAT-501.auth_precondition.frontend_consumption·TC-50115/50116으로 관리자 첫 사용 확인·암호 확정 후 재로그인·관리 참조를 검증한다. CR-037의 관리자 /admin 경로 통일과 구주소 호환 제거를 SLICE-520에 포함한다. ADMIN 부트/신호/wildcard가 ARCH-021의 Portal/디버그 진입을 가로채지 않게 하되 제품 Portal 요건/목업·소유 구현 승인을 대신하지 않는다.
+        api_route_followup: CR-038·ADR-050 A의 모듈 우선/접근계층 유지 공통 경로 계약은 integration 영향 G3에서 동결했다. 승인 상태/일자는 project.state.yaml을 따른다. system 페이지/API·권한 연결 소비 영향 G3 승인→308 신규 카탈로그 capability 독립 검증/G4→520 실제 공통 분류기/시드·system/sample 호출자·DB 연결의 단일 전환→521 순서다. 308에서 기존 제품 parser/seed를 먼저 활성화하거나520 실제전환을308 G4조건으로넣지 않는다. 기존 저장소 v2 G3·307/501/504 완료를 유지한다. admin/portal/agent 예정 API는 소유 구현 때 새 경로로 시작한다.
+        development_database: CR-039 사용자 방향에 따라 보존할 데이터가 없는 현재 미배포 개발 DB는 초기 기준선 재정리·전량 초기화 후 Liquibase 재구성으로 검수한다. FEAT-501.route_cutover.development_rebaseline이 범위/실행/재현/검증 정본이다. system G3에 초기SQL/생성CSV 정합과 product/local 빈DB 검증을 포함하고520에서 코드/시드 준비 후 적용한다. 기존 데이터 이관을 구현했다고 주장하지 않으며 보존 DB가 생기면 별도 changeset/복구 검증을 선행한다. 실제 대상 확인·삭제 실행 승인은 설계 승인과 구별한다.
         common_design_package: FEAT-301.admin_interface_v1과 50-api/017의 FEAT-302~305 공개 계약, UC-046~049, ENT-257/API-307 및 70-testcases/021을 함께 검토한다. 공통 v1 기술 검토 완료만으로 integration 전체 G3를 승인 처리하지 않는다.
         producer_order: system521 인앱 생산→integration305 외부 사건, agent230 최소 기록→integration304 실제 모델 호출이다. agent230도 agent 전체 소유 G3 뒤 구현하며 공통 계약 상세화가 부분 G3 승인은 아니다. 따라서 선행19화면 CRUD/대역 검수와 실제 모델 연동 완료를 구분하고 후자는 소유 생산 게이트/구현을 기다린다.
         operational_acceptance: ADR-048 A에 따라 integration 전체 G3 → system G3를 별도 승인한다. 운영 API는 ARCH-032.operational_usage_acceptance의 조합별 미실행 수락으로 유지하며 구독/유효 시험 연결 확보 직후, 해당 모델 통합 G4 완료/기능 최초 활성화 중 먼저 오는 시점 전에 검증한다. agent230의 전체 소유 G3·실제 생산과 integration304의 의존을 유지한다. 필수 운영 능력이 미지원이면 영향 완료를 보류하고 CR로 처리한다.

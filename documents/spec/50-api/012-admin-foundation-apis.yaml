@@ -4,7 +4,7 @@ apis:
     feature: FEAT-016
     implementation: planned
     method: POST
-    path: /api/service/admin/tokenRate/compareForFreeze
+    path: /api/admin/service/tokenRate/compareForFreeze
     action: READ
     summary: "최초 월 기준 저장의 단가·실적 고정 비교"
     request: "body={month, rateId, expectedRevision}; 현재 단가/월 기준 READ를 검사"
@@ -14,7 +14,7 @@ apis:
     feature: FEAT-016
     implementation: planned
     method: POST
-    path: /api/service/admin/tokenRate/save
+    path: /api/admin/service/tokenRate/save
     action: SAVE
     summary: "선택 월 단가 전체 초안 저장"
     request: "body=ManagedCommand<RateDraft>"
@@ -24,7 +24,7 @@ apis:
     feature: FEAT-017
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaPlan/save
+    path: /api/admin/service/quotaPlan/save
     action: SAVE
     summary: "월 기준 저장과 최초 단가 고정"
     request: "body=MonthPlanSave"
@@ -34,7 +34,7 @@ apis:
     feature: FEAT-017
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaPlan/prepare
+    path: /api/admin/service/quotaPlan/prepare
     action: EXECUTE
     summary: "미래 월 예정 배분 생성·교체"
     request: "body={commandKey, month, expectedRevision, expectedCalculationDigest, reason}"
@@ -44,7 +44,7 @@ apis:
     feature: FEAT-017
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaPlan/getAllocation
+    path: /api/admin/service/quotaPlan/getAllocation
     action: READ
     summary: "월 기준 화면의 배정 결과 조회"
     request: "body=SearchRequest<{month, portalUserId?:십진 문자열}>"
@@ -54,7 +54,7 @@ apis:
     feature: FEAT-040
     implementation: planned
     method: POST
-    path: /api/service/admin/managementCommand/getResult
+    path: /api/admin/service/managementCommand/getResult
     action: READ
     summary: 공통 관리 저장의 원 명령 결과 확인
     request: body={commandKey, ownerFeature}; ENT-099를 쓰는 등록된 소유 기능만 허용
@@ -64,7 +64,7 @@ apis:
     feature: FEAT-042
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaGrade/save
+    path: /api/admin/service/quotaGrade/save
     action: SAVE
     summary: "시작월 등급 전체 세트 저장"
     request: "body=ManagedCommand<{startMonth, grades:[id|null,name,rank,weight], transitionMappings}>"
@@ -74,7 +74,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/save
+    path: /api/admin/service/portalUser/save
     action: SAVE
     summary: "Portal 이용자의 지정 관리 영역 저장"
     request: "body=ManagedCommand<{profile/usePeriod/state 또는 memberships/필요한 명시 비활성화 또는 gradeEffectiveMonth/grade 또는 identityMapping/identityEvidence}>; API가 소유 영역과 마지막 그룹 회수의 허용 복합 입력을 검증"
@@ -84,7 +84,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/save
+    path: /api/admin/service/userGroup/save
     action: SAVE
     summary: 사용자 그룹 정의 저장
     request: body=ManagedCommand<{groupNm,description}>; 사용 상태는 읽기 전용 투영이며 active/useYn 입력 거부

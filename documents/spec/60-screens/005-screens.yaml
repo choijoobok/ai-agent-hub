@@ -801,7 +801,7 @@ screens:
   - id: SCR-101
     module: portal
     traces_to: [REQ-041, NFR-028]
-    uses_screens: [SCR-113, SCR-114, SCR-115]
+    uses_screens: [SCR-113, SCR-114, SCR-115, SCR-116]
     title: "채팅"
     feature: FEAT-101
     user_language: "RM-P4에서 REQ-020의 Portal 지정 언어·LLM 설명/정형 메시지 분리·원값 및 승인 의미 보존·이후 응답 적용·표현 실패 안내/재시도를 제공한다. 언어 선택 위치·저장/동기화·폴백의 화면 요건과 목업은 해당 차수에서 정한다"
@@ -934,10 +934,10 @@ screens:
     traces_to: [REQ-616, REQ-041, NFR-028, ARCH-050]
     roadmap: RM-P1
     type: form
-    route: null
+    route: /portal/login
     target_doc: "documents/screen/_standalone/portal/login/requirements.md"
     access: "Portal 인증 진입. 관리자 계정·세션은 수락하지 않는다"
-    note: "SSO/대상 계정 연동과 Portal 자체 계정 모드의 별도 로그인·오류·이용 미등록 안내를 PC·모바일에서 제공한다. URL·API·세션/원천 계약과 요건서·목업은 Portal/integration P3에서 정하며 현재 구현이 아니다"
+    note: "SSO/대상 계정 연동과 Portal 자체 계정 모드의 별도 로그인·오류·이용 미등록 안내를 PC·모바일에서 제공한다. URL은 ARCH-021에서 확정했다. API·세션/원천 계약과 요건서·목업은 Portal/integration P3에서 상세화하며 현재 구현이 아니다"
   - id: SCR-114
     module: portal
     workstream: portal
@@ -949,10 +949,10 @@ screens:
     traces_to: [REQ-616, ARCH-050]
     roadmap: RM-P1
     type: form
-    route: null
+    route: /portal/password/change
     target_doc: "documents/screen/_standalone/portal/pwd-change/requirements.md"
     access: "Portal 자체 계정의 본인 인증/초기 변경 세션"
-    note: "Portal 자체 계정의 비밀번호만 변경한다. 외부 인증 모드는 원천 안내로 구분하며 system 비밀번호 화면·관리자 계정을 재사용하지 않는다. 초기화/회복·URL·메시지·요건/목업은 P3 후속이다"
+    note: "Portal 자체 계정의 비밀번호만 변경한다. 외부 인증 모드는 원천 안내로 구분하며 system 비밀번호 화면·관리자 계정을 재사용하지 않는다. URL은 ARCH-021에서 확정했다. 초기화/회복은 SCR-116과 연결하며 메시지·요건/목업은 P3 후속이다"
   - id: SCR-115
     module: portal
     workstream: portal
@@ -969,11 +969,27 @@ screens:
     access: "Portal 세션 만료/접근 회수 신호"
     note: "PC·모바일·딥링크에서 Portal 만료/회수와 재인증을 안내한다. 관리자 로그인을 대신 수행하거나 관리자 세션을 종료하지 않는다. 입력 보존/안전한 복귀·요건/목업은 P3 후속이다"
 
+  - id: SCR-116
+    module: portal
+    workstream: portal
+    entry: standalone
+    group: "Portal 인증"
+    title: "Portal 비밀번호 찾기·재설정"
+    feature: FEAT-128
+    usecases: [UC-023]
+    traces_to: [REQ-616, ARCH-050]
+    roadmap: RM-P1
+    type: form
+    route: /portal/password/reset
+    target_doc: "documents/screen/_standalone/portal/password-reset/requirements.md"
+    access: "Portal 자체 계정의 본인 복구 검증 문맥. 관리자 복구 문맥을 수락하지 않는다"
+    note: "ARCH-021의 독립 URL만 확정했다. 기존 비밀번호를 조회/반환하지 않으며 본인 확인 후 새 비밀번호를 설정한다. 복구 수단·만료/일회성·이용 미등록/외부 인증 안내·API·메시지·요건/목업은 Portal/integration 소유 P3에서 상세화한다. system의 메일 복구 정책을 자동 복사하지 않는다"
+
   - { id: SCR-501, module: system, workstream: system, group: "계정·접근", title: "관리자 계정 관리", feature: FEAT-501, roadmap: RM-P1, type: list_detail, route: "/admin/system/user", current_route: "/admin/system/user", current_doc: "documents/screen/admin/system/user/requirements.md", target_doc: "documents/screen/admin/system/user/requirements.md", access: "USER_MGMT 유효 권한", empty_state: "사용자 또는 선택한 상세 데이터가 없음", loading: "조회·저장 중 해당 액션 비활성화", error_display: "계정 상태·IP·세션별 서버 오류를 해당 탭에 표시" }
-  - { id: SCR-502, module: system, workstream: system, group: "공통 진입", title: "관리자 로그인", feature: FEAT-501, roadmap: RM-P1, type: form, route: "/login", current_route: "/login", current_doc: "documents/screen/_standalone/system/login/requirements.md", target_doc: "documents/screen/_standalone/system/login/requirements.md", access: "public", empty_state: "해당 없음", loading: "인증 처리 중 중복 제출 금지", error_display: "계정 존재를 과도하게 노출하지 않는 인증 오류" }
+  - { id: SCR-502, module: system, workstream: system, group: "공통 진입", title: "관리자 로그인", feature: FEAT-501, roadmap: RM-P1, type: form, route: "/admin/login", current_route: "/login", current_doc: "documents/screen/_standalone/system/login/requirements.md", target_doc: "documents/screen/_standalone/system/login/requirements.md", access: "public", empty_state: "해당 없음", loading: "인증 처리 중 중복 제출 금지", error_display: "계정 존재를 과도하게 노출하지 않는 인증 오류" }
   - { id: SCR-503, module: system, workstream: system, group: "공통 오버레이", title: "내 프로필", feature: FEAT-501, roadmap: RM-P1, type: popup, route: null, current_doc: "documents/screen/_standalone/system/profile/requirements.md", target_doc: "documents/screen/_standalone/system/profile/requirements.md", access: "authenticated", empty_state: "프로필을 읽지 못하면 세션 재확인", loading: "저장 중 닫기·중복 저장 방지", error_display: "필드 오류를 입력 위치에 표시" }
   - { id: SCR-504, module: system, workstream: system, group: "공통 오버레이", title: "사용자 설정", feature: FEAT-506, features: [FEAT-501, FEAT-506], roadmap: RM-P1, type: popup, route: null, current_doc: "documents/screen/_standalone/system/settings/requirements.md", target_doc: "documents/screen/_standalone/system/settings/requirements.md", access: "authenticated", empty_state: "배포 기본 설정 표시", loading: "저장 중 중복 제출 금지", error_display: "허용되지 않은 설정은 이전 값을 유지하고 오류 표시" }
-  - { id: SCR-505, module: system, workstream: system, group: "공통 진입", title: "비밀번호 변경", feature: FEAT-501, roadmap: RM-P1, type: form, route: "/password/change", current_doc: "documents/screen/_standalone/system/pwd-change/requirements.md", target_doc: "documents/screen/_standalone/system/pwd-change/requirements.md", access: "authenticated 또는 초기 변경 요구 세션", empty_state: "해당 없음", loading: "저장 중 중복 제출 금지", error_display: "정책 위반을 필드에 표시하되 비밀번호 원문은 남기지 않음" }
+  - { id: SCR-505, module: system, workstream: system, group: "공통 진입", title: "비밀번호 변경", feature: FEAT-501, roadmap: RM-P1, type: form, route: "/admin/password/change", current_route: "/password/change", current_doc: "documents/screen/_standalone/system/pwd-change/requirements.md", target_doc: "documents/screen/_standalone/system/pwd-change/requirements.md", access: "authenticated 또는 초기 변경 요구 세션", empty_state: "해당 없음", loading: "저장 중 중복 제출 금지", error_display: "정책 위반을 필드에 표시하되 비밀번호 원문은 남기지 않음" }
   - { id: SCR-506, module: system, workstream: system, group: "공통 오버레이", title: "세션 만료", feature: FEAT-501, roadmap: RM-P1, type: popup, route: null, current_doc: "documents/screen/_standalone/system/session-expire/requirements.md", target_doc: "documents/screen/_standalone/system/session-expire/requirements.md", access: "authenticated session signal", empty_state: "해당 없음", loading: "재로그인 이동 중 중복 동작 금지", error_display: "만료·권한 버전 불일치 사유에 맞는 안내" }
   - { id: SCR-507, module: system, workstream: system, group: "계정·접근", title: "역할 관리", feature: FEAT-502, roadmap: RM-P1, type: list_detail, route: "/admin/system/role", current_route: "/admin/system/role", current_doc: "documents/screen/admin/system/role/requirements.md", target_doc: "documents/screen/admin/system/role/requirements.md", access: "ROLE_MGMT 유효 권한", empty_state: "역할 또는 보유 사용자가 없음", loading: "목록·저장별 로딩 분리", error_display: "참조 중 삭제·영향 사용자 오류 표시" }
   - { id: SCR-508, module: system, workstream: system, group: "계정·접근", title: "역할 권한", feature: FEAT-502, roadmap: RM-P1, type: list_detail, route: "/admin/system/role-auth", current_route: "/admin/system/role-auth", current_doc: "documents/screen/admin/system/role-auth/requirements.md", target_doc: "documents/screen/admin/system/role-auth/requirements.md", access: "ROLE_AUTH_MGMT 유효 권한", empty_state: "선택 역할 또는 부여 액션이 없음", loading: "영향 사용자 확인 후 저장", error_display: "오래된 권한 버전·대상 불일치 표시" }

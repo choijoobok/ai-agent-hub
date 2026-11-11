@@ -8,6 +8,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework:spring-orm")
+    runtimeOnly("org.postgresql:postgresql")
 
     // @Operation — 시드의 API_NM · API_DESC 원천(backend/api.md). 프로필로 가르지 않는다:
     // 빼면 생성기가 이름을 못 만들고 그 사실이 조용하다.
@@ -24,4 +25,22 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.postgresql:postgresql")
+    testImplementation("org.liquibase:liquibase-core")
+}
+
+tasks.test { useJUnitPlatform { excludeTags("authV2Live") } }
+tasks.register<Test>("authV2LiveTest") {
+    group = "verification"
+    description = "전용 PostgreSQL/Redis의 v2 실제 저장소·HTTP·JPA 계약 시험"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform { includeTags("authV2Live") }
+    shouldRunAfter(tasks.test)
+}
+tasks.register<JavaExec>("authSessionStore") {
+    group = "application"
+    description = "인증 저장소 설정판의 명시 init/drain/expected-epoch switch(외부 수락 배출 후 실행)"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.aiagent.api.auth.v2.SessionProviderTool")
+    doFirst { args(providers.gradleProperty("authStoreArgs").get().split(" ").filter { it.isNotBlank() }) }
 }

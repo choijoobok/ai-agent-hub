@@ -1,8 +1,32 @@
 apis:
+  - id: API-602
+    feature: FEAT-509
+    method: GET
+    path: /api/system/common/system/getSystemInfo
+    current_path: /api/common/system/getSystemInfo
+    action: AUTHENTICATED
+    summary: 관리자 알림 영역의 시스템 정보 보조 조회
+    request: none
+    response: ApiResponse<SystemInfoResponse>; profiles/version/commit/branch/buildTime/startedAt/cacheVersions. 빌드 자료 부재 필드는 현재 nullable 의미 유지.
+    source_contract: sources/backend/api/src/main/java/com/aiagent/api/system/SystemInfoController.java#getSystemInfo
+    contract: CR-038의 경로 정합화다. 현재 ADMIN 인증과 제한 세션 거부·메뉴 권한 비소속·DTO를 보존하며 공통 기술 구현/데이터 소유를 알림 업무로 옮기지 않는다.
+  - id: API-603
+    feature: FEAT-510
+    method: GET
+    path: /api/system/common/progress/getProgress/{jobId}
+    current_path: /api/common/progress/{jobId}
+    action: AUTHENTICATED
+    summary: 관리 콘솔의 본인 작업 진행률 보조 조회
+    request: path jobId=String; query/body 없음
+    response: ApiResponse<JobProgressView>; jobId/jobStatCd/curCnt/totCnt(nullable)/subTitle/stepMsg/errMsg/modDtm
+    source_contract: sources/backend/api/src/main/java/com/aiagent/api/progress/ProgressController.java#getProgress
+    contract: CR-038 기존 플랫폼 기술 조회의 추적 보완이다. SYS_JOB_PROGRESS의 platform 소유·저장은 유지하며 FEAT-510의 사용자 상태 저장 범위로 옮기지 않는다. 현재 ADMIN 사용자 ID로 본인 jobId만 조회하고 제한 세션/Portal 주체는 거부한다. 정확 method/handler/template와 단일 경로 변수는 FEAT-301.api_path_transition을 따른다.
+    errors: { 400: "타인 또는 없는 jobId — 현재 NOT_FOUND/INVALID_REQUEST 의미 보존", 401: "ADMIN 인증 부재 또는 다른 인증 영역만 존재", 403: "유효 ADMIN의 제한 세션" }
   - id: API-501
     feature: FEAT-501
     method: POST
-    path: /api/public/system/auth/login
+    path: /api/system/public/auth/login
+    current_path: /api/public/system/auth/login
     action: PUBLIC
     summary: 로그인
     request: body=LoginRequest
@@ -16,7 +40,8 @@ apis:
   - id: API-502
     feature: FEAT-501
     method: GET
-    path: /api/public/system/auth/getPasswordPolicy
+    path: /api/system/public/auth/getPasswordPolicy
+    current_path: /api/public/system/auth/getPasswordPolicy
     action: PUBLIC
     summary: 비밀번호 정책 조회
     request: none
@@ -30,7 +55,8 @@ apis:
   - id: API-503
     feature: FEAT-501
     method: POST
-    path: /api/public/system/auth/sendResetCode
+    path: /api/system/public/auth/sendResetCode
+    current_path: /api/public/system/auth/sendResetCode
     action: PUBLIC
     summary: 재설정 코드 발송
     request: body=ResetCodeRequest
@@ -44,7 +70,8 @@ apis:
   - id: API-504
     feature: FEAT-501
     method: POST
-    path: /api/public/system/auth/verifyResetCode
+    path: /api/system/public/auth/verifyResetCode
+    current_path: /api/public/system/auth/verifyResetCode
     action: PUBLIC
     summary: 재설정 코드 검증
     request: body=ResetVerifyRequest
@@ -58,7 +85,8 @@ apis:
   - id: API-505
     feature: FEAT-501
     method: POST
-    path: /api/public/system/auth/saveResetPassword
+    path: /api/system/public/auth/saveResetPassword
+    current_path: /api/public/system/auth/saveResetPassword
     action: PUBLIC
     summary: 재설정 비밀번호 저장
     request: body=ResetPasswordRequest
@@ -72,7 +100,8 @@ apis:
   - id: API-506
     feature: FEAT-501
     method: GET
-    path: /api/common/system/auth/getMe
+    path: /api/system/common/auth/getMe
+    current_path: /api/common/system/auth/getMe
     action: AUTHENTICATED
     summary: 현재 사용자와 권한 버전 조회
     request: none
@@ -85,7 +114,8 @@ apis:
   - id: API-507
     feature: FEAT-501
     method: POST
-    path: /api/common/system/auth/heartbeat
+    path: /api/system/common/auth/heartbeat
+    current_path: /api/common/system/auth/heartbeat
     action: AUTHENTICATED
     summary: 세션과 권한 버전 확인
     request: none
@@ -98,12 +128,14 @@ apis:
   - id: API-508
     feature: FEAT-501
     method: POST
-    path: /api/common/system/auth/changePassword
+    path: /api/system/common/auth/changePassword
+    current_path: /api/common/system/auth/changePassword
     action: AUTHENTICATED
     summary: 내 비밀번호 변경
     request: body=PasswordChangeRequest
     response: ApiResponse<Void>
     source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/auth/AuthController.java#changePassword
+    partial_commit: CR-036·FEAT-301.session_store_v2. JDBC는 한 물리 DB 원자성. Redis에서 암호/이력·구접속 회수 DB확정 뒤 새세션 발급실패는503 PASSWORD_CHANGED_REAUTH_REQUIRED·쿠키0·새암호재로그인이다. 원 변경 POST를 자동 재전송하지 않는다.
     planned_change:
       change: CR-033
       contract: FEAT-301.admin_authority_guard
@@ -111,7 +143,8 @@ apis:
   - id: API-509
     feature: FEAT-501
     method: POST
-    path: /api/common/system/auth/logout
+    path: /api/system/common/auth/logout
+    current_path: /api/common/system/auth/logout
     action: AUTHENTICATED
     summary: 로그아웃
     request: none
@@ -124,7 +157,8 @@ apis:
   - id: API-510
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/getList
+    path: /api/system/service/user/getList
+    current_path: /api/service/system/user/getList
     action: READ
     summary: 사용자 목록
     request: body=SearchRequest<Void>
@@ -133,7 +167,8 @@ apis:
   - id: API-511
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/save
+    path: /api/system/service/user/save
+    current_path: /api/service/system/user/save
     action: SAVE
     summary: 사용자 저장
     request: body=UserSaveRequest
@@ -146,7 +181,8 @@ apis:
   - id: API-512
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/saveUnlock
+    path: /api/system/service/user/saveUnlock
+    current_path: /api/service/system/user/saveUnlock
     action: SAVE
     summary: 잠금 해제
     request: body=UserTargetRequest
@@ -155,7 +191,8 @@ apis:
   - id: API-513
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/saveDormantRelease
+    path: /api/system/service/user/saveDormantRelease
+    current_path: /api/service/system/user/saveDormantRelease
     action: SAVE
     summary: 휴면 해제
     request: body=UserTargetRequest
@@ -164,7 +201,8 @@ apis:
   - id: API-514
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/savePasswordReset
+    path: /api/system/service/user/savePasswordReset
+    current_path: /api/service/system/user/savePasswordReset
     action: SAVE
     summary: 관리자 비밀번호 초기화
     request: body=UserTargetRequest
@@ -173,7 +211,8 @@ apis:
   - id: API-515
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/getIpList
+    path: /api/system/service/user/getIpList
+    current_path: /api/service/system/user/getIpList
     action: READ
     summary: 허용 IP 목록
     request: body=SearchRequest<UserIdParams>
@@ -182,7 +221,8 @@ apis:
   - id: API-516
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/saveIp
+    path: /api/system/service/user/saveIp
+    current_path: /api/service/system/user/saveIp
     action: SAVE
     summary: 허용 IP 저장
     request: body=UserIpSaveRequest
@@ -191,25 +231,28 @@ apis:
   - id: API-517
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/getSessionList
+    path: /api/system/service/user/getSessionList
+    current_path: /api/service/system/user/getSessionList
     action: READ
     summary: 활성 세션 목록
     request: body=SearchRequest<UserIdParams>
-    response: ApiResponse<PageResponse<UserSessionRow>>
+    response: ApiResponse<PageResponse<UserSessionRow>>; sessionId는 인증불가 관리 참조이며 current는 서버가 현재 grant/generation을 비교한 값
     source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/user/UserDetailController.java#getSessionList
   - id: API-518
     feature: FEAT-501
     method: POST
-    path: /api/service/system/user/killSession
+    path: /api/system/service/user/killSession
+    current_path: /api/service/system/user/killSession
     action: EXECUTE
     summary: 활성 세션 강제 종료
-    request: body=UserSessionKillRequest
+    request: body=UserSessionKillRequest; userId와 targets(관리 참조 목록)의 기존 필드/타입을 유지하고 현재 권한/USER_ID/domain/generation 재확인 뒤 DB회수
     response: ApiResponse<Integer>
     source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/user/UserDetailController.java#killSession
   - id: API-519
     feature: FEAT-501
     method: GET
-    path: /api/common/system/user/getMyProfile
+    path: /api/system/common/user/getMyProfile
+    current_path: /api/common/system/user/getMyProfile
     action: AUTHENTICATED
     summary: 내 프로필 조회
     request: none
@@ -218,7 +261,8 @@ apis:
   - id: API-520
     feature: FEAT-501
     method: POST
-    path: /api/common/system/user/saveMyProfile
+    path: /api/system/common/user/saveMyProfile
+    current_path: /api/common/system/user/saveMyProfile
     action: AUTHENTICATED
     summary: 내 프로필 저장
     request: body=ProfileRequest
@@ -227,7 +271,8 @@ apis:
   - id: API-521
     feature: FEAT-501
     method: GET
-    path: /api/common/system/user/getMyLoginHistory
+    path: /api/system/common/user/getMyLoginHistory
+    current_path: /api/common/system/user/getMyLoginHistory
     action: AUTHENTICATED
     summary: 내 로그인 이력
     request: none
@@ -236,7 +281,8 @@ apis:
   - id: API-522
     feature: FEAT-501
     method: GET
-    path: /api/common/system/user/getMyRoles
+    path: /api/system/common/user/getMyRoles
+    current_path: /api/common/system/user/getMyRoles
     action: AUTHENTICATED
     summary: 내 역할 조회
     request: none
@@ -245,7 +291,8 @@ apis:
   - id: API-523
     feature: FEAT-501
     method: POST
-    path: /api/common/system/user/saveLocale
+    path: /api/system/common/user/saveLocale
+    current_path: /api/common/system/user/saveLocale
     action: AUTHENTICATED
     summary: 내 언어 저장
     request: body=LocaleRequest
@@ -254,7 +301,8 @@ apis:
   - id: API-524
     feature: FEAT-502
     method: POST
-    path: /api/service/system/role/getList
+    path: /api/system/service/role/getList
+    current_path: /api/service/system/role/getList
     action: READ
     summary: 역할 목록
     request: body=SearchRequest<Void>
@@ -263,7 +311,8 @@ apis:
   - id: API-525
     feature: FEAT-502
     method: POST
-    path: /api/service/system/role/save
+    path: /api/system/service/role/save
+    current_path: /api/service/system/role/save
     action: SAVE
     summary: 역할 저장
     request: body=RoleSaveRequest
@@ -272,7 +321,8 @@ apis:
   - id: API-526
     feature: FEAT-502
     method: POST
-    path: /api/service/system/roleAuth/getList
+    path: /api/system/service/roleAuth/getList
+    current_path: /api/service/system/roleAuth/getList
     action: READ
     summary: 역할 권한 목록
     request: body=SearchRequest<Void>
@@ -281,7 +331,8 @@ apis:
   - id: API-527
     feature: FEAT-502
     method: POST
-    path: /api/service/system/roleAuth/getMenuTree
+    path: /api/system/service/roleAuth/getMenuTree
+    current_path: /api/service/system/roleAuth/getMenuTree
     action: READ
     summary: 역할 권한 메뉴 트리
     request: body=RoleMenuTreeRequest
@@ -290,7 +341,8 @@ apis:
   - id: API-528
     feature: FEAT-502
     method: POST
-    path: /api/service/system/roleAuth/save
+    path: /api/system/service/roleAuth/save
+    current_path: /api/service/system/roleAuth/save
     action: SAVE
     summary: 역할 권한 저장
     request: body=RoleAuthSaveRequest
@@ -299,7 +351,8 @@ apis:
   - id: API-529
     feature: FEAT-502
     method: POST
-    path: /api/service/system/roleAuth/getAffectedUsers
+    path: /api/system/service/roleAuth/getAffectedUsers
+    current_path: /api/service/system/roleAuth/getAffectedUsers
     action: READ
     summary: 영향 사용자 조회
     request: body=SearchRequest<RoleIdParams>
@@ -308,7 +361,8 @@ apis:
   - id: API-530
     feature: FEAT-502
     method: POST
-    path: /api/service/system/userAuth/getList
+    path: /api/system/service/userAuth/getList
+    current_path: /api/service/system/userAuth/getList
     action: READ
     summary: 개인 예외 목록
     request: body=SearchRequest<Void>
@@ -317,7 +371,8 @@ apis:
   - id: API-531
     feature: FEAT-502
     method: POST
-    path: /api/service/system/userAuth/getMenuTree
+    path: /api/system/service/userAuth/getMenuTree
+    current_path: /api/service/system/userAuth/getMenuTree
     action: READ
     summary: 개인 예외 메뉴 트리
     request: body=UserAuthTreeRequest
@@ -326,7 +381,8 @@ apis:
   - id: API-532
     feature: FEAT-502
     method: POST
-    path: /api/service/system/userAuth/save
+    path: /api/system/service/userAuth/save
+    current_path: /api/service/system/userAuth/save
     action: SAVE
     summary: 개인 예외 저장
     request: body=UserAuthSaveRequest
@@ -335,7 +391,8 @@ apis:
   - id: API-533
     feature: FEAT-502
     method: POST
-    path: /api/service/system/user/getRoleList
+    path: /api/system/service/user/getRoleList
+    current_path: /api/service/system/user/getRoleList
     action: READ
     summary: 사용자 보유 역할
     request: body=SearchRequest<UserIdParams>
@@ -344,7 +401,8 @@ apis:
   - id: API-534
     feature: FEAT-502
     method: POST
-    path: /api/service/system/user/saveRole
+    path: /api/system/service/user/saveRole
+    current_path: /api/service/system/user/saveRole
     action: SAVE
     summary: 사용자 역할 저장
     request: body=UserRoleSaveRequest
@@ -353,7 +411,8 @@ apis:
   - id: API-535
     feature: FEAT-502
     method: POST
-    path: /api/service/system/user/getRoleCandidates
+    path: /api/system/service/user/getRoleCandidates
+    current_path: /api/service/system/user/getRoleCandidates
     action: READ
     summary: 역할 후보
     request: none
@@ -362,7 +421,8 @@ apis:
   - id: API-536
     feature: FEAT-502
     method: POST
-    path: /api/service/system/user/getUserMenuAuth
+    path: /api/system/service/user/getUserMenuAuth
+    current_path: /api/service/system/user/getUserMenuAuth
     action: READ
     summary: 사용자 개인 예외 요약
     request: body=SearchRequest<UserIdParams>
@@ -371,7 +431,8 @@ apis:
   - id: API-537
     feature: FEAT-502
     method: POST
-    path: /api/service/system/user/getEffectiveAuthList
+    path: /api/system/service/user/getEffectiveAuthList
+    current_path: /api/service/system/user/getEffectiveAuthList
     action: READ
     summary: 현재 유효 권한
     request: body=SearchRequest<EffectiveAuthParams>
@@ -380,7 +441,8 @@ apis:
   - id: API-538
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/getTree
+    path: /api/system/service/menu/getTree
+    current_path: /api/service/system/menu/getTree
     action: READ
     summary: 메뉴 트리
     request: none
@@ -389,7 +451,8 @@ apis:
   - id: API-539
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/saveNode
+    path: /api/system/service/menu/saveNode
+    current_path: /api/service/system/menu/saveNode
     action: SAVE
     summary: 메뉴 노드 저장
     request: body=MenuNodeRequest
@@ -398,7 +461,8 @@ apis:
   - id: API-540
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/save
+    path: /api/system/service/menu/save
+    current_path: /api/service/system/menu/save
     action: SAVE
     summary: 메뉴 속성 저장
     request: body=MenuSaveRequest
@@ -407,7 +471,8 @@ apis:
   - id: API-541
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/saveTree
+    path: /api/system/service/menu/saveTree
+    current_path: /api/service/system/menu/saveTree
     action: SAVE
     summary: 메뉴 위치 저장
     request: body=MenuTreeSaveRequest
@@ -416,7 +481,8 @@ apis:
   - id: API-542
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/deleteNode
+    path: /api/system/service/menu/deleteNode
+    current_path: /api/service/system/menu/deleteNode
     action: SAVE
     summary: 메뉴 노드 삭제
     request: body=MenuDeleteRequest
@@ -425,7 +491,8 @@ apis:
   - id: API-543
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/getApiList
+    path: /api/system/service/menu/getApiList
+    current_path: /api/service/system/menu/getApiList
     action: READ
     summary: 메뉴별 API 목록
     request: body=SearchRequest<MenuCdParams>
@@ -434,7 +501,8 @@ apis:
   - id: API-544
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/getAccessibleUsers
+    path: /api/system/service/menu/getAccessibleUsers
+    current_path: /api/service/system/menu/getAccessibleUsers
     action: READ
     summary: 메뉴 접근 가능 사용자
     request: body=SearchRequest<MenuCdParams>
@@ -443,7 +511,8 @@ apis:
   - id: API-545
     feature: FEAT-503
     method: POST
-    path: /api/service/system/menu/getRoleList
+    path: /api/system/service/menu/getRoleList
+    current_path: /api/service/system/menu/getRoleList
     action: READ
     summary: 메뉴 보유 역할
     request: body=SearchRequest<MenuCdParams>
@@ -452,7 +521,8 @@ apis:
   - id: API-546
     feature: FEAT-503
     method: POST
-    path: /api/service/system/apiCatalog/getList
+    path: /api/system/service/apiCatalog/getList
+    current_path: /api/service/system/apiCatalog/getList
     action: READ
     summary: API 카탈로그
     request: body=SearchRequest<Void>
@@ -461,7 +531,8 @@ apis:
   - id: API-547
     feature: FEAT-503
     method: POST
-    path: /api/service/system/apiCatalog/getMenuList
+    path: /api/system/service/apiCatalog/getMenuList
+    current_path: /api/service/system/apiCatalog/getMenuList
     action: READ
     summary: API 사용 메뉴
     request: body=SearchRequest<ApiUrlParams>
@@ -470,7 +541,8 @@ apis:
   - id: API-548
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/getGroupList
+    path: /api/system/service/code/getGroupList
+    current_path: /api/service/system/code/getGroupList
     action: READ
     summary: 코드 그룹 목록
     request: body=SearchRequest<Void>
@@ -479,7 +551,8 @@ apis:
   - id: API-549
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/saveGroup
+    path: /api/system/service/code/saveGroup
+    current_path: /api/service/system/code/saveGroup
     action: SAVE
     summary: 코드 그룹 저장
     request: body=CodeGroupSaveRequest
@@ -488,7 +561,8 @@ apis:
   - id: API-550
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/getList
+    path: /api/system/service/code/getList
+    current_path: /api/service/system/code/getList
     action: READ
     summary: 관리 코드 목록
     request: body=SearchRequest<CodeGroupParams>
@@ -497,7 +571,8 @@ apis:
   - id: API-551
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/save
+    path: /api/system/service/code/save
+    current_path: /api/service/system/code/save
     action: SAVE
     summary: 코드 저장
     request: body=CodeSaveRequest
@@ -506,7 +581,8 @@ apis:
   - id: API-552
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/getRefDefList
+    path: /api/system/service/code/getRefDefList
+    current_path: /api/service/system/code/getRefDefList
     action: READ
     summary: 참조 정의 목록
     request: body=SearchRequest<CodeGroupParams>
@@ -515,7 +591,8 @@ apis:
   - id: API-553
     feature: FEAT-504
     method: POST
-    path: /api/service/system/code/saveRefDef
+    path: /api/system/service/code/saveRefDef
+    current_path: /api/service/system/code/saveRefDef
     action: SAVE
     summary: 참조 정의 저장
     request: body=CodeRefDefSaveRequest
@@ -524,7 +601,8 @@ apis:
   - id: API-554
     feature: FEAT-504
     method: POST
-    path: /api/common/system/code/getList
+    path: /api/system/common/code/getList
+    current_path: /api/common/system/code/getList
     action: AUTHENTICATED
     summary: 공통 코드 후보
     request: body=CodeListRequest
@@ -533,7 +611,8 @@ apis:
   - id: API-555
     feature: FEAT-505
     method: POST
-    path: /api/service/system/message/getList
+    path: /api/system/service/message/getList
+    current_path: /api/service/system/message/getList
     action: READ
     summary: 메시지 키와 값 목록
     request: body=SearchRequest<Void>
@@ -542,7 +621,8 @@ apis:
   - id: API-556
     feature: FEAT-505
     method: POST
-    path: /api/service/system/message/save
+    path: /api/system/service/message/save
+    current_path: /api/service/system/message/save
     action: SAVE
     summary: 언어별 메시지 값 저장
     request: body=MessageSaveRequest
@@ -551,7 +631,8 @@ apis:
   - id: API-557
     feature: FEAT-505
     method: GET
-    path: /api/public/system/message/getBundle
+    path: /api/system/public/message/getBundle
+    current_path: /api/public/system/message/getBundle
     action: PUBLIC
     summary: 언어별 메시지 번들 — 버전·본문 일치 검사, 3회 연속 경합 시 409
     request: query=lang:String?|v:Long?
@@ -560,7 +641,8 @@ apis:
   - id: API-558
     feature: FEAT-506
     method: POST
-    path: /api/service/system/config/getList
+    path: /api/system/service/config/getList
+    current_path: /api/service/system/config/getList
     action: READ
     summary: 시스템 설정 목록
     request: body=SearchRequest<Void>
@@ -569,7 +651,8 @@ apis:
   - id: API-559
     feature: FEAT-506
     method: POST
-    path: /api/service/system/config/getPrefixes
+    path: /api/system/service/config/getPrefixes
+    current_path: /api/service/system/config/getPrefixes
     action: READ
     summary: 설정 접두사 후보
     request: none
@@ -578,7 +661,8 @@ apis:
   - id: API-560
     feature: FEAT-506
     method: POST
-    path: /api/service/system/config/save
+    path: /api/system/service/config/save
+    current_path: /api/service/system/config/save
     action: SAVE
     summary: 설정 오버라이드 저장·복원
     request: body=ConfigSaveRequest
@@ -587,7 +671,8 @@ apis:
   - id: API-561
     feature: FEAT-507
     method: POST
-    path: /api/service/system/loginLog/getList
+    path: /api/system/service/loginLog/getList
+    current_path: /api/service/system/loginLog/getList
     action: READ
     summary: 로그인 이력 목록
     request: body=SearchRequest<Void>
@@ -596,7 +681,8 @@ apis:
   - id: API-562
     feature: FEAT-507
     method: POST
-    path: /api/service/system/accessLog/getList
+    path: /api/system/service/accessLog/getList
+    current_path: /api/service/system/accessLog/getList
     action: READ
     summary: 사용 이력 목록
     request: body=SearchRequest<Void>
@@ -605,7 +691,8 @@ apis:
   - id: API-563
     feature: FEAT-507
     method: POST
-    path: /api/service/system/accessLog/getDetail
+    path: /api/system/service/accessLog/getDetail
+    current_path: /api/service/system/accessLog/getDetail
     action: READ
     summary: 사용 이력 상세
     request: body=AccessLogDetailRequest
@@ -614,7 +701,8 @@ apis:
   - id: API-564
     feature: FEAT-507
     method: POST
-    path: /api/service/system/errorLog/getList
+    path: /api/system/service/errorLog/getList
+    current_path: /api/service/system/errorLog/getList
     action: READ
     summary: 오류 이력 목록
     request: body=SearchRequest<Void>
@@ -623,7 +711,8 @@ apis:
   - id: API-565
     feature: FEAT-507
     method: POST
-    path: /api/service/system/errorLog/getDetail
+    path: /api/system/service/errorLog/getDetail
+    current_path: /api/service/system/errorLog/getDetail
     action: READ
     summary: 오류 이력 상세
     request: body=ErrorLogDetailRequest
@@ -632,7 +721,8 @@ apis:
   - id: API-566
     feature: FEAT-507
     method: POST
-    path: /api/common/system/excel/saveLog
+    path: /api/system/common/excel/saveLog
+    current_path: /api/common/system/excel/saveLog
     action: AUTHENTICATED
     summary: 클라이언트 엑셀 다운로드 이력
     request: body=ExcelLogRequest
@@ -641,7 +731,8 @@ apis:
   - id: API-567
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/getList
+    path: /api/system/service/batchSchedule/getList
+    current_path: /api/service/system/batchSchedule/getList
     action: READ
     summary: 배치 일정 목록
     request: body=SearchRequest<Void>
@@ -650,7 +741,8 @@ apis:
   - id: API-568
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/getBeanList
+    path: /api/system/service/batchSchedule/getBeanList
+    current_path: /api/service/system/batchSchedule/getBeanList
     action: READ
     summary: 등록 BatchJob 후보
     request: none
@@ -659,7 +751,8 @@ apis:
   - id: API-569
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/getTimezoneList
+    path: /api/system/service/batchSchedule/getTimezoneList
+    current_path: /api/service/system/batchSchedule/getTimezoneList
     action: READ
     summary: 시간대 후보
     request: none
@@ -668,7 +761,8 @@ apis:
   - id: API-570
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/getRecentHistory
+    path: /api/system/service/batchSchedule/getRecentHistory
+    current_path: /api/service/system/batchSchedule/getRecentHistory
     action: READ
     summary: 배치 최근 이력
     request: body=SearchRequest<BatchIdParams>
@@ -677,7 +771,8 @@ apis:
   - id: API-571
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/save
+    path: /api/system/service/batchSchedule/save
+    current_path: /api/service/system/batchSchedule/save
     action: SAVE
     summary: 배치 일정 저장
     request: body=BatchScheduleSaveRequest
@@ -687,7 +782,8 @@ apis:
   - id: API-572
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchSchedule/runNow
+    path: /api/system/service/batchSchedule/runNow
+    current_path: /api/service/system/batchSchedule/runNow
     action: EXECUTE
     summary: 배치 즉시 실행
     request: body=BatchRunRequest
@@ -697,7 +793,8 @@ apis:
   - id: API-573
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchHistory/getList
+    path: /api/system/service/batchHistory/getList
+    current_path: /api/service/system/batchHistory/getList
     action: READ
     summary: 배치 전체 이력
     request: body=SearchRequest<Void>
@@ -706,7 +803,8 @@ apis:
   - id: API-574
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchHistory/getDetail
+    path: /api/system/service/batchHistory/getDetail
+    current_path: /api/service/system/batchHistory/getDetail
     action: READ
     summary: 배치 이력 상세
     request: body=BatchHistoryDetailRequest
@@ -715,7 +813,8 @@ apis:
   - id: API-575
     feature: FEAT-508
     method: POST
-    path: /api/service/system/batchHistory/cancel
+    path: /api/system/service/batchHistory/cancel
+    current_path: /api/service/system/batchHistory/cancel
     action: EXECUTE
     summary: 배치 실행 중단 요청
     request: body=BatchCancelRequest
@@ -725,7 +824,8 @@ apis:
   - id: API-576
     feature: FEAT-509
     method: POST
-    path: /api/service/system/notice/getList
+    path: /api/system/service/notice/getList
+    current_path: /api/service/system/notice/getList
     action: READ
     summary: 공지 관리 목록
     request: body=SearchRequest<Void>
@@ -734,7 +834,8 @@ apis:
   - id: API-577
     feature: FEAT-509
     method: POST
-    path: /api/service/system/notice/save
+    path: /api/system/service/notice/save
+    current_path: /api/service/system/notice/save
     action: SAVE
     summary: 공지 저장
     request: body=NoticeSaveRequest
@@ -743,7 +844,8 @@ apis:
   - id: API-578
     feature: FEAT-509
     method: GET
-    path: /api/common/system/notice/getList
+    path: /api/system/common/notice/getList
+    current_path: /api/common/system/notice/getList
     action: AUTHENTICATED
     summary: 사용자 공지 목록
     request: query=includeExpired:boolean?
@@ -752,7 +854,8 @@ apis:
   - id: API-579
     feature: FEAT-509
     method: GET
-    path: /api/common/system/notice/getOne
+    path: /api/system/common/notice/getOne
+    current_path: /api/common/system/notice/getOne
     action: AUTHENTICATED
     summary: 사용자 공지 상세
     request: query=noticeId:Long|includeExpired:boolean?
@@ -761,7 +864,8 @@ apis:
   - id: API-580
     feature: FEAT-509
     method: GET
-    path: /api/common/system/notice/getPopup
+    path: /api/system/common/notice/getPopup
+    current_path: /api/common/system/notice/getPopup
     action: AUTHENTICATED
     summary: 현재 공지 팝업
     request: none
@@ -770,7 +874,8 @@ apis:
   - id: API-581
     feature: FEAT-509
     method: POST
-    path: /api/service/system/notiRequest/getList
+    path: /api/system/service/notiRequest/getList
+    current_path: /api/service/system/notiRequest/getList
     action: READ
     summary: 관리 요청 목록
     request: body=SearchRequest<Void>
@@ -779,7 +884,8 @@ apis:
   - id: API-582
     feature: FEAT-509
     method: POST
-    path: /api/service/system/notiRequest/updateHandle
+    path: /api/system/service/notiRequest/updateHandle
+    current_path: /api/service/system/notiRequest/updateHandle
     action: SAVE
     summary: 관리 요청 판정
     request: body=NotiRequestHandleRequest
@@ -788,7 +894,8 @@ apis:
   - id: API-583
     feature: FEAT-509
     method: GET
-    path: /api/common/system/notiRequest/getMyList
+    path: /api/system/common/notiRequest/getMyList
+    current_path: /api/common/system/notiRequest/getMyList
     action: AUTHENTICATED
     summary: 내 요청 목록
     request: none
@@ -797,7 +904,8 @@ apis:
   - id: API-584
     feature: FEAT-509
     method: POST
-    path: /api/common/system/notiRequest/save
+    path: /api/system/common/notiRequest/save
+    current_path: /api/common/system/notiRequest/save
     action: AUTHENTICATED
     summary: 내 관리 요청 등록
     request: body=MyNotiRequestCreateRequest
@@ -806,7 +914,8 @@ apis:
   - id: API-585
     feature: FEAT-509
     method: GET
-    path: /api/common/system/noti/getList
+    path: /api/system/common/noti/getList
+    current_path: /api/common/system/noti/getList
     action: AUTHENTICATED
     summary: 내 알림함
     request: none
@@ -815,7 +924,8 @@ apis:
   - id: API-586
     feature: FEAT-509
     method: GET
-    path: /api/common/system/noti/getUnreadCount
+    path: /api/system/common/noti/getUnreadCount
+    current_path: /api/common/system/noti/getUnreadCount
     action: AUTHENTICATED
     summary: 안 읽은 알림 수
     request: none
@@ -824,7 +934,8 @@ apis:
   - id: API-587
     feature: FEAT-509
     method: POST
-    path: /api/common/system/noti/saveRead
+    path: /api/system/common/noti/saveRead
+    current_path: /api/common/system/noti/saveRead
     action: AUTHENTICATED
     summary: 알림 읽음
     request: body=NotiReadRequest
@@ -833,7 +944,8 @@ apis:
   - id: API-588
     feature: FEAT-509
     method: POST
-    path: /api/common/system/noti/saveAllRead
+    path: /api/system/common/noti/saveAllRead
+    current_path: /api/common/system/noti/saveAllRead
     action: AUTHENTICATED
     summary: 알림 전체 읽음
     request: none
@@ -842,7 +954,8 @@ apis:
   - id: API-589
     feature: FEAT-510
     method: GET
-    path: /api/common/system/favorite/getList
+    path: /api/system/common/favorite/getList
+    current_path: /api/common/system/favorite/getList
     action: AUTHENTICATED
     summary: 즐겨찾기 목록
     request: none
@@ -851,7 +964,8 @@ apis:
   - id: API-590
     feature: FEAT-510
     method: POST
-    path: /api/common/system/favorite/save
+    path: /api/system/common/favorite/save
+    current_path: /api/common/system/favorite/save
     action: AUTHENTICATED
     summary: 즐겨찾기 저장
     request: body=FavoriteMenuRequest
@@ -860,7 +974,8 @@ apis:
   - id: API-591
     feature: FEAT-510
     method: POST
-    path: /api/common/system/favorite/delete
+    path: /api/system/common/favorite/delete
+    current_path: /api/common/system/favorite/delete
     action: AUTHENTICATED
     summary: 즐겨찾기 삭제
     request: body=FavoriteMenuRequest
@@ -869,7 +984,8 @@ apis:
   - id: API-592
     feature: FEAT-510
     method: GET
-    path: /api/common/system/gridPref/getOne
+    path: /api/system/common/gridPref/getOne
+    current_path: /api/common/system/gridPref/getOne
     action: AUTHENTICATED
     summary: 그리드 설정 조회
     request: query=menuCd:String|gridId:String|signature:String
@@ -878,7 +994,8 @@ apis:
   - id: API-593
     feature: FEAT-510
     method: POST
-    path: /api/common/system/gridPref/save
+    path: /api/system/common/gridPref/save
+    current_path: /api/common/system/gridPref/save
     action: AUTHENTICATED
     summary: 그리드 설정 저장
     request: body=GridPrefSaveRequest
@@ -887,7 +1004,8 @@ apis:
   - id: API-594
     feature: FEAT-510
     method: POST
-    path: /api/common/system/gridPref/delete
+    path: /api/system/common/gridPref/delete
+    current_path: /api/common/system/gridPref/delete
     action: AUTHENTICATED
     summary: 그리드 설정 초기화
     request: body=GridPrefResetRequest
@@ -896,7 +1014,8 @@ apis:
   - id: API-595
     feature: FEAT-510
     method: GET
-    path: /api/common/system/searchCond/getList
+    path: /api/system/common/searchCond/getList
+    current_path: /api/common/system/searchCond/getList
     action: AUTHENTICATED
     summary: 저장 조회조건 목록
     request: query=menuCd:String
@@ -905,7 +1024,8 @@ apis:
   - id: API-596
     feature: FEAT-510
     method: POST
-    path: /api/common/system/searchCond/save
+    path: /api/system/common/searchCond/save
+    current_path: /api/common/system/searchCond/save
     action: AUTHENTICATED
     summary: 조회조건 저장
     request: body=SearchCondSaveRequest
@@ -914,7 +1034,8 @@ apis:
   - id: API-597
     feature: FEAT-510
     method: POST
-    path: /api/common/system/searchCond/delete
+    path: /api/system/common/searchCond/delete
+    current_path: /api/common/system/searchCond/delete
     action: AUTHENTICATED
     summary: 조회조건 삭제
     request: body=SearchCondDeleteRequest
@@ -923,7 +1044,8 @@ apis:
   - id: API-598
     feature: FEAT-510
     method: POST
-    path: /api/common/system/menu/saveSelect
+    path: /api/system/common/menu/saveSelect
+    current_path: /api/common/system/menu/saveSelect
     action: AUTHENTICATED
     summary: 메뉴 선택 통계 누적
     request: body=MenuSelectRequest
@@ -932,7 +1054,8 @@ apis:
   - id: API-599
     feature: FEAT-510
     method: GET
-    path: /api/common/system/menu/getFrequent
+    path: /api/system/common/menu/getFrequent
+    current_path: /api/common/system/menu/getFrequent
     action: AUTHENTICATED
     summary: 자주 쓰는 메뉴
     request: none
@@ -942,7 +1065,7 @@ apis:
     feature: FEAT-504
     implementation: planned
     method: POST
-    path: /api/common/system/code/getListByRef
+    path: /api/system/common/code/getListByRef
     action: AUTHENTICATED
     summary: 참조 조건 공통 코드 후보
     request: body={grpCd,refCd,refVal}; FEAT-504.reference_combo_contract
@@ -951,7 +1074,7 @@ apis:
     feature: FEAT-501
     implementation: planned
     method: GET
-    path: /api/public/system/auth/getCsrf
+    path: /api/system/public/auth/getCsrf
     action: PUBLIC
     summary: 관리자 익명/인증 CSRF 문맥 준비
     request: none

@@ -3,10 +3,10 @@ meta:
   status: in_progress
   baselined: null
   workstreams: { system: reviewed, admin: draft }
-  path_convention: "/api/{public|common|service}/{module}/{domain}/{action}"
-  cutover: "system 이행 슬라이스에서 호출자·SYS_API·SYS_MENU_API를 함께 바꾸고 회귀 시험 뒤 system 없는 구 경로를 같은 커밋에서 삭제한다"
+  path_convention: "/api/{module}/{public|common|service}/{domain}/{action}"
+  cutover: "소유 영향 G3 뒤 현재 구현 API의 서버 매핑·프런트 호출·보안 카탈로그·생성 시드와 SYS_API·SYS_MENU_API를 같은 배포로 전환한다. 구주소 alias/redirect/이중등록 없이 새 경로만 수락하며 기존 권한 연결·DTO·HTTP method를 보존한다"
   common_errors: { 400: VALIDATION_ERROR, 401: AUTHENTICATION_REQUIRED, 403: AUTHORIZATION_DENIED, 404: RESOURCE_NOT_FOUND, 409: STATE_CONFLICT, 500: INTERNAL_ERROR }
-  contract_rule: "system의 source_contract는 현재 DTO·검증 의미를 보존하는 이행 근거다. implementation: planned인 API는 소유 feature_contracts의 설계 DTO·검증 계약을 사용하며 없는 source_contract를 만들지 않는다. system은 G3 입력 DTO 필드·검증·null·페이징을 보존하고 P4에서 패키지/경로만 이행한다. admin은 소유 G3에서 설계 계약을 검토한다"
+  contract_rule: "CR-038 A 확정으로 path는 목표, current_path/source_contract는 현재 구현 근거다. FEAT-301.api_path_transition의 경로 카탈로그·시드/DB 연결 영향 G3와 실제 전환 회귀는 별도다. system의 source_contract는 현재 DTO·검증 의미를 보존하는 이행 근거다. implementation: planned인 API는 소유 feature_contracts의 설계 DTO·검증 계약을 사용하며 없는 source_contract를 만들지 않는다. system은 입력 DTO 필드·검증·null·페이징을 보존하고 P4에서 패키지/경로를 이행한다. admin은 소유 G3에서 설계 계약을 검토한다"
   error_inheritance: "모든 API는 common_errors를 상속하고, feature_contracts의 exception_map에 연결된 UC 예외를 추가로 반환한다"
 
 spec_set:
@@ -31,3 +31,4 @@ spec_set:
     - 017-integration-common-contracts.yaml
     - 018-external-user-change-apis.yaml
     - 019-model-call-usage-contracts.yaml
+    - 020-auth-store-contracts.yaml

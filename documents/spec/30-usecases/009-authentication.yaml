@@ -15,7 +15,7 @@ usecases:
     main_flow:
       - Portal 익명 문맥/CSRF를 준비하고 같은 영역의 요청/Origin을 검증한다.
       - LOCAL은 현재 Portal 원장/자격을 보호하고 암호/계정 상태를 검사한다. ADMIN 계정이나 요청 userId로 대체하지 않는다.
-      - 정상 수락은 동시 세션 정책·새 ID/CSRF·안전한 성공 사건을 DB에 확정한 뒤 쿠키를 응답한다.
+      - 정상 수락은 동시 세션 정책·원장/안전한 사건을 DB에 확정하고 FEAT-301.session_store_v2의 선택 provider 발행/활성화 확인 뒤 새 쿠키를 응답한다. v1/JDBC와 Redis 분산 확정을 혼동하지 않는다.
       - 보호 요청마다 세션 기한/자격세대/현재 계정을 검사하고 기능별 현재 그룹·대상/쿼터 조건을 별도로 확인한다.
       - 명시 로그아웃/만료는 자기 영역 인증 세션만 종료하고 채팅·턴 기록은 보존 정책에 맡긴다.
     alternative_flows:
@@ -23,7 +23,7 @@ usecases:
         condition: EXTERNAL 모드
         flow:
           - 설치된 어댑터가 증거·challenge 바인딩을 검증한다.
-          - IF-010의 일회 소비·현재 연결/계정·세션/사건을 원자 확정한다.
+          - IF-010의 일회 소비·현재 연결/계정·수락 원장/사건은 DB 원자 확정하고 payload 발행/쿠키는 v2 선택 provider 절차를 따른다.
       - id: A2
         condition: 초기/만료 비밀번호
         flow:
@@ -62,7 +62,7 @@ usecases:
       diagrams:
         - key: local-login
           title: 자체 로그인과 실패횟수 확정
-          transaction_boundary: 로그인 실패 결과도 횟수/사건 커밋 후 HTTP 실패로 변환한다. 성공 세션/사건은 같은 REQUIRED 트랜잭션이다.
+          transaction_boundary: 실패 결과도 횟수/사건 커밋 후 HTTP 실패로 변환한다. JDBC 성공 원장/payload는 같은 REQUIRED이며 Redis는 DB 원장/사건 확정 뒤 별도 발행/ACTIVE 확인을 수행한다. provider-publication-v2 그림을 함께 읽는다.
           apis:
             - API-301
             - API-302
@@ -88,13 +88,14 @@ usecases:
                 P->>D: COMMIT
                 P-->>B: 401 안전 오류
               else 수락
-                P->>D: 기존 세션 종료 및 새 세션/사건
+                P->>D: 기존 세대 폐기 및 새 원장/사건
                 P->>D: COMMIT
+                P->>P: v2 선택 provider 발행 및 수락 확정 확인
                 P-->>B: PORTAL 쿠키와 인증 상태
               end
         - key: external-consumption
           title: 검증된 외부 증거의 일회 수락
-          transaction_boundary: 서명/원천 네트워크 검증은 DB 잠금 밖이다. challenge/증거 소비·세션/사건은 한 커밋이다.
+          transaction_boundary: 서명/원천 네트워크 검증은 DB 잠금 밖이다. challenge/증거 소비·수락 원장/사건은 DB 한 커밋이며 payload 발행/활성화는 provider-publication-v2를 따른다.
           apis:
             - API-301
           testcases:
@@ -118,8 +119,9 @@ usecases:
                 P->>D: ROLLBACK
                 P-->>V: 401/409
               else 수락 가능
-                P->>D: 증거 UNIQUE 삽입/소비/세션/사건
+                P->>D: 증거 UNIQUE 삽입/소비/수락 원장/사건
                 P->>D: COMMIT
+                P->>P: v2 선택 provider 발행 및 수락 확정 확인
                 P-->>V: 인증 상태와 쿠키
               end
         - key: password-recovery
@@ -144,11 +146,78 @@ usecases:
               P->>A: 현재 암호/자격세대와 새 암호
               A->>D: BEGIN 후 자격/이력/사건
               A->>D: COMMIT 자격세대 증가
-              P->>D: BEGIN 세션 ID/CSRF 회전
+              P->>P: v2 선택 provider의 새 세대 발행/수락 확인
               alt 세션 저장 실패
-                P->>D: ROLLBACK 회전
                 P-->>B: 암호 변경 확정·재로그인 필요
               else 회전 성공
-                P->>D: COMMIT 회전
                 P-->>B: 새 PORTAL 세션
               end
+        - key: provider-publication-v2
+          title: v2 JDBC와 Redis 발행·첫 실제 쿠키 사용
+          transaction_boundary: CR-036 변경 상세 검토용. ADMIN JDBC는 자격/이력/새payload 한 물리 커밋, Redis는 자격/원장 확정 뒤 잠금 밖 발행과 재보호 활성화다. Portal 자격 선확정 경계는 기존 계약을 유지한다.
+          apis: [API-302, API-303, API-304, API-501, API-508]
+          testcases: [TC-30123, TC-30127, TC-50115]
+          reading_order:
+            - admission은 최초 DB 시도에서 소비하고 Redis 후처리에서 되살리지 않는다.
+            - 슬롯 예약/회수·기한·현재 주체와 epoch를 활성화 때 다시 확인한다.
+            - 응답 write는 수신 증명이 아니며 새 인증 쿠키의 보호 요청으로만 첫 사용을 확정한다.
+          mermaid: |-
+            sequenceDiagram
+              participant B as 브라우저
+              participant O as 소유 인증 조립
+              participant D as DB guard와 수락 원장
+              participant S as 선택 세션 store
+              B->>O: 정확 인증 또는 암호 변경과 영역 CSRF
+              O->>D: 현재 자격/권한과 슬롯 보호·admission 소비
+              alt JDBC
+                O->>D: 자격/이력·이전 세대 폐기·ACTIVE와 payload
+                O->>D: 같은 물리 COMMIT 확인
+              else Redis
+                O->>D: 자격/이력·이전 세대 폐기·PENDING 예약 COMMIT
+                Note over O,D: DB와 ADMIN 잠금 해제
+                O->>S: 새 세대 NX 발행 1회
+                alt 저장 확인
+                  O->>D: 새 짧은 보호·현재 슬롯/주체/epoch/PENDING 재검사
+                  O->>D: ACTIVE COMMIT 확인
+                else 실패 또는 불명
+                  O-->>B: 쿠키0·확정 자격으로 재로그인 결과
+                end
+              end
+              opt 발급 가능 확정
+                O-->>B: 단일 writer의 새 쿠키
+                B->>O: 실제 새 쿠키로 자기상태 보호 API
+                O->>D: 현재 수락 검증·FIRST_USED_AT 확정
+              end
+              Note over B,D: 첫 사용 미확인 인증 예약은60초 뒤 종료·익명은 기존10분
+        - key: revoke-restore-v2
+          title: 관리 참조 회수와 DB·Redis 복구 뒤 재수락 방지
+          transaction_boundary: 강제 종료는 현재 권한/소유/세대를 재검사한 DB 회수가 확정점이다. DB 백업 복구는 수락을 닫고 양 영역 새 epoch를 확정한 뒤에만 재개한다.
+          apis: [API-517, API-518]
+          testcases: [TC-30124, TC-30125, TC-50116]
+          reading_order:
+            - 관리 참조는 인증 쿠키/물리 키와 독립이다.
+            - payload 삭제 실패도 DB REVOKED를 되돌리지 않는다.
+            - DB와 Redis가 함께 과거로 복원돼도 새 epoch 없이 수락을 재개하지 않는다.
+          mermaid: |-
+            sequenceDiagram
+              participant A as 관리자 또는 운영자
+              participant O as 인증 경계
+              participant D as DB 원장과 설정판
+              participant S as 선택 store
+              A->>O: userId와 targets 관리 참조
+              O->>D: 현재 EXECUTE·소유/현재 세대 보호
+              O->>D: REVOKED COMMIT
+              O->>S: 기대 세대 payload 삭제 시도
+              alt 선택 store 삭제 실패
+                Note over O,D: DB REVOKED 유지·접속 불수락
+              else 삭제 확인
+                Note over O,S: 해당 기대 세대만 제거
+              end
+              O-->>A: 실제 신규 회수 건수
+              Note over O,S: 삭제 실패·늦은 save·과거 snapshot은 회수를 무효화하지 않음
+              A->>O: 복구 전 수락 배출/차단
+              A->>D: DB 과거 백업 복구
+              A->>S: 필요 시 payload 복구
+              A->>D: 양 영역 새 epoch·구 grant 회수 확정
+              A->>O: 모든 노드 설정 일치·구쿠키 거부 확인
+              O-->>A: 전체 재로그인 후 수락 재개

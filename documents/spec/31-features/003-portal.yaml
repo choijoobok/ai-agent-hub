@@ -5,8 +5,8 @@ features:
     workstream: portal
     roadmap: RM-P1
     title: "Portal 인증·비밀번호·세션 안내 화면"
-    detail: "기존 SCR-113 로그인·SCR-114 자체 비밀번호 변경·SCR-115 세션 만료 안내의 제품 화면 소유를 FEAT-301 서버 인증 경계와 분리한다. 새 업무 기능을 추가하지 않으며 REQ-616·041과 ARCH-050의 별도 Portal 인증·PC/모바일·안전한 재인증 복귀를 표현한다."
-    screens: [SCR-113, SCR-114, SCR-115]
+    detail: "SCR-113 로그인·SCR-114 자체 비밀번호 변경·SCR-115 세션 만료 안내·SCR-116 비밀번호 찾기/재설정의 제품 화면 소유를 FEAT-301 서버 인증 경계와 분리한다. REQ-616·041과 ARCH-050의 별도 Portal 인증·PC/모바일·안전한 재인증 복귀를 표현한다. URL은 ARCH-021에서 확정하며 복구 수단·세부 요건/목업/API는 후행 Portal/integration 소유 설계다."
+    screens: [SCR-113, SCR-114, SCR-115, SCR-116]
     uses_features: [FEAT-301]
     usecases: [UC-023]
     reqs: [REQ-616, REQ-041]

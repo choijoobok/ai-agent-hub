@@ -94,7 +94,7 @@ modules     {모듈}/src/main/java/com/aiagent/{모듈}/
 ### 메서드 이름 — **URL 마지막 마디와 같다**
 
 ```
-POST /api/service/system/code/saveGroup
+POST /api/system/service/code/saveGroup
                        ↑
    CodeAdminController.saveGroup()  →  CodeAdminService.saveGroup()
                        ↑

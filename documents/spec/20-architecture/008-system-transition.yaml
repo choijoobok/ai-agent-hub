@@ -22,7 +22,7 @@ system_transition:
 
   api_transition:
     id: ARCH-023
-    canonical: "system API의 목표 경로는 `/api/{public|common|service}/system/{도메인}/{동작}`이다"
+    canonical: "CR-038에 따른 system API 목표 경로는 `/api/system/{public|common|service}/{도메인}/{동작}`이다. 소스의 현재 계층 우선 경로는 각 API current_path와 source_contract에서 구별한다"
     cutover:
       - "사용자 확정(2026-09-12): 현재는 고객이 없는 개발 단계이므로 배포 차수나 운영 관측 기간을 위한 호환 별칭을 두지 않는다"
       - "기능 슬라이스 안에서 컨트롤러·프론트 호출·`SYS_API`·`SYS_MENU_API` 생성 입력을 신규 정식 경로로 함께 바꾸고, 회귀 시험이 통과하면 기존 `/api/{계층}/{도메인}/{동작}` 매핑을 같은 커밋에서 제거한다"
@@ -42,7 +42,7 @@ system_transition:
   screen_transition:
     id: ARCH-025
     menu_routes: "현재 system 메뉴 URL의 경로 꼬리를 보존해 `/admin/system/{기존 경로}`로 옮긴다. 예: `/user` → `/admin/system/user`, `/log/login` → `/admin/system/log/login`, `/dashboard` → `/admin/system/dashboard`"
-    standalone_routes: "기존 system 로그인·프로필·설정·비밀번호 변경·세션 만료는 관리자 인증 영역에 한정한다. Portal은 SCR-113/114/115의 별도 로그인·자체 비밀번호·세션 만료 계약을 사용한다. 현재 /login 등 소스 경로와 목표 로그인 URL/이행·본인 서비스 범위는 P3에서 대조하며 같은 system auth 상태로 두 영역을 부팅하지 않는다"
+    standalone_routes: "기존 system 로그인·프로필·설정·비밀번호 변경·세션 만료는 관리자 인증 영역에 한정한다. CR-037에 따라 로그인/변경은 ARCH-021의 /admin 하위 경로로 바꾸고 기존 주소의 호환 처리를 남기지 않는다. Portal은 SCR-113~116의 별도 로그인·자체 비밀번호·세션 만료 계약과 ARCH-021 경로를 사용한다. 같은 system auth 상태로 두 영역을 부팅하지 않으며 프로필/만료 모달에 독립 URL을 추가하지 않는다"
     document_paths: "메뉴 화면 문서는 브라우저 목표 경로와 함께 `documents/screen/admin/system/**`로 옮긴다. URL이 없는 공통 오버레이 문서는 `documents/screen/_standalone/system/**`에 둔다"
     cutover: "사용자 확정(2026-09-12): 고객 북마크가 없는 개발 단계이므로 메뉴·라우터·화면 문서가 신규 경로로 함께 전환되면 기존 화면 경로는 같은 커밋에서 제거하고 리다이렉트 별칭을 두지 않는다"
     traces_to: [REQ-501, REQ-503, REQ-507, REQ-508, REQ-509, REQ-510]
@@ -59,7 +59,7 @@ system_transition:
       - "전환 중간에 테스트할 수는 있어도 슬라이스의 최종 상태에는 기존 경로 별칭을 남기지 않는다"
       - "DB 테이블 복사·이중 쓰기·기존 changeset 수정으로 모듈 이동을 표현하지 않는다"
       - "system G3 승인 전에는 소스·API 시드·화면 경로·DB changeset을 변경하지 않는다"
-    rollback: "기능 슬라이스 커밋 전체를 되돌려 기존 패키지와 경로를 복원한다. DB를 복제하지 않으므로 데이터 역이행은 없다"
+    rollback: "DB 값을 바꾸지 않는 기존 패키지 이동은 기능 슬라이스 커밋 전체를 되돌린다. CR-038 보존 전환과 CR-039 빈 개발 DB 재기준선의 복구는 FEAT-501.route_cutover.rollback을 따른다. 보존 경로는 원 키/메뉴 연결 역이관, 재기준선 경로는 선택 기준선 재구축 또는 별도 실행 승인 뒤 구 판에 맞는 빈 DB 재구축이다. 모든 노드의 권한 registry/캐시와 정적 파일도 같은 판으로 맞추며 코드만 되돌려 다른 기준선 DB와 섞지 않는다"
     traces_to: [ARCH-022, ARCH-023, ARCH-024, ARCH-025]
 
 # ── 데이터소스 전략 ─────────────────────────────────────────

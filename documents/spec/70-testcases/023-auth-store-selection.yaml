@@ -1,0 +1,111 @@
+testcases:
+  - id: TC-30121
+    feature: FEAT-301
+    usecase: UC-045
+    type: integration
+    actor: ACT-009
+    title: 같은 artifact의 JDBC/Redis 설정 선택과 엄격한 기동
+    given: CR-036 v2 조립·실제 PostgreSQL과 격리 Redis·영역별 설정판
+    when: 두 provider 설정으로 같은 artifact 기동 및 누락/미지원/namespace 중복/DB판 불일치/Redis 연결 실패 주입
+    then: 선택 구현1개·영역별 filter/resolver1개. 자동 기본 세션 filter0·WAS/in-memory/상대provider 폴백0. 정상 노드 재시작은 epoch/다른 노드 세션을 임의 변경하지 않는다.
+    status: planned
+    verification: SLICE-308 변경 G3 후 실제 두 저장소/HTTP로 실행. factory의 JDBC 구체 결합·fallback·설정판 검사 삭제 변이는 실패해야 한다. 전용 PostgreSQL/Windows native Redis의 실제 공통 fixture를 실행했으며 제품 설치와 Linux 운영 배포 수락은 별도다.
+  - id: TC-30122
+    feature: FEAT-301
+    usecase: UC-045
+    type: concurrency
+    actor: ACT-001
+    title: 두 provider의 영역 격리와 현재 원장 수락
+    given: 같은 ID 문자열의 ADMIN/PORTAL 주체·현재/회수/과거 generation·익명 문맥
+    when: 쿠키/CSRF 교차·중복쿠키·정확 method/path 변조·API-301/601·로그인/회전/종료·payload만 복원
+    then: 현재 DB ACTIVE·domain/epoch/generation/기한과 선택 store 일치만 수락. 교차/과거/회수401·CSRF403·원천불가503. 새 payload를 일반 save로 생성0·Portal 변경을 ADMIN에 전파0.
+    status: planned
+    verification: SLICE-308 실제 HTTP 동일 fixture를 JDBC/Redis 양쪽으로 실행. DB수락·세대·영역·exact 경계 각각 제거한 반전에서 실패해야 한다. 실제 Portal 계정 업무 완료는 SLICE-301/306이다.
+  - id: TC-30123
+    feature: FEAT-301
+    usecase: UC-045
+    type: concurrency
+    actor: ACT-009
+    title: Redis DB확정 후 발행과 끼어든 회수
+    given: DB PENDING grant·단일 소비 admission·실제 Redis 발행 후처리
+    when: DBrollback/UNKNOWN·Redis 쓰기 실패/UNKNOWN·발행 뒤 계정중지/회수/epoch변경·ACTIVE확정 UNKNOWN·쿠키미수신·동일주체 두로그인 역순발행/한도/예약만료 주입
+    then: DBrollback은 전체롤백·쿠키0. DB확정 뒤 발행실패는 자격/이력/구회수 유지·새수락0. 끼어든 회수는 활성화 거부. ACTIVE불명도 쿠키0·admission재사용/자동POST재실행0. Redis 네트워크 중 DB/ADMIN 잠금 점유0. 유효PENDING+ACTIVE 예약으로기존prevent-login/밀어내기한도유지·회수된예약의역순ACTIVE0·실패예약해제/60초만료뒤슬롯재사용.
+    status: planned
+    verification: SLICE-308 실제 PostgreSQL/JpaTransactionManager·Redis·두 트랜잭션 barrier로 각 확정 순서 검증. ACTIVE불명/쿠키미수신+한도1/prevent-login에서 첫사용미확인 예약은60초뒤슬롯을놓고 새로그인가능, 첫실제쿠키사용한정상세션은보존한다. response write 성공을첫사용으로간주한변이도실패해야한다. 종료admission재소비·commit전쿠키·pending허용 변이 실패.
+  - id: TC-30124
+    feature: FEAT-301
+    usecase: UC-045
+    type: concurrency
+    actor: ACT-001
+    title: Redis 늦은 save와 과거 snapshot 복원
+    given: 두 instance의 old/new generation·revision 및 종료/회전 뒤 남은 과거 payload
+    when: 늦은 updateExisting/delete·Redis 중단/복구·과거 snapshot 복원·DB원장 정리 뒤 구쿠키 재전송
+    then: CAS불일치/부재갱신0·upsert0. 같은현재grant/generation의revision경합은현재상태재확인뒤flush만폐기·503/접속종료0. DB revoked/epoch/현재세대/행부재로 폐기접속 부활0. 늦은 old delete는 새세대 영향0. Redis장애에JDBCfallback0·DB장애에Redis단독허용0.
+    status: planned
+    verification: SLICE-308 전용 실제 Redis와 PostgreSQL의 독립장애·두 instance·양순서 시험. generation/revision/NX·DB회수검사 반전 실패.
+  - id: TC-30125
+    feature: FEAT-301
+    usecase: UC-045
+    type: integration
+    actor: ACT-009
+    title: provider 전환·되돌림과 혼합 설정 차단
+    given: JDBC epoch A의 세션과 Redis epoch B의 세션·두 노드·동일 v2 artifact
+    when: 통제된 JDBC→Redis→JDBC 전환·구노드 요청/기동·구provider payload와cookie 재전송·DB설정판/원장과Redis과거백업동시복구
+    then: 설정판 expected epoch CAS와 배출/전체재로그인. 새 epoch로 돌아온 JDBC도 epoch A 세션 불수락. 혼합설정노드 수락/기동거부·기동자동epoch증가0. v1바이너리rollback은별도세션정리절차없이불가.
+    status: planned
+    verification: SLICE-308 실제 두 저장소/두 노드·운영 전환 smoke. DB복구전수락차단→복구뒤양영역새epoch/구grant회수→모든노드일치→전체재로그인후재개를검증한다. 구epoch허용·복구된설정판그대로수락·설정불일치무시·노드기동자동증가 반전 실패.
+  - id: TC-30126
+    feature: FEAT-301
+    usecase: UC-045
+    type: boundary
+    actor: ACT-001
+    title: DB시계 sliding 기한과 원장 정리
+    given: 기본30분 유효/만료 grant·Redis TTL/DB시각/JVM시각 차이·회수/실패 PENDING
+    when: 정상요청·heartbeat·순서역전 갱신·publication60초 경계·24시간 청크정리
+    then: DB미만료 ACTIVE만 lastAccess/기한 단조갱신. TTL/청소지연·과거payload로유효연장0. 원장정리후과거쿠키거부·이미만료세션재생성0. currentSession/생성/최종접근metadata정확. 정상두탭의현재generation/revision경합만으로접속종료0·현재성미확인CAS0성공위장0.
+    status: planned
+    verification: SLICE-308 실제 DB시간을 기준으로 경계값·store TTL·두 노드 시험. app Clock만으로 유효성을 입증하지 않는다.
+  - id: TC-30127
+    feature: FEAT-301
+    usecase: UC-045
+    type: integration
+    actor: ACT-009
+    title: JDBC v2의 물리 원자성과 v1 회귀
+    given: 실제 JpaTransactionManager·기존표준 JDBC세션·추가 수락원장·현재계정 변경 callback
+    when: DB새grant/payload/속성/이력 각지점실패·twoinstance staleflush·다른DS/TM오조립
+    then: 같은물리commit/rollback·쿠키최종commit후1회. 분리TM기동거부·기존부모행0갱신시insert0. v1 SLICE-307의 확정 근거는보존하고v2회귀를별도기록.
+    status: planned
+    verification: SLICE-308 실제 PG/JPA/HTTP와 기존 TC-30116~30120 회귀·PIT75%이상. Redis에이전체물리rollback보장을전이하지않는다.
+  - id: TC-30128
+    feature: FEAT-301
+    usecase: UC-045
+    type: security
+    actor: ACT-009
+    title: 저장소 독립 참조와 비밀 출력 차단
+    given: 두 provider의 내부SessionRef·SessionPublication·관리참조·쿠키·CSRF
+    when: JSON/Jackson/toString/예외/일반로그와관리API직렬화·참조를인증입력으로재사용
+    then: 원쿠키/CSRF/물리rowid/Rediskey일반출력0. 관리참조는관리API에만노출·인증불가. v1참조에v2의미를몰래덮어쓰기0·rawrepository전역주입0.
+    status: planned
+    verification: SLICE-308 실제 직렬화/HTTP/구조반례. 비밀holder자동출력·관리참조인증허용 변이실패.
+  - id: TC-50115
+    feature: FEAT-501
+    usecase: UC-501
+    type: integration
+    actor: ACT-012
+    title: 실제 ADMIN의 JDBC/Redis 암호 변경·세션 수락 실패
+    given: 실제 SYS_USER/암호이력·현재권한·ADMIN/PORTAL세션·동일제품HTTP
+    when: 양provider로그인/본인암호/복구·DBrollback/commit불명·Redis발행실패·응답유실·로그인재시도·한도1동시로그인역순발행/예약만료·제한 변경/프로필의503응답·Portal/디버그주소직접진입
+    then: JDBC는암호/이력/회수/새세션전체원자성. Redis는DB확정전전체롤백·확정후새세션실패면새암호재로그인outcome·구접속불수락·쿠키0. 종료admission/원POST자동재실행0·Portal변경0·UIprovider분기0. PENDING예약을포함한기존prevent-login/밀어내기보존·역순발행초과수락0·실패/만료예약해제. API508의503 PASSWORD_CHANGED_REAUTH_REQUIRED는두폼의ADMIN상태/암호입력정리후기존재로그인흐름으로전환하고일반503은구분한다. 성공후새쿠키의API506첫사용을확인하며제한세션을자동해제하지않는다. ADMIN초기조회/신호/wildcard가다른영역을가로채지않고미구현진입을닫힌소유슬롯으로유지한다.
+    status: planned
+    verification: SLICE-520 v2소비·실제PG/JPA/Redis/HTTP·첫방문/기존쿠키/새로고침과frontend시험. Redis발행대기동안별도권한회수트랜잭션이완료하고후속ACTIVE가거부되는반례로잠금밖publication을확인한다. 503코드분기제거·원POST자동재전송·전역ADMIN라우팅변이는실패해야한다. CR-037의 /admin/login·/admin/password/change 진입/로그아웃/강제변경/재인증/안전복귀와 구 /login·/password/change의 alias/redirect 부재를 검증한다. 실제SMTP는테스트Mailer만사용한다. 제품Portal화면의구현수락은포함하지않는다.
+  - id: TC-50116
+    feature: FEAT-501
+    usecase: UC-501
+    type: security
+    actor: ACT-012
+    title: 관리용 세션 참조의 현재권한·소유·세대 재검사
+    given: API-517/518의ADMIN READ/EXECUTE권한과두사용자/두영역/회전전후관리참조
+    when: 목록/선택종료의 실제JSON userId/targets·권한회수·USER_ID변조·중복참조/변조/구세대/상대영역·Redis삭제장애
+    then: 기존필드/타입/선택기능유지·실인증쿠키노출0. 현재권한/USER_ID/영역/세대를서버검사하고대상외종료0. 유효형식의없는/다른주체/구세대는기존0건처리·중복참조는실제회수1회만계수. DB회수commit이면store삭제실패에도재접속거부·실제새회수건수반환.
+    status: planned
+    verification: SLICE-520 실제양provider HTTP·두노드경합. 원값출력·소유검사/현재generation/DB회수제거변이는실패.

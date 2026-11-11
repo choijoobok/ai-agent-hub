@@ -10,11 +10,12 @@ feature_contracts:
     auth_precondition:
       status: CR-028/033·ADR-034/046의 system 영향 상세 초안·미구현
       shared_contract: FEAT-301.request_boundary/session_isolation/admin_authority_guard/migration_detail를 수락한다. API-601과 ADMIN 쿠키/CSRF 준비는 system, 영역 선택 필터/공통 조립은 integration 소유다.
-      exact_paths: API-501~505의 정확 public method/path와 API-601만 관리자 인증 익명 목록에 둔다. API-501/503/504/505는 POST CSRF/Origin을 검증한다. getPasswordPolicy는 비밀 없는 조회다. common API-506~509는 ADMIN 본인 문맥만 수락한다.
-      restricted: 초기/만료 비밀번호 제한 세션은 getMe/heartbeat/changePassword/logout과 자기 CSRF 준비만 가능하다. 반드시 현재 계정 검사를 먼저 하고 메뉴/일반 저장은403이다. 기존 데이터/비밀번호 이력 정책은 유지한다.
+      exact_paths: API-501~505의 정확 public method/path와 API-601은 관리자 인증 명령/준비의 익명 목록이다. 부팅용 공개 자원 API-557은 아래 public_boot_resource로 별도 등록한다. API-501/503/504/505는 POST CSRF/Origin을 검증한다. getPasswordPolicy는 비밀 없는 조회다. common API-506~509는 ADMIN 본인 문맥만 수락한다.
+      public_boot_resource: API-557 GET /api/system/public/message/getBundle의 lang/v 공개 번들은 ANONYMOUS·PASSWORD_CHANGE_REQUIRED·AUTHENTICATED에서 같은 공개 읽기로 제공한다. 정확한 method/path만 허용하며 자격/관리 권한 부여·세션 생성/회전·CSRF 준비·첫 사용 확정 의미는 없다. getMe401 뒤 로그인 문구 로드와 제한 세션의 새로고침/언어·메시지 버전 변경을 지원한다. 넓은 public prefix 예외는 만들지 않는다.
+      restricted: 초기/만료 비밀번호 제한 세션의 보호 API는 getMe/heartbeat/changePassword/logout과 자기 CSRF 준비만 가능하다. 반드시 현재 계정 검사를 먼저 하고 메뉴/일반 저장은403이다. API-557의 비계정 공개 읽기는 위 public_boot_resource 기준으로 별도 허용한다. 기존 데이터/비밀번호 이력 정책은 유지한다.
       transaction_port: system 공개 withCurrentAdminAuthority(context, exactApi, mode, callback)는 호출자의 REQUIRED 트랜잭션에 참여한다. 공유/배타 선택·잠금 뒤 현재 계정/액션·callback 효과를 같은 구간에 둔다. 단순 boolean을 반환해 경계 밖 저장에 재사용하지 않는다.
       scope: ADMIN 요청 수락은 대상 사용자 선택 ID와 별개다. 비밀번호/잠금·기간·사용/IP·역할/개인 권한·메뉴/API 변경 경로를 보호 매트릭스로 연결한다. 시작 후 ADMIN guard 잠금 업그레이드는 금지한다.
-      sessions: 기존 ADMIN JDBC SessionRepository/SPRING_SESSION은 관리자 전용으로 유지한다. Portal 주체 인덱스를 섞지 않는다. 본인 암호 변경은 해시/이력과 해당 기존 세션 삭제·새 ID/CSRF 저장을 같은 REQUIRED DB 트랜잭션에 조립한다. 응답 전 확정하며 실패하면 변경 전체를 롤백한다. 커밋 후 응답 유실이면 새 암호로 재인증한다. Portal credentialVersion을 SYS_USER 필드로 추가하지 않는다.
+      sessions: FEAT-301.session_store_v2의 ADMIN 인스턴스를 사용한다. JDBC는 암호/이력·기존 세대 폐기·새 grant/payload를 같은 물리 REQUIRED로 확정한다. Redis는 DB 자격/이력/구접속 회수를 먼저 확정하고 새 payload/활성화 실패 시 새 암호 재로그인으로 복구한다. Portal credentialVersion을 SYS_USER 필드로 추가하지 않는다.
       audit: 기존 SYS_LO_LOGIN·SYS_LO_ACCESS의 ADMIN 저장/보존 사실은 유지한다. 전용 권한 원장을 새로 만들지 않는다. Portal 경로를 일반 ADMIN 요청 전문에서 제외하고 인증 비밀은 수집 단계에서 차단한다.
       screen: SCR-501의 목표 동작과 CR-033 검수를 따른다. 사용자가 2026-11-10 거절한 기존 확정 변경 유지 안내 문구를 새로 추가하지 않는다. 비활성화 동작 계약과 시험은 유지한다.
       verification: TC-50110~50114·TC-5037/5038을 양 노드/양 순서·기한/권한·회전/응답 유실·public 위장으로 검증한다. 기존 현재 소스 시험을 새 계약 통과로 세지 않는다.
@@ -36,13 +37,35 @@ feature_contracts:
           - API-540
           - API-541
           - API-542
-        public_credentials: API-501은 실패횟수 임계 잠금/성공 해제도 계정 상태 변경이므로 처음부터 exclusive 보호를 획득하고 수락/세션 확정까지 유지한다. API-505도 검증된 복구 문맥의 자격 변경/기존 세션 종료를 exclusive로 보호한다. 익명에 관리자 메뉴 권한을 부여하지 않고 로그인 증거 또는 복구 토큰의 목적/본인/만료로 수락한다. API-503/504의 원천 검증·메일 송신은 기존 복구 계약을 유지하며 네트워크를 보호 안에서 기다리지 않는다.
+        public_credentials: API-501은 실패횟수 임계 잠금/성공 해제도 계정 상태 변경이므로 처음부터 exclusive 보호를 획득한다. JDBC는 수락/세션 동일 커밋까지, Redis는 자격/실패횟수 또는 PENDING의 1차 DB 확정까지 유지한다. Redis publication은 모든 보호/DB 잠금 해제 뒤 수행하고 별도 짧은 REQUIRED의 새 보호 안에서 현재 계정/권한·epoch·PENDING·접속 한도를 재검사해 ACTIVE를 확정한다(session_store_v2). API-505도 검증된 복구 문맥의 자격 변경/기존 세션 회수를 exclusive로 보호한다. 익명에 관리자 메뉴 권한을 부여하지 않고 로그인 증거 또는 복구 토큰의 목적/본인/만료로 수락한다. API-503/504의 원천 검증·메일 송신은 기존 복구 계약을 유지하며 네트워크를 보호 안에서 기다리지 않는다.
         shared: 위 배타/익명 수락 외 모든 ADMIN 보호 조회·본인 서비스·관리 쓰기. API-509 종료는 본인 세션만 삭제한다. self profile/locale은 권한 입력을 바꿀 수 없고 바꾸는 필드가 추가되면 배타 분류를 먼저 변경한다.
         non_http: 기동 시 메뉴/API/권한 캐시 구성과 새 시드 적용은 배출된 서비스 경계에서 수행한다. 운영 중 직접 SQL/오래된 캐시로 변경을 우회하지 않는다. 만료 시각 도달은 요청마다 원천 시각 검사로 집행한다.
       session_adapter: FEAT-301.shared_session_adapter의 ADMIN 인스턴스를 사용한다. 자동 filter/REQUIRES_NEW 저장을 남겨둔 채 원자성을 주장하지 않는다. 현재 서버 sessionRef 재검사·조건부 기존행 갱신·요청 wrapper flush 종료를 함께 적용한다.
       login_failure_commit: 계정 상태·실패횟수 쓰기는 ADMIN 배타 보호와 같은 트랜잭션에 참여한다. 로그인 거부는 결과값으로 반환하고 횟수/잠금 커밋 뒤 HTTP401로 변환한다. 기존 ADMIN 일반 로그인 이력의 독립 저장/실패 정책과 Portal 필수 보안 사건 정책은 구별하며 관리자 로그 실패를 권한 허용으로 바꾸지 않는다.
-      interface_version: FEAT-301.admin_interface_v1의 admin-auth-boundary/v1. 소유 integration 계약 승인·SLICE-307 완료 후 SLICE-520에서 실제 ADMIN 소비를 조립한다.
+      interface_version: integration 영향 G3에서 동결한 CR-036의 admin-auth-boundary/v2를 소비한다. system 소비 영향 G3→SLICE-308 공통 G4→SLICE-520 실제 ADMIN 소비 순서다. SLICE-307 v1/JDBC G4 사실은 보존하며 승인 상태는 project.state.yaml을 따른다.
+      frontend_consumption:
+        password_publication_failure: API-508의 HTTP503 PASSWORD_CHANGED_REAUTH_REQUIRED만 비밀번호 확정 후 재인증 결과로 처리한다. 제한 변경 화면과 내 프로필 변경 폼 모두 회수된 ADMIN 인증 상태·비밀번호 입력을 지우고 기존 ADMIN 재로그인 흐름으로 전환한다. 새 비밀번호를 사용하며 원 POST 자동 재전송·클라이언트 제한 해제·일반503에 같은 처리·PORTAL 상태 변경은 금지한다. 별도 배너는 추가하지 않는다.
+        first_use: 로그인/회전 성공 뒤 새 쿠키의 API-506 getMe로 현재 ADMIN 상태와 첫 사용을 확인한다. 서버 발급 성공만으로 일반 관리 화면을 열지 않고 제한 세션은 확인 뒤 기존 비밀번호 변경 화면으로 보낸다. 첫 사용/실패 결과는 FEAT-301.session_store_v2를 따른다.
+        entry_scope: ARCH-021의 영역별 진입을 ADMIN 초기 getMe·세션 신호·RequireAuth·wildcard보다 먼저 구분한다. 제품 ADMIN은 /admin 진입에 적용한다. local/includeSample=true에서만 정확 등록된 /sample/** 참조 화면이 기존 ADMIN 셸/권한을 사용하는 예외이며 product에는 해당 화면/슬롯을 두지 않는다. /·/portal/**·/internal/**는 관리자 셸이나 기본 로그인으로 가로채지 않는다. CR-037의 /admin/login·/admin/password/change와 모든 내부 링크/복귀를 함께 전환하고 구 /login·/password/change의 alias/redirect를 남기지 않는다. 미구현 Portal/디버그 진입은 닫힌 소유 슬롯으로 남기고 관리자 로그인 완료로 접근을 허용하지 않는다. 제품 Portal 인증 URL은 ARCH-021을 따르며 요건/목업·구현과 디버그 두 주체 실행은 각 소유 설계/게이트를 따른다.
       async_admission: FEAT-508.manual_admission은 수동 배치의 보호 접수 경계다. 접수 뒤 장기 실행은 같은 HTTP/guard 트랜잭션에 포함하지 않는다. 다른 비동기/외부효과는 각 소유의 인수 계약 없이 이 예외를 일반화하지 않는다.
+    route_cutover:
+      common_contract: integration 소유 G3에서 동결한 FEAT-301.api_path_transition을 소비한다. 이 절은 실제 system 페이지/호출자·DB/시드와 운영 적용 순서를 구체화하며 공통 저장/회수 프로토콜을 바꾸지 않는다.
+      page_consumers: AppRouter의 진입 분류/부팅·RequireAuth/RequireAnonymous, LoginPage 성공 이동, PasswordChangePage·PasswordChangeForm, useSessionSignals의 재인증/포기/로그아웃, ShellLayout의 로그인 유지 홈/셸 초기화를 ARCH-021 경로에 맞춘다. 관리자 성공/홈은 /admin의 허용 시작 화면이며 Portal /로 보내지 않는다. 새 탭·새로고침·뒤로가기·제한세션·미등록 경로와 구 /login·/password/change의 별칭/리다이렉트 부재를 검증한다. 페이지에 새 업무 액션이나 안내 배너를 추가하지 않는다.
+      api_consumers: source_contract/current_path의 현재101핸들러와 local sample20, 모든 endpoints/auth client·메시지/코드·시스템 정보·진행률·알림/배치 호출·시험/검수 스크립트를 method+현재경로→목표경로로 대조한다. 인증 명령뿐 아니라 public/common도 포함한다. DTO/메서드/현재 주체·권한/오류 의미를 유지하고 호출자/handler/생성 입력 누락·중복0을 확인한다.
+      permission_data: DB의 service API 키/메뉴 연결은 공통 전환 계약을 따른다. 현재 사용자·역할/개인 예외·메뉴 코드/액션 권한과 기존 감사 값을 보존하고 API_URL 변경을 메뉴/권한 신규 부여로 해석하지 않는다. 페이지 MENU_URL은 실제 변경 대상만 명시 매핑하며 이미 /admin/system 아래인 메뉴를 다시 옮기거나 중복 메뉴로 만들지 않는다. 로그인/강제 변경은 비메뉴 화면이라 해당 SYS_MENU 행을 신설하지 않는다.
+      seed_sources: 현재 런타임은 modules/platform·system·sample의 모듈 SQL 기준선을 읽는다. generateMenuSeed/generateApiSeed/generateMessageSeed는 data의 생성 CSV를 만들며 옛 data/*.yaml과CSV는 runtime 리소스에서 제외된다. CR-038에서 API006·메뉴API007 생성 CSV와 실행용 system/sample 초기 seed SQL을 함께 대조한다. 메뉴 URL 변경이 있으면 메뉴003 생성 결과/실행 SQL도 대조하되 독립 로그인/변경 URL만으로 메뉴 행을 추가하지 않는다. 현재 자동 SQL 기준선 생성 태스크는 없으며 CSV 갱신을 초기 DB 적용 완료로 세지 않는다.
+      development_rebaseline:
+        change: CR-039
+        decision: 사용자가 현재 개발 DB에 보존할 수동 데이터가 없으며 전부 초기화한 뒤 Liquibase 관리 테이블을 포함해 초기화 파일을 수정하는 방향을 선택했다. 현재 미배포 개발 DB의 초기 기준선 재정리를 계획하며 데이터 보존 전환이나 운영 DB에 확대하지 않는다.
+        files: 경로 변경은 기존 테이블 구조를 바꾸지 않으므로 system/sample의 초기 seed SQL과 생성 CSV의 경로·권한 연결을 동기화한다. 필요한 schema 변경은 소유 슬라이스 설계에 한정한다. 현재 product의 platform→system(schema/seed/후속003~006), local의 추가sample(schema/seed/shared-seed) 순서를 대조하고 후속 파일을 기본 유지한다. 기준선에 효과를 흡수할 항목이 있으면 master의 중복 실행을 함께 제거·검증한다. 308에서 검증한 platform/인증 원장 changeset은 각 루트/모듈 master에 정확1회 포함하며 현재 이미 구현됐다고 표시하지 않는다. 기준선 재작성은 CR-039가 지정한 초기 개발 DB에만 허용한다.
+        reproducibility: generateSeeds의 코드/메뉴/메시지 선언→생성CSV와 체크인 초기SQL→실제DB 두 경로를 검증으로 연결한다. 재기준선 작업에서 product/local별 메뉴·API·메뉴API 집합의 정규화 비교를 재현 가능한 검사에 추가하고 선택한 초기SQL 동기화 결과를 기록한다. 자격/사용자 원문을 출력하거나 전체 seed를 임의로 재생성하지 않으며 선언 변화가 없는 역할/코드/시퀀스의 초기 값을 보존한다. SQL 기준선이 CSV 생성 태스크의 자동 출력인 것처럼 보고하지 않는다.
+        execution: 승인된 구현/시드·빈 DB 검증이 준비된 뒤 실제 개발 대상 host/database/schema·product/local 변형과 포함 객체를 명시한다. 사용자 명시 실행 승인 후 모든 앱 노드/배치 실행기를 멈추고 대상 스키마의 업무/플랫폼/세션 객체와 DATABASECHANGELOG·DATABASECHANGELOGLOCK을 함께 비워 같은 변형의 Liquibase로 재구성한다. 메모리에 남은 ID 할당/작업이 새 DB에 쓰지 않도록 모든 노드를 새로 시작한다. 관리 테이블만 지우거나 clearCheckSums로 기존 DB를 새 기준선인 것처럼 수락하지 않는다. DB명/스키마가 정해지지 않은 현재 설계 작업에서는 삭제를 실행하지 않는다.
+        auth_state: 초기화 뒤 이전 로그인 상태는 유지하지 않는다. 선택 저장소가 Redis면 공유 서버 전체를 지우지 않고 해당 개발 환경/인증 영역의 namespace·설정판/epoch를 맞춰 구 payload/쿠키를 재사용하지 못하게 한다. 현재 JDBC 세션도 빈 DB에서 다시 발급한다. 상세 수락/복구 원칙은 session_store_v2를 따른다.
+        acceptance: 빈 product DB·빈 local DB/sample포함·local의sample명시제외에서 기동/seed적재·JPA검증·모든PK/FK/시퀀스·API/메뉴권한연결·새 URL/구 URL 거부·로그인/재로그인/홈을 검증한다. 같은 DB 재기동 시 changeset 재적용/시드중복0을 확인한다. 실제적재경로와생성CSV의관리API/메뉴연결집합이일치해야하며로그/검증출력에자격seed값을남기지않는다.
+        compatibility: CR-038의 기존 데이터 보존용 키 전환/rollback 계약은 필요 환경을 위한 정본으로 남긴다. 현재 개발 DB의 선택 경로는 빈 DB 재기준선이며 기존 데이터 이관을 완료했다고 보고하지 않는다. 보존해야 할 DB나 외부 배포가 생기면 초기 기준선 수정을 종료하고 새 changeset·적용/복구 검증을 사용한다.
+      activation: 접수 배출 후 DB 전환·서버와 정적 파일을 같은 판으로 활성화한다. ApiAuthorityRegistry의 기동1회 불변 스냅샷과 권한/메뉴 캐시를 모든 노드에서 새 DB 값으로 재적재하고 선언/DB 키/프런트 판 일치를 확인한다. dirty 이벤트만 보내거나 구 노드를 남겨둔 채 새 API를 열지 않는다. 저장소/인증 형식 전환 시 재로그인은 session_store_v2를 따른다.
+      rollback: 인증/요청 수락을 닫고 진행 요청을 배출한다. CR-039의 빈 DB 재기준선 경로가 실패하면 수락을 열지 않고 선택한 기준선을 수정·재구축한다. 구 artifact 복귀가 필요하면 구 판의 초기 SQL/체크섬에 맞는 빈 개발 DB 재구축을 별도 대상 확인·삭제 실행 승인 뒤 수행한다. 재삭제도 execution 절을 따른다. 코드만 rollback하거나 clearCheckSums로 서로 다른 기준선을 섞지 않는다. 기존 데이터 보존 전환 경로에서만 새 changeset의 원 API 키/메뉴 연결 복구→이전 artifact/정적 파일 배포를 사용한다. 모든 경로에서 모든 노드의 registry/캐시·허용 시작 경로·권한/로그인 smoke를 확인한 뒤 재개한다. DB 백업 자체를 복원하면 RUN-301의 새 인증 epoch/구 grant 회수도 적용한다. 초기화 전 데이터는 코드 rollback으로 복원할 수 없다.
+      verification: TC-50115/50117로 익명/제한/일반 ADMIN 부팅·새 경로/구주소 거부·현재 권한·본인 범위와 CR-039 빈 DB 초기 설치/재기동을 검증한다. 기존 데이터 보존 migration/rollback은 해당 경로를 제공할 때 별도 실증하며 이번 개발 DB 초기화를 그 성공 근거로 쓰지 않는다. 308의 독립 카탈로그 capability/G4를520 실제 전환 완료로 세지 않는다.
   FEAT-502:
     request_rule: 부여 대상 사용자·역할·메뉴·액션과 유효 기간을 명시한다
     response_rule: 저장 전 영향 사용자와 저장 후 유효 권한을 같은 합성 규칙으로 계산한다
@@ -113,6 +136,7 @@ feature_contracts:
       handoff: 획득한 분산 잠금/heartbeat의 rollback 정리를 등록하고 커밋 전에는 worker를 실행하지 않는다. AFTER_COMMIT 큐 제출 실패는 해당 확정 HIST_ID를 FAIL로 종결하고 잠금을 정리한다. 이미 접수한 다른 대상은 취소하지 않는다. 커밋 후 프로세스 종료는 자동 재전송하지 않으며 기존 heartbeat/잠금 만료·LOST 조건으로 진단한다. 일정 삭제 등 기존 LOST 조건 불충족은 RUNNING 기록을 보존해 운영 확인하며 성공/중단으로 위장하지 않는다.
       revocation: 접수 뒤 대기/실행은 서버 소유의 확정 작업이다. 요청자 계정 상태에 따른 암묵 취소/재인가를 추가하지 않는다. 다른 현재 EXECUTE 보유 관리자의 별도 중단 요청은 가능하다.
       cancel: 현재 ADMIN 권한 확인과 RUNNING 행 cancelReqDtm 기록은 같은 guard/트랜잭션이다. 회수 선행이면 기록0, 중단 접수 선행이면 요청은 유지된다. checkpoint가 실제 중단한 경우만 CANCELED이며 정상 반환은 SUCCESS다.
+      lease_ownership: CR-033 구현 반례 Fix. 수동/예약 모두 batch 등록 행 잠금→현재 RUNNING 조회→같은 REQUIRED의 start/HIST_ID/락 점유→커밋 뒤 큐/heartbeat 순서다. 다중 대상은 BATCH_ID 정렬 잠금·응답은 원 입력 순서다. SYS_DATA_LOCK의 nullable BATCH_HIST_ID를 배치 전용 lease 참조로 추가하는 상세 보완을 후속 SLICE-520에서 반영한다. token은 HIST_ID 동등성만 비교하며 TABLE allocation 때문에 MAX/대소로 새 실행을 추정하지 않는다. release/heartbeat/isHeldBy/ghost는 같은 token을 확인하고 cooldown만 남기면 token=null로 소유를 종료한다. 기존 CustomLock/LockStore 의미는 변경하지 않는다.
       history_concurrency: 'CR-033 목표·미구현. cancel/finish/markLost는 같은 HIST_ID 행의 DB 쓰기 잠금을 획득한 뒤 최신 상태를 다시 읽는다. 기존 영속성 문맥에 행이 있으면 잠금만으로 갱신됐다고 가정하지 않고 refresh 또는 동등한 최신 조회를 보장한다. cancel은 ADMIN guard→현재 권한→중복 제거한 HIST_ID 오름차순 잠금 순서이며, 없는 행/최신 상태가 RUNNING이 아닌 행은 기존 전체 요청 오류로 롤백한다. 최초 cancelReqDtm만 설정하고 결과/종결 필드를 바꾸지 않는다. finish/markLost는 해당 행 잠금만 사용하고 ADMIN guard에 재진입하지 않으며 기존 REQUIRES_NEW 경계를 유지한다. finish는 최신 중단 시각을 보존해 실제 SUCCESS/FAIL/CANCELED를 적는다. markLost는 최신 RUNNING에만 적용한다. LOST 선행 뒤 실제 finish는 실제 결과로 교정하고, finish 선행 뒤 markLost는 무변경이라는 기존 의미를 유지한다. 장기 실행 동안 행 잠금을 유지하지 않는다.'
       current_gap: 현 BatchHistoryWriter.start의 REQUIRES_NEW와 즉시 메모리 제출은 목표 접수 경계를 충족하지 않는다. 수동 경로만 REQUIRED 접수/커밋 후 인계로 정비하고 예약·청크·종결의 독립 트랜잭션은 유지한다. 현 cancel/finish/markLost의 잠금 없는 조회·전체 행 갱신에는 결과/중단 시각 유실 경합이 있어 history_concurrency를 함께 구현한다. 기존 HIST의 NODE_ID를 요청자 ID로 해석하지 않는다.
       verification: TC-5086~5089, SLICE-520. 인터셉터 검사만 남기는 변이, REQUIRES_NEW start/커밋 전 submit·회수 후 cancel 허용·큐 실패 성공 위장과 이력 잠금/최신 조회 제거로 결과·최초 중단 시각을 덮는 반례를 시험한다.

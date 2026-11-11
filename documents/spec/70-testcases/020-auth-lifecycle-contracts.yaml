@@ -29,7 +29,7 @@ testcases:
     title: 관리자 암호 변경과 세션 회전 원자성
     given: 변경 전 ADMIN 세션과 동시에 열린 PORTAL 세션
     when: 새 해시/이력·기존 세션 삭제·새 세션 저장 각 지점에 장애 및 커밋 후 응답 유실
-    then: 커밋 전 전체 롤백, 커밋 후 새 암호 재로그인. 종료한 원 ID 늦은 flush 재생성0, Portal 상태 변화0. 별도 REQUIRES_NEW 세션 저장 변이는 실패한다. LOGIN admission 또는 다른 요청/세션의 RotationAdmission으로 암호 변경 후 회전을 시도하면 실패해야 한다. commit 결과 불명/응답 writer 실패에서 변경 미반영 단정·재실행·이중 쿠키 발급은 금지한다.
+    then: JDBC는 새 해시/이력/세션 각지점 커밋 전 전체 롤백·커밋 후 새 암호 재로그인이다. Redis는 FEAT-301.session_store_v2에 따라 DB확정 뒤 새 발행 실패 시 자격/이력/구접속 회수 유지·새 암호 재로그인이다. 양쪽 모두 원ID 늦은flush 재생성0·Portal영향0·다른요청/LOGIN증거회전거부·불명결과쿠키0/자동재실행0이다. TC-50115에서 실제 양 provider를 검증한다.
     status: planned
     verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
   - id: TC-5038
@@ -128,7 +128,7 @@ testcases:
     actor: ACT-001
     given: 격리된 ADMIN/PORTAL repository와 등록된 테스트 API
     when: 공통 필터 한 개로 영역별 요청/CSRF·SecurityContext·REQUIRED 세션 저장 계약 실행; 두 repository 무자격 주입·PORTAL Primary·ADMIN 인덱스 prefix 변경·TM 분리·기본 filter 중복을 각각 주입한다
-    then: 각 영역 repository만 호출·동일 DB 롤백 참여·익명과 인증 구분. 계정 업무 포트는 대역이며 실제 Portal 인증 완료를 주장하지 않는다. admin_interface_v1.startup_assertions 위반별 기동 실패를 확인한다. 같은 USER_ID 숫자의 다른 영역 세션 조회0, 정상 ADMIN raw 인덱스/Portal prefix 실조회는 성공한다.
+    then: v1/JDBC baseline은 각 영역 repository만 호출·동일 DB 롤백 참여·익명/인증 구분·6항목 오조립 기동실패·ADMIN raw인덱스/Portal prefix 실조회다. v2 JDBC는 이를 보존하며 Redis는 DB원장/자격 REQUIRED와 커밋후 publication을 구분한다. 공통 보안 수락/현재세대·영역 경계는 양 provider에 적용하고 TC-30121~30128로 별도 검증한다. 실제 Portal 업무 완료를 주장하지 않는다.
     status: implemented
     verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
   - id: TC-30117
@@ -152,7 +152,7 @@ testcases:
     when: 회수 선행과 RUNNING 접수 커밋 선행 순서로 실행
     then: 회수 선행401/403·신규 접수0; 접수 선행 작업은 대기 중이어도 유지·실제 결과 종결, 새 명령은 거부
     status: planned
-    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용·lease token 검사 제거 변이는 실패해야 한다. TC-5088은 동일노드 이전실행 종료/지연heartbeat가 새실행 lease를 바꾸지 못하고 cooldown 소유종료 뒤 heartbeat0인지 검증한다. 실제 ABA RED를 재현했으며 접수/세대열 구현은 SLICE-520 후속이다.
   - id: TC-5087
     feature: FEAT-508
     usecase: UC-508
@@ -174,7 +174,7 @@ testcases:
     when: 커밋 전 장애·큐 거절·커밋 후 프로세스 종료·일정 삭제에 따른 LOST 조건 부재 주입
     then: 커밋 전 RUNNING/큐0·획득 잠금 정리. 큐 거절은 해당 HIST_ID FAIL. 프로세스 단절은 기존 LOST 조건 또는 RUNNING 운영 확인이며 자동 재전송/거짓 SUCCESS0
     status: planned
-    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용·lease token 검사 제거 변이는 실패해야 한다. TC-5088은 동일노드 이전실행 종료/지연heartbeat가 새실행 lease를 바꾸지 못하고 cooldown 소유종료 뒤 heartbeat0인지 검증한다. 실제 ABA RED를 재현했으며 접수/세대열 구현은 SLICE-520 후속이다.
   - id: TC-5089
     feature: FEAT-508
     usecase: UC-508
@@ -185,4 +185,4 @@ testcases:
     when: 목록 처리 중 회수 및 RUNNING insert 장애 주입
     then: 한 guard 아래 대상별 업무 결과를 판정하고 수락분은 같은 커밋. 회수 선행 신규0, DB 실패 모든 수락분 롤백·큐0, 이미 커밋한 인계 실패는 다른 접수를 취소하지 않음
     status: planned
-    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용·lease token 검사 제거 변이는 실패해야 한다. TC-5088은 동일노드 이전실행 종료/지연heartbeat가 새실행 lease를 바꾸지 못하고 cooldown 소유종료 뒤 heartbeat0인지 검증한다. 실제 ABA RED를 재현했으며 접수/세대열 구현은 SLICE-520 후속이다.

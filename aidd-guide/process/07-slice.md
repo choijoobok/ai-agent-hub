@@ -98,7 +98,7 @@ AI는 코드를 먼저 쓰면 그 코드에 맞는 테스트를 쓴다. 이건 �
 
 **구현**
 - ENT-004 `inbound_plan` 테이블 (migration V007) — 롤백: V007_rollback.sql
-- API-031 `POST /api/service/admin/schemaCatalog/create`, API-032 `POST /api/service/admin/schemaCatalog/getOne`
+- API-031 `POST /api/admin/service/schemaCatalog/create`, API-032 `POST /api/admin/service/schemaCatalog/getOne`
 - SCR-008 카탈로그등록 화면
 
 **테스트**  3/3 통과

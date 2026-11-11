@@ -1,0 +1,30 @@
+testcases:
+  - id: TC-30129
+    feature: FEAT-301
+    usecase: UC-045
+    type: security
+    actor: ACT-009
+    title: 모듈 우선 카탈로그의 정확 경로·인증 영역 보존
+    given: CR-038 목표 카탈로그와 public/common/service·제품/기술/sample namespace, API-603의 단일 jobId 변수 템플릿
+    when: 모듈/계층 뒤바꿈·unknown module·미등록 method/path·상대 영역 쿠키·제한 세션·위장 public·미등록 변수/와일드카드·원천 검증 생략을 주입한다
+    then: 정확 등록된 handler/method/template만 수락한다. 기존 영역/액션/CSRF 검증을 보존하고 public 전체 허용0·다른 영역 수락0·구주소 alias0. integration 수신은 NONE/원천 검증 필수다. sample은 local만 존재한다. progress는 단일 등록 변수의 형식과 ADMIN 본인 소유를 검사한다.
+    status: planned
+    verification: SLICE-308에서 독립 신규 capability/실제 HTTP fixture와 규칙 반전을 검증한다. 기존 제품 parser/seed 활성화는520에서 전체 소비와 함께 수행하며 이 시험이 그 완료를 대신하지 않는다. 계층 세그먼트 오독·넓은 prefix 허용·변수 소유검사 제거 반례는 실패해야 한다.
+  - id: TC-50117
+    feature: FEAT-501
+    usecase: UC-501
+    type: integration
+    actor: ACT-012
+    title: 관리자 API·공통 보조·시드/메뉴 연결의 단일 경로 전환
+    given: 현재 system99·공통2와 local sample20 핸들러, SYS_API·SYS_MENU_API 기존 메뉴/권한 연결·프런트 선언
+    when: CR-038 새 경로/분류기/시드/호출자 활성화를 CR-039의 현재 빈 DB 경로에서 실행한다. 기존 데이터 보존 경로를 제공할 때는 DB 키 연결 migration/rollback·대상키 충돌·미등록 구값도 별도로 실행한다. 양 경로의 인증/권한 실패를 검증한다.
+    then: 현재 핸들러 누락/중복0·HTTP method/DTO/응답/권한 의미 보존·새주소만수락·구주소 alias/redirect0. 부모/자식 매핑과 권한/감사 보존, 충돌시 전체중단·부분전환0. API602는ADMIN공통·제한세션거부, API603은본인진행률만조회·타인/없는jobId같은400. local외sampleAPI/시드0. 관리화면/Portal진입경계는TC50115로검증한다.
+    status: planned
+    verification: SLICE-520에서 실제 PostgreSQL 빈 DB 초기화/재기동·생성 시드/초기SQL·현재 소스 전수 method/path/프런트 선언 대조와 실제 HTTP/두 provider 인증 회귀를 실행한다. 경로만 변경하고 DB연결/프런트/시드를누락하는반례와권한유실을탐지해야한다. 전체 전환 전308 G4를 기다리되308의 독립시험이 이 실제제품수락을 요구하도록 만들지 않는다. '@defer 보존 DB 경로 최초 제공 전 — 기존 DB migration/rollback·충돌 반례는 별도 실증하며 빈 DB 시험으로 완료하지 않는다.'
+    consumer_boundaries:
+      public_boot: API-557의 정확 GET 공개 번들을 익명·제한·일반 상태에서 조회해 getMe401 뒤 로그인 렌더와 제한 상태의 새로고침/언어·메시지 버전 변경을 확인한다. 번들 조회만으로 세션 생성/회전·첫 사용 확정0, 인증 명령 아닌 public 전체 허용0이어야 한다.
+      admin_navigation: 로그인 성공과 로그인 유지 홈/셸 초기화, 새 탭·뒤로가기·새로고침이 /admin의 허용 시작 경로를 사용한다. Portal /로의 자동 이동·미등록 경로 관리자 셸 수락·구 인증 페이지 별칭0을 확인한다.
+      permission_cache: 전환/rollback 뒤 모든 노드의 ApiAuthorityRegistry 스냅샷·메뉴/권한 캐시가 DB와 같은 경로 판을 사용하고 실제 현재 권한을 적용한다. 구 스냅샷 재사용·코드만 rollback·dirty만으로 재기동 대체 반례를 실패시킨다.
+      sample_page: local/includeSample=true의 정확 등록된 /sample/**는 기존 ADMIN 셸/권한으로 접근한다. product/sample명시제외에서는 페이지·API·시드가 모두 없고 이 예외로 Portal/internal을 수락하지 않는다.
+      rebaseline_recovery: 초기 설치 실패는 수락 닫힘을 유지하며 같은 선택 기준선의 수정·재구축으로 복구한다. 구 artifact 복귀 시험은 구 판의 빈 DB를 별도로 구성하고 모듈 SQL/체크섬·정적 파일·모든 노드 registry가 일치해야 한다. API 키만 역이관하거나 clearCheckSums로 새 기준선 DB를 구 판으로 수락하는 반례를 실패시킨다. 실제 개발 DB의 재삭제는 대상 확인·명시 실행 승인을 다시 적용한다.
+    current_development_acceptance: CR-039로 현재 개발 DB는 데이터 보존 이관 대신 빈 스키마/새 초기 기준선 경로를 사용한다. product·local sample포함/명시제외에서 모듈 master 정확1회·생성CSV/실행SQL/실제DB의API와메뉴연결일치·키/시퀀스·로그인·재기동중복0·구주소거부를 실증한다. Liquibase관리테이블만삭제·CSV만수정·sample시드제품혼입·구Redisnamespace재사용 반례를 실패시킨다. 기존 데이터 보존 migration/rollback 조건은 그 경로를 구현/제공할 때 별도 실행하며 빈DB시험으로통과표시하지않는다.

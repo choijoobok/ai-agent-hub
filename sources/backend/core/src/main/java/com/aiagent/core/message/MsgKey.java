@@ -33,6 +33,9 @@ public final class MsgKey {
     /** 인증 문맥/세션 저장소 판정 불가. API-601의503이며 인증 명령을 자동 재전송하지 않는다. */
     public static final String ERR_AUTH_CONTEXT_UNAVAILABLE = "AUTH_CONTEXT_UNAVAILABLE";
 
+    /** 비밀번호 DB확정 뒤 새 세션발급 실패. 새 비밀번호로 재로그인하며 원 요청을 재전송하지 않는다. */
+    public static final String ERR_PASSWORD_CHANGED_REAUTH_REQUIRED = "PASSWORD_CHANGED_REAUTH_REQUIRED";
+
     /** 인가 거부의 기본 문구. 원인 넷이 이 하나를 공유한다(backend/security.md). */
     public static final String ERR_FORBIDDEN = "err.forbidden";
 

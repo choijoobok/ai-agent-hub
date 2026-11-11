@@ -32,7 +32,7 @@ tags: [prompt, auto-completion, rules]
 |---|---|
 | **컬럼 헤더 키** | `{도메인}.col.{camelField}` — 상수는 `DOMAIN_COL_FIELD` |
 | **조회조건 라벨 키** | `{도메인}.cond.{camelField}` |
-| **API 경로** | 기본 `/api/{계층}/{도메인}/{동작}` · 모듈러 제품 `/api/{계층}/{모듈}/{도메인}/{동작}` — 동작은 **컨트롤러 메서드명 그대로** |
+| **API 경로** | 기본 `/api/{계층}/{도메인}/{동작}` · 모듈러 제품 `/api/{모듈}/{계층}/{도메인}/{동작}` — 동작은 **컨트롤러 메서드명 그대로** |
 | **액션(`ACTION_CD`)** | 경로 **접두가 정한다** — `get*`→READ · `save*`·`delete*`→SAVE · `export*`→EXPORT · 그 외 EXECUTE |
 | **프론트 폴더명** | 소문자 붙여쓰기 — 백엔드 애그리거트 이름과 대체로 대응 |
 | **API 파일명** | 폴더 이름 그대로 — `features/order/api/orderApi.ts` |

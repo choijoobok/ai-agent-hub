@@ -31,3 +31,5 @@ spec_set:
     - 020-auth-lifecycle-contracts.yaml
     - 021-integration-common-contracts.yaml
     - 022-model-call-external-change.yaml
+    - 023-auth-store-selection.yaml
+    - 024-api-route-transition.yaml

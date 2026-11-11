@@ -3,7 +3,7 @@ apis:
     feature: FEAT-305
     implementation: planned
     method: POST
-    path: /api/public/integration/identity/receiveChange
+    path: /api/integration/public/identity/receiveChange
     action: SOURCE_VERIFIED
     summary: 검증된 외부 인사 사건 수신
     auth_domain: NONE

@@ -3,7 +3,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: GET
-    path: /api/public/portal/auth/getCsrf
+    path: /api/portal/public/auth/getCsrf
     action: PUBLIC
     summary: 익명/인증 Portal CSRF 문맥 준비
     request: none
@@ -22,7 +22,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: POST
-    path: /api/public/portal/auth/login
+    path: /api/portal/public/auth/login
     action: PUBLIC
     summary: Portal 자체 로그인
     request: PortalLoginRequest
@@ -41,7 +41,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: GET
-    path: /api/common/portal/auth/getMe
+    path: /api/portal/common/auth/getMe
     action: AUTHENTICATED
     summary: 현재 Portal 본인/인증·이용 상태
     request: none
@@ -63,7 +63,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: POST
-    path: /api/common/portal/auth/changePassword
+    path: /api/portal/common/auth/changePassword
     action: AUTHENTICATED
     summary: Portal 본인 비밀번호 변경
     request: PortalPasswordChange
@@ -86,7 +86,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: POST
-    path: /api/common/portal/auth/logout
+    path: /api/portal/common/auth/logout
     action: AUTHENTICATED
     summary: Portal 세션 종료
     request: none
@@ -108,7 +108,7 @@ apis:
     feature: FEAT-301
     implementation: planned
     method: POST
-    path: /api/common/portal/auth/heartbeat
+    path: /api/portal/common/auth/heartbeat
     action: AUTHENTICATED
     summary: Portal 세션/현재 이용 상태 확인
     request: none

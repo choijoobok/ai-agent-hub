@@ -18,7 +18,7 @@ testcases:
     title: 자격 변경 회전 증거의 요청/세대 결합
     given: LOGIN 증거·다른 세션/요청/만료/세대의 RotationAdmission
     when: ADMIN/PORTAL 암호 변경 후 회전
-    then: 잘못된 증거는 세션 쓰기0, 정당한 증거만1회 소비. ADMIN 전체 롤백/Portal 확정 자격 재로그인 복구 구분. 성공 회전 뒤 새 세션+이전 CSRF는403, 새 CSRF만 허용
+    then: 잘못된 증거는 세션 쓰기0, 정당한 증거만1회 소비. v1/JDBC ADMIN 전체 롤백/Portal 확정 자격 재로그인 복구 구분. v2 Redis ADMIN은 DB확정 뒤 새 발행실패를 새 암호 재로그인으로 복구하며 TC-30123·TC-50115에서 별도 검증. 성공 회전 뒤 새 세션+이전 CSRF는403, 새 CSRF만 허용
     status: implemented
     verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
   - id: TC-30120

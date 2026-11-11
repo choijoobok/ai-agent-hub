@@ -34,7 +34,7 @@ tags: [backend, api, rest, response, header]
 | **도메인** | 애그리거트 이름 그대로 — [packages.md §2](./packages.md) 의 패키지와 같다 |
 | **동작** | **접두가 액션을 정한다** — 아래 §2 |
 
-> **모듈러 제품은 계층 바로 뒤에 모듈을 넣는다.** Hub는 `/api/{계층}/{모듈}/{도메인}/{동작}`이며, sample 참조 구현만 기존 외부 계약 `/api/service/sample/{동작}`을 유지한다(ADR-007 · ARCH-027).
+> **모듈러 제품은 `/api` 바로 뒤에 모듈, 그 뒤에 접근 계층을 넣는다.** Hub는 `/api/{모듈}/{계층}/{도메인}/{동작}`이며, sample 참조 구현은 `/api/sample/service/{동작}`으로 도메인 생략 예외만 유지한다(ARCH-027). Hub의 CR-038 이행 전 소스는 이전 계층 우선 경로이며, 현재 구현과 목표 규칙을 혼동하지 않는다.
 **표기는 camelCase 단수다.** 도메인도 동작도. 복수형·케밥을 쓰지 않는다.
 
 | | 왜 |
@@ -48,11 +48,11 @@ tags: [backend, api, rest, response, header]
   인가 판정이 **경로 완전 일치**로 `SYS_API` 를 찾기 때문이다.
 - **`service` 는 전부 `POST`** — 조회도 그렇다. 조건이 body 에 들어가고, 쿼리스트링에
   담으면 길이 상한과 인코딩에 걸린다.
-- **`common`·`public` 은 조회에 `GET`.** 예외 둘: `POST /api/common/system/code/getList`
-  (본문으로 그룹 코드 목록을 보낸다) · `GET /api/common/progress/{jobId}`
-  (진행률 폴링 — 이 계층은 경로 일치 판정을 하지 않는다).
+- **`common`·`public` 은 조회에 `GET`.** 예외 둘: `POST /api/system/common/code/getList`
+  (본문으로 그룹 코드 목록을 보낸다) · `GET /api/system/common/progress/getProgress/{jobId}`
+  (진행률은 정확 handler·method·template와 본인 소유를 함께 검증한다. service 경로 변수는 금지).
 
-> **`common`·`public` 도 같은 접두를 쓴다.** 인가 시드가 읽는 것은 `/api/service/**` 뿐이라
+> **`common`·`public` 도 같은 접두를 쓴다.** 인가 시드가 읽는 것은 각 모듈의 `service` 계층뿐이라
 > 나머지 두 계층의 접두는 **기계가 아니라 사람을 위한 것**이다. 규칙 밖에 두었더니
 > 실제로 이렇게 됐다 — 즐겨찾기는 `add`·`remove`, 저장된 조건은 `save`·`delete`,
 > 메뉴 통계는 `select`·`frequent`, 번들은 키가 `bundle` 인데 경로는 `getBundle`.
@@ -154,7 +154,7 @@ tags: [backend, api, rest, response, header]
 
 ## 4-1. `@Operation(summary=…)` 은 **강제다**
 
-`/api/service/**` 의 모든 핸들러에 붙인다 — `ApiOperationSummaryTest`(ArchUnit)가 막는다.
+`service` 계층의 모든 핸들러에 붙인다 — `ApiOperationSummaryTest`(ArchUnit)가 막는다.
 
 ```java
 @Operation(summary = "역할 권한 트리 조회")

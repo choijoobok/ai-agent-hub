@@ -3,7 +3,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/getList
+    path: /api/admin/service/model/getList
     action: READ
     summary: SCR-015 getList
     request: QueryPage
@@ -13,7 +13,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/getOne
+    path: /api/admin/service/model/getOne
     action: READ
     summary: SCR-015 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -23,7 +23,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/save
+    path: /api/admin/service/model/save
     action: SAVE
     summary: SCR-015 save
     request: ManagedCommand<SCR-015 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -33,7 +33,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/remove
+    path: /api/admin/service/model/remove
     action: SAVE
     summary: SCR-015 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -43,7 +43,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/getReferences
+    path: /api/admin/service/model/getReferences
     action: READ
     summary: SCR-015 getReferences
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -53,7 +53,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/model/getCandidates
+    path: /api/admin/service/model/getCandidates
     action: READ
     summary: SCR-015 getCandidates
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -63,7 +63,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/modelUsage/getOne
+    path: /api/admin/service/modelUsage/getOne
     action: READ
     summary: SCR-062 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -73,7 +73,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/modelUsage/save
+    path: /api/admin/service/modelUsage/save
     action: SAVE
     summary: SCR-062 save
     request: ManagedCommand<SCR-062 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -83,7 +83,7 @@ apis:
     feature: FEAT-015
     implementation: planned
     method: POST
-    path: /api/service/admin/modelUsage/getUsageCandidates
+    path: /api/admin/service/modelUsage/getUsageCandidates
     action: READ
     summary: SCR-062 getUsageCandidates
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -93,7 +93,7 @@ apis:
     feature: FEAT-016
     implementation: planned
     method: POST
-    path: /api/service/admin/tokenRate/getList
+    path: /api/admin/service/tokenRate/getList
     action: READ
     summary: SCR-016 getList
     request: QueryPage
@@ -103,7 +103,7 @@ apis:
     feature: FEAT-016
     implementation: planned
     method: POST
-    path: /api/service/admin/tokenRate/getOne
+    path: /api/admin/service/tokenRate/getOne
     action: READ
     summary: SCR-016 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -113,7 +113,7 @@ apis:
     feature: FEAT-042
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaGrade/getList
+    path: /api/admin/service/quotaGrade/getList
     action: READ
     summary: SCR-064 getList
     request: QueryPage
@@ -123,7 +123,7 @@ apis:
     feature: FEAT-042
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaGrade/getOne
+    path: /api/admin/service/quotaGrade/getOne
     action: READ
     summary: SCR-064 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -133,7 +133,7 @@ apis:
     feature: FEAT-017
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaPlan/getList
+    path: /api/admin/service/quotaPlan/getList
     action: READ
     summary: SCR-021 getList
     request: QueryPage
@@ -143,7 +143,7 @@ apis:
     feature: FEAT-017
     implementation: planned
     method: POST
-    path: /api/service/admin/quotaPlan/getOne
+    path: /api/admin/service/quotaPlan/getOne
     action: READ
     summary: SCR-021 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -153,7 +153,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/getList
+    path: /api/admin/service/portalUser/getList
     action: READ
     summary: SCR-005 getList
     request: QueryPage
@@ -163,7 +163,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/getOne
+    path: /api/admin/service/portalUser/getOne
     action: READ
     summary: SCR-005 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -173,7 +173,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/getIdentityTargets
+    path: /api/admin/service/portalUser/getIdentityTargets
     action: READ
     summary: SCR-005 getIdentityTargets
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -183,7 +183,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/resetCredential
+    path: /api/admin/service/portalUser/resetCredential
     action: SAVE
     summary: SCR-005 resetCredential
     request: targetId+expectedRevision+commandKey+reason; 비밀번호 입력 없음
@@ -193,7 +193,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/getList
+    path: /api/admin/service/userGroup/getList
     action: READ
     summary: SCR-006 getList
     request: QueryPage
@@ -203,7 +203,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/getOne
+    path: /api/admin/service/userGroup/getOne
     action: READ
     summary: SCR-006 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -213,7 +213,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/getMembers
+    path: /api/admin/service/userGroup/getMembers
     action: READ
     summary: SCR-006 getMembers
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -223,7 +223,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/getAssets
+    path: /api/admin/service/userGroup/getAssets
     action: READ
     summary: SCR-006 getAssets
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -233,7 +233,7 @@ apis:
     feature: FEAT-006
     implementation: planned
     method: POST
-    path: /api/service/admin/userGroup/remove
+    path: /api/admin/service/userGroup/remove
     action: SAVE
     summary: SCR-006 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -243,7 +243,7 @@ apis:
     feature: FEAT-024
     implementation: planned
     method: POST
-    path: /api/service/admin/searchTag/getList
+    path: /api/admin/service/searchTag/getList
     action: READ
     summary: SCR-010 getList
     request: QueryPage
@@ -253,7 +253,7 @@ apis:
     feature: FEAT-024
     implementation: planned
     method: POST
-    path: /api/service/admin/searchTag/getOne
+    path: /api/admin/service/searchTag/getOne
     action: READ
     summary: SCR-010 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -263,7 +263,7 @@ apis:
     feature: FEAT-024
     implementation: planned
     method: POST
-    path: /api/service/admin/searchTag/save
+    path: /api/admin/service/searchTag/save
     action: SAVE
     summary: SCR-010 save
     request: ManagedCommand<SCR-010 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -273,7 +273,7 @@ apis:
     feature: FEAT-024
     implementation: planned
     method: POST
-    path: /api/service/admin/searchTag/remove
+    path: /api/admin/service/searchTag/remove
     action: SAVE
     summary: SCR-010 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -283,7 +283,7 @@ apis:
     feature: FEAT-024
     implementation: planned
     method: POST
-    path: /api/service/admin/searchTag/getReferences
+    path: /api/admin/service/searchTag/getReferences
     action: READ
     summary: SCR-010 getReferences
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -293,7 +293,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/getList
+    path: /api/admin/service/knowledge/getList
     action: READ
     summary: SCR-011 getList
     request: QueryPage
@@ -303,7 +303,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/getOne
+    path: /api/admin/service/knowledge/getOne
     action: READ
     summary: SCR-011 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -313,7 +313,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/save
+    path: /api/admin/service/knowledge/save
     action: SAVE
     summary: SCR-011 save
     request: ManagedCommand<SCR-011 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -323,7 +323,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/remove
+    path: /api/admin/service/knowledge/remove
     action: SAVE
     summary: SCR-011 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -333,7 +333,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/getReferences
+    path: /api/admin/service/knowledge/getReferences
     action: READ
     summary: SCR-011 getReferences
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -343,7 +343,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/getCatalogUnion
+    path: /api/admin/service/knowledge/getCatalogUnion
     action: READ
     summary: SCR-011 getCatalogUnion
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -353,7 +353,7 @@ apis:
     feature: FEAT-014
     implementation: planned
     method: POST
-    path: /api/service/admin/knowledge/getEmbeddingStatus
+    path: /api/admin/service/knowledge/getEmbeddingStatus
     action: READ
     summary: SCR-011 getEmbeddingStatus
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -363,7 +363,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/getList
+    path: /api/admin/service/queryExample/getList
     action: READ
     summary: SCR-012 getList
     request: QueryPage
@@ -373,7 +373,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/getOne
+    path: /api/admin/service/queryExample/getOne
     action: READ
     summary: SCR-012 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -383,7 +383,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/save
+    path: /api/admin/service/queryExample/save
     action: SAVE
     summary: SCR-012 save
     request: ManagedCommand<SCR-012 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -393,7 +393,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/remove
+    path: /api/admin/service/queryExample/remove
     action: SAVE
     summary: SCR-012 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -403,7 +403,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/extractCatalogs
+    path: /api/admin/service/queryExample/extractCatalogs
     action: READ
     summary: SCR-012 extractCatalogs
     request: exampleId|null, dataSourceId, sqlId|clientKey, sqlText, expectedSourceRevision. 현재 읽기/추출 권한.
@@ -413,7 +413,7 @@ apis:
     feature: FEAT-023
     implementation: planned
     method: POST
-    path: /api/service/admin/queryExample/getReferences
+    path: /api/admin/service/queryExample/getReferences
     action: READ
     summary: SCR-012 getReferences
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -423,7 +423,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/getList
+    path: /api/admin/service/queryPolicy/getList
     action: READ
     summary: SCR-009 getList
     request: QueryPage
@@ -433,7 +433,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/getOne
+    path: /api/admin/service/queryPolicy/getOne
     action: READ
     summary: SCR-009 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -443,7 +443,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/save
+    path: /api/admin/service/queryPolicy/save
     action: SAVE
     summary: SCR-009 save
     request: ManagedCommand<SCR-009 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -453,7 +453,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/remove
+    path: /api/admin/service/queryPolicy/remove
     action: SAVE
     summary: SCR-009 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -463,7 +463,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/extractParameters
+    path: /api/admin/service/queryPolicy/extractParameters
     action: READ
     summary: SCR-009 extractParameters
     request: policyId|null, catalogId, scopeId|clientKey, conditionSql; 원천/기준판
@@ -473,7 +473,7 @@ apis:
     feature: FEAT-009
     implementation: planned
     method: POST
-    path: /api/service/admin/queryPolicy/getReferences
+    path: /api/admin/service/queryPolicy/getReferences
     action: READ
     summary: SCR-009 getReferences
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -483,7 +483,7 @@ apis:
     feature: FEAT-013
     implementation: planned
     method: POST
-    path: /api/service/admin/promptRule/getList
+    path: /api/admin/service/promptRule/getList
     action: READ
     summary: SCR-013 getList
     request: QueryPage
@@ -493,7 +493,7 @@ apis:
     feature: FEAT-013
     implementation: planned
     method: POST
-    path: /api/service/admin/promptRule/getOne
+    path: /api/admin/service/promptRule/getOne
     action: READ
     summary: SCR-013 getOne
     request: targetId 및 소유 범위; 전체 기준 리비전 반환
@@ -503,7 +503,7 @@ apis:
     feature: FEAT-013
     implementation: planned
     method: POST
-    path: /api/service/admin/promptRule/save
+    path: /api/admin/service/promptRule/save
     action: SAVE
     summary: SCR-013 save
     request: ManagedCommand<SCR-013 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
@@ -513,7 +513,7 @@ apis:
     feature: FEAT-013
     implementation: planned
     method: POST
-    path: /api/service/admin/promptRule/remove
+    path: /api/admin/service/promptRule/remove
     action: SAVE
     summary: SCR-013 remove
     request: targetId+expectedRevision+commandKey+reason
@@ -523,7 +523,7 @@ apis:
     feature: FEAT-013
     implementation: planned
     method: POST
-    path: /api/service/admin/promptRule/review
+    path: /api/admin/service/promptRule/review
     action: EXECUTE
     summary: SCR-013 review
     request: reviewId:UUID, expectedSetDigest, editSet:[clientKey/ruleId,expectedRevision,operation(CREATE/CHANGE/REMOVE),title,useYn,markdownBody], expectedTemplateVersion, expectedOutputContractVersion, confirmedInputDigest. 관리자 설명 제외. 서버가 전체 저장 규칙을 읽어 편집 변경분과 병합한다.
@@ -533,7 +533,7 @@ apis:
     feature: FEAT-010
     implementation: planned
     method: POST
-    path: /api/service/admin/chatHelp/getList
+    path: /api/admin/service/chatHelp/getList
     action: READ
     summary: SCR-014 getList
     request: '{}; 페이지·검색 조건 없음'
@@ -543,7 +543,7 @@ apis:
     feature: FEAT-010
     implementation: planned
     method: POST
-    path: /api/service/admin/chatHelp/getOne
+    path: /api/admin/service/chatHelp/getOne
     action: READ
     summary: SCR-014 getOne
     request: helpCd:USAGE_HELP|CHAT_START|INPUT_NOTICE
@@ -553,7 +553,7 @@ apis:
     feature: FEAT-010
     implementation: planned
     method: POST
-    path: /api/service/admin/chatHelp/save
+    path: /api/admin/service/chatHelp/save
     action: SAVE
     summary: SCR-014 save
     request: commandKey, helpCd:고정3코드, expectedRevision:필수, values:{formatCd,body}, reason:필수
@@ -563,7 +563,7 @@ apis:
     feature: FEAT-005
     implementation: planned
     method: POST
-    path: /api/service/admin/portalUser/unlockCredential
+    path: /api/admin/service/portalUser/unlockCredential
     action: SAVE
     summary: 자체 Portal 이용자 로그인 잠금 해제
     request: targetId+expectedRevision+commandKey+reason
