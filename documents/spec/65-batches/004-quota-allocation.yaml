@@ -1,0 +1,39 @@
+# 영역: 월말 쿼터 최종 배정
+jobs:
+  - id: JOB-004
+    title: "월 시작 마감 기준의 다음 달 최종 쿼터 배정"
+    module: admin
+    feature: FEAT-045
+    reqs: [REQ-116, REQ-118, REQ-606]
+    usecase: UC-042
+    implementation: planned
+    workstream: admin
+    uses_features: [FEAT-005, FEAT-016, FEAT-017, FEAT-042, FEAT-508]
+    screens: [SCR-021, SCR-519, SCR-520]
+    runbooks: []
+    testcases: [TC-0452, TC-0453, TC-0454, TC-0456]
+    scope: "FEAT-045의 월말 최종 배분만 실행한다. 미래 예정과 신규/재활성 개별 지급은 해당 업무 명령이 소유한다."
+    schedule:
+      batch_id: null
+      bean_id: null
+      seed_cron: null
+      seed_timezone: null
+      seed_use_yn: null
+      activation: "ADR-043 결정 후 system SCR-519에 등록한다. 권장안은 업무 달력의 매월1일00:00 마감/실행과 같은 마감의 복구 재처리다. 실행 시각이 늦어져도 마감은 바꾸지 않는다."
+    parameters: "대상월과 원 실행 재처리 식별만 허용하고 금액/등급/사용자 목록/마감 재정의는 받지 않는다. zone은 승인된 업무 달력에서 읽는다. 임의 과거 월 재분배 API를 만들지 않는다."
+    contract: "FEAT-045.final_sequence/snapshot/locking/retry가 처리 정본이다. 현재/직전 월 금융기준 선택과 M월 등급/사용자 근거를 분리한다."
+    permissions: "예약은 승인된 등록의 서버 업무 실행이다. 수동 복구는 system 배치 EXECUTE와 대상 월 쿼터 운영 범위를 검사하며 과거 등록자 세션을 사용하지 않는다. 임의 마감 변경/과거 재분배는 권한이 있어도 거부한다."
+    processing: "FEAT-045.final_sequence에 따라 내구 입력을 고정하고 금융/등급/개인 전체 효과를 원자 확정한다."
+    post_processing: "FINAL/ALREADY_FINAL 뒤 FEAT-045.catch_up/catch_up_recovery의 내구 보완 표식을 처리한다. 기동 복구가 미완료 원 실행을 재개하며 개별 지급은 같은 소유 명령을 사용한다. 보완 실패는 월 FINAL을 취소하지 않으며 실패 대상/재처리 필요를 별도로 알린다."
+    concurrency: "batchId 잠금에 추가해 업무 달력→월→사용자 잠금과 FINAL 월 유일성으로 노드/등록/수동 실행이 달라도 단 한 번 효과를 보장한다."
+    transaction: "입력 고정은 내구 준비 단계, 최종 효과는 자동 월 생성+전체 기준/개인 배정+실행 성공의 한 트랜잭션이다. 개별 행 커밋으로 부분 한도를 공개하지 않는다."
+    results: "FINAL/ALREADY_FINAL/FINAL_NO_POPULATION은 확인된 업무 결과로 정상 반환한다. 원천/마감 복원 불가·금융기준 부재는 업무 사유를 남기고 예외로 공통 FAIL을 기록한다. 중단은 현재 적용 트랜잭션 롤백 후 원 작업 상태를 확인한다."
+    failure: "results의 실패는 원 실행 사유와 공통 FAIL로 기록한다. 결과 불명은 실제 업무 결과 조회 전 실패 확정/재생성하지 않는다."
+    cancellation: "준비/계산 경계에서 협조 중단하고 미커밋 전체 적용은 롤백한다. 이미 FINAL인 결과를 CANCELED로 되돌리지 않는다. 공통 중단 관측과 업무 결과를 함께 알린다."
+    retry: "원 실행·원 마감 스냅샷을 조회하고 FEAT-045.retry를 적용한다. 새로운 입력으로 이미 확정한 월을 재실행하지 않는다."
+    outputs: "ENT-109 원 실행·ENT-112 입력·ENT-110 기준·ENT-111 개인 배정 및 필요 시 ENT-108 자동 기준."
+    observability: "공통 batch 실행과 업무 원 실행 ID를 연결하고0명/미확정/불명/완료를 구별한다. 공통 FAIL/LOST 알림을 사용한다."
+    sources: []
+    pending: "@defer admin G3 — ADR-043/044/045 결정, 물리 테이블·업무 잠금 구현·실제 빈/등록·소유 런북을 연결한다."
+    recovery: "공통 FAIL/LOST 경고와 원 실행 결과를 대조한다. UNKNOWN이면 조회부터 수행하며 새 스냅샷으로 재생성하지 않는다. 계획 미확정 동안 해당 월 신규 유료 실행은 차단한다. 운영 런북/실제 등록/알림 문구는 소유 구현 시 연결한다."
+    evidence: "원 실행·고정 입력/선택 판·시도/오류·확정 시각·기준/개인 배정 수와 집계. SYS_BATCH_HISTORY는 스케줄/노드 근거이고 업무 원장의 대체가 아니다."

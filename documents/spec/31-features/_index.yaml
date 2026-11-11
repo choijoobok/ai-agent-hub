@@ -10,7 +10,7 @@
 meta:
   status: migrated
   baselined: null
-  numbering: "FEAT-001~045 admin · 101~127 portal · 201~222 agent · 301~305 공통 · 501~510 system"
+  numbering: "FEAT-001~045 admin · 101~128 portal · 201~222 agent · 301~305 공통 · 501~510 system"
 
 spec_set:
   version: 1

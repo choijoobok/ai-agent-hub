@@ -1,0 +1,21 @@
+apis:
+  - id: API-307
+    feature: FEAT-305
+    implementation: planned
+    method: POST
+    path: /api/public/integration/identity/receiveChange
+    action: SOURCE_VERIFIED
+    summary: 검증된 외부 인사 사건 수신
+    auth_domain: NONE
+    source_auth: 등록된 SourceChangeVerifier 필수. 브라우저 익명 허용이나 ADMIN/PORTAL 쿠키 인증 경로가 아니며 검증기 미설정은 닫는다.
+    request: ExternalUserChange + 원천 어댑터가 명시한 증명 헤더. sourceKey는 서버 원천으로만 정하며 본문 지정은400이다.
+    response: ApiResponse<ChangeReceipt>; 동일 사건은 원효과 결과와 duplicate=true·현재 notificationState. Portal 주체/수신자/정책 전문 제외.
+    contract: FEAT-305.types/transaction; IF-006. 외부 검증기는 고객별 설치 계약, 수신 DTO와 원자성은 공통 계약.
+    errors:
+      '400': 미지원 형식/필드/길이
+      '401': 원천 증명 불가/만료
+      '403': 등록되지 않은 원천 또는 경로
+      '409': 동일 키 다른 입력은 확정 원 결과 충돌. 현재 판/증거 만료/최신성 재확인 필요는 재시도 가능한 충돌이며 REJECTED 원 결과를 확정하지 않는다.
+      '422': 사건 종류·대상 연결/모드 불일치
+      '503': 검증 원천/DB/필수 기록 불가
+    result_rule: 원효과 확정+통지 STORED/NOT_REQUIRED는200, 원효과 확정+정상 수신자0명 통지 PENDING_NO_RECIPIENT는202다. 동일 사건 재전송은 미완료 통지만 처리한다. DB/이력/수신자조회 장애503은 전체rollback, commit 불명에 성공 ACK 없음. 파기종결 사건은 EXPIRED409이며 새 효과0이다. 이미 확정된 pending의 통지 복구 중503이면 이번 통지 트랜잭션만 롤백하고 기존 이용 중지/HIST/pending은 유지한다.

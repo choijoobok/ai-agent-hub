@@ -1,0 +1,1202 @@
+entities:
+  - id: ENT-258
+    name: 모델 호출 접수
+    term: TRM-300
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-210
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_MODEL_CALL
+    attributes:
+      - name: CALL_RECORD_ID
+        physical_name: CALL_RECORD_ID
+        description: CALL_RECORD_ID
+        pk: true
+      - name: CALL_KEY
+        physical_name: CALL_KEY
+        description: CALL_KEY
+      - name: OWNER_DOMAIN
+        physical_name: OWNER_DOMAIN
+        description: OWNER_DOMAIN
+      - name: OWNER_KIND
+        physical_name: OWNER_KIND
+        description: OWNER_KIND
+      - name: OWNER_REF
+        physical_name: OWNER_REF
+        description: OWNER_REF
+      - name: ACTOR_DOMAIN
+        physical_name: ACTOR_DOMAIN
+        description: ACTOR_DOMAIN
+      - name: ACTOR_KEY
+        physical_name: ACTOR_KEY
+        description: ACTOR_KEY
+      - name: TURN_ID
+        physical_name: TURN_ID
+        description: TURN_ID
+      - name: TURN_ATTEMPT_REF
+        physical_name: TURN_ATTEMPT_REF
+        description: TURN_ATTEMPT_REF
+      - name: TURN_REVISION
+        physical_name: TURN_REVISION
+        description: TURN_REVISION
+      - name: MODEL_STEP_REF
+        physical_name: MODEL_STEP_REF
+        description: MODEL_STEP_REF
+      - name: LOGICAL_WORK_REF
+        physical_name: LOGICAL_WORK_REF
+        description: LOGICAL_WORK_REF
+      - name: ATTEMPT_ORDINAL
+        physical_name: ATTEMPT_ORDINAL
+        description: ATTEMPT_ORDINAL
+      - name: PURPOSE_CD
+        physical_name: PURPOSE_CD
+        description: PURPOSE_CD
+      - name: CONNECTION_KEY
+        physical_name: CONNECTION_KEY
+        description: CONNECTION_KEY
+      - name: CONFIG_GENERATION
+        physical_name: CONFIG_GENERATION
+        description: CONFIG_GENERATION
+      - name: MODEL_ID
+        physical_name: MODEL_ID
+        description: MODEL_ID
+      - name: MODEL_REVISION
+        physical_name: MODEL_REVISION
+        description: MODEL_REVISION
+      - name: EFFORT_CD
+        physical_name: EFFORT_CD
+        description: EFFORT_CD
+      - name: USAGE_DEFINITION_REF
+        physical_name: USAGE_DEFINITION_REF
+        description: USAGE_DEFINITION_REF
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+      - name: INPUT_DIGEST
+        physical_name: INPUT_DIGEST
+        description: INPUT_DIGEST
+      - name: CONTROL_DIGEST
+        physical_name: CONTROL_DIGEST
+        description: CONTROL_DIGEST
+      - name: CONTROL_REF
+        physical_name: CONTROL_REF
+        description: CONTROL_REF
+      - name: PERMIT_REF
+        physical_name: PERMIT_REF
+        description: PERMIT_REF
+      - name: QUOTA_SCOPE
+        physical_name: QUOTA_SCOPE
+        description: QUOTA_SCOPE
+      - name: ACCOUNTING_MONTH
+        physical_name: ACCOUNTING_MONTH
+        description: ACCOUNTING_MONTH
+      - name: ALLOCATION_ID
+        physical_name: ALLOCATION_ID
+        description: ALLOCATION_ID
+      - name: ACCEPTED_DTM
+        physical_name: ACCEPTED_DTM
+        description: ACCEPTED_DTM
+      - name: DISPATCH_DEADLINE
+        physical_name: DISPATCH_DEADLINE
+        description: DISPATCH_DEADLINE
+      - name: DISPATCH_STATE
+        physical_name: DISPATCH_STATE
+        description: DISPATCH_STATE
+      - name: RESPONSE_STATE
+        physical_name: RESPONSE_STATE
+        description: RESPONSE_STATE
+      - name: CANCEL_STATE
+        physical_name: CANCEL_STATE
+        description: CANCEL_STATE
+      - name: RECORD_STATE
+        physical_name: RECORD_STATE
+        description: RECORD_STATE
+      - name: VERSION
+        physical_name: VERSION
+        description: VERSION
+      - name: TERMINAL_DTM
+        physical_name: TERMINAL_DTM
+        description: TERMINAL_DTM
+      - name: MODEL_HISTORY_NO
+        physical_name: MODEL_HISTORY_NO
+        description: 사용한 정확 모델 설정 HIST
+      - name: EXECUTION_FENCE
+        physical_name: EXECUTION_FENCE
+        description: Portal 작업 수락의 점유 세대
+      - name: INSTANCE_ID
+        physical_name: INSTANCE_ID
+        description: 수락한 서버 인스턴스 식별자
+    physical:
+      attributes:
+        - name: CALL_RECORD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CALL_KEY
+          type: uuid
+          nullable: false
+          default: null
+        - name: OWNER_DOMAIN
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: OWNER_KIND
+          type: character varying(24)
+          nullable: false
+          default: null
+        - name: OWNER_REF
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: ACTOR_DOMAIN
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: ACTOR_KEY
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: TURN_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: TURN_ATTEMPT_REF
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: TURN_REVISION
+          type: bigint
+          nullable: true
+          default: null
+        - name: MODEL_STEP_REF
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: LOGICAL_WORK_REF
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: ATTEMPT_ORDINAL
+          type: integer
+          nullable: false
+          default: null
+        - name: PURPOSE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: CONNECTION_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: CONFIG_GENERATION
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MODEL_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: EFFORT_CD
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: USAGE_DEFINITION_REF
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: INPUT_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: CONTROL_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: CONTROL_REF
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: PERMIT_REF
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: QUOTA_SCOPE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: ACCOUNTING_MONTH
+          type: character varying(7)
+          nullable: false
+          default: null
+        - name: ALLOCATION_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: DISPATCH_DEADLINE
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: DISPATCH_STATE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: RESPONSE_STATE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: CANCEL_STATE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: RECORD_STATE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: TERMINAL_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: MODEL_HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: EXECUTION_FENCE
+          type: bigint
+          nullable: true
+          default: null
+        - name: INSTANCE_ID
+          type: character varying(128)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_CALL
+          definition: PRIMARY KEY (CALL_RECORD_ID)
+        - name: UK_MODEL_CALL_1
+          definition: UNIQUE (CALL_KEY)
+        - name: UK_MODEL_CALL_2
+          definition: UNIQUE (OWNER_DOMAIN, OWNER_KIND, OWNER_REF, ATTEMPT_ORDINAL)
+        - name: UK_MODEL_CALL_3
+          definition: UNIQUE (PERMIT_REF)
+        - name: CK_MODEL_CALL_1
+          definition: CHECK (ATTEMPT_ORDINAL > 0 AND VERSION > 0)
+        - name: CK_MODEL_CALL_2
+          definition: CHECK (QUOTA_SCOPE IN ('PORTAL','OPERATIONS'))
+        - name: CK_MODEL_CALL_DISPATCH
+          definition: CHECK (DISPATCH_STATE IN ('ADMITTED','UNKNOWN','NOT_SENT','ACCEPTED'))
+        - name: CK_MODEL_CALL_RESPONSE
+          definition: CHECK (RESPONSE_STATE IN ('NONE','PARTIAL','COMPLETED','FAILED','UNKNOWN'))
+        - name: CK_MODEL_CALL_CANCEL
+          definition: CHECK (CANCEL_STATE IN ('NONE','REQUESTED','ACKNOWLEDGED','CONFIRMED','UNKNOWN'))
+        - name: CK_MODEL_CALL_RECORD
+          definition: CHECK (RECORD_STATE IN ('READY','RECOVERY_REQUIRED','RECONCILED'))
+        - name: CK_MODEL_CALL_TURN
+          definition: CHECK (OWNER_KIND <> 'TURN_WORK' OR (TURN_ID IS NOT NULL AND TURN_ATTEMPT_REF IS NOT NULL AND TURN_REVISION IS NOT NULL AND EXECUTION_FENCE IS NOT NULL))
+        - name: CK_MODEL_CALL_OWNER_SCOPE
+          definition: CHECK ((ACTOR_DOMAIN = 'PORTAL' AND OWNER_DOMAIN = 'AGENT' AND OWNER_KIND IN ('TURN_WORK','EMBEDDING_TASK') AND QUOTA_SCOPE = 'PORTAL' AND TURN_ID IS NOT NULL AND ALLOCATION_ID IS NOT NULL) OR (ACTOR_DOMAIN = 'ADMIN' AND OWNER_DOMAIN = 'ADMIN' AND OWNER_KIND IN ('ADMIN_OPERATION','EMBEDDING_TASK') AND QUOTA_SCOPE = 'OPERATIONS' AND TURN_ID IS NULL AND ALLOCATION_ID IS NULL) OR (ACTOR_DOMAIN = 'SERVER' AND OWNER_DOMAIN = 'ADMIN' AND OWNER_KIND = 'EMBEDDING_TASK' AND QUOTA_SCOPE = 'OPERATIONS' AND TURN_ID IS NULL AND ALLOCATION_ID IS NULL))
+        - name: CK_MODEL_CALL_FENCE
+          definition: CHECK ((TURN_ID IS NULL AND TURN_ATTEMPT_REF IS NULL AND TURN_REVISION IS NULL AND EXECUTION_FENCE IS NULL) OR (TURN_ID IS NOT NULL AND TURN_ATTEMPT_REF IS NOT NULL AND TURN_REVISION IS NOT NULL AND EXECUTION_FENCE IS NOT NULL AND TURN_REVISION >= 0 AND EXECUTION_FENCE > 0))
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 전송 전 고정 설정/입력·현재 통제 참조·단일 permit와 같은 트랜잭션에 기록한다. DB 접수와 외부 송신 사이 UNKNOWN을 삭제/자동 재송으로 없애지 않는다.
+      - MODEL_STEP_REF는 실제 추론 실행 시작을 관측한 뒤 소유 스텝에 연결한다. 모든 호출/임베딩을 미리 LLM 스텝으로 세지 않는다.
+      - 턴 식별은 소유 서버가 검증한다. 초기 ADMIN_OPERATION은 TURN_ID를 만들지 않는다. Portal 턴 원장/점유가 미구현이면 실제 Portal 전송을 닫는다.
+      - 최소 저장 구조가 agent 전체 턴/시도/리스·쿼터 상태 모델을 대신하지 않는다. 사용된 정확 설정 판은 FEAT-040의 참조 보호를 같은 접수 트랜잭션에서 등록한다.
+      - actor/owner/quotaScope의 허용 조합을 DB CHECK와 서버 admission 양쪽에서 검사한다. Portal 작업을OPERATIONS/ADMIN_OPERATION으로 보내는 입력은 거부한다. SERVER는 등록된 admin 지식 임베딩 작업만이며 사용자 요청의 운영용 플래그로 지정하지 않는다. 월은 모든 호출의 고정 업무 시간대로 산출한다.
+    sources: []
+  - id: ENT-259
+    name: 모델 호출 관측
+    term: TRM-301
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-210
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_CALL_OBSERVATION
+    attributes:
+      - name: OBSERVATION_ID
+        physical_name: OBSERVATION_ID
+        description: OBSERVATION_ID
+        pk: true
+      - name: CALL_RECORD_ID
+        physical_name: CALL_RECORD_ID
+        description: CALL_RECORD_ID
+      - name: OBSERVATION_KEY
+        physical_name: OBSERVATION_KEY
+        description: OBSERVATION_KEY
+      - name: PAYLOAD_DIGEST
+        physical_name: PAYLOAD_DIGEST
+        description: PAYLOAD_DIGEST
+      - name: DIGEST_VERSION
+        physical_name: DIGEST_VERSION
+        description: DIGEST_VERSION
+      - name: KIND_CD
+        physical_name: KIND_CD
+        description: KIND_CD
+      - name: PROVIDER_REQUEST_REF
+        physical_name: PROVIDER_REQUEST_REF
+        description: PROVIDER_REQUEST_REF
+      - name: OCCURRED_DTM
+        physical_name: OCCURRED_DTM
+        description: OCCURRED_DTM
+      - name: RECORDED_DTM
+        physical_name: RECORDED_DTM
+        description: RECORDED_DTM
+      - name: DISPATCH_STATE
+        physical_name: DISPATCH_STATE
+        description: DISPATCH_STATE
+      - name: RESPONSE_STATE
+        physical_name: RESPONSE_STATE
+        description: RESPONSE_STATE
+      - name: CANCEL_STATE
+        physical_name: CANCEL_STATE
+        description: CANCEL_STATE
+      - name: SAFE_CODE
+        physical_name: SAFE_CODE
+        description: SAFE_CODE
+      - name: USAGE_SOURCE
+        physical_name: USAGE_SOURCE
+        description: USAGE_SOURCE
+      - name: FINAL_YN
+        physical_name: FINAL_YN
+        description: FINAL_YN
+      - name: SOURCE_REVISION
+        physical_name: SOURCE_REVISION
+        description: SOURCE_REVISION
+      - name: PREVIOUS_OBSERVATION_ID
+        physical_name: PREVIOUS_OBSERVATION_ID
+        description: PREVIOUS_OBSERVATION_ID
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+      - name: USAGE_SCOPE
+        physical_name: USAGE_SCOPE
+        description: '원천 계량 범위: CALL/TURN/THREAD/SESSION/ACCOUNT/UNKNOWN'
+      - name: COUNTER_SEMANTICS
+        physical_name: COUNTER_SEMANTICS
+        description: '원천 수량 의미: DELTA/CUMULATIVE/UNKNOWN'
+      - name: OBSERVATION_PHASE
+        physical_name: OBSERVATION_PHASE
+        description: '수신 경로: START/STREAM/TERMINAL/POST_TERMINAL/RESUME/UNKNOWN. 종결 수신 자체가 계량 확정은 아니다'
+      - name: ATTRIBUTION_STATE
+        physical_name: ATTRIBUTION_STATE
+        description: VERIFIED/UNVERIFIED. 원 호출과 수량 의미의 귀속 검증 결과이며 숫자 존재 여부와 구별한다
+    physical:
+      attributes:
+        - name: OBSERVATION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CALL_RECORD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: OBSERVATION_KEY
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: PAYLOAD_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: DIGEST_VERSION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: KIND_CD
+          type: character varying(24)
+          nullable: false
+          default: null
+        - name: PROVIDER_REQUEST_REF
+          type: character varying(200)
+          nullable: true
+          default: null
+        - name: OCCURRED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: RECORDED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: DISPATCH_STATE
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: RESPONSE_STATE
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: CANCEL_STATE
+          type: character varying(20)
+          nullable: true
+          default: null
+        - name: SAFE_CODE
+          type: character varying(80)
+          nullable: true
+          default: null
+        - name: USAGE_SOURCE
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: FINAL_YN
+          type: character varying(1)
+          nullable: true
+          default: null
+        - name: SOURCE_REVISION
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: PREVIOUS_OBSERVATION_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: USAGE_SCOPE
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: COUNTER_SEMANTICS
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: OBSERVATION_PHASE
+          type: character varying(16)
+          nullable: true
+          default: null
+        - name: ATTRIBUTION_STATE
+          type: character varying(16)
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_CALL_OBSERVATION
+          definition: PRIMARY KEY (OBSERVATION_ID)
+        - name: UK_CALL_OBSERVATION_1
+          definition: UNIQUE (CALL_RECORD_ID, OBSERVATION_KEY)
+        - name: CK_CALL_OBSERVATION_1
+          definition: CHECK (KIND_CD IN ('DISPATCH','RESPONSE','CANCEL','USAGE','RECORD_FAILURE','RECOVERY'))
+        - name: FK_CALL_OBSERVATION_CALL_RECORD_ID
+          definition: FOREIGN KEY (CALL_RECORD_ID) REFERENCES AI_AGENT_MODEL_CALL (CALL_RECORD_ID) ON DELETE RESTRICT
+        - name: CK_CALL_OBSERVATION_USAGE_META
+          definition: CHECK ((KIND_CD = 'USAGE' AND USAGE_SCOPE IS NOT NULL AND COUNTER_SEMANTICS IS NOT NULL AND OBSERVATION_PHASE IS NOT NULL AND ATTRIBUTION_STATE IS NOT NULL) OR (KIND_CD <> 'USAGE' AND USAGE_SCOPE IS NULL AND COUNTER_SEMANTICS IS NULL AND OBSERVATION_PHASE IS NULL AND ATTRIBUTION_STATE IS NULL))
+        - name: CK_CALL_OBSERVATION_USAGE_SCOPE
+          definition: CHECK (USAGE_SCOPE IN ('CALL','TURN','THREAD','SESSION','ACCOUNT','UNKNOWN'))
+        - name: CK_CALL_OBSERVATION_COUNTER
+          definition: CHECK (COUNTER_SEMANTICS IN ('DELTA','CUMULATIVE','UNKNOWN'))
+        - name: CK_CALL_OBSERVATION_PHASE
+          definition: CHECK (OBSERVATION_PHASE IN ('START','STREAM','TERMINAL','POST_TERMINAL','RESUME','UNKNOWN'))
+        - name: CK_CALL_OBSERVATION_ATTRIBUTION
+          definition: CHECK (ATTRIBUTION_STATE IN ('VERIFIED','UNVERIFIED'))
+        - name: CK_CALL_OBSERVATION_FINAL
+          definition: CHECK (FINAL_YN IS DISTINCT FROM 'Y' OR (USAGE_SOURCE = 'PROVIDER' AND ATTRIBUTION_STATE = 'VERIFIED') IS TRUE)
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - append-only. 같은 call/key/내용만 재수락하며 다르면409이다. 검증 시각/수신 시각은 공급 사건 지문에 섞지 않는다.
+      - 원 응답/추론/청크/헤더를 보관하는 테이블이 아니다. 사용량 원천 항목은 ENT-260에만 저장한다. 늦은 관측은 기존 호출에만 추가하며 현재 턴을 되살리지 않는다.
+      - 사용량 귀속·원천 범위·누적 의미·관측 경로는 FEAT-211.minimal_producer.attribution을 따른다. 원천이 보고한 실행 참조는 PROVIDER_REQUEST_REF에 보존하고 수신 turnId만으로 검증됨을 만들지 않는다. 네 메타 필드를 관측 지문에 포함한다. UNVERIFIED의 수신 숫자는 원 관측 항목으로만 보존하며 head/ledger/쿼터 선택 대상이 아니다.
+    sources: []
+    relations:
+      - entity: ENT-258
+        cardinality: N:1
+        description: CALL_RECORD_ID → CALL_RECORD_ID; 소유 보존 집합의 RESTRICT 참조
+  - id: ENT-260
+    name: 모델 사용량 관측 항목
+    term: TRM-302
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_USAGE_ITEM
+    attributes:
+      - name: USAGE_ITEM_ID
+        physical_name: USAGE_ITEM_ID
+        description: USAGE_ITEM_ID
+        pk: true
+      - name: OBSERVATION_ID
+        physical_name: OBSERVATION_ID
+        description: OBSERVATION_ID
+      - name: METRIC_CD
+        physical_name: METRIC_CD
+        description: METRIC_CD
+      - name: UNIT_CD
+        physical_name: UNIT_CD
+        description: UNIT_CD
+      - name: QUANTITY
+        physical_name: QUANTITY
+        description: QUANTITY
+      - name: VALUE_STATE
+        physical_name: VALUE_STATE
+        description: VALUE_STATE
+      - name: NORMALIZED_METRIC_CD
+        physical_name: NORMALIZED_METRIC_CD
+        description: NORMALIZED_METRIC_CD
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+    physical:
+      attributes:
+        - name: USAGE_ITEM_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: OBSERVATION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: METRIC_CD
+          type: character varying(80)
+          nullable: false
+          default: null
+        - name: UNIT_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: QUANTITY
+          type: numeric(38,0)
+          nullable: true
+          default: null
+        - name: VALUE_STATE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: NORMALIZED_METRIC_CD
+          type: character varying(80)
+          nullable: true
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USAGE_ITEM
+          definition: PRIMARY KEY (USAGE_ITEM_ID)
+        - name: UK_USAGE_ITEM_1
+          definition: UNIQUE (OBSERVATION_ID, METRIC_CD, UNIT_CD)
+        - name: CK_USAGE_ITEM_1
+          definition: CHECK ((VALUE_STATE = 'KNOWN' AND QUANTITY IS NOT NULL AND QUANTITY >= 0) OR (VALUE_STATE = 'UNKNOWN' AND QUANTITY IS NULL))
+        - name: FK_USAGE_ITEM_OBSERVATION_ID
+          definition: FOREIGN KEY (OBSERVATION_ID) REFERENCES AI_AGENT_CALL_OBSERVATION (OBSERVATION_ID) ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 공급자 원 수량과 정규 의미를 구분하며 합계·캐시 부분항목을 함께 더하지 않는다. 필수 항목 미제공은 UNKNOWN이다. 정규화 오류/지원 불명은 차감 확정 금지.
+      - VALUE_STATE는 원천이 수량을 보고했는지의 표시다. CLI가 반환한 자리표시0/이전누적값을 KNOWN 관측 항목으로 보존하더라도 ENT-259의 귀속 미검증이면 유효 사용량 head에 선택하지 않는다. 필수 최종량 불명은 head UNKNOWN·snapshot INCOMPLETE로 남고 원천 숫자 보존이0사용 확정을 뜻하지 않는다.
+    sources: []
+    relations:
+      - entity: ENT-259
+        cardinality: N:1
+        description: OBSERVATION_ID → OBSERVATION_ID; 소유 보존 집합의 RESTRICT 참조
+  - id: ENT-261
+    name: 모델 사용량 현재 반영
+    term: TRM-303
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_USAGE_HEAD
+    attributes:
+      - name: USAGE_HEAD_ID
+        physical_name: USAGE_HEAD_ID
+        description: USAGE_HEAD_ID
+        pk: true
+      - name: CALL_RECORD_ID
+        physical_name: CALL_RECORD_ID
+        description: CALL_RECORD_ID
+      - name: METRIC_CD
+        physical_name: METRIC_CD
+        description: METRIC_CD
+      - name: UNIT_CD
+        physical_name: UNIT_CD
+        description: UNIT_CD
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+      - name: SELECTED_ITEM_ID
+        physical_name: SELECTED_ITEM_ID
+        description: SELECTED_ITEM_ID
+      - name: EFFECTIVE_QUANTITY
+        physical_name: EFFECTIVE_QUANTITY
+        description: EFFECTIVE_QUANTITY
+      - name: VALUE_STATE
+        physical_name: VALUE_STATE
+        description: VALUE_STATE
+      - name: SOURCE_CD
+        physical_name: SOURCE_CD
+        description: SOURCE_CD
+      - name: VERSION
+        physical_name: VERSION
+        description: VERSION
+      - name: UPDATED_DTM
+        physical_name: UPDATED_DTM
+        description: UPDATED_DTM
+    physical:
+      attributes:
+        - name: USAGE_HEAD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CALL_RECORD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: METRIC_CD
+          type: character varying(80)
+          nullable: false
+          default: null
+        - name: UNIT_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: SELECTED_ITEM_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: EFFECTIVE_QUANTITY
+          type: numeric(38,0)
+          nullable: true
+          default: null
+        - name: VALUE_STATE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: SOURCE_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: UPDATED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USAGE_HEAD
+          definition: PRIMARY KEY (USAGE_HEAD_ID)
+        - name: UK_USAGE_HEAD_1
+          definition: UNIQUE (CALL_RECORD_ID, METRIC_CD, UNIT_CD, NORMALIZATION_VERSION)
+        - name: CK_USAGE_HEAD_1
+          definition: CHECK (VERSION > 0)
+        - name: CK_USAGE_HEAD_2
+          definition: CHECK (EFFECTIVE_QUANTITY IS NULL OR EFFECTIVE_QUANTITY >= 0)
+        - name: FK_USAGE_HEAD_CALL_RECORD_ID
+          definition: FOREIGN KEY (CALL_RECORD_ID) REFERENCES AI_AGENT_MODEL_CALL (CALL_RECORD_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_HEAD_SELECTED_ITEM_ID
+          definition: FOREIGN KEY (SELECTED_ITEM_ID) REFERENCES AI_AGENT_USAGE_ITEM (USAGE_ITEM_ID) ON DELETE RESTRICT
+        - name: CK_USAGE_HEAD_KNOWN
+          definition: CHECK ((VALUE_STATE = 'UNKNOWN' AND SELECTED_ITEM_ID IS NULL AND EFFECTIVE_QUANTITY IS NULL) OR (VALUE_STATE = 'KNOWN' AND SELECTED_ITEM_ID IS NOT NULL AND EFFECTIVE_QUANTITY IS NOT NULL AND EFFECTIVE_QUANTITY >= 0))
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 호출 잠금 안에서만 조건부 갱신하는 투영이다. 불변 관측과 ENT-262 증감 기록으로 재구성하며 현재값만 남기고 관측을 지우지 않는다.
+      - 선택된 item→observation→call의 소유와 metric/unit/정규화 판을 저장 공개 포트가 재검사한다. 단일 FK 존재만으로 다른 호출 항목을 연결하지 않는다.
+      - UNKNOWN 관측을 받은 뒤에도 기존 유효 추정치가 있으면 head는 KNOWN/ESTIMATE로 유지하고 호출의 미확인 근거는 관측에 남긴다. head UNKNOWN은 아직 유효 수량이 없는 경우이며 수량을 함께 저장하지 않는다.
+      - 선택 항목의 부모 ENT-259 ATTRIBUTION_STATE=VERIFIED와 FEAT-211.attribution의 원 호출/범위/수량 의미를 같은 저장 트랜잭션에서 재검사한다. FK 존재나 호출/metric/unit 일치만으로 선택하지 않는다. UNVERIFIED 항목 선택은 전체 롤백하며 원 관측은 보존한다. 교차 테이블 조건을 DB CHECK만으로 보장한다고 주장하지 않는다.
+    sources: []
+    relations:
+      - entity: ENT-258
+        cardinality: N:1
+        description: CALL_RECORD_ID → CALL_RECORD_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-260
+        cardinality: N:1
+        description: SELECTED_ITEM_ID → USAGE_ITEM_ID; 소유 보존 집합의 RESTRICT 참조
+  - id: ENT-262
+    name: 모델 사용량 반영 원장
+    term: TRM-304
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_USAGE_LEDGER
+    attributes:
+      - name: USAGE_LEDGER_ID
+        physical_name: USAGE_LEDGER_ID
+        description: USAGE_LEDGER_ID
+        pk: true
+      - name: USAGE_HEAD_ID
+        physical_name: USAGE_HEAD_ID
+        description: USAGE_HEAD_ID
+      - name: HEAD_VERSION
+        physical_name: HEAD_VERSION
+        description: HEAD_VERSION
+      - name: SELECTED_ITEM_ID
+        physical_name: SELECTED_ITEM_ID
+        description: SELECTED_ITEM_ID
+      - name: PREVIOUS_ITEM_ID
+        physical_name: PREVIOUS_ITEM_ID
+        description: PREVIOUS_ITEM_ID
+      - name: PREVIOUS_QUANTITY
+        physical_name: PREVIOUS_QUANTITY
+        description: PREVIOUS_QUANTITY
+      - name: CURRENT_QUANTITY
+        physical_name: CURRENT_QUANTITY
+        description: CURRENT_QUANTITY
+      - name: DELTA_QUANTITY
+        physical_name: DELTA_QUANTITY
+        description: DELTA_QUANTITY
+      - name: QUOTA_SCOPE
+        physical_name: QUOTA_SCOPE
+        description: QUOTA_SCOPE
+      - name: ACTOR_DOMAIN
+        physical_name: ACTOR_DOMAIN
+        description: ACTOR_DOMAIN
+      - name: ACTOR_KEY
+        physical_name: ACTOR_KEY
+        description: ACTOR_KEY
+      - name: ACCOUNTING_MONTH
+        physical_name: ACCOUNTING_MONTH
+        description: ACCOUNTING_MONTH
+      - name: ALLOCATION_ID
+        physical_name: ALLOCATION_ID
+        description: ALLOCATION_ID
+      - name: APPLIED_DTM
+        physical_name: APPLIED_DTM
+        description: APPLIED_DTM
+      - name: SOURCE_CD
+        physical_name: SOURCE_CD
+        description: SOURCE_CD
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+    physical:
+      attributes:
+        - name: USAGE_LEDGER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: USAGE_HEAD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HEAD_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: SELECTED_ITEM_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PREVIOUS_ITEM_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: PREVIOUS_QUANTITY
+          type: numeric(38,0)
+          nullable: true
+          default: null
+        - name: CURRENT_QUANTITY
+          type: numeric(38,0)
+          nullable: false
+          default: null
+        - name: DELTA_QUANTITY
+          type: numeric(38,0)
+          nullable: false
+          default: null
+        - name: QUOTA_SCOPE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: ACTOR_DOMAIN
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: ACTOR_KEY
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: ACCOUNTING_MONTH
+          type: character varying(7)
+          nullable: true
+          default: null
+        - name: ALLOCATION_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: APPLIED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: SOURCE_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USAGE_LEDGER
+          definition: PRIMARY KEY (USAGE_LEDGER_ID)
+        - name: UK_USAGE_LEDGER_1
+          definition: UNIQUE (USAGE_HEAD_ID, HEAD_VERSION)
+        - name: CK_USAGE_LEDGER_1
+          definition: CHECK (CURRENT_QUANTITY >= 0)
+        - name: CK_USAGE_LEDGER_2
+          definition: CHECK (HEAD_VERSION > 0)
+        - name: FK_USAGE_LEDGER_USAGE_HEAD_ID
+          definition: FOREIGN KEY (USAGE_HEAD_ID) REFERENCES AI_AGENT_USAGE_HEAD (USAGE_HEAD_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_LEDGER_SELECTED_ITEM_ID
+          definition: FOREIGN KEY (SELECTED_ITEM_ID) REFERENCES AI_AGENT_USAGE_ITEM (USAGE_ITEM_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_LEDGER_PREVIOUS_ITEM_ID
+          definition: FOREIGN KEY (PREVIOUS_ITEM_ID) REFERENCES AI_AGENT_USAGE_ITEM (USAGE_ITEM_ID) ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 새 유효값 반영과 현재 head·실제 소유 쿼터 증감은 같은 트랜잭션이다. 700 추정→900 확정은 최초700/증분200으로 총900, 같은 사건 재수신 증분0이다.
+      - UNKNOWN에서 알려진 수량으로 바뀌는 첫 반영만 이전 수치 기여0으로 계산한다. 이는 UNKNOWN 비용을0으로 확정하는 것이 아니며 미확인 상태/예약은 별도 유지한다.
+      - 음수 정정은 검증된 같은 호출/항목의 이전 값을 대체한 차이이며 독립 환불 API가 아니다. 실제 사용량과 고정 단가·환산 규칙의 정확 산식은 FEAT-211.minimal_producer가 소유한다.
+      - 선택된 item→observation→call의 소유와 metric/unit/정규화 판을 저장 공개 포트가 재검사한다. 단일 FK 존재만으로 다른 호출 항목을 연결하지 않는다.
+      - 선택 항목의 부모 ENT-259 ATTRIBUTION_STATE=VERIFIED와 FEAT-211.attribution의 원 호출/범위/수량 의미를 같은 저장 트랜잭션에서 재검사한다. FK 존재나 호출/metric/unit 일치만으로 선택하지 않는다. UNVERIFIED 항목 선택은 전체 롤백하며 원 관측은 보존한다. 교차 테이블 조건을 DB CHECK만으로 보장한다고 주장하지 않는다.
+    sources: []
+    relations:
+      - entity: ENT-261
+        cardinality: N:1
+        description: USAGE_HEAD_ID → USAGE_HEAD_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-260
+        cardinality: N:1
+        description: SELECTED_ITEM_ID → USAGE_ITEM_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-260
+        cardinality: N:1
+        description: PREVIOUS_ITEM_ID → USAGE_ITEM_ID; 소유 보존 집합의 RESTRICT 참조
+  - id: ENT-263
+    name: 모델 사용량 집계 스냅샷
+    term: TRM-305
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_USAGE_SNAPSHOT
+    attributes:
+      - name: USAGE_SNAPSHOT_ID
+        physical_name: USAGE_SNAPSHOT_ID
+        description: USAGE_SNAPSHOT_ID
+        pk: true
+      - name: SNAPSHOT_KEY
+        physical_name: SNAPSHOT_KEY
+        description: SNAPSHOT_KEY
+      - name: SCOPE_CD
+        physical_name: SCOPE_CD
+        description: SCOPE_CD
+      - name: TARGET_MONTH
+        physical_name: TARGET_MONTH
+        description: TARGET_MONTH
+      - name: CUTOFF_DTM
+        physical_name: CUTOFF_DTM
+        description: CUTOFF_DTM
+      - name: CAPTURED_DTM
+        physical_name: CAPTURED_DTM
+        description: CAPTURED_DTM
+      - name: NORMALIZATION_VERSION
+        physical_name: NORMALIZATION_VERSION
+        description: NORMALIZATION_VERSION
+      - name: COMPLETENESS_CD
+        physical_name: COMPLETENESS_CD
+        description: COMPLETENESS_CD
+      - name: BASIS_DIGEST
+        physical_name: BASIS_DIGEST
+        description: BASIS_DIGEST
+      - name: BASIS_COUNT
+        physical_name: BASIS_COUNT
+        description: BASIS_COUNT
+      - name: REQUEST_KEY
+        physical_name: REQUEST_KEY
+        description: REQUEST_KEY
+    physical:
+      attributes:
+        - name: USAGE_SNAPSHOT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SNAPSHOT_KEY
+          type: uuid
+          nullable: false
+          default: null
+        - name: SCOPE_CD
+          type: character varying(24)
+          nullable: false
+          default: null
+        - name: TARGET_MONTH
+          type: character varying(7)
+          nullable: false
+          default: null
+        - name: CUTOFF_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CAPTURED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: NORMALIZATION_VERSION
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: COMPLETENESS_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: BASIS_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: BASIS_COUNT
+          type: bigint
+          nullable: false
+          default: null
+        - name: REQUEST_KEY
+          type: character varying(200)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USAGE_SNAPSHOT
+          definition: PRIMARY KEY (USAGE_SNAPSHOT_ID)
+        - name: UK_USAGE_SNAPSHOT_1
+          definition: UNIQUE (SNAPSHOT_KEY)
+        - name: UK_USAGE_SNAPSHOT_2
+          definition: UNIQUE (REQUEST_KEY)
+        - name: CK_USAGE_SNAPSHOT_1
+          definition: CHECK (COMPLETENESS_CD IN ('COMPLETE','INCOMPLETE'))
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - REPEATABLE READ의 실제 가시 행 집합을 ENT-264로 고정한다. SYS_SEQUENCE 최댓값을 commit 순서 watermark로 사용하지 않는다. 같은 request key는 같은 불변 스냅샷만 반환한다.
+      - 월중/늦은 정정은 새 스냅샷에서만 보인다. 기존 admin 월 단가 실적 사본의 근거를 소급 바꾸지 않는다. UNKNOWN/지원 불명/필수 기록 불명 호출을 제외한 부분합을 COMPLETE로 반환하지 않는다.
+    sources: []
+  - id: ENT-264
+    name: 모델 사용량 스냅샷 근거
+    term: TRM-306
+    domain: 모델 호출·계량
+    module: agent
+    workstream: agent
+    features:
+      - FEAT-211
+    reqs:
+      - REQ-107
+      - REQ-116
+    implementation: planned
+    design_stage: physical
+    table: AI_AGENT_USAGE_SNAPSHOT_BASIS
+    attributes:
+      - name: BASIS_ID
+        physical_name: BASIS_ID
+        description: BASIS_ID
+        pk: true
+      - name: USAGE_SNAPSHOT_ID
+        physical_name: USAGE_SNAPSHOT_ID
+        description: USAGE_SNAPSHOT_ID
+      - name: CALL_RECORD_ID
+        physical_name: CALL_RECORD_ID
+        description: CALL_RECORD_ID
+      - name: USAGE_HEAD_ID
+        physical_name: USAGE_HEAD_ID
+        description: USAGE_HEAD_ID
+      - name: HEAD_VERSION
+        physical_name: HEAD_VERSION
+        description: HEAD_VERSION
+      - name: SELECTED_ITEM_ID
+        physical_name: SELECTED_ITEM_ID
+        description: SELECTED_ITEM_ID
+      - name: METRIC_CD
+        physical_name: METRIC_CD
+        description: METRIC_CD
+      - name: UNIT_CD
+        physical_name: UNIT_CD
+        description: UNIT_CD
+      - name: EFFECTIVE_QUANTITY
+        physical_name: EFFECTIVE_QUANTITY
+        description: EFFECTIVE_QUANTITY
+      - name: VALUE_STATE
+        physical_name: VALUE_STATE
+        description: VALUE_STATE
+      - name: PURPOSE_CD
+        physical_name: PURPOSE_CD
+        description: PURPOSE_CD
+      - name: MODEL_ID
+        physical_name: MODEL_ID
+        description: MODEL_ID
+      - name: EFFORT_CD
+        physical_name: EFFORT_CD
+        description: EFFORT_CD
+      - name: SOURCE_CD
+        physical_name: SOURCE_CD
+        description: SOURCE_CD
+    physical:
+      attributes:
+        - name: BASIS_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: USAGE_SNAPSHOT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CALL_RECORD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: USAGE_HEAD_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: HEAD_VERSION
+          type: bigint
+          nullable: true
+          default: null
+        - name: SELECTED_ITEM_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: METRIC_CD
+          type: character varying(80)
+          nullable: false
+          default: null
+        - name: UNIT_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: EFFECTIVE_QUANTITY
+          type: numeric(38,0)
+          nullable: true
+          default: null
+        - name: VALUE_STATE
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: PURPOSE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: EFFORT_CD
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: SOURCE_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USAGE_SNAPSHOT_BASIS
+          definition: PRIMARY KEY (BASIS_ID)
+        - name: UK_USAGE_SNAPSHOT_BASIS_1
+          definition: UNIQUE (USAGE_SNAPSHOT_ID, CALL_RECORD_ID, METRIC_CD, UNIT_CD)
+        - name: FK_USAGE_SNAPSHOT_BASIS_USAGE_SNAPSHOT_ID
+          definition: FOREIGN KEY (USAGE_SNAPSHOT_ID) REFERENCES AI_AGENT_USAGE_SNAPSHOT (USAGE_SNAPSHOT_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_SNAPSHOT_BASIS_CALL_RECORD_ID
+          definition: FOREIGN KEY (CALL_RECORD_ID) REFERENCES AI_AGENT_MODEL_CALL (CALL_RECORD_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_SNAPSHOT_BASIS_USAGE_HEAD_ID
+          definition: FOREIGN KEY (USAGE_HEAD_ID) REFERENCES AI_AGENT_USAGE_HEAD (USAGE_HEAD_ID) ON DELETE RESTRICT
+        - name: FK_USAGE_SNAPSHOT_BASIS_SELECTED_ITEM_ID
+          definition: FOREIGN KEY (SELECTED_ITEM_ID) REFERENCES AI_AGENT_USAGE_ITEM (USAGE_ITEM_ID) ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 스냅샷 시점의 call/선택된 불변 관측/유효수량/완전성을 연결한다. head가 바뀌어도 근거 행은 변하지 않는다. 현 원장에 JOIN해 과거 snapshot을 다시 계산하지 않는다.
+      - 선택된 item→observation→call의 소유와 metric/unit/정규화 판을 저장 공개 포트가 재검사한다. 단일 FK 존재만으로 다른 호출 항목을 연결하지 않는다.
+    sources: []
+    relations:
+      - entity: ENT-263
+        cardinality: N:1
+        description: USAGE_SNAPSHOT_ID → USAGE_SNAPSHOT_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-258
+        cardinality: N:1
+        description: CALL_RECORD_ID → CALL_RECORD_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-261
+        cardinality: N:1
+        description: USAGE_HEAD_ID → USAGE_HEAD_ID; 소유 보존 집합의 RESTRICT 참조
+      - entity: ENT-260
+        cardinality: N:1
+        description: SELECTED_ITEM_ID → USAGE_ITEM_ID; 소유 보존 집합의 RESTRICT 참조

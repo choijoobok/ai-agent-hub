@@ -1,310 +1,661 @@
 delivery_strategy:
-  decision: "ADR-006"
-  order: "admin 기준 정보·지식·정책·실행 설정 → agent 핵심과 실행 계약 시험 → 제품 portal 상세 설계·구현"
-  release_rule: "RM-P1 제품 출시는 조회 전용으로 쪼개지 않는다. 등록 REST 업무 API의 명시적 사용자 승인 실행(REQ-026·105·111·113), 저장된 조회의 현재 권한 재판정 실행(REQ-201~207), 이번 달 추가 토큰 사용 신청·승인(REQ-119)이 함께 준비돼야 한다. 위 개발 순서는 내부 구현·검증 순서일 뿐 중간 조회 전용 제품을 고객에게 먼저 출시할 근거가 아니다. 커스텀 도구(REQ-114)는 RM-P1의 should 범위로 유지하며 첫 출시의 필수 조건으로 올리지 않는다"
-  workstream_rule: "기능의 `workstream:`이 있으면 그것이 소유하고, 없으면 `module:`과 같은 이름의 작업흐름이 소유한다"
+  decision: ADR-006
+  order: admin 세 영역 19화면·필수 공통 처리 → agent·비메뉴 오류 접수와 integration 계약 시험 → 나머지 admin 및 제품 Portal
+  release_rule: RM-P1 제품 출시는 조회 전용으로 쪼개지 않는다. 등록 REST 업무 API의 명시적 사용자 승인 실행(REQ-026·105·111·113), 저장된 조회의 현재 권한 재판정 실행(REQ-201~207), 이번 달 추가 토큰 사용 신청·승인(REQ-119)이 함께 준비돼야 한다. 위 개발 순서는 내부 구현·검증 순서일 뿐 중간 조회 전용 제품을 고객에게 먼저 출시할 근거가 아니다. 커스텀 도구(REQ-114)는 RM-P1의 should 범위로 유지하며 첫 출시의 필수 조건으로 올리지 않는다
+  workstream_rule: 기능의 `workstream:`이 있으면 그것이 소유하고, 없으면 `module:`과 같은 이름의 작업흐름이 소유한다
+  staged_delivery:
+    decided_at: '2026-11-09'
+    decision: 사용자 명시 요청 — 세 영역을 먼저 구현하고 agent·계약 시험을 거친 뒤 나머지 admin과 제품 Portal을 구현한다. 개발 순서·승인 범위 조정이며 이번에 단계 게이트를 승인하지 않는다.
+    scope_rule: '제품 모듈은 그대로 두고 기능의 workstream으로 승인 단위를 나눈다. admin은 선행, admin-operations는 후행 관리 화면, agent는 실행과 그 시점에 필요한 비메뉴 오류 접수, integration은 공통/공개 계약을 소유한다. 실제 진행 상태는 project.state.yaml만 관리한다. ADR-046: 공통 기반은 integration, FEAT-126/SCR-112와 응답 계약 시험은 integration-debug가 소유한다.'
+    admin_first:
+      workstream: admin
+      menu_groups:
+        - HUB_FOUNDATION
+        - HUB_INTEGRATION
+        - HUB_KNOWLEDGE
+      screens:
+        - SCR-015
+        - SCR-062
+        - SCR-016
+        - SCR-064
+        - SCR-021
+        - SCR-006
+        - SCR-005
+        - SCR-001
+        - SCR-002
+        - SCR-003
+        - SCR-039
+        - SCR-004
+        - SCR-019
+        - SCR-010
+        - SCR-011
+        - SCR-012
+        - SCR-009
+        - SCR-013
+        - SCR-014
+      features:
+        - FEAT-001
+        - FEAT-002
+        - FEAT-003
+        - FEAT-004
+        - FEAT-005
+        - FEAT-006
+        - FEAT-007
+        - FEAT-008
+        - FEAT-009
+        - FEAT-010
+        - FEAT-011
+        - FEAT-012
+        - FEAT-013
+        - FEAT-014
+        - FEAT-015
+        - FEAT-016
+        - FEAT-017
+        - FEAT-020
+        - FEAT-021
+        - FEAT-023
+        - FEAT-024
+        - FEAT-040
+        - FEAT-042
+        - FEAT-045
+      scope: 공통 기반 7·연동 관리 6·업무 지식 관리 6의 원 화면 19개와 기능에 필요한 비메뉴 처리. 세 영역의 화면 검토 결과를 입력으로 기술 상세를 완성한다. 전체 admin 화면 합의를 기다리지 않는다.
+      detailed_contracts: 50-api의 FEAT-040 공통 저장/이력·19화면 행렬/모듈 인계, FEAT-005/006 권한/신원, FEAT-016/017/042/045 쿼터 계약과 40-domain의 ENT-099~112를 따른다. UC-006/042 시퀀스·JOB-004·TC-0401~0408/0451~04510은 계획 검증이다. 물리/API/HIST 상세 초안과 ADR-043~045·태그 정규화 결정은 반영했다. 소유 G3와 실제 구현/시험은 별도다.
+      common_functions:
+        - features:
+            - FEAT-040
+          refs:
+            - REQ-601
+            - ARCH-029
+          contract: 직접 저장의 현재 권한·참조 보호·기대 버전·동시성·멱등 결과/불명 복구와 현재값·전체 변경 이력의 원자 확정. 이력 저장·불변성·보존/파기와 검증은 선행이며 후행 조회 화면에 미루지 않는다.
+        - features:
+            - FEAT-005
+            - FEAT-006
+            - FEAT-007
+            - FEAT-008
+            - FEAT-009
+            - FEAT-012
+          refs:
+            - REQ-103
+            - REQ-609
+            - REQ-611
+            - REQ-616
+          contract: Portal 사용자·그룹·신원 매핑, 자산 접근과 컬럼/응답 마스킹, 행 스코프·기본 필터·조회 제약의 등록·현재 정책 제공. 서버의 실제 실행 검증은 agent/integration이 소유한다.
+        - features:
+            - FEAT-015
+            - FEAT-016
+            - FEAT-017
+            - FEAT-042
+            - FEAT-045
+          refs:
+            - REQ-116
+            - REQ-118
+            - REQ-602
+            - REQ-606
+            - REQ-613
+          contract: 모델/용도·후보 순서, 월별 단가·등급·배정과 첫 달 확정/신규 사용자 개별 배정·월말 최종 배분 배치. 후행 통계 화면 없이 기준 배정이 성립하고 agent가 현재 배정을 조회할 수 있어야 한다.
+        - features:
+            - FEAT-001
+            - FEAT-002
+            - FEAT-003
+            - FEAT-004
+            - FEAT-011
+            - FEAT-021
+          refs:
+            - REQ-301
+            - REQ-304
+            - REQ-603
+            - REQ-604
+            - REQ-608
+            - REQ-612
+            - JOB-003
+          contract: 정확 배포 연결/객체 참조·카탈로그/관계·API/도구 계약·구조 수집/스케줄 비교·등록 검증과 구성 진단. 원천 업무 데이터의 실행이나 실모델 검토는 필요한 실행 소유 계약을 따르며 목업 응답으로 완료 처리하지 않는다.
+        - features:
+            - FEAT-010
+            - FEAT-013
+            - FEAT-014
+            - FEAT-023
+            - FEAT-024
+          refs:
+            - REQ-302
+            - REQ-303
+            - REQ-305
+            - REQ-306
+            - REQ-308
+            - REQ-607
+            - REQ-610
+          contract: 지식·태그·예제 SQL별 참조·프롬프트/안내의 전체 저장·정확 판 제공과 임베딩 갱신/실패·낡은 작업 차단. 임베딩 및 관리자 모델 검토의 실호출은 integration/agent의 소유 승인 이후 검증한다.
+        - features:
+            - FEAT-020
+          refs:
+            - REQ-614
+            - FEAT-506
+            - SCR-515
+          contract: 기존 system 환경설정의 등록/조회 경계를 재사용하고 실행 필수 설정의 자료형·허용 범위·초기값·적용 시점을 확정한다. 새 system 설정 저장소·변경 이력을 만들지 않는다.
+    cross_module_dependencies:
+      - owners:
+          - system
+          - integration
+        refs:
+          - FEAT-301
+          - FEAT-501
+          - FEAT-128
+          - ARCH-050
+          - REQ-616
+        needed_by: admin 상세 설계 승인 전 수락 계약, Portal 주체로 실제 실행 시험 전 구현
+        deliverable: 관리자/Portal 별도 계정·인증·세션, 안정 주체/권한 전달·계정 철회와 오류 경계. 제품 인증 화면은 FEAT-128/portal 후행으로 분리하고 시험 주체는 실제 서버 인증 계약으로 준비한다. 관리자 세션을 Portal 사용자로 대체하지 않는다. 기존 system 변경분은 system 소유 게이트에서 승인한다.
+      - owners:
+          - integration
+        refs:
+          - FEAT-302
+          - ARCH-028
+          - ARCH-030
+          - REQ-403
+        needed_by: admin의 연결/수집 슬라이스 구현·검증 전
+        deliverable: 비밀 주입/복호화·기동 검증, 정확 연결 ID·노드/기동/적용 설정 관측·지원 DBMS·객체 식별·배포 변경 시 재검증 계약. 공개 계약 승인과 실제 동작 검증을 구분한다.
+      - owners:
+          - integration
+          - agent
+        refs:
+          - FEAT-303
+          - FEAT-304
+          - FEAT-203
+          - FEAT-205
+          - FEAT-221
+        needed_by: admin 소비 계약은 admin G3 전; 실제 외부/모델 호출은 각 소유 G3 이후
+        deliverable: 권한 판정·모델/임베딩 호출·자산 등록 검증·카탈로그 수집의 입력/결과/오류·지원 능력 계약과 시험 대역. 대역을 이용한 admin 저장 시험과 실제 연동 완료를 따로 기록하며 필요한 실행 구현은 agent 착수 첫 슬라이스에 배치한다.
+      - owners:
+          - admin
+          - agent
+          - integration
+        refs:
+          - FEAT-017
+          - FEAT-045
+          - FEAT-211
+          - REQ-116
+          - REQ-118
+        needed_by: 첫 실제 질의 접수·유료 호출 전
+        deliverable: 당월 확정 배정/개별 배정, 사용량 원천·계량 미상·중복 반영 방지·쿼터 판정 계약. 추가 토큰/등급 승급 신청과 통계 UI는 후행이며 사용량 기록을 생략하지 않는다.
+      - owners:
+          - agent
+          - integration-debug
+        refs:
+          - FEAT-126
+          - FEAT-215
+          - FEAT-216
+          - REQ-005
+          - REQ-009
+          - REQ-013
+          - REQ-016
+          - REQ-026
+          - REQ-032
+          - REQ-040
+          - SCR-112
+        needed_by: agent 설계와 계약 시험의 첫 슬라이스
+        deliverable: 질의 접수·상태/응답·사용자대기/확인·중단·재접속의 계약. 디버그 화면은 접수/상태/원문 표시 범위를 유지하고 나머지 동작은 계약 시험으로 검증한다. 제품 Portal 화면을 선행 완료 조건으로 두지 않는다.
+    auth_boundary_preparation:
+      rule: 영향 검토와 단계 승인은 별개다. ADR-046과 FEAT-301을 수락 계약으로 사용하며 상태·검증 근거는 project.state.yaml에서 관리한다.
+      scope:
+        - owner: system
+          g2: CR-028/ADR-034의 관리자 인증/인가·진입 경계 재검증
+          g3: FEAT-501/502/503의 관리자 전용 인증·세션·현재 권한과 회수 직렬화, FEAT-507/509/510의 관리자 참조 유지·공개 인계 영향. 기존 승인 근거를 유지하되 바뀐 계약/화면·회귀를 명시한다.
+          excluded: Portal 계정 원장/제품 Portal 화면·새 system 설정 이력 저장소
+        - owner: integration
+          g2: 영역별 주체/세션·API 수락과 FEAT-301~305 공통 경계
+          g3: FEAT-301~305 인증·설정/비밀·그룹 판정·모델/임베딩·외부 변경 사건 공개 계약/오류/호환성/시험과 공통 기반. portal 모듈의 FEAT-301 서버 인증 구현도 이 소유 G3에 포함한다.
+          excluded: 다른 작업흐름이 소유한 기능의 내부 구현과 제품 Portal UX. portal 모듈에 두는 FEAT-301 서버 구현은 integration 승인 범위에 포함한다.
+        - owner: admin
+          g2: 별도 Portal 원장·관리 처리자/대상·현재 권한 수락의 영향 범위 재승인
+          g3: admin_first.features 24개와 screens 19개, 연결 UC/ENT/API/TC, FEAT-040 저장/HIST·보존/멱등·FEAT-045 배치·Portal 계정/그룹·쿼터·인증 소비 계약. 공유 요구/UC는 선행 생산 부분을 명시한다.
+          excluded: admin-operations의 신청/통계/이력 조회/감사/품질 화면, agent 실행/턴 물리 모델, 제품 Portal
+        - owner: agent 및 integration-debug
+          g2: 미승인 선행 요구/아키텍처 게이트를 소유 범위에서 해결
+          g3: 질의·응답 요구 기반 실행/기록/오류 접수와 agent 생산 계약, integration-debug의 SCR-112 소비/호환성 시험을 각 소유 G3로 승인한다.
+          excluded: 기존 감사/이력/품질 목업과 제품 Portal 화면 승인
+      approval_order:
+        - ADR-046 결정과 FEAT-301 수락 계약을 기준으로 system·integration·admin 영향 G2를 각각 재검증/승인받는다. 새 integration-debug도 자기 선행 게이트를 검증하며 한 턴에 여러 게이트를 통과시키지 않는다.
+        - integration의 공통 계약과 system의 상세 설계·회귀/소비 계약·변경 화면은 각각 소유 G3로 동결한다. 승인 상태·동결 범위는 project.state.yaml의 각 작업흐름이 정본이다. 승인된 공통 조립부터 구현하고 admin과의 소비 계약을 맞춘다. admin G3가 이 소스들을 열지 않는다.
+        - admin의 선행 19화면·24기능 전체 G3 결손을 보완하고 승인받는다. admin 문서 설계는 선행 구현 완료를 기다릴 필요가 없지만 실제 쓰기·인증·연동 시험은 해당 생산 구현과 함께 검증한다.
+        - 승인된 소유별로 관리자 권한 보호/인증 기반 → Portal 원장/현재 접근과 저장/HIST → 쿼터/배치 → 연동·지식 화면의 슬라이스를 진행한다. 서로 다른 소유 기능을 하나의 슬라이스로 합치지 않는다.
+        - agent 요구 기반 기록 설계와 소유 G3, 디버그 소유 G3를 거쳐 실제 질의/응답·회수·사용량·오류를 검증한다. 그 근거로 후행 admin 화면과 제품 Portal을 설계/승인한다.
+      completion_boundary: admin 저장/조회·모듈 계약 대역 시험, 실제 인증/연동 시험, 전체 제품 완료를 구별한다. 모델/임베딩·연결 수집 등 실제 호출을 대역으로만 통과했다면 해당 기능의 실제 연동 검증은 미완료로 남긴다. SSO/LOCAL 개발·실검증 시점은 ADR-046에 따르며 최종 제품의 두 인증 경로 요구는 유지한다.
+      before_admin_g3:
+        - ARCH-050의 관리자/Portal 수락·회수 경합·처리자/대상 참조와 FEAT-040/005/006의 공개 포트 입력/결과/오류/실패 폐쇄를 연결한다.
+        - FEAT-304의 호출 식별·감사/사용량 생산 포트와 FEAT-305의 Portal 변경 사건 중복/실패 계약은 디버그 분리 뒤에도 필요하다. 계약 설계는 admin/agent/integration이 병행하고 실제 호출은 소유 기록/계량 구현과 함께 검증한다. agent 전체 완료를 기다리거나 기록 대역으로 실제 유료 호출을 완료 처리하지 않는다.
+        - G3의 정상/대안/예외 UC·핵심 시퀀스 3개 이상·화면/권한/검증·물리 키/제약/이력·API 오류·기능별 정상/예외 TC와 의존 순서 슬라이스 백로그를 범위 전체에서 점검한다.
+        - NFR-001/010/011/013/014/023의 admin 설정/생산/소비 측정 시험과 agent 실행 시험 책임을 구분하여 TC를 연결한다. 다른 소유 구현 전의 설계 검증을 실제 실행 완료로 세지 않는다.
+        - ENT-035는 ADR-042의 비저장 실행 기술자다. 게이트를 통과시키려고 불필요한 테이블을 만들지 말고 논리/비저장 계약과 물리 완성 검사 적용 여부를 정합화한다.
+        - 승인 범위 ASM·pending_rechecks·strict trace 오류를 0으로 해소하고 별도 레드팀/결정 카드/역질문과 사용자 명시 승인으로 동결한다. 현재 상세 초안 존재만으로 승인 청구 가능하다고 하지 않는다.
+      workstream_split_decision:
+        decision: ADR-046
+        accepted_at: '2026-11-10'
+        scope: 'integration: FEAT-301~305/태그 면제 기반. integration-debug: FEAT-126/SCR-112·응답 계약 소비/호환성 시험. 기능/화면 소유와 state를 함께 이동하며 새 작업흐름 게이트는 미승인으로 시작한다.'
+      implementation_dependencies:
+        order:
+          - 'SLICE-307: integration 공통 영역/세션/CSRF·트랜잭션 조립과 닫힌 Portal 슬롯'
+          - 'SLICE-501/504: 기존 완료 관리자 골격·관리 화면을 SLICE-520 착수 시 대조한다. 새 CR-028/033 시험과 인증 조립 변경은 SLICE-520으로 단일화'
+          - 'SLICE-520: system 정확 인증 API·세션 회전·현재 권한 보호와 수동 배치 접수/중단·종결 이력 경합'
+          - 'SLICE-521: system 지정 관리자 역할 수신자·인앱 공개 결과와 기존 알림 회귀'
+          - 'SLICE-040/006/042/005: admin 저장/원장·자격 공개 포트'
+          - 'SLICE-301: integration Portal 실제 LOCAL·일회 외부 수락 대역·세션/감사/정리'
+          - 'SLICE-306: 고객별 실제 외부 로그인 어댑터/콜백 검증'
+        gates: 각 소유 G3 동결 범위와 project.state.yaml의 승인 기록을 따른다. 공통 integration 계약 슬라이스의 G4 승인에 따라 기존 system 계약 영향 대조를 먼저 마치고 관리자 소비를 진행한다. 후속 구현은 슬라이스별 검증/확인을 따른다. SLICE-307의 실제 DB/HTTP·자격 생산자 대역 검증은 SLICE-520 실제 관리자 전환 또는 SLICE-301 실제 Portal 인증 완료가 아니다.
+        integration_g2_evidence: ARCH-028.p2_operations·ARCH-032.p2_evidence/boot_design에 개발 CLI 실측과 제품 동등 부팅/키 교체·복구 근거를 반영했다. 승인 상태는 project.state.yaml이 관리한다. 운영 API 실증은 CON-033·034의 사용자 A에 따라 구독 확보 후이며 전체 설정/운영 도구·실제 배포 시험은 후속 소유 단계다.
+        shared_contract_version: FEAT-301.admin_interface_v1의 소유 G3 동결판을 구현한다. SLICE-307은 기존 system 구현 골격과 중립 포트 대역을 사용한다. 기존 SLICE-501/504 완료는 보존하고 CR-028/033의 계약 영향 대조와 실제 인증 소비 변경은 SLICE-520으로 단일화한다. 기존 완료 슬라이스를 되돌려 새 G4를 반복 청구하지 않는다.
+        common_design_package: FEAT-301.admin_interface_v1과 50-api/017의 FEAT-302~305 공개 계약, UC-046~049, ENT-257/API-307 및 70-testcases/021을 함께 검토한다. 공통 v1 기술 검토 완료만으로 integration 전체 G3를 승인 처리하지 않는다.
+        producer_order: system521 인앱 생산→integration305 외부 사건, agent230 최소 기록→integration304 실제 모델 호출이다. agent230도 agent 전체 소유 G3 뒤 구현하며 공통 계약 상세화가 부분 G3 승인은 아니다. 따라서 선행19화면 CRUD/대역 검수와 실제 모델 연동 완료를 구분하고 후자는 소유 생산 게이트/구현을 기다린다.
+        operational_acceptance: ADR-048 A에 따라 integration 전체 G3 → system G3를 별도 승인한다. 운영 API는 ARCH-032.operational_usage_acceptance의 조합별 미실행 수락으로 유지하며 구독/유효 시험 연결 확보 직후, 해당 모델 통합 G4 완료/기능 최초 활성화 중 먼저 오는 시점 전에 검증한다. agent230의 전체 소유 G3·실제 생산과 integration304의 의존을 유지한다. 필수 운영 능력이 미지원이면 영향 완료를 보류하고 CR로 처리한다.
+        gate_preparation: system G3의 승인 범위에 CR-028/033 인증·권한·배치와 변경 화면, CR-034의 새 알림 종류·역할 수신자·정확 인앱 결과·기존 AUTHZ 만료예고/알림함 회귀를 포함한다. 구현은 위 순서와 슬라이스별 G4를 따른다. G2의 DB/권한/인앱 아키텍처를 바꾸는 별도 저장소·화면·outbox는 추가하지 않는다.
+        minimum_producer_contract: FEAT-210/211.minimal_producer·ENT-258~264·UC-050/051·SLICE-230이 호출/계량/불명복구와불변집계근거를소유한다. FEAT-305·ENT-257/265/266·ADR-047과system FEAT-509/CR-034·SLICE-521이최신성/통지/보존인계를소유한다. 역할코드·고객보존값은운영설정으로후속정의한다. ASM-003은 ADR-048 승인 기준의 설계 재현을 확인했다. 운영 API 미실행 수락은 ARCH-032.operational_usage_acceptance를 따른다.
+    agent_and_debug:
+      owners:
+        - agent
+        - integration-debug
+      refs:
+        - FEAT-201
+        - FEAT-202
+        - FEAT-204
+        - FEAT-205
+        - FEAT-207
+        - FEAT-210
+        - FEAT-211
+        - FEAT-215
+        - FEAT-216
+        - FEAT-222
+        - FEAT-041
+        - FEAT-126
+        - SCR-112
+      order: 질의·응답/개입·보안·감사 요구 대조 → UC/기능과 상태·식별/책임 → 턴·시도·회차·스텝·호출·결과/응답·정책 판정·사용량·오류 증거의 논리/물리 모델 → 공개 계약·시퀀스·테스트 → 소유 G3 → 실행/기록과 디버그를 함께 구현·검증
+      model_inputs:
+        - REQ-004
+        - REQ-005
+        - REQ-006
+        - REQ-007
+        - REQ-009
+        - REQ-011
+        - REQ-013
+        - REQ-016
+        - REQ-026
+        - REQ-032
+        - REQ-036
+        - REQ-040
+        - REQ-107
+        - REQ-108
+        - REQ-109
+        - REQ-110
+        - REQ-115
+        - REQ-116
+        - REQ-118
+      model_rule: 요구사항에서 업무 개념·발생 시점·상태 전이·식별/연결·쓰기 소유·현재 상태와 불변 기록·보존/파기·열람 권한을 도출한다. 기존 논리 모델도 근거를 재대조하며 현재 목업의 탭/열을 테이블 구조로 역설계하지 않는다. 구체 테이블/컬럼은 이번 계획에서 확정하지 않는다.
+      error_intake: FEAT-041은 admin 모듈의 비메뉴 접수 책임을 유지하되 agent 작업흐름 G3/슬라이스로 실행 기록과 함께 개발한다. 발생/재수신·저장 실패·불변 증거·보호/파기 경합을 설계하고 후행 FEAT-035 조사 화면의 완성을 기다리지 않는다.
+      preconditions: agent·integration-debug의 미승인 선행 게이트를 각 소유 범위에서 해결한다. ASM-003의 설계 확인은 소유 G3나 실제 제품 기록/쿼터 통합 완료를 대신하지 않는다. 공통 integration의 계약/구현은 별도 의존성이다. admin G3나 ADR-046은 다른 게이트 승인을 대신하지 않는다.
+    admin_later:
+      workstream: admin-operations
+      features:
+        - FEAT-018
+        - FEAT-019
+        - FEAT-022
+        - FEAT-025
+        - FEAT-026
+        - FEAT-027
+        - FEAT-028
+        - FEAT-029
+        - FEAT-030
+        - FEAT-031
+        - FEAT-032
+        - FEAT-033
+        - FEAT-034
+        - FEAT-035
+        - FEAT-037
+        - FEAT-039
+        - FEAT-043
+        - FEAT-044
+        - FEAT-046
+      scope: Portal 신청 승인·비용/통계·변경 이력 조회·감사/이력·품질 관리의 후행 설계/구현. RM-P1 출시 요구는 유지하고 REQ-615 평가 기능 유예와 RM-P3 자동 승인 범위는 앞당기지 않는다.
+      retired_mockup_inputs:
+        - SCR-017
+        - SCR-020
+        - SCR-024
+        - SCR-026
+        - SCR-027
+        - SCR-028
+        - SCR-029
+        - SCR-030
+        - SCR-031
+        - SCR-032
+        - SCR-033
+        - SCR-040
+        - SCR-041
+        - SCR-042
+        - SCR-043
+        - SCR-044
+        - SCR-045
+        - SCR-046
+        - SCR-047
+        - SCR-048
+        - SCR-049
+        - SCR-050
+        - SCR-051
+        - SCR-063
+        - SCR-052
+        - SCR-054
+        - SCR-055
+        - SCR-065
+        - SCR-069
+      mockup_rule: 위 현재 목업/화면 배치·열·탭·상태 예시는 agent 설계와 구현의 입력·승인 근거에서 제외한다. 기존 요구·감사/이력 저장·보존/권한 의무는 유지한다. 기존 그림은 이전 초안으로만 남기고 승인 완료로 집계하지 않는다.
+      redesign_order: agent 요구 기반 기록 모델/생산 계약 → 검증 가능한 기록 예시 → 관리자 업무 목적·검색/상세/권한·처리 요건 재작성 → 목업 재작성 → 사용자 화면/업무 흐름 승인 → 후행 물리 조회/API·시퀀스·TC 완성 → admin-operations G3 → 구현
+      history_boundary: 관리 변경 이력은 REQ-601의 원 저장/HIST 모델에서, 실행 감사·품질은 질의/응답과 오류 증거 모델에서 각각 출발한다. 두 이력을 같은 턴 테이블로 합치지 않는다. 원 관리 기능은 이력 생산/보존, FEAT-033은 상속 이력·통합 검색/반출·허용된 복원 인계 UI를 소유한다.
+      return_condition: agent 핵심/디버그에서 기록·응답 계약과 대표 정상/실패/중단/재접속·권한 회수·파기 사례를 확인한 뒤 해당 소비 화면을 재설계한다. 모델 확정 후 화면 요건은 준비할 수 있으나 이전 목업을 자동 승인하거나 구현하지 않는다.
+    gates:
+      admin: 선행 24기능·19원화면과 저장/이력 생산·배정/배치·설정 소비, 필요한 공통/모듈 계약 조각을 승인한다. 후행 이력 UI와 감사/품질 목업은 승인 대상에서 제외한다. 공유 REQ/UC가 정합성 검사에 포함되어도 승인 카드는 선행 생산·저장 계약 부분만 동결하고 후행 신청/조회/조사 흐름과 UI는 제외한다. 다른 작업흐름 소스를 열지 않는다.
+      agent: 요구 기반 실행/기록 모델과 FEAT-041 비메뉴 오류 접수까지 승인한다. 감사·품질 관리자 화면은 제외한다.
+      integration: FEAT-301~305와 태그 면제 공통 기반·공개 계약/호환성/시험을 승인한다. admin/agent 소비 계약을 먼저 설계하며 실제 구현은 integration G3 뒤다.
+      admin_operations: agent 검증 후 재작성한 후행 관리 화면과 소비/조회 계약만 별도 승인한다. 선행 저장 모델을 바꿀 경우 해당 소유 범위의 변경 요청으로 영향 분석한다.
+      portal: 실제 제품 Portal은 후행으로 두되 인증·응답/표현·개입/재접속 확장점은 앞 단계 계약에 반영한다. 디버그 승인으로 제품 Portal을 승인하지 않는다.
+      release: 내부 개발 순서만 바뀐다. 제품 출시의 필수 기능·통합 검증과 전역 G3/G5/G6 조건은 release_rule과 기존 게이트를 유지한다. 각 소유 G3는 Exit Criteria 검증과 사용자 명시 승인을 별도로 받는다.
+      integration_debug: FEAT-126/SCR-112와 ARCH-019 응답 계약 소비·호환성·시험을 별도 승인한다. 공통 인증을 소비하고 agent 기록/응답과 함께 검증하며 제품 Portal을 승인하지 않는다.
   admin_design_review:
-    scope: "현재 차수 admin 상세 명세·논리 모델의 공통 검토 입력이다. 아래 근거의 업무 규칙을 다시 정의하거나 공통 테이블·상태 기계·필수 속성·메뉴를 확정하지 않는다. 진행 상태와 재개 순서는 project.state.yaml의 design_plan이 관리한다. 2026-10-30 사용자 합의로 admin 전체 요건/목업·업무 흐름 합의 후 각 영역의 기술 상세 설계를 재개한다. system은 이번 작업에서 제외한다"
-    application: "각 기능의 상세 명세에서 일곱 축의 적용 여부·소유 근거·입출력/실패 경로를 확인하고 필요한 개념·관계·식별·불변식을 논리 모델로 도출한다. 해당하지 않는 축은 이유를 명시한다. 공통 직접 저장/이력 처리 FEAT-040의 사용 여부와 아래 설계 검토 기준의 적용 여부를 구분한다"
+    scope: admin 기능의 공통 검토 기준이다. 선행/후행 범위와 순서는 delivery_strategy.staged_delivery, 현재 상태는 project.state.yaml이 정한다. 전체 admin 목업 합의를 선행 기술 설계 조건으로 두지 않는다. system은 기존 승인된 책임을 재사용하며 별도 계정 변경은 소유 작업흐름에서 다룬다.
+    application: 각 기능의 상세 명세에서 일곱 축의 적용 여부·소유 근거·입출력/실패 경로를 확인하고 필요한 개념·관계·식별·불변식을 논리 모델로 도출한다. 해당하지 않는 축은 이유를 명시한다. 공통 직접 저장/이력 처리 FEAT-040의 사용 여부와 아래 설계 검토 기준의 적용 여부를 구분한다
     axes:
       identity:
-        title: "주체·관리 원천"
+        title: 주체·관리 원천
         rules_from:
-          - "ARCH-050.portal_account_contract"
-          - "REQ-601.data"
-          - "REQ-601.business_rules"
-          - "REQ-609.business_rules"
-          - "REQ-616.business_rules"
+          - ARCH-050.portal_account_contract
+          - REQ-601.data
+          - REQ-601.business_rules
+          - REQ-609.business_rules
+          - REQ-616.business_rules
         owners:
-          - "system"
-          - "admin"
-          - "integration"
+          - system
+          - admin
+          - integration
         specify:
-          - "처리자·관리 대상 이용자·자산의 안정 식별자를 구분하고, 각 속성을 어느 모듈/외부 원천이 쓰며 어느 공개 계약으로 읽거나 변경하는지 정의한다"
-          - "system 관리자 계정/자체 인증과 admin이 관리하는 별도 Portal 계정·portal 인증/세션을 구분한다. Portal 외부/자체 모드의 편집 범위·등록 부분 실패/재요청·양방향 인증 거부를 확인한다"
-        counterexample: "표시명·이메일·기본 ID 변환 패턴만으로 같은 주체 또는 직접 저장한 현재 유효 대상 매핑이라고 판단하거나, Portal 자격 비활성화를 관리자 계정 전체 비활성화로 처리하면 근거와 어긋난다"
+          - 처리자·관리 대상 이용자·자산의 안정 식별자를 구분하고, 각 속성을 어느 모듈/외부 원천이 쓰며 어느 공개 계약으로 읽거나 변경하는지 정의한다
+          - system 관리자 계정/자체 인증과 admin이 관리하는 별도 Portal 계정·portal 인증/세션을 구분한다. Portal 외부/자체 모드의 편집 범위·등록 부분 실패/재요청·양방향 인증 거부를 확인한다
+        counterexample: 표시명·이메일·기본 ID 변환 패턴만으로 같은 주체 또는 직접 저장한 현재 유효 대상 매핑이라고 판단하거나, Portal 자격 비활성화를 관리자 계정 전체 비활성화로 처리하면 근거와 어긋난다
       authorization:
-        title: "현재 권한·열람 범위"
+        title: 현재 권한·열람 범위
         rules_from:
-          - "AUTHZ-090.rules"
-          - "AUTHZ-001.rules"
-          - "REQ-108.hard_rule"
-          - "REQ-601.permissions"
-          - "REQ-107.permissions"
+          - AUTHZ-090.rules
+          - AUTHZ-001.rules
+          - REQ-108.hard_rule
+          - REQ-601.permissions
+          - REQ-107.permissions
         owners:
-          - "system"
-          - "admin"
-          - "agent"
-          - "integration"
+          - system
+          - admin
+          - agent
+          - integration
         specify:
-          - "메뉴·액션의 system 유효 권한과 대상별 업무 데이터/민감 상세 열람 조건을 별도로 명세한다. 업무 데이터 그룹 검사를 모든 admin 관리 액션의 추가 조건으로 일괄 적용하지 않는다"
-          - "조회·변경·검토·승인·보호·회신의 실제 실행 시점과 API/공개 서비스에서 확인할 권한, 내부 화면의 호출 권한·입출력 범위를 연결한다. 역할명·프론트 버튼 상태를 판정 근거로 사용하지 않는다"
-        counterexample: "내용 리비전이나 과거 허용 결과가 고정됐다는 이유로 회수된 현재 권한을 계속 허용하거나, 조회 권한으로 조사/복원 처리를 수행하면 실패해야 한다"
+          - 메뉴·액션의 system 유효 권한과 대상별 업무 데이터/민감 상세 열람 조건을 별도로 명세한다. 업무 데이터 그룹 검사를 모든 admin 관리 액션의 추가 조건으로 일괄 적용하지 않는다
+          - 조회·변경·검토·승인·보호·회신의 실제 실행 시점과 API/공개 서비스에서 확인할 권한, 내부 화면의 호출 권한·입출력 범위를 연결한다. 역할명·프론트 버튼 상태를 판정 근거로 사용하지 않는다
+        counterexample: 내용 리비전이나 과거 허용 결과가 고정됐다는 이유로 회수된 현재 권한을 계속 허용하거나, 조회 권한으로 조사/복원 처리를 수행하면 실패해야 한다
       change_path:
-        title: "직접 저장·Portal 신청 승인·실제 효력"
+        title: 직접 저장·Portal 신청 승인·실제 효력
         rules_from:
-          - "REQ-601.direct_management"
-          - "REQ-601.request_integrity"
-          - "UC-002"
-          - "UC-003"
-          - "UC-004.domain_paths"
-          - "UC-005"
-          - "UC-006"
-          - "ARCH-029.target_contract"
+          - REQ-601.direct_management
+          - REQ-601.request_integrity
+          - UC-002
+          - UC-003
+          - UC-004.domain_paths
+          - UC-005
+          - UC-006
+          - ARCH-029.target_contract
         owners:
-          - "admin"
-          - "system"
-          - "integration"
+          - admin
+          - system
+          - integration
         specify:
-          - "admin 권한/자산/그룹은 현재 변경 권한·기대 버전·참조/기술 검증·전체 이력의 직접 저장으로 설계한다. 관리자 요청/기술 검토 완료/최종 승인·전결을 만들지 않는다."
-          - "Portal 사용자 신청 승인·취소/재신청·미래 예약/부분 지급과 실제 실행의 사용자 확인은 각 소유 계약으로 설계한다. 변경 이력과 신청 원장/실행 근거는 혼합하지 않는다."
-        counterexample: "조회자 저장 허용·과거 승인에 따른 현재값 변경·이력 실패의 부분 반영·Portal 신청자 전결 또는 미래 예약의 소급 적용은 실패다."
+          - admin 권한/자산/그룹은 현재 변경 권한·기대 버전·참조/기술 검증·전체 이력의 직접 저장으로 설계한다. 관리자 요청/기술 검토 완료/최종 승인·전결을 만들지 않는다.
+          - Portal 사용자 신청 승인·취소/재신청·미래 예약/부분 지급과 실제 실행의 사용자 확인은 각 소유 계약으로 설계한다. 변경 이력과 신청 원장/실행 근거는 혼합하지 않는다.
+        counterexample: 조회자 저장 허용·과거 승인에 따른 현재값 변경·이력 실패의 부분 반영·Portal 신청자 전결 또는 미래 예약의 소급 적용은 실패다.
       version:
-        title: "버전·동시 변경·재수신"
+        title: 버전·동시 변경·재수신
         rules_from:
-          - "REQ-601.request_integrity"
-          - "REQ-306.version_guard"
-          - "REQ-607.business_rules"
-          - "REQ-108.hard_rule"
-          - "ARCH-029.target_contract"
+          - REQ-601.request_integrity
+          - REQ-306.version_guard
+          - REQ-607.business_rules
+          - REQ-108.hard_rule
+          - ARCH-029.target_contract
         owners:
-          - "admin"
-          - "system"
-          - "agent"
-          - "integration"
+          - admin
+          - system
+          - agent
+          - integration
         specify:
-          - "대상 식별자·편집 기준본·불변 제출본·요청 상태 버전·유효 내용 리비전과 업무가 고정한 적용 설정값·판정 시각 묶음의 목적을 구분한다. 별도 설정 버전 관리를 추가하지 않으며 권한 내용 해시·캐시 갱신 버전을 실제 적용값 근거의 대용으로 쓰지 않는다"
-          - "검증과 저장 사이 경합, 같은 전달의 재수신과 별도 변경, 결과 조회 실패와 실제 처리 불명을 구분한다. 원자성이 필요한 소유 범위와 분리 모듈의 공개 계약을 식별하고 잠금/조건부 갱신·복구 방식은 해당 물리 설계에서 검증한다"
-        counterexample: "설정을 두 번 읽었다는 이유만으로 반영과의 원자성을 주장하거나, 통신 실패 후 새 요청으로 중복 지급/활성화하거나, 태그 영향 지식 목록/텍스트 변화만으로 자동 반려하면 실패해야 한다"
+          - 대상 식별자·편집 기준본·불변 제출본·요청 상태 버전·유효 내용 리비전과 업무가 고정한 적용 설정값·판정 시각 묶음의 목적을 구분한다. 별도 설정 버전 관리를 추가하지 않으며 권한 내용 해시·캐시 갱신 버전을 실제 적용값 근거의 대용으로 쓰지 않는다
+          - 검증과 저장 사이 경합, 같은 전달의 재수신과 별도 변경, 결과 조회 실패와 실제 처리 불명을 구분한다. 원자성이 필요한 소유 범위와 분리 모듈의 공개 계약을 식별하고 잠금/조건부 갱신·복구 방식은 해당 물리 설계에서 검증한다
+        counterexample: 설정을 두 번 읽었다는 이유만으로 반영과의 원자성을 주장하거나, 통신 실패 후 새 요청으로 중복 지급/활성화하거나, 태그 영향 지식 목록/텍스트 변화만으로 자동 반려하면 실패해야 한다
       references:
-        title: "참조 보호·삭제·과거 재현"
+        title: 참조 보호·삭제·과거 재현
         rules_from:
-          - "REQ-601.business_rules"
-          - "REQ-601.request_integrity.sets_and_references"
-          - "REQ-306.version_guard"
-          - "REQ-607.business_rules"
-          - "UC-001"
+          - REQ-601.business_rules
+          - REQ-601.request_integrity.sets_and_references
+          - REQ-306.version_guard
+          - REQ-607.business_rules
+          - UC-001
         owners:
-          - "admin"
-          - "agent"
-          - "integration"
+          - admin
+          - agent
+          - integration
         specify:
-          - "실제 변경 대상과 조회만 하는 참조/영향 대상을 구분한다. 사용처의 현재 유효 참조·후보 참조·과거 이력별로 삭제/비활성화/연결 변경의 허용 조건과 실패 시 안내 범위를 도출한다"
-          - "참조의 안정 식별·당시 버전·현재 상태와 삭제 후 과거 표시 방법을 정의한다. 소유 공개 조회가 실패하거나 일부만 보일 때 참조 없음으로 판단하지 않는다"
-        counterexample: "참조/이력이 있다는 이유만으로 모든 삭제를 금지하거나, 영향 조회 자산까지 변경 대상으로 선점하거나, 과거 스냅샷을 현재 매핑으로 재구성하면 근거와 어긋난다"
+          - 실제 변경 대상과 조회만 하는 참조/영향 대상을 구분한다. 사용처의 현재 유효 참조·후보 참조·과거 이력별로 삭제/비활성화/연결 변경의 허용 조건과 실패 시 안내 범위를 도출한다
+          - 참조의 안정 식별·당시 버전·현재 상태와 삭제 후 과거 표시 방법을 정의한다. 소유 공개 조회가 실패하거나 일부만 보일 때 참조 없음으로 판단하지 않는다
+        counterexample: 참조/이력이 있다는 이유만으로 모든 삭제를 금지하거나, 영향 조회 자산까지 변경 대상으로 선점하거나, 과거 스냅샷을 현재 매핑으로 재구성하면 근거와 어긋난다
       audit:
-        title: "변경 이력·실행 감사·검토 기록"
+        title: 변경 이력·실행 감사·검토 기록
         rules_from:
-          - "REQ-601.audit"
-          - "REQ-601.business_rules"
-          - "REQ-107.history_storage"
-          - "REQ-115.hard_rule"
-          - "REQ-507"
-          - "UC-002"
-          - "UC-031"
-          - "UC-036"
-          - "UC-038"
+          - REQ-601.audit
+          - REQ-601.business_rules
+          - REQ-107.history_storage
+          - REQ-115.hard_rule
+          - REQ-507
+          - UC-002
+          - UC-031
+          - UC-036
+          - UC-038
         owners:
-          - "admin"
-          - "agent"
-          - "system"
-          - "integration"
+          - admin
+          - agent
+          - system
+          - integration
         specify:
-          - "admin 기준정보의 변경 전 스냅샷·현재값, 관리 요청의 제출/판정/반영 근거, agent 실행 감사, admin 오류 접수/조사, system 일반 사용 이력의 소유와 조회 연결을 구분한다"
-          - "원본을 수정하지 않는 추가 검토·보정과 현재 상태 갱신을 구분하고 실제 처리자·대상·시각·사유·관계를 연결한다. admin 변경 이력 원자성을 기존 system 모든 서비스에 소급 적용하지 않으며 승인된 변경 목표는 소유 작업흐름에서 검증한다"
-        counterexample: "이력 조회 실패를 변경 실패로 단정해 이미 일어난 외부 업무를 반복하거나, system 일반 사용 이력만으로 admin의 변경 전 전체 스냅샷 요구가 충족됐다고 판단하면 실패해야 한다"
+          - admin 기준정보의 변경 전 스냅샷·현재값, 관리 요청의 제출/판정/반영 근거, agent 실행 감사, admin 오류 접수/조사, system 일반 사용 이력의 소유와 조회 연결을 구분한다
+          - 원본을 수정하지 않는 추가 검토·보정과 현재 상태 갱신을 구분하고 실제 처리자·대상·시각·사유·관계를 연결한다. admin 변경 이력 원자성을 기존 system 모든 서비스에 소급 적용하지 않으며 승인된 변경 목표는 소유 작업흐름에서 검증한다
+        counterexample: 이력 조회 실패를 변경 실패로 단정해 이미 일어난 외부 업무를 반복하거나, system 일반 사용 이력만으로 admin의 변경 전 전체 스냅샷 요구가 충족됐다고 판단하면 실패해야 한다
       retention:
-        title: "보존·보호·파기"
+        title: 보존·보호·파기
         rules_from:
-          - "REQ-601.open"
-          - "REQ-107.retention_policy"
-          - "REQ-109.conversation_body_retention"
-          - "REQ-109.business_rules"
-          - "REQ-110.data"
-          - "REQ-115.business_rules"
-          - "REQ-204.business_rules"
+          - REQ-601.open
+          - REQ-107.retention_policy
+          - REQ-109.conversation_body_retention
+          - REQ-109.business_rules
+          - REQ-110.data
+          - REQ-115.business_rules
+          - REQ-204.business_rules
         owners:
-          - "admin"
-          - "agent"
-          - "system"
-          - "integration"
+          - admin
+          - agent
+          - system
+          - integration
         specify:
-          - "기준정보 이력·감사 메타데이터·대화 본문·조회 결과·증거 사본·실행용 상태의 분류와 보존 원천을 구분한다. 기산/만료·일반 접근 차단·유효 보호·해제·물리 파기와 사본의 기한 승계를 소유 요구에 연결한다"
-          - "조사 보호의 실제 필요 범위·담당·사유·다른 유효 보호와 파기 선후를 확인할 공개 계약을 정의한다. 고객사 정책으로 정할 관리 이력 기간은 REQ-601.open에서 후속하며 임의 공통 기간을 만들지 않는다"
-        counterexample: "증거 사본으로 본문 기한을 우회하거나, 보호 해제일부터 보존 기간을 새로 부여하거나, 파기된 자료를 조사 재개로 복원하거나, 자료별 보존 조건 없이 일괄 삭제하거나 본문 파기로 별도 보존 중인 감사 메타데이터까지 삭제하면 실패해야 한다"
+          - 기준정보 이력·감사 메타데이터·대화 본문·조회 결과·증거 사본·실행용 상태의 분류와 보존 원천을 구분한다. 기산/만료·일반 접근 차단·유효 보호·해제·물리 파기와 사본의 기한 승계를 소유 요구에 연결한다
+          - 조사 보호의 실제 필요 범위·담당·사유·다른 유효 보호와 파기 선후를 확인할 공개 계약을 정의한다. 고객사 정책으로 정할 관리 이력 기간은 REQ-601.open에서 후속하며 임의 공통 기간을 만들지 않는다
+        counterexample: 증거 사본으로 본문 기한을 우회하거나, 보호 해제일부터 보존 기간을 새로 부여하거나, 파기된 자료를 조사 재개로 복원하거나, 자료별 보존 조건 없이 일괄 삭제하거나 본문 파기로 별도 보존 중인 감사 메타데이터까지 삭제하면 실패해야 한다
     area_application:
-      - area: "integration_assets"
-        name: "연동 자산·카탈로그"
+      - area: integration_assets
+        name: 연동 자산·카탈로그
         features:
-          - "FEAT-001"
-          - "FEAT-002"
-          - "FEAT-003"
-          - "FEAT-004"
-          - "FEAT-011"
-          - "FEAT-021"
+          - FEAT-001
+          - FEAT-002
+          - FEAT-003
+          - FEAT-004
+          - FEAT-011
+          - FEAT-021
         rules_from:
-          - "REQ-603"
-          - "REQ-604"
-          - "REQ-301"
-          - "REQ-608"
-          - "REQ-612"
-          - "ARCH-028"
-          - "ARCH-030"
-        focus: "안정 식별·배포 연결·정확 기술 참조와 현재 변경 권한/기대 버전·전체 직접 저장/이력을 명세한다. 외부 공동 오픈·코드 검수와 실행 사용자 확인을 유지하며 비밀/배포 정의는 복제하지 않는다."
-      - area: "knowledge"
-        name: "업무 지식·안내"
+          - REQ-603
+          - REQ-604
+          - REQ-301
+          - REQ-608
+          - REQ-612
+          - ARCH-028
+          - ARCH-030
+        focus: 안정 식별·배포 연결·정확 기술 참조와 현재 변경 권한/기대 버전·전체 직접 저장/이력을 명세한다. 외부 공동 오픈·코드 검수와 실행 사용자 확인을 유지하며 비밀/배포 정의는 복제하지 않는다.
+      - area: knowledge
+        name: 업무 지식·안내
         features:
-          - "FEAT-010"
-          - "FEAT-013"
-          - "FEAT-014"
-          - "FEAT-023"
-          - "FEAT-024"
+          - FEAT-010
+          - FEAT-013
+          - FEAT-014
+          - FEAT-023
+          - FEAT-024
         rules_from:
-          - "REQ-302"
-          - "REQ-303"
-          - "REQ-305"
-          - "REQ-306"
-          - "REQ-308"
-          - "REQ-607"
-          - "REQ-610"
-        focus: "지식 소유 본문/그룹·안정 ID 링크/설명과 외부 상세/기술 참조를 구분한다. 전체 직접 저장/HIST·태그/지식 독립 변경과 정확 실행 리비전을 명세하고 업무 의미 영향 검토는 운영조직 자체 프로세스로 둔다."
-      - area: "access_policy"
-        name: "이용자·접근 정책"
+          - REQ-302
+          - REQ-303
+          - REQ-305
+          - REQ-306
+          - REQ-308
+          - REQ-607
+          - REQ-610
+        focus: 지식 소유 본문/그룹·안정 ID 링크/설명과 외부 상세/기술 참조를 구분한다. 전체 직접 저장/HIST·태그/지식 독립 변경과 정확 실행 리비전을 명세하고 업무 의미 영향 검토는 운영조직 자체 프로세스로 둔다.
+      - area: access_policy
+        name: 이용자·접근 정책
         features:
-          - "FEAT-005"
-          - "FEAT-006"
-          - "FEAT-007"
-          - "FEAT-008"
-          - "FEAT-009"
-          - "FEAT-012"
+          - FEAT-005
+          - FEAT-006
+          - FEAT-007
+          - FEAT-008
+          - FEAT-009
+          - FEAT-012
         rules_from:
-          - "REQ-103"
-          - "REQ-605"
-          - "REQ-609"
-          - "REQ-611"
-          - "REQ-616"
-          - "ARCH-050"
-          - "AUTHZ-090"
-          - "AUTHZ-001"
-          - "IF-006"
-        focus: "관리자와 별도로 등록하는 Portal 계정·인증/세션, Portal 이용 상태·신원 매핑·그룹 부여/회수와 자산 접근 정책을 구분한다. 외부 인사 사건은 검증된 Portal 연결에만 적용하고 관리자 계정에 전파하지 않는다"
-      - area: "model_operations"
-        name: "모델·실행 운영"
+          - REQ-103
+          - REQ-605
+          - REQ-609
+          - REQ-611
+          - REQ-616
+          - ARCH-050
+          - AUTHZ-090
+          - AUTHZ-001
+          - IF-006
+        focus: 관리자와 별도로 등록하는 Portal 계정·인증/세션, Portal 이용 상태·신원 매핑·그룹 부여/회수와 자산 접근 정책을 구분한다. 외부 인사 사건은 검증된 Portal 연결에만 적용하고 관리자 계정에 전파하지 않는다
+      - area: model_operations
+        name: 모델·실행 운영
         features:
-          - "FEAT-015"
-          - "FEAT-019"
-          - "FEAT-020"
-          - "FEAT-025"
+          - FEAT-015
+          - FEAT-019
+          - FEAT-020
+          - FEAT-025
         rules_from:
-          - "REQ-602"
-          - "REQ-106"
-          - "REQ-107"
-          - "REQ-109"
-          - "REQ-204"
-          - "REQ-205"
-          - "REQ-207"
-          - "REQ-614"
-          - "ARCH-029"
-          - "ARCH-031"
-          - "ARCH-033"
-        focus: "설정 원천/편집 가능 여부·설정별 적용 시점과 모델 역할별 후보 버전을 구분한다. 배포 전용 보존 값·연결을 DB 재정의로 옮기지 않고, 조회 제한과 실제 실행/감사 원천의 소유를 연결한다"
-      - area: "quota_cost"
-        name: "쿼터·사용량·비용"
+          - REQ-602
+          - REQ-106
+          - REQ-107
+          - REQ-109
+          - REQ-204
+          - REQ-205
+          - REQ-207
+          - REQ-614
+          - ARCH-029
+          - ARCH-031
+          - ARCH-033
+        focus: 설정 원천/편집 가능 여부·설정별 적용 시점과 모델 역할별 후보 버전을 구분한다. 배포 전용 보존 값·연결을 DB 재정의로 옮기지 않고, 조회 제한과 실제 실행/감사 원천의 소유를 연결한다
+      - area: quota_cost
+        name: 쿼터·사용량·비용
         features:
-          - "FEAT-016"
-          - "FEAT-017"
-          - "FEAT-018"
-          - "FEAT-030"
-          - "FEAT-037"
+          - FEAT-016
+          - FEAT-017
+          - FEAT-018
+          - FEAT-030
+          - FEAT-037
         rules_from:
-          - "REQ-116"
-          - "REQ-117"
-          - "REQ-118"
-          - "REQ-119"
-          - "REQ-606"
-          - "REQ-613"
-        focus: "월 기준·등급/단가의 적용 버전·승급 예약·당월 부분 승인·실제 사용과 대조/정정 근거를 구분한다. 승인 처리 완료와 발효일, 전달 중복과 별도 사용, 원 신청과 지급 결과를 각각 명세한다"
-      - area: "audit_trace"
-        name: "감사·실행 추적"
+          - REQ-116
+          - REQ-117
+          - REQ-118
+          - REQ-119
+          - REQ-606
+          - REQ-613
+        focus: 월 기준·등급/단가의 적용 버전·승급 예약·당월 부분 승인·실제 사용과 대조/정정 근거를 구분한다. 승인 처리 완료와 발효일, 전달 중복과 별도 사용, 원 신청과 지급 결과를 각각 명세한다
+      - area: audit_trace
+        name: 감사·실행 추적
         features:
-          - "FEAT-026"
-          - "FEAT-027"
-          - "FEAT-028"
-          - "FEAT-029"
-          - "FEAT-031"
-          - "FEAT-033"
+          - FEAT-026
+          - FEAT-027
+          - FEAT-028
+          - FEAT-029
+          - FEAT-031
+          - FEAT-033
         rules_from:
-          - "REQ-006"
-          - "REQ-103"
-          - "REQ-107"
-          - "REQ-108"
-          - "REQ-109"
-          - "ARCH-070"
-          - "FEAT-210"
-          - "FEAT-222"
-          - "IF-006"
-        focus: "생산 사건·현재 상태·조회 결과와 관측 불가를 구분한다. 정책 복원은 소유 기능의 새 변경으로 인계하고, 민감 상세·추가 검토 권한 및 본문 파기 뒤 조회 가능한 메타데이터를 명세한다"
-      - area: "quality"
-        name: "품질 신고·조사·개선"
+          - REQ-006
+          - REQ-103
+          - REQ-107
+          - REQ-108
+          - REQ-109
+          - ARCH-070
+          - FEAT-210
+          - FEAT-222
+          - IF-006
+        focus: 생산 사건·현재 상태·조회 결과와 관측 불가를 구분한다. 정책 복원은 소유 기능의 새 변경으로 인계하고, 민감 상세·추가 검토 권한 및 본문 파기 뒤 조회 가능한 메타데이터를 명세한다
+      - area: quality
+        name: 품질 신고·조사·개선
         features:
-          - "FEAT-022"
-          - "FEAT-032"
-          - "FEAT-035"
-          - "FEAT-041"
+          - FEAT-022
+          - FEAT-032
+          - FEAT-035
+          - FEAT-041
         rules_from:
-          - "REQ-110"
-          - "REQ-115"
-          - "REQ-301"
-          - "REQ-304"
-          - "UC-038"
-          - "FEAT-210"
-          - "FEAT-222"
-        focus: "자동 오류 접수·신고 원본·조사·검토·자산 조치·회신을 구분한다. 발생 식별/재수신·저장 실패, 증거 확보 한계·보호/파기, 사람의 관련성 판정과 실제 해결 근거를 연결한다"
+          - REQ-110
+          - REQ-115
+          - REQ-301
+          - REQ-304
+          - UC-038
+          - FEAT-210
+          - FEAT-222
+        focus: 자동 오류 접수·신고 원본·조사·검토·자산 조치·회신을 구분한다. 발생 식별/재수신·저장 실패, 증거 확보 한계·보호/파기, 사람의 관련성 판정과 실제 해결 근거를 연결한다
     shared_feature:
       features:
-        - "FEAT-040"
+        - FEAT-040
       rules_from:
-        - "REQ-601"
-        - "ARCH-029"
-        - "UC-001"
-        - "UC-003"
-        - "UC-004"
-        - "UC-005"
-        - "UC-006"
-      focus: "현재 변경 권한·기대 버전·필수 참조/기술 검증·전체 직접 저장/HIST·멱등 결과의 공통 계약이다. Portal 신청 승인·실행 사용자 확인과 별개이며 범용 승인 엔진을 만들지 않는다."
-    contract_completion: "다른 모듈 접점은 관련 기능 명세에 생산자/소비자·필요 식별/상태·공개 입력/결과·실패/재수신·권한·보존과 검증 수단을 연결한다. 필요한 계약이 확인된 상세부터 진행하고, 필수 물리/공개 계약과 시험 명세를 갖추기 전 소유 G3 완료로 보지 않는다. 실제 구현 여부는 현재 소스와 ARCH-029·050의 차이 기록으로 대조한다"
+        - REQ-601
+        - ARCH-029
+        - UC-001
+        - UC-003
+        - UC-004
+        - UC-005
+        - UC-006
+      focus: 현재 변경 권한·기대 버전·필수 참조/기술 검증·전체 직접 저장/HIST·멱등 결과의 공통 계약이다. Portal 신청 승인·실행 사용자 확인과 별개이며 범용 승인 엔진을 만들지 않는다.
+    contract_completion: 다른 모듈 접점은 관련 기능 명세에 생산자/소비자·필요 식별/상태·공개 입력/결과·실패/재수신·권한·보존과 검증 수단을 연결한다. 필요한 계약이 확인된 상세부터 진행하고, 필수 물리/공개 계약과 시험 명세를 갖추기 전 소유 G3 완료로 보지 않는다. 실제 구현 여부는 현재 소스와 ARCH-029·050의 차이 기록으로 대조한다
   portal_horizons:
-    - name: "contract_debug"
-      maturity: "identified"
+    - name: contract_debug
+      maturity: identified
       features:
-        - "FEAT-126"
-      rule: "agent 계약을 검증하기 위한 최소 화면이다. 제품 portal 완료율에 합산하지 않는다"
-    - name: "product_portal"
-      maturity: "identified"
+        - FEAT-126
+      rule: agent 계약을 검증하기 위한 최소 화면이다. 제품 portal 완료율에 합산하지 않는다
+    - name: product_portal
+      maturity: identified
       features:
-        - "FEAT-101"
-        - "FEAT-102"
-        - "FEAT-103"
-        - "FEAT-104"
-        - "FEAT-105"
-        - "FEAT-106"
-        - "FEAT-107"
-        - "FEAT-108"
-        - "FEAT-109"
-        - "FEAT-111"
-        - "FEAT-112"
-        - "FEAT-113"
-        - "FEAT-114"
-        - "FEAT-115"
-        - "FEAT-116"
-        - "FEAT-117"
-        - "FEAT-118"
-        - "FEAT-119"
-        - "FEAT-120"
-        - "FEAT-121"
-        - "FEAT-122"
-        - "FEAT-123"
-        - "FEAT-124"
-        - "FEAT-125"
-        - "FEAT-127"
-      rule: "요구는 유지하고 핵심 계약 영향만 먼저 검사한다. 제품 Portal의 PC·모바일 반응형 지원은 REQ-041·NFR-028을 따르며 같은 기능 ID로 추적한다. 화면 배치·도구 선택·세부 상호작용은 admin·agent 핵심 뒤 portal 작업흐름 P3에서 정한다"
+        - FEAT-128
+        - FEAT-101
+        - FEAT-102
+        - FEAT-103
+        - FEAT-104
+        - FEAT-105
+        - FEAT-106
+        - FEAT-107
+        - FEAT-108
+        - FEAT-109
+        - FEAT-111
+        - FEAT-112
+        - FEAT-113
+        - FEAT-114
+        - FEAT-115
+        - FEAT-116
+        - FEAT-117
+        - FEAT-118
+        - FEAT-119
+        - FEAT-120
+        - FEAT-121
+        - FEAT-122
+        - FEAT-123
+        - FEAT-124
+        - FEAT-125
+        - FEAT-127
+      rule: 요구는 유지하고 핵심 계약 영향만 먼저 검사한다. 제품 Portal의 PC·모바일 반응형 지원은 REQ-041·NFR-028을 따르며 같은 기능 ID로 추적한다. 화면 배치·도구 선택·세부 상호작용은 admin·agent 핵심 뒤 portal 작업흐름 P3에서 정한다

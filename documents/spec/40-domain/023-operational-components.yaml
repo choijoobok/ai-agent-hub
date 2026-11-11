@@ -1,0 +1,180 @@
+entities:
+  - id: ENT-171
+    name: 파기 완료 월 최종배정 종결
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_FINAL_GUARD
+    features:
+      - FEAT-045
+    reqs:
+      - REQ-116
+      - REQ-118
+    term: TRM-195
+    domain: 쿼터 운영
+    attributes:
+      - name: 최종 처리 월
+        physical_name: TARGET_MONTH
+        pk: true
+        description: 최종 처리 월
+      - name: 종결 표시
+        physical_name: TERMINAL_CD
+        description: 종결 표시
+    physical:
+      attributes:
+        - name: TARGET_MONTH
+          type: character(7)
+          nullable: false
+          default: null
+        - name: TERMINAL_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUOTA_FINAL_GUARD
+          definition: PRIMARY KEY (TARGET_MONTH)
+        - name: CK_QUOTA_FINAL_GUARD_1
+          definition: CHECK (TERMINAL_CD='FINALIZED')
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 월 파기 전에 같은 월 잠금으로 등록하고 입력/결과 전체 파기와 원자 반영한다. 개인정보·실행 키/시각·금액/등급은 보존하지 않는다. 월 최종 진입은 현재 RUN과 이 표를 먼저 확인한다. 이미 종결된 월은 재배정/자동 신규 실행하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+  - id: ENT-172
+    name: 구조 비교 대상과 관측 셀
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_STRUCTURE_OBSERVATION
+    features:
+      - FEAT-003
+    reqs:
+      - REQ-304
+    term: TRM-255
+    domain: 연동 자산
+    attributes:
+      - name: 관측 행
+        physical_name: OBSERVATION_ID
+        pk: true
+        description: 관측 행
+      - name: 원 실행
+        physical_name: RUN_ID
+        description: 원 실행
+      - name: 정확 대상
+        physical_name: CATALOG_ID
+        description: 정확 대상
+      - name: 기준 판
+        physical_name: CATALOG_REVISION
+        description: 기준 판
+      - name: 정확 원천 객체
+        physical_name: OBJECT_KEY
+        description: 정확 원천 객체
+      - name: COLUMN/INDEX
+        physical_name: TARGET_KIND
+        description: COLUMN/INDEX
+      - name: 컬럼/인덱스 그룹 키
+        physical_name: MEMBER_KEY
+        description: 컬럼/인덱스 그룹 키
+      - name: 검사 속성
+        physical_name: PROPERTY_KEY
+        description: 검사 속성
+      - name: 당시 카탈로그 정형/원문
+        physical_name: EXPECTED_TEXT
+        description: 당시 카탈로그 정형/원문
+      - name: 당시 원천 정형/원문
+        physical_name: OBSERVED_TEXT
+        description: 당시 원천 정형/원문
+      - name: 일치/차이/미확인/미지원
+        physical_name: RESULT_CD
+        description: 일치/차이/미확인/미지원
+      - name: 스키마 권한 근거
+        physical_name: PERMISSION_EVIDENCE
+        description: 스키마 권한 근거
+      - name: 확인 시각
+        physical_name: CHECKED_DTM
+        description: 확인 시각
+      - name: 안전한 오류
+        physical_name: ERROR_CD
+        description: 안전한 오류
+    physical:
+      attributes:
+        - name: OBSERVATION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RUN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: OBJECT_KEY
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: MEMBER_KEY
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: PROPERTY_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: EXPECTED_TEXT
+          type: text
+          nullable: true
+          default: null
+        - name: OBSERVED_TEXT
+          type: text
+          nullable: true
+          default: null
+        - name: RESULT_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: PERMISSION_EVIDENCE
+          type: text
+          nullable: false
+          default: null
+        - name: CHECKED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: ERROR_CD
+          type: character varying(100)
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_STRUCTURE_OBSERVATION
+          definition: PRIMARY KEY (OBSERVATION_ID)
+        - name: UK_STRUCTURE_OBSERVATION_1
+          definition: UNIQUE (RUN_ID, CATALOG_ID, TARGET_KIND, MEMBER_KEY, PROPERTY_KEY)
+        - name: FK_STRUCTURE_OBSERVATION_1
+          definition: FOREIGN KEY (RUN_ID) REFERENCES AI_ADMIN_STRUCTURE_RUN (RUN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-039
+        cardinality: N:1
+        description: RUN_ID → RUN_ID; DB RESTRICT 참조

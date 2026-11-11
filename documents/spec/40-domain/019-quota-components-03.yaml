@@ -1,0 +1,243 @@
+# 영역: 019-quota-components — 물리 설계 초안
+entities:
+  - id: ENT-121
+    name: 배정 입력의 등급 사본
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_INPUT_GRADE
+    features:
+      - FEAT-017
+      - FEAT-045
+    reqs:
+      - REQ-116
+      - REQ-118
+    term: TRM-172
+    domain: 쿼터 운영
+    attributes:
+      - name: 원 입력
+        physical_name: INPUT_ID
+        pk: true
+        description: 원 입력
+      - name: 안정 등급
+        physical_name: GRADE_ID
+        pk: true
+        description: 안정 등급
+      - name: 당시 등급명
+        physical_name: GRADE_NM
+        description: 당시 등급명
+      - name: 순위
+        physical_name: RANK_NO
+        description: 순위
+      - name: 가중치
+        physical_name: WEIGHT
+        description: 가중치
+      - name: 이전 대상
+        physical_name: TRANSFER_GRADE_ID
+        description: 이전 대상
+    physical:
+      attributes:
+        - name: INPUT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: RANK_NO
+          type: integer
+          nullable: false
+          default: null
+        - name: WEIGHT
+          type: numeric(12,2)
+          nullable: false
+          default: null
+        - name: TRANSFER_GRADE_ID
+          type: bigint
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_QUOTA_INPUT_GRADE
+          definition: PRIMARY KEY (INPUT_ID, GRADE_ID)
+        - name: FK_QUOTA_INPUT_GRADE_1
+          definition: FOREIGN KEY (INPUT_ID) REFERENCES AI_ADMIN_QUOTA_INPUT (INPUT_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-112
+        cardinality: N:1
+        description: INPUT_ID → INPUT_ID; DB RESTRICT 참조
+  - id: ENT-122
+    name: 쿼터 실행 시도 근거
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_RUN_ATTEMPT
+    features:
+      - FEAT-045
+    reqs:
+      - REQ-118
+    term: TRM-195
+    domain: 쿼터 운영
+    attributes:
+      - name: 시도 번호
+        physical_name: ATTEMPT_ID
+        pk: true
+        description: 시도 번호
+      - name: 원 실행
+        physical_name: RUN_ID
+        description: 원 실행
+      - name: 공통 배치 실행 참조
+        physical_name: BATCH_HISTORY_ID
+        description: 공통 배치 실행 참조
+      - name: 실행 노드
+        physical_name: NODE_ID
+        description: 실행 노드
+      - name: 시작 시각
+        physical_name: STARTED_DTM
+        description: 시작 시각
+      - name: 종료 시각
+        physical_name: ENDED_DTM
+        description: 종료 시각
+      - name: 시도 상태
+        physical_name: STATUS_CD
+        description: 시도 상태
+      - name: 안전한 실패 코드
+        physical_name: ERROR_CD
+        description: 안전한 실패 코드
+      - name: 비밀 없는 오류
+        physical_name: SAFE_MESSAGE
+        description: 비밀 없는 오류
+    physical:
+      attributes:
+        - name: ATTEMPT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RUN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: BATCH_HISTORY_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: NODE_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: STARTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: ENDED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: STATUS_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: ERROR_CD
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: SAFE_MESSAGE
+          type: text
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_QUOTA_RUN_ATTEMPT
+          definition: PRIMARY KEY (ATTEMPT_ID)
+        - name: FK_QUOTA_RUN_ATTEMPT_1
+          definition: FOREIGN KEY (RUN_ID) REFERENCES AI_ADMIN_QUOTA_RUN (RUN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-109
+        cardinality: N:1
+        description: RUN_ID → RUN_ID; DB RESTRICT 참조
+  - id: ENT-123
+    name: 예정 배분의 사용자 결과
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_PREVIEW_USER
+    features:
+      - FEAT-017
+    reqs:
+      - REQ-116
+      - REQ-118
+    term: TRM-195
+    domain: 쿼터 운영
+    attributes:
+      - name: 예정 원 실행
+        physical_name: RUN_ID
+        pk: true
+        description: 예정 원 실행
+      - name: Portal 안정 ID
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: Portal 안정 ID
+      - name: 예정 등급
+        physical_name: GRADE_ID
+        description: 예정 등급
+      - name: 예정 토큰
+        physical_name: TOKEN_LIMIT
+        description: 예정 토큰
+    physical:
+      attributes:
+        - name: RUN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TOKEN_LIMIT
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUOTA_PREVIEW_USER
+          definition: PRIMARY KEY (RUN_ID, PORTAL_USER_ID)
+        - name: FK_QUOTA_PREVIEW_USER_1
+          definition: FOREIGN KEY (RUN_ID) REFERENCES AI_ADMIN_QUOTA_RUN (RUN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - PREVIEW 원 실행만 허용하며 실제 개인 한도 조회/차감에 포함하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-109
+        cardinality: N:1
+        description: RUN_ID → RUN_ID; DB RESTRICT 참조

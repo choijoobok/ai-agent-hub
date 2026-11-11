@@ -1,0 +1,360 @@
+# 영역: 020-model-provider — 물리 설계 초안
+entities:
+  - id: ENT-125
+    name: 외부 모델 조합
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL
+    features:
+      - FEAT-015
+    reqs:
+      - REQ-602
+      - REQ-613
+    term: TRM-232
+    domain: 모델 제공
+    attributes:
+      - name: 안정 모델 번호
+        physical_name: MODEL_ID
+        pk: true
+        description: 안정 모델 번호
+      - name: 공급 경로 코드
+        physical_name: PROVIDER_CD
+        description: 공급 경로 코드
+      - name: 배포 연결 참조
+        physical_name: CONNECTION_KEY
+        description: 배포 연결 참조
+      - name: 실제 모델 코드
+        physical_name: MODEL_CD
+        description: 실제 모델 코드
+      - name: 모델 표시명
+        physical_name: MODEL_NM
+        description: 모델 표시명
+      - name: 텍스트/임베딩
+        physical_name: MODEL_TYPE
+        description: 텍스트/임베딩
+      - name: effort 전송 방식
+        physical_name: EFFORT_MODE
+        description: effort 전송 방식
+      - name: effort 코드
+        physical_name: EFFORT_CD
+        description: effort 코드
+      - name: effort 표시명
+        physical_name: EFFORT_NM
+        description: effort 표시명
+      - name: Portal 선택 허용
+        physical_name: PORTAL_USE_YN
+        description: Portal 선택 허용
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 설명
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PROVIDER_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: CONNECTION_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: MODEL_CD
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: MODEL_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: MODEL_TYPE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: EFFORT_MODE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: EFFORT_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: EFFORT_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: PORTAL_USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL
+          definition: PRIMARY KEY (MODEL_ID)
+        - name: UK_MODEL_1
+          definition: UNIQUE (PROVIDER_CD, CONNECTION_KEY, MODEL_CD, EFFORT_MODE, EFFORT_CD)
+        - name: CK_MODEL_1
+          definition: CHECK (EFFORT_MODE IN ('OMIT','EMPTY','VALUE'))
+        - name: CK_MODEL_2
+          definition: CHECK (EFFORT_MODE='VALUE' OR EFFORT_CD='')
+        - name: CK_MODEL_PORTAL_USE_YN
+          definition: CHECK (PORTAL_USE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - effort 생략/빈값/명시값을 합치지 않는다. 공급사 비밀은 저장하지 않는다. Portal OFF여도 내부 운영용 유효 후보를 자동 제거하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-213
+      root: ENT-125
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-213
+    revision_column: REVISION
+  - id: ENT-126
+    name: 모델 적용 시작일 가격 세트
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_PRICE
+    features:
+      - FEAT-015
+    reqs:
+      - REQ-613
+      - REQ-602
+    term: TRM-090
+    domain: 모델 제공
+    attributes:
+      - name: 가격 기준 번호
+        physical_name: PRICE_ID
+        pk: true
+        description: 가격 기준 번호
+      - name: 안정 모델 조합
+        physical_name: MODEL_ID
+        description: 안정 모델 조합
+      - name: 적용 시작일
+        physical_name: START_DT
+        description: 적용 시작일
+      - name: 가격 판
+        physical_name: PRICE_REVISION
+        description: 가격 판
+      - name: 변경 구분
+        physical_name: CHANGE_KIND
+        description: 변경 구분
+      - name: 가격 변경 사유
+        physical_name: CHANGE_REASON
+        description: 가격 변경 사유
+      - name: 가격 출처
+        physical_name: PRICE_SOURCE
+        description: 가격 출처
+      - name: 확인일
+        physical_name: CHECKED_DT
+        description: 확인일
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: PRICE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: START_DT
+          type: date
+          nullable: false
+          default: null
+        - name: PRICE_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: CHANGE_KIND
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: PRICE_SOURCE
+          type: text
+          nullable: false
+          default: null
+        - name: CHECKED_DT
+          type: date
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_PRICE
+          definition: PRIMARY KEY (PRICE_ID)
+        - name: UK_MODEL_PRICE_1
+          definition: UNIQUE (MODEL_ID, START_DT)
+        - name: FK_MODEL_PRICE_1
+          definition: FOREIGN KEY (MODEL_ID) REFERENCES AI_ADMIN_MODEL (MODEL_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 가격 판은 소비자가 기록하는 정확 가격 버전이며 독립 편집 잠금 카운터가 아니다. 모델 부모의 현재 리비전으로 변경 성공 때 설정한다. 종료일은 다음 시작일에서 투영한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-125
+      entity: ENT-214
+      root: ENT-125
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-125
+        cardinality: N:1
+        description: MODEL_ID → MODEL_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-214
+  - id: ENT-127
+    name: 모델 가격의 세부 계량 단위
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_PRICE_UNIT
+    features:
+      - FEAT-015
+    reqs:
+      - REQ-613
+    term: TRM-090
+    domain: 모델 제공
+    attributes:
+      - name: 가격 세트
+        physical_name: PRICE_ID
+        pk: true
+        description: 가격 세트
+      - name: 지원 세부 계량 단위
+        physical_name: METER_UNIT
+        pk: true
+        description: 지원 세부 계량 단위
+      - name: USD/백만 토큰 단가
+        physical_name: USD_PER_MILLION
+        description: USD/백만 토큰 단가
+    physical:
+      attributes:
+        - name: PRICE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: METER_UNIT
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: USD_PER_MILLION
+          type: numeric(28,12)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_PRICE_UNIT
+          definition: PRIMARY KEY (PRICE_ID, METER_UNIT)
+        - name: FK_MODEL_PRICE_UNIT_1
+          definition: FOREIGN KEY (PRICE_ID) REFERENCES AI_ADMIN_MODEL_PRICE (PRICE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_MODEL_PRICE_UNIT_1
+          definition: CHECK (USD_PER_MILLION >= 0)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-126
+      entity: ENT-215
+      root: ENT-125
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-126
+        cardinality: N:1
+        description: PRICE_ID → PRICE_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-215

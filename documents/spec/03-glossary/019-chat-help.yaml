@@ -1,0 +1,8 @@
+terms:
+  - id: TRM-294
+    term: 채팅 안내 본문
+    key: chatHelp
+    db_token: CHAT_HELP
+    db_token_reason: 고정 구분의 채팅 도움말·시작 안내·입력 주의사항 본문을 짧은 공통 이름으로 표현한다.
+    group: 정책
+    definition: REQ-308의 세 고정 구분별 형식과 원문. 실제 제공한 판은 agent 소비 기록에 연결한다.

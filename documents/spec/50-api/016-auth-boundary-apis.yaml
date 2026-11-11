@@ -1,0 +1,128 @@
+apis:
+  - id: API-301
+    feature: FEAT-301
+    implementation: planned
+    method: GET
+    path: /api/public/portal/auth/getCsrf
+    action: PUBLIC
+    summary: 익명/인증 Portal CSRF 문맥 준비
+    request: none
+    response: ApiResponse<{csrfHeaderName}>; 영역별 Set-Cookie
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+  - id: API-302
+    feature: FEAT-301
+    implementation: planned
+    method: POST
+    path: /api/public/portal/auth/login
+    action: PUBLIC
+    summary: Portal 자체 로그인
+    request: PortalLoginRequest
+    response: ApiResponse<PortalAuthState>; Portal Set-Cookie
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+  - id: API-303
+    feature: FEAT-301
+    implementation: planned
+    method: GET
+    path: /api/common/portal/auth/getMe
+    action: AUTHENTICATED
+    summary: 현재 Portal 본인/인증·이용 상태
+    request: none
+    response: ApiResponse<PortalAuthState>
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+    allowed_auth_levels:
+      - PASSWORD_CHANGE_REQUIRED
+      - AUTHENTICATED
+  - id: API-304
+    feature: FEAT-301
+    implementation: planned
+    method: POST
+    path: /api/common/portal/auth/changePassword
+    action: AUTHENTICATED
+    summary: Portal 본인 비밀번호 변경
+    request: PortalPasswordChange
+    response: ApiResponse<PortalAuthState>; 회전 Set-Cookie
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+    partial_commit: 자격 변경 확정 뒤 회전 실패는503 PASSWORD_CHANGED_REAUTH_REQUIRED. 새 암호 재로그인으로 복구하며 변경 미반영으로 표시하거나 자동 재전송하지 않는다.
+    allowed_auth_levels:
+      - PASSWORD_CHANGE_REQUIRED
+      - AUTHENTICATED
+  - id: API-305
+    feature: FEAT-301
+    implementation: planned
+    method: POST
+    path: /api/common/portal/auth/logout
+    action: AUTHENTICATED
+    summary: Portal 세션 종료
+    request: none
+    response: ApiResponse<Void>; Portal 쿠키 만료
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+    allowed_auth_levels:
+      - PASSWORD_CHANGE_REQUIRED
+      - AUTHENTICATED
+  - id: API-306
+    feature: FEAT-301
+    implementation: planned
+    method: POST
+    path: /api/common/portal/auth/heartbeat
+    action: AUTHENTICATED
+    summary: Portal 세션/현재 이용 상태 확인
+    request: none
+    response: ApiResponse<PortalAuthState>
+    contract: FEAT-301.types/request_boundary/portal_session_storage/auth_transactions. UC-045의 정상/대안/예외와 연결하며 API-301/302 외에는 PORTAL 세션이 필수다.
+    auth_domain: PORTAL
+    errors:
+      '400': 입력 형식
+      '401': 인증 불가/만료/상대 영역
+      '403': CSRF·Origin/제한 수준·현재 이용 조건
+      '409': 자격세대/처리 경합
+      '422': 암호 정책 또는 모드
+      '429': 인증 시도 제한
+      '503': 원천/세션/필수 사건 저장 불가
+    allowed_auth_levels:
+      - PASSWORD_CHANGE_REQUIRED
+      - AUTHENTICATED

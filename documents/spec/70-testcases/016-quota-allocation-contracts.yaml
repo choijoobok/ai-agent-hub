@@ -1,0 +1,122 @@
+# 영역: 쿼터 확정·개별 배정·모듈 소비의 반례
+testcases:
+  - id: TC-0451
+    feature: FEAT-016
+    usecase: UC-022
+    screens: [SCR-016, SCR-021]
+    type: business_exception
+    title: "최초 월 기준과 단가 고정의 원자성"
+    actor: ACT-004
+    given: "저장된 단가와 고정 상한 비교 이후 가격/실적 변경 또는 HIST 실패"
+    when: "최초 월 기준 저장"
+    then: "낡은 비교는409, 실패는 단가 잠금/월 기준/HIST 전부 미반영. 성공 후 금융값만 재저장하면 원 단가/상한 불변. 독립 단가 확정/잠금 해제 없음."
+    verification: "DB/계약; 단가를 먼저 별도 커밋하면 실패해야 한다."
+    status: planned
+  - id: TC-0459
+    feature: FEAT-045
+    usecase: UC-042
+    screens: [SCR-005, SCR-021]
+    type: business_exception
+    title: "배치 지연 중 신규 활성의 최종 확정 후 지급 수렴"
+    actor: ACT-004
+    given: "B월 경계에는 없던 사용자가01시 등록/활성, 월배치는02시 원마감으로 복구"
+    when: "FINAL 뒤 재조정 실패/재기동과 같은 사용자의 ensureAllocation을 동시 실행"
+    then: "원 자격 발효일 기준 일할 배정이 정확히1개 생기고 성공 전 실행 차단. 원 마감 분모/기존 한도 불변, 새 활성화 이벤트가 없어도 누락이 수렴한다."
+    verification: "DB/재기동/동시성. FINAL 뒤 재조정을 생략하면 실패해야 한다."
+    status: planned
+  - id: TC-04510
+    feature: FEAT-042
+    usecase: UC-039
+    screens: [SCR-005, SCR-021, SCR-064]
+    type: business_exception
+    title: "월마감 지연과 배정전 등급 정정의 우선순위"
+    actor: ACT-004
+    given: "B시점 대상 사용자가 있고 최종 원 작업 기동이 지연, B이후 당월 등급 정정 요청"
+    when: "ADR-043에서 선택한 봉인/정정 계약을 적용"
+    then: "권장 봉인안이면 B부터 마감 대상의 정정 거부/원 등급 배정. 마감대상 여부 불명도 잠금. 대상 외 개별배정 전 정정은 기존 규칙대로 허용. 다른 안 선택 시 보정 근거·분모 규칙을 먼저 명세해야 한다."
+    verification: "사용자 결정 반영 후 미실행/미완료. 선택 계약과 REQ-116을 함께 대조한다."
+    status: planned
+  - id: TC-0452
+    feature: FEAT-045
+    usecase: UC-042
+    screens: [SCR-021]
+    type: business_exception
+    title: "다중 batchId/노드의 월 최종 단 한 번 효과"
+    actor: ACT-004
+    given: "같은 대상 월의 두 스케줄 등록과 수동 복구가 동시 실행"
+    when: "개인 배정 중간 실패와 커밋 응답 유실을 각각 주입"
+    then: "전체 효과는0회 또는1회, 부분 한도 없음. 자동 월 생성도 함께 롤백하며 기존 수동 월 기준은 유지. 재처리는 같은 입력/원 실행으로 수렴."
+    verification: "실제 DB 다중 연결/프로세스 종료; batchId 잠금만 쓰면 실패해야 한다."
+    status: planned
+  - id: TC-0453
+    feature: FEAT-045
+    usecase: UC-042
+    screens: [SCR-005, SCR-021, SCR-064]
+    type: business_exception
+    title: "월 경계 지연 복구와 마감 뒤 등급/자격 변경 제외"
+    actor: ACT-004
+    given: "B 직전 수락한 변경·B 직후 변경, 배치 기동 지연/장애"
+    when: "원 마감 B 기준으로 최종 배분 복구"
+    then: "수락/효력 기록의 정확한 당시 판만 포함. 마감 뒤 신규는 개별 일할 경로, 현재값으로 과거 마감 대체 없음. 당시 판 복원 불가면 배분 실패/실행 차단."
+    verification: "고정 Clock/DB 수락순서·보존 이력 계약."
+    status: planned
+  - id: TC-0454
+    feature: FEAT-045
+    usecase: UC-042
+    screens: [SCR-005, SCR-021]
+    type: business_exception
+    title: "0명 월 최초 두 활성화와 재활성 중복 지급"
+    actor: ACT-004
+    given: "FINAL 월 준비·개인 기준 UNASSESSED, 두 신규 활성과 같은 사용자 재활성 이벤트"
+    when: "동시 활성화/일할 배정과 실패 후 재처리"
+    then: "기준은 한번 산정, (월,사용자) 배정1개, 활성화/기준/첫 배정 원자성. 이후 인원 변동으로 분모 재계산/배정 복제 없음. 총 풀 초과 일할도 규칙대로 지급."
+    verification: "DB 유일성/잠금; FULL/PRORATED를 서로 다른 유일키로 허용하면 실패해야 한다."
+    status: planned
+  - id: TC-0455
+    feature: FEAT-042
+    usecase: UC-039
+    screens: [SCR-005, SCR-064]
+    type: business_exception
+    title: "효력 등급 변경과 개인 배정의 두 순서"
+    actor: ACT-004
+    given: "배정 없는 당월 사용자와 유효 등급 변경"
+    when: "변경 선행/배정 선행을 각각 강제"
+    then: "변경 선행은 새 등급으로1회 배정, 배정 선행은 사용량0이어도 등급 변경 거부. 예정본은 잠금 근거가 아니며 변경 후 낡음."
+    verification: "실제 DB; 사용량0이면 수정 허용하는 변형에서 실패해야 한다."
+    status: planned
+  - id: TC-0456
+    feature: FEAT-017
+    usecase: UC-027
+    screens: [SCR-021]
+    type: business_exception
+    title: "금융 승계와 대상월 가중치·부재/실패 구별"
+    actor: ACT-004
+    given: "M월 없음/조회 실패/손상 각각, 유효 M-1과 다른 M월 등급 세트"
+    when: "월말 최종 실행"
+    then: "정확 부재만 M-1 금융 승계, M월 사용자/등급 적용. 조회 실패/손상을 덮지 않고 미사용 M월 단가를 강제 고정하지 않음. 임의 오래된 월 대체 없음."
+    verification: "DB/원천 실패 주입."
+    status: planned
+  - id: TC-0457
+    feature: FEAT-017
+    usecase: UC-027
+    screens: [SCR-016, SCR-021]
+    type: business_exception
+    title: "계량 누적 재수신·정정·귀속·원천 미상"
+    actor: ACT-004
+    given: "같은 호출 누적 revision 재수신, 다른 재시도 호출, 관리자 운영/Portal 사용, 늦은 계량"
+    when: "생산자 공개 집계로 월 화면/단가 스냅샷을 조회"
+    then: "같은 호출 중복 합산 없음, 새 실제 호출 소비 포함, 운영용은 개인 차감 제외. 미상은null, 늦은 계량은 원 월 정정/잠긴 단가·배정 불변. 배정/사용량 원행 다대다 조인 없음."
+    verification: "FEAT-211 producer 계약 대역 후 실제 agent 통합; 이 TC가 agent 저장 모델/게이트를 대신하지 않는다."
+    status: planned
+  - id: TC-0458
+    feature: FEAT-017
+    usecase: UC-027
+    screens: [SCR-016, SCR-021]
+    type: normal
+    title: "금액 계산 정밀도와 일할 날짜 경계"
+    actor: ACT-004
+    given: "ADR-043/045 결정값, 월초/말일/윤년·가중치 소수2자리·버림 경계 바로 전후 수량"
+    when: "같은 입력으로 서버 계산/저장/재현과 화면 표시"
+    then: "계획 통화 환산1회·안전 여유율 없음·개인별 최종 버림·잔여 유지. 표시 반올림이 저장/배정 값을 바꾸지 않는다. 고객 시간대 날짜로 양끝 포함 일수를 계산한다."
+    verification: "정확 정수/유리수 참조 계산과 대조. 정밀도 결정만으로 제품 시험 통과/완료로 표시하지 않는다."
+    status: planned

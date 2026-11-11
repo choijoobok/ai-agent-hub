@@ -1,0 +1,455 @@
+entities:
+  - id: ENT-232
+    name: 조회 정책 행 스코프 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_SCOPE_HIST
+    features:
+      - FEAT-009
+      - FEAT-040
+    reqs:
+      - REQ-611
+      - REQ-103
+      - REQ-601
+    term: TRM-054
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 스코프 번호
+        physical_name: SCOPE_ID
+        pk: false
+        description: 스코프 번호
+      - name: 부모 정책
+        physical_name: POLICY_ID
+        description: 부모 정책
+        pk: false
+      - name: 스코프명
+        physical_name: SCOPE_NM
+        description: 스코프명
+        pk: false
+      - name: WHERE 조건식 조각
+        physical_name: CONDITION_SQL
+        description: WHERE 조건식 조각
+        pk: false
+      - name: 파라미터 추출 지문
+        physical_name: EXTRACTION_DIGEST
+        description: 파라미터 추출 지문
+        pk: false
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+        pk: false
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: SCOPE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SCOPE_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: CONDITION_SQL
+          type: text
+          nullable: false
+          default: null
+        - name: EXTRACTION_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_SCOPE_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_QUERY_SCOPE_HIST_SET
+          definition: UNIQUE (HISTORY_NO, SCOPE_ID)
+        - name: FK_QUERY_SCOPE_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY_HIST (HISTORY_NO, POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_SCOPE_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_SCOPE_HIST_LOOKUP ON AI_ADMIN_QUERY_SCOPE_HIST (SCOPE_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-146
+      root_history: ENT-200
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-200
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-146
+    history_parent: ENT-200
+    storage_role: history
+  - id: ENT-233
+    name: 행 스코프 파라미터 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_SCOPE_PARAM_HIST
+    features:
+      - FEAT-009
+      - FEAT-040
+    reqs:
+      - REQ-611
+      - REQ-103
+      - REQ-601
+    term: TRM-054
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 소유 스코프
+        physical_name: SCOPE_ID
+        pk: false
+        description: 소유 스코프
+      - name: 정확 추출 이름
+        physical_name: PARAMETER_NM
+        pk: false
+        description: 정확 추출 이름
+      - name: 값 출처
+        physical_name: SOURCE_CD
+        description: 값 출처
+        pk: false
+      - name: 값 출처 설명
+        physical_name: DESCRIPTION
+        description: 값 출처 설명
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: SCOPE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PARAMETER_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_SCOPE_PARAM_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_QUERY_SCOPE_PARAM_HIST_SET
+          definition: UNIQUE (HISTORY_NO, SCOPE_ID, PARAMETER_NM)
+        - name: FK_QUERY_SCOPE_PARAM_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, SCOPE_ID) REFERENCES AI_ADMIN_QUERY_SCOPE_HIST (HISTORY_NO, SCOPE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_SCOPE_PARAM_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_SCOPE_PARAM_HIST_LOOKUP ON AI_ADMIN_QUERY_SCOPE_PARAM_HIST (SCOPE_ID, PARAMETER_NM, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-147
+      root_history: ENT-200
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-200
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-147
+    history_parent: ENT-232
+    storage_role: history
+  - id: ENT-234
+    name: 조회 정책 기본 필터 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_FILTER_HIST
+    features:
+      - FEAT-012
+      - FEAT-040
+    reqs:
+      - REQ-611
+      - REQ-601
+    term: TRM-048
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 필터 번호
+        physical_name: FILTER_ID
+        pk: false
+        description: 필터 번호
+      - name: 소유 정책
+        physical_name: POLICY_ID
+        description: 소유 정책
+        pk: false
+      - name: 카탈로그 컬럼
+        physical_name: COLUMN_ID
+        description: 카탈로그 컬럼
+        pk: false
+      - name: 등록값 자료형
+        physical_name: VALUE_TYPE
+        description: 등록값 자료형
+        pk: false
+      - name: 정확 등록값 원문
+        physical_name: VALUE_TEXT
+        description: 정확 등록값 원문
+        pk: false
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+        pk: false
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: FILTER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: VALUE_TYPE
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: VALUE_TEXT
+          type: text
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_FILTER_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_QUERY_FILTER_HIST_SET
+          definition: UNIQUE (HISTORY_NO, FILTER_ID)
+        - name: FK_QUERY_FILTER_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY_HIST (HISTORY_NO, POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_FILTER_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_FILTER_HIST_LOOKUP ON AI_ADMIN_QUERY_FILTER_HIST (FILTER_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-148
+      root_history: ENT-200
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-200
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-148
+    history_parent: ENT-200
+    storage_role: history
+  - id: ENT-235
+    name: 필수 조회 조건 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_REQUIREMENT_HIST
+    features:
+      - FEAT-012
+      - FEAT-040
+    reqs:
+      - REQ-611
+      - REQ-601
+    term: TRM-247
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 조건 번호
+        physical_name: CONDITION_ID
+        pk: false
+        description: 조건 번호
+      - name: 소유 정책
+        physical_name: POLICY_ID
+        description: 소유 정책
+        pk: false
+      - name: EQUALITY/RANGE/JOIN
+        physical_name: CONDITION_KIND
+        description: EQUALITY/RANGE/JOIN
+        pk: false
+      - name: 범위/동일값 자료형
+        physical_name: VALUE_TYPE
+        description: 범위/동일값 자료형
+        pk: false
+      - name: 정확 최대 차이
+        physical_name: MAX_DIFFERENCE
+        description: 정확 최대 차이
+        pk: false
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+        pk: false
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: CONDITION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CONDITION_KIND
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: VALUE_TYPE
+          type: character varying(30)
+          nullable: true
+          default: null
+        - name: MAX_DIFFERENCE
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_REQUIREMENT_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_QUERY_REQUIREMENT_HIST_SET
+          definition: UNIQUE (HISTORY_NO, CONDITION_ID)
+        - name: FK_QUERY_REQUIREMENT_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY_HIST (HISTORY_NO, POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_REQUIREMENT_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_REQUIREMENT_HIST_LOOKUP ON AI_ADMIN_QUERY_REQUIREMENT_HIST (CONDITION_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-149
+      root_history: ENT-200
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-200
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-149
+    history_parent: ENT-200
+    storage_role: history

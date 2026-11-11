@@ -1,650 +1,1008 @@
 # 영역: admin 연동 자산 — 대상 시스템·데이터소스 물리 설계 초안 (미구현)
 entities:
   - id: ENT-001
-    configuration_cleanup: "REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다."
-    name: "대상 시스템"
+    configuration_cleanup: REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다.
+    name: 대상 시스템
     term: TRM-040
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "physical"
-    table: "AI_ADMIN_TARGET_SYSTEM"
-    features: [FEAT-001]
-    reqs: [REQ-601, REQ-604]
-    description: "YAML의 안정 시스템 키/비밀 없는 기본 표시 메타와 관리자 이름/설명 재정의. API 접속 및 Portal 대상 계정 매핑의 시스템 기준이다. 기술 연결 정의/비밀은 소유하지 않는다."
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TARGET_SYSTEM
+    features:
+      - FEAT-001
+    reqs:
+      - REQ-601
+      - REQ-604
+    description: YAML의 안정 시스템 키/비밀 없는 기본 표시 메타와 관리자 이름/설명 재정의. API 접속 및 Portal 대상 계정 매핑의 시스템 기준이다. 기술 연결 정의/비밀은 소유하지 않는다.
     attributes:
-      - name: "대상 시스템 식별자"
-        physical_name: "TARGET_SYSTEM_ID"
+      - name: 대상 시스템 식별자
+        physical_name: TARGET_SYSTEM_ID
         pk: true
-        description: "Hub가 부여하고 재사용하지 않는 안정 식별자. 표시명·연결명이 바뀌어도 유지한다"
-        origin: "서버"
-      - name: "시스템명"
-        physical_name: "SYSTEM_NM"
-        description: "관리자 시스템명 재정의. null은 YAML 이름/식별자 표시를 사용한다."
-        origin: "관리자"
-      - name: "설명"
-        physical_name: "DESCRIPTION"
-        description: "관리자 설명 재정의. null은 YAML 기본, 빈 문자열은 명시 공란이다."
-        origin: "관리자"
-      - name: "현재 관리 버전"
-        physical_name: "MANAGEMENT_VERSION"
-        description: "정의·허용 집합·기본값의 편집 기준과 저장 충돌을 대조하는 버전. 배포 적용 설정 식별자와 별개다"
-        origin: "서버"
-      - name: "생성 주체"
-        physical_name: "REG_ID"
-        description: "현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다."
-        origin: "서버 인증 근거"
-      - name: "생성 시각"
-        physical_name: "REG_DTM"
-        description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다"
-        origin: "서버"
-      - name: "최종 변경 주체"
-        physical_name: "MOD_ID"
-        description: "현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다."
-        origin: "서버 인증 근거"
-      - name: "최종 변경 시각"
-        physical_name: "MOD_DTM"
-        description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다"
-        origin: "서버"
-      - name: "변경 사유"
-        physical_name: "CHANGE_REASON"
-        description: "현재 관리 버전을 만든 등록/변경의 업무 사유"
-        origin: "관리자"
-      - name: "변경 작업 참조"
-        physical_name: "COMMAND_KEY"
-        description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거. 표시 시각만으로 동일 작업을 추정하지 않는다"
-        origin: "서버"
-      - name: "YAML 시스템 안정 키"
-        physical_name: "SYSTEM_KEY"
-        description: "YAML 정의의 불변·재사용 금지 키. 내부 PK와 구분"
-        origin: "YAML"
-      - name: "YAML 기본 시스템명"
-        physical_name: "YAML_SYSTEM_NM"
-        description: "관리자 재정의와 별도 저장하는 비밀 없는 기본 이름"
-        origin: "YAML"
-      - name: "YAML 기본 설명"
-        physical_name: "YAML_DESCRIPTION"
-        description: "비밀 없는 기본 설명"
-        origin: "YAML"
-      - name: "마지막 정상 확인 설정 세대"
-        physical_name: "SYNC_CONFIG_ID"
-        description: "현재 활성 세대와 정확 존재를 대조한다. 미제공/로드 실패를 제거로 확정하지 않음"
-        origin: "서버"
-      - name: "최초 등록 주체 종류"
-        physical_name: "REG_SOURCE_CD"
-        description: "CONFIG_SYNC/ADMIN 구분"
-        origin: "서버"
-      - name: "최종 수정 주체 종류"
-        physical_name: "MOD_SOURCE_CD"
-        description: "CONFIG_SYNC/ADMIN 구분"
-        origin: "서버"
+        description: Hub가 부여하고 재사용하지 않는 안정 식별자. 표시명·연결명이 바뀌어도 유지한다
+      - name: 시스템명
+        physical_name: SYSTEM_NM
+        description: 관리자 시스템명 재정의. null은 YAML 이름/식별자 표시를 사용한다.
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 관리자 설명 재정의. null은 YAML 기본, 빈 문자열은 명시 공란이다.
+      - name: 현재 관리 버전
+        physical_name: MANAGEMENT_VERSION
+        description: 정의·허용 집합·기본값의 편집 기준과 저장 충돌을 대조하는 버전. 배포 적용 설정 식별자와 별개다
+      - name: 생성 주체
+        physical_name: REG_ID
+        description: 현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다.
+      - name: 생성 시각
+        physical_name: REG_DTM
+        description: 최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다
+      - name: 최종 변경 주체
+        physical_name: MOD_ID
+        description: 현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다.
+      - name: 최종 변경 시각
+        physical_name: MOD_DTM
+        description: 현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 현재 관리 버전을 만든 등록/변경의 업무 사유
+      - name: 변경 작업 참조
+        physical_name: COMMAND_KEY
+        description: 현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거. 표시 시각만으로 동일 작업을 추정하지 않는다
+      - name: YAML 시스템 안정 키
+        physical_name: SYSTEM_KEY
+        description: YAML 정의의 불변·재사용 금지 키. 내부 PK와 구분
+      - name: YAML 기본 시스템명
+        physical_name: YAML_SYSTEM_NM
+        description: 관리자 재정의와 별도 저장하는 비밀 없는 기본 이름
+      - name: YAML 기본 설명
+        physical_name: YAML_DESCRIPTION
+        description: 비밀 없는 기본 설명
+      - name: 마지막 정상 확인 설정 세대
+        physical_name: SYNC_CONFIG_ID
+        description: 현재 활성 세대와 정확 존재를 대조한다. 미제공/로드 실패를 제거로 확정하지 않음
+      - name: 최초 등록 주체 종류
+        physical_name: REG_SOURCE_CD
+        description: CONFIG_SYNC/ADMIN 구분
+      - name: 최종 수정 주체 종류
+        physical_name: MOD_SOURCE_CD
+        description: CONFIG_SYNC/ADMIN 구분
+      - name: 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 수락 시각
     relations:
       - entity: ENT-017
-        cardinality: "시스템마다 허용 연결 0개 이상"
-        description: "YAML이 소유한 연결 키/메타와 관리자 표시 재정의. 제거 행은 보존한다."
+        cardinality: 시스템마다 허용 연결 0개 이상
+        description: YAML이 소유한 연결 키/메타와 관리자 표시 재정의. 제거 행은 보존한다.
       - entity: ENT-019
-        cardinality: "성공 변경마다 처리 근거 하나"
-        description: "최종 명령 참조와 결과를 연결한다"
+        cardinality: 성공 변경마다 처리 근거 하나
+        description: 최종 명령 참조와 결과를 연결한다
       - entity: ENT-003
-        cardinality: "현재 대상 하나에서 반영 후 이력 0개 이상"
-        description: "원 식별자와 변경 버전/순서로 연결한다. 삭제 후 이력이 현재 행의 존재에 의존하지 않게 한다"
-    related_features: [FEAT-004, FEAT-005]
-    external_observations: "연결 정의의 현재 로드 여부·불변 적용 설정 식별자·노드/확인 시점·조회 실패는 ARCH-028의 공개 관측으로 받는다. 이 엔티티의 편집 가능한 정상 상태로 저장하거나 배포 정의 사본으로 만들지 않는다"
-    rules: ["REQ-604.authority·synchronization에 따라 YAML 기술 메타와 관리자 보완을 필드별로 분리한다. 일반 UI 신규/삭제·기본 연결·수동 시스템 사용 상태는 없다.", "명시 정리 전까지 성공한 전체 설정에서 제거된 키도 현재 행과 참조를 보존하고 불일치/실행 차단·경고로 연결한다.", "실제 비밀 없는 변경과 관리자 재정의만 관리 버전/이력을 갱신한다. 단순 재기동 관측은 최초/수정 감사를 덮지 않는다."]
-    configuration_diagnosis: "적용 설정 버전별 저장 판정은 ENT-098을 참조한다. 수동 편집/현재 자산 HIST 값으로 복제하지 않는다."
+        cardinality: 현재 대상 하나에서 반영 후 이력 0개 이상
+        description: 원 식별자와 변경 버전/순서로 연결한다. 삭제 후 이력이 현재 행의 존재에 의존하지 않게 한다
+    related_features:
+      - FEAT-004
+      - FEAT-005
+    external_observations: 연결 정의의 현재 로드 여부·불변 적용 설정 식별자·노드/확인 시점·조회 실패는 ARCH-028의 공개 관측으로 받는다. 이 엔티티의 편집 가능한 정상 상태로 저장하거나 배포 정의 사본으로 만들지 않는다
+    rules:
+      - REQ-604.authority·synchronization에 따라 YAML 기술 메타와 관리자 보완을 필드별로 분리한다. 일반 UI 신규/삭제·기본 연결·수동 시스템 사용 상태는 없다.
+      - 명시 정리 전까지 성공한 전체 설정에서 제거된 키도 현재 행과 참조를 보존하고 불일치/실행 차단·경고로 연결한다.
+      - 실제 비밀 없는 변경과 관리자 재정의만 관리 버전/이력을 갱신한다. 단순 재기동 관측은 최초/수정 감사를 덮지 않는다.
+    configuration_diagnosis: 적용 설정 버전별 저장 판정은 ENT-098을 참조한다. 수동 편집/현재 자산 HIST 값으로 복제하지 않는다.
     state_machine:
-      configuration: "REQ-601.configuration_diagnosis에 따라 ENT-098에 저장한 적용 설정 버전별 정확 ID/소속 판정. 보존 행은 제거되지 않으며 관리자 입력 상태로 위조하지 않는다."
-      availability: "개별 API의 명시 연결 및 REQ-601.asset_availability와 현재 호출자 검사로 판정한다."
-    audit: "반영 후 전체 구성은 ENT-003, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다"
-    delete_policy: "REQ-601.configuration_cleanup. 현재 정확 누락·미참조·배포 안전성을 확인한 명시 일괄 정리만 허용한다. 소유 현재 자식만 제거하고 이력/명령/판정/경고/실행 근거와 외부 참조 자산은 보존한다. 연결만 제거하면 부모는 존속한다."
-    rules_from: [REQ-604, "REQ-601.business_rules", "ARCH-028.api_connection_resolution", UC-015]
-    storage_contract: "REQ-604.synchronization과 FEAT-001의 기존 대상 표시 보완 저장. 동기화는 전체 검증된 설정에서 메타만 갱신하고 관리자 재정의는 보존한다. 구성 제거 행은 보존한다. 현재 물리 설계는 미구현 초안이며 추가/수정 actor 종류와 nullable 관리자 참조를 구분한다."
-    pending: ["@defer P3 integration_assets — FEAT-001 공개 계약의 실제 연결 관측·참조 보호를 후속 API/카탈로그·신원 쓰기 경로와 대조한다. 화면 요건/목업·오류 MSG·경합 시험은 후속이다"]
+      configuration: REQ-601.configuration_diagnosis에 따라 ENT-098에 저장한 적용 설정 버전별 정확 ID/소속 판정. 보존 행은 제거되지 않으며 관리자 입력 상태로 위조하지 않는다.
+      availability: 개별 API의 명시 연결 및 REQ-601.asset_availability와 현재 호출자 검사로 판정한다.
+    audit: 반영 후 전체 구성은 ENT-003, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다
+    delete_policy: REQ-601.configuration_cleanup. 현재 정확 누락·미참조·배포 안전성을 확인한 명시 일괄 정리만 허용한다. 소유 현재 자식만 제거하고 이력/명령/판정/경고/실행 근거와 외부 참조 자산은 보존한다. 연결만 제거하면 부모는 존속한다.
+    rules_from:
+      - REQ-604
+      - REQ-601.business_rules
+      - ARCH-028.api_connection_resolution
+      - UC-015
+    storage_contract: REQ-604.synchronization과 FEAT-001의 기존 대상 표시 보완 저장. 동기화는 전체 검증된 설정에서 메타만 갱신하고 관리자 재정의는 보존한다. 구성 제거 행은 보존한다. 현재 물리 설계는 미구현 초안이며 추가/수정 actor 종류와 nullable 관리자 참조를 구분한다.
     physical:
       attributes:
-        - name: "TARGET_SYSTEM_ID"
-          type: "bigint"
+        - name: TARGET_SYSTEM_ID
+          type: bigint
           nullable: false
           default: null
-        - name: "SYSTEM_NM"
-          type: "character varying(100)"
+        - name: SYSTEM_NM
+          type: character varying(100)
           nullable: true
           default: null
-        - name: "DESCRIPTION"
-          type: "text"
+        - name: DESCRIPTION
+          type: text
           nullable: true
           default: null
-        - name: "MANAGEMENT_VERSION"
-          type: "bigint"
+        - name: MANAGEMENT_VERSION
+          type: bigint
           nullable: false
-          default: "1"
-        - name: "REG_ID"
-          type: "character varying(30)"
+          default: '1'
+        - name: REG_ID
+          type: character varying(30)
           nullable: true
           default: null
-        - name: "REG_DTM"
-          type: "timestamp with time zone"
-          nullable: false
-          default: null
-        - name: "MOD_ID"
-          type: "character varying(30)"
-          nullable: true
-          default: null
-        - name: "MOD_DTM"
-          type: "timestamp with time zone"
+        - name: REG_DTM
+          type: timestamp with time zone
           nullable: false
           default: null
-        - name: "CHANGE_REASON"
-          type: "text"
+        - name: MOD_ID
+          type: character varying(30)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
           nullable: false
           default: null
-        - name: "COMMAND_KEY"
-          type: "character(36)"
-          nullable: true
-          default: null
-        - name: "SYSTEM_KEY"
-          type: "character varying(100)"
+        - name: CHANGE_REASON
+          type: text
           nullable: false
           default: null
-        - name: "YAML_SYSTEM_NM"
-          type: "character varying(100)"
+        - name: COMMAND_KEY
+          type: character(36)
           nullable: true
           default: null
-        - name: "YAML_DESCRIPTION"
-          type: "text"
-          nullable: true
-          default: null
-        - name: "SYNC_CONFIG_ID"
-          type: "character varying(100)"
-          nullable: true
-          default: null
-        - name: "REG_SOURCE_CD"
-          type: "character varying(30)"
+        - name: SYSTEM_KEY
+          type: character varying(100)
           nullable: false
           default: null
-        - name: "MOD_SOURCE_CD"
-          type: "character varying(30)"
+        - name: YAML_SYSTEM_NM
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: YAML_DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: SYNC_CONFIG_ID
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: REG_SOURCE_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: MOD_SOURCE_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
           nullable: false
           default: null
       constraints:
-        - name: "PK_ADM_TARGET_SYSTEM"
-          definition: "PRIMARY KEY (TARGET_SYSTEM_ID)"
-        - name: "CK_ADM_TARGET_SYSTEM_VER"
-          definition: "CHECK (MANAGEMENT_VERSION >= 1)"
-        - name: "UK_ADM_TARGET_SYSTEM_KEY"
-          definition: "UNIQUE (SYSTEM_KEY)"
-      indexes:
-        - name: "IX_ADM_TARGET_SYSTEM_NAME"
-          unique: false
-          method: "btree"
-          definition: "(SYSTEM_NM, TARGET_SYSTEM_ID)"
+        - name: PK_TARGET_SYSTEM
+          definition: PRIMARY KEY (TARGET_SYSTEM_ID)
+        - name: UK_TARGET_SYSTEM_1
+          definition: UNIQUE (SYSTEM_KEY)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-003
+      root: ENT-001
+    copy_mapping:
+      history: ENT-003
+    revision_column: MANAGEMENT_VERSION
   - id: ENT-002
-    configuration_cleanup: "REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다."
-    name: "데이터소스"
+    configuration_cleanup: REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다.
+    name: 데이터소스
     term: TRM-041
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
-    features: [FEAT-002]
-    reqs: [REQ-601, REQ-603]
-    description: "YAML 외부 데이터소스의 안정 참조와 수동 업무 메타. Hub 자체 DB는 등록하지 않는다."
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-002
+    reqs:
+      - REQ-601
+      - REQ-603
+    description: YAML 외부 데이터소스의 안정 참조와 수동 업무 메타. Hub 자체 DB는 등록하지 않는다.
     attributes:
-      - name: "데이터소스 식별자"
-        physical_name: "DATA_SOURCE_ID"
+      - name: 데이터소스 식별자
+        physical_name: DATA_SOURCE_ID
         pk: true
-        description: "자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다"
-        origin: "서버"
-      - name: "별칭"
-        physical_name: "ALIAS_NM"
-        description: "관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타"
-        origin: "관리자"
-      - name: "설명"
-        physical_name: "DESCRIPTION"
-        description: "조회 대상 업무 범위와 선택에 필요한 설명"
-        origin: "관리자"
-      - name: "DBMS 종류"
-        physical_name: "DBMS_CD"
-        description: "질의 해석·파서 선택의 기술 기준; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타"
-        origin: "관리자·지원 목록"
-      - name: "DBMS 버전"
-        physical_name: "DBMS_VERSION"
-        description: "제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다"
-        origin: "연결 관측 제안·관리자 확인"
-      - name: "DW 동기화 방식 메모"
-        description: "REQ-603.dw_sync_note의 선택 참고 메모. 논리 필드 syncMethodNote, 물리 매핑은 후속. DW에서 편집하고 DB 전환 시에도 보존한다. 실행/스케줄/최신성 판정에 사용하지 않는다"
-        origin: "관리자"
-      - name: "운영 DB·DW 유형"
-        physical_name: "SOURCE_TYPE_CD"
-        description: "조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다"
-        origin: "관리자"
-      - name: "시각 체계"
-        physical_name: "TIME_ZONE_ID"
-        description: "조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다"
-        origin: "관리자"
-      - name: "데이터 기준 시각 정보"
-        physical_name: "DATA_BASIS"
-        description: "조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다"
-        origin: "관리자"
-      - name: "현재 관리 버전"
-        physical_name: "MANAGEMENT_VERSION"
-        description: "메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다"
-        origin: "서버"
-      - name: "생성 주체"
-        physical_name: "REG_ID"
-        description: "최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다"
-        origin: "서버 인증 근거"
-      - name: "생성 시각"
-        physical_name: "REG_DTM"
-        description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다"
-        origin: "서버"
-      - name: "최종 변경 주체"
-        physical_name: "MOD_ID"
-        description: "현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다"
-        origin: "서버 인증 근거"
-      - name: "최종 변경 시각"
-        physical_name: "MOD_DTM"
-        description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다"
-        origin: "서버"
-      - name: "변경 사유"
-        physical_name: "CHANGE_REASON"
-        description: "현재 관리 버전을 만든 등록/변경의 업무 사유"
-        origin: "관리자"
-      - name: "변경 작업 참조"
-        physical_name: "COMMAND_KEY"
-        description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거"
-        origin: "서버"
-      - name: "안정 YAML 데이터소스 키"
-        physical_name: "DATA_SOURCE_KEY"
-        description: "app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음"
-      - name: "동기화 설정 세대"
-        physical_name: "SYNC_CONFIG_ID"
-        description: "검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님"
-      - name: "등록 주체 종류"
-        physical_name: "REG_SOURCE_CD"
-        description: "기동 동기화/관리자 영역의 실제 기록 주체 구분"
-      - name: "변경 주체 종류"
-        physical_name: "MOD_SOURCE_CD"
-        description: "YAML 기술 메타 동기화와 수동 업무 보완 구분"
+        description: 자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다
+      - name: 별칭
+        physical_name: ALIAS_NM
+        description: 관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 조회 대상 업무 범위와 선택에 필요한 설명
+      - name: DBMS 종류
+        physical_name: DBMS_CD
+        description: 질의 해석·파서 선택의 기술 기준; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타
+      - name: DBMS 버전
+        physical_name: DBMS_VERSION
+        description: 제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다
+      - name: DW 동기화 방식 메모
+        physical_name: DW_SYNC_MEMO
+        description: REQ-603.dw_sync_note의 선택 참고 메모. 논리 필드 syncMethodNote, 물리 매핑은 후속. DW에서 편집하고 DB 전환 시에도 보존한다. 실행/스케줄/최신성 판정에 사용하지 않는다
+      - name: 운영 DB·DW 유형
+        physical_name: SOURCE_TYPE_CD
+        description: 조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다
+      - name: 시각 체계
+        physical_name: TIME_ZONE_ID
+        description: 조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다
+      - name: 데이터 기준 시각 정보
+        physical_name: DATA_BASIS
+        description: 조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다
+      - name: 현재 관리 버전
+        physical_name: MANAGEMENT_VERSION
+        description: 메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다
+      - name: 생성 주체
+        physical_name: REG_ID
+        description: 최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다
+      - name: 생성 시각
+        physical_name: REG_DTM
+        description: 최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다
+      - name: 최종 변경 주체
+        physical_name: MOD_ID
+        description: 현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다
+      - name: 최종 변경 시각
+        physical_name: MOD_DTM
+        description: 현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 현재 관리 버전을 만든 등록/변경의 업무 사유
+      - name: 변경 작업 참조
+        physical_name: COMMAND_KEY
+        description: 현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거
+      - name: 안정 YAML 데이터소스 키
+        physical_name: DATA_SOURCE_KEY
+        description: app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음
+      - name: 동기화 설정 세대
+        physical_name: SYNC_CONFIG_ID
+        description: 검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님
+      - name: 등록 주체 종류
+        physical_name: REG_SOURCE_CD
+        description: 기동 동기화/관리자 영역의 실제 기록 주체 구분
+      - name: 변경 주체 종류
+        physical_name: MOD_SOURCE_CD
+        description: YAML 기술 메타 동기화와 수동 업무 보완 구분
+      - name: 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 수락 시각
     relations:
       - entity: ENT-018
-        cardinality: "데이터소스마다 적용 가능 그룹 0개 이상"
-        description: "전체 집합 교체와 하위 매핑 보호를 같은 변경에서 검사한다"
+        cardinality: 데이터소스마다 적용 가능 그룹 0개 이상
+        description: 전체 집합 교체와 하위 매핑 보호를 같은 변경에서 검사한다
       - entity: ENT-019
-        cardinality: "성공 변경마다 처리 근거 하나"
-        description: "생성과 수정·삭제의 재수신 결과를 연결한다"
+        cardinality: 성공 변경마다 처리 근거 하나
+        description: 생성과 수정·삭제의 재수신 결과를 연결한다
       - entity: ENT-004
-        cardinality: "현재 대상 하나에서 반영 후 이력 0개 이상"
-        description: "원 식별자와 변경 버전/순서로 연결하며 허용 삭제 뒤에도 과거 구성을 조회할 수 있다"
-    related_features: [FEAT-003, FEAT-005, FEAT-006, FEAT-007, FEAT-014, FEAT-023]
-    external_observations: ["REQ-601.configuration_diagnosis의 ENT-098 저장 판정과 현재 node/boot 준비·안전한 연결 관측을 분리한다. 판정은 기동 때 저장하고 일반 조회는 재대조하지 않는다. 누락/로드 실패를 이전 연결로 대체하지 않는다."]
-    rules: ["REQ-603.yaml_authority·data_query_guides를 따른다. YAML 검증 성공 시 안정 키 upsert, 수동 메타·그룹·가이드·최초 감사 보존. 일반 UI 신규/삭제/연결 정정 없음.", "명시 정리 전 제거 항목의 현재 참조·이력을 보존하고 불일치 배지/업무 호출 차단/경고를 제공한다. JDBC URL·계정·비밀 참조 원문은 이 엔티티/관리 HIST에 저장하지 않는다.", "수동 메타·ENT-018 그룹·ENT-096 가이드를 같은 기대 리비전/전체 스냅샷으로 원자 적용한다. 원천 조회 결과/구조 비교는 별도 관측이다."]
-    state_machine: ["PRESENT/MISSING/UNKNOWN은 현재 YAML 존재 상태다. DB 메타 완성과 실행 가능은 별도 판정이다."]
-    audit: "반영 후 전체 구성은 ENT-004, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다"
-    delete_policy: "REQ-601.configuration_cleanup. 현재 정확 누락·미참조·배포 안전성을 확인한 명시 일괄 정리만 허용한다. 소유 현재 자식만 제거하고 이력/명령/판정/경고/실행 근거와 외부 참조 자산은 보존한다. 연결만 제거하면 부모는 존속한다."
-    rules_from: [REQ-603, "REQ-601.business_rules", ARCH-030, AUTHZ-010, UC-016]
-    storage_contract: "ENT-004 마스터·ENT-045 그룹·ENT-097 가이드를 같은 HISTORY_NO로 보존한다."
-    pending: "@defer G3 이전 — 승인된 YAML 원천/수동 필드·감사·키/참조의 물리 컬럼·제약/인덱스·기동 동기화 경합을 확정한다. 기존 미구현 물리 초안의 연결 정정/별칭 키 설계를 그대로 적재하지 않는다."
+        cardinality: 현재 대상 하나에서 반영 후 이력 0개 이상
+        description: 원 식별자와 변경 버전/순서로 연결하며 허용 삭제 뒤에도 과거 구성을 조회할 수 있다
+    related_features:
+      - FEAT-003
+      - FEAT-005
+      - FEAT-006
+      - FEAT-007
+      - FEAT-014
+      - FEAT-023
+    external_observations:
+      - REQ-601.configuration_diagnosis의 ENT-098 저장 판정과 현재 node/boot 준비·안전한 연결 관측을 분리한다. 판정은 기동 때 저장하고 일반 조회는 재대조하지 않는다. 누락/로드 실패를 이전 연결로 대체하지 않는다.
+    rules:
+      - REQ-603.yaml_authority·data_query_guides를 따른다. YAML 검증 성공 시 안정 키 upsert, 수동 메타·그룹·가이드·최초 감사 보존. 일반 UI 신규/삭제/연결 정정 없음.
+      - 명시 정리 전 제거 항목의 현재 참조·이력을 보존하고 불일치 배지/업무 호출 차단/경고를 제공한다. JDBC URL·계정·비밀 참조 원문은 이 엔티티/관리 HIST에 저장하지 않는다.
+      - 수동 메타·ENT-018 그룹·ENT-096 가이드를 같은 기대 리비전/전체 스냅샷으로 원자 적용한다. 원천 조회 결과/구조 비교는 별도 관측이다.
+    state_machine:
+      - PRESENT/MISSING/UNKNOWN은 현재 YAML 존재 상태다. DB 메타 완성과 실행 가능은 별도 판정이다.
+    audit: 반영 후 전체 구성은 ENT-004, 현재 생성/최종 변경 근거는 본 엔티티에 연결한다
+    delete_policy: REQ-601.configuration_cleanup. 현재 정확 누락·미참조·배포 안전성을 확인한 명시 일괄 정리만 허용한다. 소유 현재 자식만 제거하고 이력/명령/판정/경고/실행 근거와 외부 참조 자산은 보존한다. 연결만 제거하면 부모는 존속한다.
+    rules_from:
+      - REQ-603
+      - REQ-601.business_rules
+      - ARCH-030
+      - AUTHZ-010
+      - UC-016
+    storage_contract: ENT-004 마스터·ENT-045 그룹·ENT-097 가이드를 같은 HISTORY_NO로 보존한다.
+    table: AI_ADMIN_DATA_SOURCE
+    physical:
+      attributes:
+        - name: DATA_SOURCE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ALIAS_NM
+          type: character varying(200)
+          nullable: true
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: DBMS_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: DBMS_VERSION
+          type: text
+          nullable: true
+          default: null
+        - name: DW_SYNC_MEMO
+          type: text
+          nullable: true
+          default: null
+        - name: SOURCE_TYPE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: TIME_ZONE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: DATA_BASIS
+          type: text
+          nullable: true
+          default: null
+        - name: MANAGEMENT_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: DATA_SOURCE_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SYNC_CONFIG_ID
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: REG_SOURCE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: MOD_SOURCE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_DATA_SOURCE
+          definition: PRIMARY KEY (DATA_SOURCE_ID)
+        - name: UK_DATA_SOURCE_1
+          definition: UNIQUE (DATA_SOURCE_KEY)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-004
+      root: ENT-002
+    copy_mapping:
+      history: ENT-004
+    revision_column: MANAGEMENT_VERSION
   - id: ENT-003
-    name: "대상 시스템 변경 이력"
-    term: TRM-250
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "physical"
-    table: "AI_ADMIN_TARGET_SYSTEM_HIST"
-    features: [FEAT-001, FEAT-033]
-    reqs: [REQ-601, REQ-604]
-    description: "당시 YAML 비밀 없는 메타와 관리자 표시 재정의의 동형 이력. 원본 REG/MOD 보존과 이력 기록자/시각 기본 감사 둘을 구분한다."
+    name: 대상 시스템 전체 변경 이력
+    term: TRM-040
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TARGET_SYSTEM_HIST
+    features:
+      - FEAT-001
+      - FEAT-040
+    reqs:
+      - REQ-601
+      - REQ-604
+    description: 당시 YAML 비밀 없는 메타와 관리자 표시 재정의의 동형 이력. 원본 REG/MOD 보존과 이력 기록자/시각 기본 감사 둘을 구분한다.
     attributes:
-      - name: "이력 행 식별자"
-        physical_name: "HIST_ID"
+      - name: 대상 시스템 식별자
+        physical_name: TARGET_SYSTEM_ID
+        pk: false
+        description: Hub가 부여하고 재사용하지 않는 안정 식별자. 표시명·연결명이 바뀌어도 유지한다
+      - name: 시스템명
+        physical_name: SYSTEM_NM
+        description: 관리자 시스템명 재정의. null은 YAML 이름/식별자 표시를 사용한다.
+        pk: false
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 관리자 설명 재정의. null은 YAML 기본, 빈 문자열은 명시 공란이다.
+        pk: false
+      - name: 현재 관리 버전
+        physical_name: MANAGEMENT_VERSION
+        description: 정의·허용 집합·기본값의 편집 기준과 저장 충돌을 대조하는 버전. 배포 적용 설정 식별자와 별개다
+        pk: false
+      - name: 생성 주체
+        physical_name: REG_ID
+        description: 현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다.
+        pk: false
+      - name: 생성 시각
+        physical_name: REG_DTM
+        description: 최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다
+        pk: false
+      - name: 최종 변경 주체
+        physical_name: MOD_ID
+        description: 현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다.
+        pk: false
+      - name: 최종 변경 시각
+        physical_name: MOD_DTM
+        description: 현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다
+        pk: false
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 현재 관리 버전을 만든 등록/변경의 업무 사유
+        pk: false
+      - name: 변경 작업 참조
+        physical_name: COMMAND_KEY
+        description: 현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거. 표시 시각만으로 동일 작업을 추정하지 않는다
+        pk: false
+      - name: YAML 시스템 안정 키
+        physical_name: SYSTEM_KEY
+        description: YAML 정의의 불변·재사용 금지 키. 내부 PK와 구분
+        pk: false
+      - name: YAML 기본 시스템명
+        physical_name: YAML_SYSTEM_NM
+        description: 관리자 재정의와 별도 저장하는 비밀 없는 기본 이름
+        pk: false
+      - name: YAML 기본 설명
+        physical_name: YAML_DESCRIPTION
+        description: 비밀 없는 기본 설명
+        pk: false
+      - name: 마지막 정상 확인 설정 세대
+        physical_name: SYNC_CONFIG_ID
+        description: 현재 활성 세대와 정확 존재를 대조한다. 미제공/로드 실패를 제거로 확정하지 않음
+        pk: false
+      - name: 최초 등록 주체 종류
+        physical_name: REG_SOURCE_CD
+        description: CONFIG_SYNC/ADMIN 구분
+        pk: false
+      - name: 최종 수정 주체 종류
+        physical_name: MOD_SOURCE_CD
+        description: CONFIG_SYNC/ADMIN 구분
+        pk: false
+      - name: 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 수락 시각
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
         pk: true
-        description: "테이블별 SYS_SEQUENCE/JPA TABLE 발급 단일 서로게이트 PK"
-      - name: "이력 세트 번호"
-        physical_name: "HISTORY_NO"
-        description: "이력 세트 번호"
-      - name: "이력 저장일시"
-        physical_name: "HIST_DTM"
-        description: "주 저장 처리에서 한 번 확정한 세트 공통 UTC Instant. 원본 수정일시와 별도"
-      - name: "이력 저장자"
-        physical_name: "HIST_ACTOR_ID"
-        description: "이력 저장자"
-      - name: "저장 작업 종류"
-        physical_name: "HIST_ACTION_CD"
-        description: "저장 작업 종류"
-      - name: "저장 사유"
-        physical_name: "HIST_REASON"
-        description: "저장 사유"
-      - name: "저장 명령 참조"
-        physical_name: "HIST_COMMAND_KEY"
-        description: "저장 명령 참조"
-      - name: "이력 구조 버전"
-        physical_name: "HIST_SCHEMA_VERSION"
-        description: "이력 구조 버전"
-      - name: "대상 시스템 식별자"
-        physical_name: "TARGET_SYSTEM_ID"
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
         pk: false
-        description: "Hub가 부여하고 재사용하지 않는 안정 식별자. 표시명·연결명이 바뀌어도 유지한다"
-        origin: "ENT-001 당시 값"
-      - name: "시스템명"
-        physical_name: "SYSTEM_NM"
-        description: "관리자 시스템명 재정의. null은 YAML 이름/식별자 표시를 사용한다."
-        origin: "ENT-001 당시 값"
+        description: 전체 이력 세트 번호
+      - name: 이력 생성 시각
+        physical_name: HIST_DTM
         pk: false
-      - name: "설명"
-        physical_name: "DESCRIPTION"
-        description: "관리자 설명 재정의. null은 YAML 기본, 빈 문자열은 명시 공란이다."
-        origin: "ENT-001 당시 값"
+        description: 이력 생성 시각
+      - name: CREATE/CHANGE/DELETE
+        physical_name: HIST_ACTION
         pk: false
-      - name: "현재 관리 버전"
-        physical_name: "MANAGEMENT_VERSION"
-        description: "정의·허용 집합·기본값의 편집 기준과 저장 충돌을 대조하는 버전. 배포 적용 설정 식별자와 별개다"
-        origin: "ENT-001 당시 값"
+        description: CREATE/CHANGE/DELETE
+      - name: 실제 관리자
+        physical_name: HIST_ACTOR_ID
         pk: false
-      - name: "생성 주체"
-        physical_name: "REG_ID"
-        description: "현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다."
-        origin: "ENT-001 당시 값"
+        description: 실제 관리자
+      - name: 관리/동기화 원천
+        physical_name: HIST_SOURCE_CD
         pk: false
-      - name: "생성 시각"
-        physical_name: "REG_DTM"
-        description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다"
-        origin: "ENT-001 당시 값"
+        description: 관리/동기화 원천
+      - name: 원 명령 키
+        physical_name: HISTORY_COMMAND_KEY
         pk: false
-      - name: "최종 변경 주체"
-        physical_name: "MOD_ID"
-        description: "현재 주체 종류가 관리자면 인증 관리자 ID, 설정 동기화면 null이며 SOURCE_CD로 기술 작업을 구분한다. 사람 계정을 꾸며내지 않는다."
-        origin: "ENT-001 당시 값"
+        description: 원 명령 키
+      - name: 결과 버전
+        physical_name: RESULT_REVISION
         pk: false
-      - name: "최종 변경 시각"
-        physical_name: "MOD_DTM"
-        description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다"
-        origin: "ENT-001 당시 값"
+        description: 결과 버전
+      - name: 직전 성공 세트
+        physical_name: BEFORE_HISTORY_NO
         pk: false
-      - name: "변경 사유"
-        physical_name: "CHANGE_REASON"
-        description: "현재 관리 버전을 만든 등록/변경의 업무 사유"
-        origin: "ENT-001 당시 값"
+        description: 직전 성공 세트
+      - name: 이번 명령 사유
+        physical_name: HIST_REASON
         pk: false
-      - name: "변경 작업 참조"
-        physical_name: "COMMAND_KEY"
-        description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거. 표시 시각만으로 동일 작업을 추정하지 않는다"
-        origin: "ENT-001 당시 값"
+        description: 이번 명령 사유
+      - name: 비밀 없는 변경 요약
+        physical_name: HIST_SUMMARY
         pk: false
-      - name: "YAML 시스템 안정 키"
-        physical_name: "SYSTEM_KEY"
-        description: "YAML 정의의 불변·재사용 금지 키. 내부 PK와 구분"
-        origin: "ENT-001 당시 값"
+        description: 비밀 없는 변경 요약
+      - name: 이력 읽기 구조 버전
+        physical_name: SCHEMA_VERSION
         pk: false
-      - name: "YAML 기본 시스템명"
-        physical_name: "YAML_SYSTEM_NM"
-        description: "관리자 재정의와 별도 저장하는 비밀 없는 기본 이름"
-        origin: "ENT-001 당시 값"
-        pk: false
-      - name: "YAML 기본 설명"
-        physical_name: "YAML_DESCRIPTION"
-        description: "비밀 없는 기본 설명"
-        origin: "ENT-001 당시 값"
-        pk: false
-      - name: "마지막 정상 확인 설정 세대"
-        physical_name: "SYNC_CONFIG_ID"
-        description: "현재 활성 세대와 정확 존재를 대조한다. 미제공/로드 실패를 제거로 확정하지 않음"
-        origin: "ENT-001 당시 값"
-        pk: false
-      - name: "최초 등록 주체 종류"
-        physical_name: "REG_SOURCE_CD"
-        description: "CONFIG_SYNC/ADMIN 구분"
-        origin: "ENT-001 당시 값"
-        pk: false
-      - name: "최종 수정 주체 종류"
-        physical_name: "MOD_SOURCE_CD"
-        description: "CONFIG_SYNC/ADMIN 구분"
-        origin: "ENT-001 당시 값"
-        pk: false
+        description: 이력 읽기 구조 버전
     relations:
       - entity: ENT-001
-        cardinality: "원본 식별자를 값으로 보존"
-        description: "현재 행에 FK/연쇄 삭제를 두지 않는다"
-    rules: ["REQ-601.change_history·REQ-604.synchronization. 당시 비밀 없는 메타와 관리자 재정의·원본 REG/MOD를 복사한다. 현재 연결 주소/비밀은 복제하지 않는다.", "기본 감사둘은 이력 기록자/시각이며 원본 감사는 당시 구성의 값으로 보존한다."]
-    delete_policy: "관리 기능은 append만 허용. 보존/조사 보호 정책에 따라 세트 단위 파기하며 원본 삭제와 연쇄하지 않는다."
-    rules_from: ["REQ-601.change_history", ADR-035]
+        cardinality: 원본 식별자를 값으로 보존
+        description: 현재 행에 FK/연쇄 삭제를 두지 않는다
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules_from:
+      - REQ-601.change_history
+      - ADR-035
     history_copy_of: ENT-001
     physical:
       attributes:
-        - name: "HIST_ID"
-          type: "bigint"
+        - name: TARGET_SYSTEM_ID
+          type: bigint
           nullable: false
           default: null
-        - name: "HISTORY_NO"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "HIST_DTM"
-          type: "timestamp with time zone"
-          nullable: false
-          default: null
-        - name: "HIST_ACTOR_ID"
-          type: "character varying(50)"
-          nullable: false
-          default: null
-        - name: "HIST_ACTION_CD"
-          type: "character varying(30)"
-          nullable: false
-          default: null
-        - name: "HIST_REASON"
-          type: "text"
-          nullable: false
-          default: null
-        - name: "HIST_COMMAND_KEY"
-          type: "character(36)"
-          nullable: false
-          default: null
-        - name: "HIST_SCHEMA_VERSION"
-          type: "integer"
-          nullable: false
-          default: "1"
-        - name: "TARGET_SYSTEM_ID"
-          type: "bigint"
-          nullable: false
-          default: null
-        - name: "SYSTEM_NM"
-          type: "character varying(100)"
+        - name: SYSTEM_NM
+          type: character varying(100)
           nullable: true
           default: null
-        - name: "DESCRIPTION"
-          type: "text"
+        - name: DESCRIPTION
+          type: text
           nullable: true
           default: null
-        - name: "MANAGEMENT_VERSION"
-          type: "bigint"
-          nullable: false
-          default: "1"
-        - name: "REG_ID"
-          type: "character varying(30)"
-          nullable: true
-          default: null
-        - name: "REG_DTM"
-          type: "timestamp with time zone"
+        - name: MANAGEMENT_VERSION
+          type: bigint
           nullable: false
           default: null
-        - name: "MOD_ID"
-          type: "character varying(30)"
+        - name: REG_ID
+          type: character varying(30)
           nullable: true
           default: null
-        - name: "MOD_DTM"
-          type: "timestamp with time zone"
+        - name: REG_DTM
+          type: timestamp with time zone
           nullable: false
           default: null
-        - name: "CHANGE_REASON"
-          type: "text"
+        - name: MOD_ID
+          type: character varying(30)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
           nullable: false
           default: null
-        - name: "COMMAND_KEY"
-          type: "character(36)"
-          nullable: true
-          default: null
-        - name: "SYSTEM_KEY"
-          type: "character varying(100)"
+        - name: CHANGE_REASON
+          type: text
           nullable: false
           default: null
-        - name: "YAML_SYSTEM_NM"
-          type: "character varying(100)"
+        - name: COMMAND_KEY
+          type: character(36)
           nullable: true
           default: null
-        - name: "YAML_DESCRIPTION"
-          type: "text"
-          nullable: true
-          default: null
-        - name: "SYNC_CONFIG_ID"
-          type: "character varying(100)"
-          nullable: true
-          default: null
-        - name: "REG_SOURCE_CD"
-          type: "character varying(30)"
+        - name: SYSTEM_KEY
+          type: character varying(100)
           nullable: false
           default: null
-        - name: "MOD_SOURCE_CD"
-          type: "character varying(30)"
+        - name: YAML_SYSTEM_NM
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: YAML_DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: SYNC_CONFIG_ID
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: REG_SOURCE_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: MOD_SOURCE_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ACTION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HIST_ACTOR_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: HIST_SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HISTORY_COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: BEFORE_HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: HIST_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: HIST_SUMMARY
+          type: text
+          nullable: false
+          default: null
+        - name: SCHEMA_VERSION
+          type: integer
           nullable: false
           default: null
       constraints:
-        - name: "PK_ADM_TARGET_HIST"
-          definition: "PRIMARY KEY (HIST_ID)"
-        - name: "UK_ADM_TARGET_HIST_SET"
-          definition: "UNIQUE (HISTORY_NO)"
-        - name: "UK_ADM_TARGET_HIST_SEQ"
-          definition: "UNIQUE (TARGET_SYSTEM_ID, CHANGE_SEQ)"
-        - name: "UK_ADM_TARGET_HIST_TIME"
-          definition: "UNIQUE (HISTORY_NO, TARGET_SYSTEM_ID)"
+        - name: PK_TARGET_SYSTEM_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_TARGET_SYSTEM_HIST_SET
+          definition: UNIQUE (HISTORY_NO, TARGET_SYSTEM_ID)
+        - name: UK_TARGET_SYSTEM_HIST_NO
+          definition: UNIQUE (HISTORY_NO)
+        - name: UK_TARGET_SYSTEM_HIST_REV
+          definition: UNIQUE (TARGET_SYSTEM_ID, RESULT_REVISION)
+        - name: CK_TARGET_SYSTEM_HIST_ACTION
+          definition: CHECK (HIST_ACTION IN ('CREATE','CHANGE','DELETE'))
       indexes:
-        - name: "IX_ADM_TARGET_HIST_DTM"
+        - name: IX_TARGET_SYSTEM_HIST_LOOKUP
           unique: false
-          method: "btree"
-          definition: "(HIST_DTM DESC, HISTORY_NO DESC)"
+          method: btree
+          definition: CREATE INDEX IX_TARGET_SYSTEM_HIST_LOOKUP ON AI_ADMIN_TARGET_SYSTEM_HIST (TARGET_SYSTEM_ID, HISTORY_NO)
+    sources: []
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-001
+      root_history: ENT-003
+    storage_role: history
   - id: ENT-004
-    name: "데이터소스 변경 이력"
-    term: TRM-251
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
-    features: [FEAT-002, FEAT-033]
-    reqs: [REQ-601, REQ-603]
-    description: "ADR-035·REQ-601.change_history에 따른 ENT-002의 동형 복사. 현재 원본이 아닌 같은 HISTORY_NO의 당시 값을 조회한다."
+    name: 데이터소스 전체 변경 이력
+    term: TRM-041
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-002
+      - FEAT-040
+    reqs:
+      - REQ-601
+      - REQ-603
+    description: ADR-035·REQ-601.change_history에 따른 ENT-002의 동형 복사. 현재 원본이 아닌 같은 HISTORY_NO의 당시 값을 조회한다.
     attributes:
-      - name: "이력 행 식별자"
-        physical_name: "HIST_ID"
+      - name: 데이터소스 식별자
+        physical_name: DATA_SOURCE_ID
+        pk: false
+        description: 자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다
+      - name: 별칭
+        physical_name: ALIAS_NM
+        description: 관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타
+        pk: false
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 조회 대상 업무 범위와 선택에 필요한 설명
+        pk: false
+      - name: DBMS 종류
+        physical_name: DBMS_CD
+        description: 질의 해석·파서 선택의 기술 기준; YAML 별칭/지원 JDBC URL에서 동기화하는 읽기 전용 기술 메타
+        pk: false
+      - name: DBMS 버전
+        physical_name: DBMS_VERSION
+        description: 제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다
+        pk: false
+      - name: DW 동기화 방식 메모
+        physical_name: DW_SYNC_MEMO
+        description: REQ-603.dw_sync_note의 선택 참고 메모. 논리 필드 syncMethodNote, 물리 매핑은 후속. DW에서 편집하고 DB 전환 시에도 보존한다. 실행/스케줄/최신성 판정에 사용하지 않는다
+        pk: false
+      - name: 운영 DB·DW 유형
+        physical_name: SOURCE_TYPE_CD
+        description: 조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다
+        pk: false
+      - name: 시각 체계
+        physical_name: TIME_ZONE_ID
+        description: 조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다
+        pk: false
+      - name: 데이터 기준 시각 정보
+        physical_name: DATA_BASIS
+        description: 조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다
+        pk: false
+      - name: 현재 관리 버전
+        physical_name: MANAGEMENT_VERSION
+        description: 메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다
+        pk: false
+      - name: 생성 주체
+        physical_name: REG_ID
+        description: 최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다
+        pk: false
+      - name: 생성 시각
+        physical_name: REG_DTM
+        description: 최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다
+        pk: false
+      - name: 최종 변경 주체
+        physical_name: MOD_ID
+        description: 현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다
+        pk: false
+      - name: 최종 변경 시각
+        physical_name: MOD_DTM
+        description: 현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다
+        pk: false
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 현재 관리 버전을 만든 등록/변경의 업무 사유
+        pk: false
+      - name: 변경 작업 참조
+        physical_name: COMMAND_KEY
+        description: 현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거
+        pk: false
+      - name: 안정 YAML 데이터소스 키
+        physical_name: DATA_SOURCE_KEY
+        description: app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음
+        pk: false
+      - name: 동기화 설정 세대
+        physical_name: SYNC_CONFIG_ID
+        description: 검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님
+        pk: false
+      - name: 등록 주체 종류
+        physical_name: REG_SOURCE_CD
+        description: 기동 동기화/관리자 영역의 실제 기록 주체 구분
+        pk: false
+      - name: 변경 주체 종류
+        physical_name: MOD_SOURCE_CD
+        description: YAML 기술 메타 동기화와 수동 업무 보완 구분
+        pk: false
+      - name: 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 수락 시각
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
         pk: true
-        description: "테이블별 SYS_SEQUENCE/JPA TABLE 발급 단일 서로게이트 PK"
-      - name: "이력 세트 번호"
-        physical_name: "HISTORY_NO"
-        description: "이력 세트 번호"
-      - name: "이력 저장일시"
-        physical_name: "HIST_DTM"
-        description: "주 저장 처리에서 한 번 확정한 세트 공통 UTC Instant. 원본 수정일시와 별도"
-      - name: "이력 저장자"
-        physical_name: "HIST_ACTOR_ID"
-        description: "이력 저장자"
-      - name: "저장 작업 종류"
-        physical_name: "HIST_ACTION_CD"
-        description: "저장 작업 종류"
-      - name: "저장 사유"
-        physical_name: "HIST_REASON"
-        description: "저장 사유"
-      - name: "저장 명령 참조"
-        physical_name: "HIST_COMMAND_KEY"
-        description: "저장 명령 참조"
-      - name: "이력 구조 버전"
-        physical_name: "HIST_SCHEMA_VERSION"
-        description: "이력 구조 버전"
-      - name: "대상별 이력 순서"
-        physical_name: "CHANGE_SEQ"
-        description: "대상별 이력 순서"
-      - name: "변경 요약"
-        physical_name: "CHANGE_SUMMARY"
-        description: "변경 요약"
-      - name: "데이터소스 식별자"
-        physical_name: "DATA_SOURCE_ID"
-        description: "자산·신원·정책이 참조하는 안정된 Hub 식별자. 배포 ID 정정으로 바꾸지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "별칭"
-        physical_name: "ALIAS_NM"
-        description: "관리 화면과 모델 문맥의 수정 가능한 유일 표시명. REQ-603.alias_identity와 50-api의 FEAT-002.alias_contract에 따라 비교한다"
-        origin: "ENT-002 당시 값"
-      - name: "설명"
-        physical_name: "DESCRIPTION"
-        description: "조회 대상 업무 범위와 선택에 필요한 설명"
-        origin: "ENT-002 당시 값"
-      - name: "DBMS 종류"
-        physical_name: "DBMS_CD"
-        description: "질의 해석·파서 선택의 기술 기준"
-        origin: "ENT-002 당시 값"
-      - name: "DBMS 버전"
-        physical_name: "DBMS_VERSION"
-        description: "제품의 실제 버전 문자열. LLM 문맥과 연결 대조에 사용하며 관리 편집 버전/자료형 목록 분류 키와 구분한다"
-        origin: "ENT-002 당시 값"
-      - name: "DW 동기화 방식 메모"
-        description: "REQ-603.dw_sync_note의 선택 참고 메모. 논리 필드 syncMethodNote, 물리 매핑은 후속. DW에서 편집하고 DB 전환 시에도 보존한다. 실행/스케줄/최신성 판정에 사용하지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "운영 DB·DW 유형"
-        physical_name: "SOURCE_TYPE_CD"
-        description: "조회 원천의 업무 유형. 실제 연결 주소나 접속 권한을 대신하지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "시각 체계"
-        physical_name: "TIME_ZONE_ID"
-        description: "조회 원천 시각을 해석하는 업무 메타데이터. Hub 감사 시각이나 브라우저 시간대와 구분한다"
-        origin: "ENT-002 당시 값"
-      - name: "데이터 기준 시각 정보"
-        physical_name: "DATA_BASIS"
-        description: "조회 결과의 원천 기준 시각을 설명하는 관리 정보. 실제 갱신/최신성의 관측 결과를 꾸며 저장하지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "현재 관리 버전"
-        physical_name: "MANAGEMENT_VERSION"
-        description: "메타데이터·배포 참조·그룹 집합의 편집 기준 버전. 배포 세대·권한/캐시 버전과 별개다"
-        origin: "ENT-002 당시 값"
-      - name: "생성 주체"
-        physical_name: "REG_ID"
-        description: "최초 등록을 처리한 system 관리자 계정 참조. 후속 변경자가 덮어쓰지 않는다"
-        origin: "ENT-002 당시 값"
-      - name: "생성 시각"
-        physical_name: "REG_DTM"
-        description: "최초 등록이 반영된 시각. 후속 변경 뒤에도 유지한다"
-        origin: "ENT-002 당시 값"
-      - name: "최종 변경 주체"
-        physical_name: "MOD_ID"
-        description: "현재 관리 버전을 실제 반영한 system 관리자 계정 참조. 최초 등록에서는 생성 주체와 같다"
-        origin: "ENT-002 당시 값"
-      - name: "최종 변경 시각"
-        physical_name: "MOD_DTM"
-        description: "현재 관리 버전이 반영된 시각. 최초 등록에서는 생성 시각과 같다"
-        origin: "ENT-002 당시 값"
-      - name: "변경 사유"
-        physical_name: "CHANGE_REASON"
-        description: "현재 관리 버전을 만든 등록/변경의 업무 사유"
-        origin: "ENT-002 당시 값"
-      - name: "변경 작업 참조"
-        physical_name: "COMMAND_KEY"
-        description: "현재 관리 버전을 만든 실제 작업·처리 결과를 연결하는 근거"
-        origin: "ENT-002 당시 값"
-      - name: "안정 YAML 데이터소스 키"
-        physical_name: "DATA_SOURCE_KEY"
-        description: "app.external-datasources의 고정 키. 내부 안정 ID와 1:1, 별칭 변경으로 참조 교체하지 않음"
-      - name: "동기화 설정 세대"
-        physical_name: "SYNC_CONFIG_ID"
-        description: "검증 성공한 YAML 동기화 근거. 비밀 해시/원문 저장 아님"
-      - name: "등록 주체 종류"
-        physical_name: "REG_SOURCE_CD"
-        description: "기동 동기화/관리자 영역의 실제 기록 주체 구분"
-      - name: "변경 주체 종류"
-        physical_name: "MOD_SOURCE_CD"
-        description: "YAML 기술 메타 동기화와 수동 업무 보완 구분"
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+      - name: 이력 생성 시각
+        physical_name: HIST_DTM
+        pk: false
+        description: 이력 생성 시각
+      - name: CREATE/CHANGE/DELETE
+        physical_name: HIST_ACTION
+        pk: false
+        description: CREATE/CHANGE/DELETE
+      - name: 실제 관리자
+        physical_name: HIST_ACTOR_ID
+        pk: false
+        description: 실제 관리자
+      - name: 관리/동기화 원천
+        physical_name: HIST_SOURCE_CD
+        pk: false
+        description: 관리/동기화 원천
+      - name: 원 명령 키
+        physical_name: HISTORY_COMMAND_KEY
+        pk: false
+        description: 원 명령 키
+      - name: 결과 버전
+        physical_name: RESULT_REVISION
+        pk: false
+        description: 결과 버전
+      - name: 직전 성공 세트
+        physical_name: BEFORE_HISTORY_NO
+        pk: false
+        description: 직전 성공 세트
+      - name: 이번 명령 사유
+        physical_name: HIST_REASON
+        pk: false
+        description: 이번 명령 사유
+      - name: 비밀 없는 변경 요약
+        physical_name: HIST_SUMMARY
+        pk: false
+        description: 비밀 없는 변경 요약
+      - name: 이력 읽기 구조 버전
+        physical_name: SCHEMA_VERSION
+        pk: false
+        description: 이력 읽기 구조 버전
     relations:
       - entity: ENT-002
-        cardinality: "원본 식별자를 값으로 보존"
-        description: "현재 행에 FK/연쇄 삭제를 두지 않는다"
-    rules: ["ENT-002의 적용 후 전체 메타와 그룹/가이드 자식을 같은 HISTORY_NO/HIST_DTM으로 복사한다. 실제 구성 변경이 없으면 기동 이력을 반복 생성하지 않는다.", "당시 비밀 없는 YAML 키/별칭/도출 DBMS와 수동값·원본 감사를 보존한다. 현재 연결 진단·원천 조회 데이터·비밀정보는 복제하지 않는다."]
-    delete_policy: "관리 기능은 append만 허용. 보존/조사 보호 정책에 따라 세트 단위 파기하며 원본 삭제와 연쇄하지 않는다."
-    rules_from: ["REQ-601.change_history", ADR-035]
+        cardinality: 원본 식별자를 값으로 보존
+        description: 현재 행에 FK/연쇄 삭제를 두지 않는다
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules_from:
+      - REQ-601.change_history
+      - ADR-035
     history_copy_of: ENT-002
-    pending: "@defer G3 이전 — 승인된 YAML 원천/수동 필드·감사·키/참조의 물리 컬럼·제약/인덱스·기동 동기화 경합을 확정한다. 기존 미구현 물리 초안의 연결 정정/별칭 키 설계를 그대로 적재하지 않는다."
+    table: AI_ADMIN_DATA_SOURCE_HIST
+    sources: []
+    physical:
+      attributes:
+        - name: DATA_SOURCE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ALIAS_NM
+          type: character varying(200)
+          nullable: true
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: DBMS_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: DBMS_VERSION
+          type: text
+          nullable: true
+          default: null
+        - name: DW_SYNC_MEMO
+          type: text
+          nullable: true
+          default: null
+        - name: SOURCE_TYPE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: TIME_ZONE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: DATA_BASIS
+          type: text
+          nullable: true
+          default: null
+        - name: MANAGEMENT_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: DATA_SOURCE_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SYNC_CONFIG_ID
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: REG_SOURCE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: MOD_SOURCE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ACTION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HIST_ACTOR_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: HIST_SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HISTORY_COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: BEFORE_HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: HIST_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: HIST_SUMMARY
+          type: text
+          nullable: false
+          default: null
+        - name: SCHEMA_VERSION
+          type: integer
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_DATA_SOURCE_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_DATA_SOURCE_HIST_SET
+          definition: UNIQUE (HISTORY_NO, DATA_SOURCE_ID)
+        - name: UK_DATA_SOURCE_HIST_NO
+          definition: UNIQUE (HISTORY_NO)
+        - name: UK_DATA_SOURCE_HIST_REV
+          definition: UNIQUE (DATA_SOURCE_ID, RESULT_REVISION)
+        - name: CK_DATA_SOURCE_HIST_ACTION
+          definition: CHECK (HIST_ACTION IN ('CREATE','CHANGE','DELETE'))
+      indexes:
+        - name: IX_DATA_SOURCE_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_DATA_SOURCE_HIST_LOOKUP ON AI_ADMIN_DATA_SOURCE_HIST (DATA_SOURCE_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-002
+      root_history: ENT-004
+    storage_role: history

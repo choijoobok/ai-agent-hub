@@ -1,0 +1,191 @@
+entities:
+  - id: ENT-265
+    name: 외부 사건 최신성 기준
+    term: TRM-307
+    domain: Portal 이용
+    module: portal
+    workstream: integration
+    features:
+      - FEAT-305
+    reqs:
+      - REQ-103
+      - REQ-107
+    implementation: planned
+    design_stage: physical
+    table: AI_PORTAL_SOURCE_CHANGE_CURSOR
+    attributes:
+      - name: CURSOR_ID
+        physical_name: CURSOR_ID
+        description: CURSOR_ID
+        pk: true
+      - name: SOURCE_KEY
+        physical_name: SOURCE_KEY
+        description: SOURCE_KEY
+      - name: SOURCE_EPOCH
+        physical_name: SOURCE_EPOCH
+        description: SOURCE_EPOCH
+      - name: SUBJECT_DIGEST
+        physical_name: SUBJECT_DIGEST
+        description: SUBJECT_DIGEST
+      - name: BINDING_KEY
+        physical_name: BINDING_KEY
+        description: BINDING_KEY
+      - name: ORDER_MODE
+        physical_name: ORDER_MODE
+        description: ORDER_MODE
+      - name: SOURCE_VERSION
+        physical_name: SOURCE_VERSION
+        description: SOURCE_VERSION
+      - name: VERSION
+        physical_name: VERSION
+        description: VERSION
+      - name: VERIFIED_DTM
+        physical_name: VERIFIED_DTM
+        description: VERIFIED_DTM
+      - name: LAST_RECEIPT_ID
+        physical_name: LAST_RECEIPT_ID
+        description: LAST_RECEIPT_ID
+    physical:
+      attributes:
+        - name: CURSOR_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SOURCE_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SOURCE_EPOCH
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: SUBJECT_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: BINDING_KEY
+          type: uuid
+          nullable: false
+          default: null
+        - name: ORDER_MODE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: SOURCE_VERSION
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: VERIFIED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: LAST_RECEIPT_ID
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_SOURCE_CHANGE_CURSOR
+          definition: PRIMARY KEY (CURSOR_ID)
+        - name: UK_SOURCE_CHANGE_CURSOR_1
+          definition: UNIQUE (SOURCE_KEY, SOURCE_EPOCH, SUBJECT_DIGEST, BINDING_KEY)
+        - name: CK_SOURCE_CHANGE_CURSOR_1
+          definition: CHECK (ORDER_MODE IN ('MONOTONIC','CURRENT_STATE'))
+        - name: CK_SOURCE_CHANGE_CURSOR_2
+          definition: CHECK (VERSION > 0)
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - 서명키/검증 설정 세대와 사건 원천 epoch·계정 연결 BINDING_KEY는 다르다. 키 교체/프로세스 재시작으로 커서를 초기화하지 않는다.
+      - 원천 검증기는 이전 cursor판과의 비교/최신 상태 근거를 반환하며 보호 구간에서는 같은 cursor판인지 재검사한다. NO_CHANGE도 검증된 진전은 기록한다. 현재 연결이 바뀌면 옛 binding 사건은 자동 적용하지 않는다.
+    sources: []
+  - id: ENT-266
+    name: 외부 사건의 인앱 통지 참조
+    term: TRM-308
+    domain: Portal 이용
+    module: portal
+    workstream: integration
+    features:
+      - FEAT-305
+    reqs:
+      - REQ-103
+      - REQ-107
+    implementation: planned
+    design_stage: physical
+    table: AI_PORTAL_CHANGE_NOTIFICATION
+    attributes:
+      - name: NOTIFICATION_LINK_ID
+        physical_name: NOTIFICATION_LINK_ID
+        description: NOTIFICATION_LINK_ID
+        pk: true
+      - name: RECEIPT_ID
+        physical_name: RECEIPT_ID
+        description: RECEIPT_ID
+      - name: ADMIN_USER_ID
+        physical_name: ADMIN_USER_ID
+        description: ADMIN_USER_ID
+      - name: NOTI_ID
+        physical_name: NOTI_ID
+        description: NOTI_ID
+      - name: STORED_DTM
+        physical_name: STORED_DTM
+        description: STORED_DTM
+      - name: RECIPIENT_POLICY_VERSION
+        physical_name: RECIPIENT_POLICY_VERSION
+        description: RECIPIENT_POLICY_VERSION
+    physical:
+      attributes:
+        - name: NOTIFICATION_LINK_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RECEIPT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ADMIN_USER_ID
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: NOTI_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: STORED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: RECIPIENT_POLICY_VERSION
+          type: character varying(128)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CHANGE_NOTIFICATION
+          definition: PRIMARY KEY (NOTIFICATION_LINK_ID)
+        - name: UK_CHANGE_NOTIFICATION_1
+          definition: UNIQUE (RECEIPT_ID, ADMIN_USER_ID)
+        - name: UK_CHANGE_NOTIFICATION_2
+          definition: UNIQUE (NOTI_ID)
+        - name: FK_CHANGE_NOTIFICATION_RECEIPT
+          definition: FOREIGN KEY (RECEIPT_ID) REFERENCES AI_PORTAL_USER_CHANGE (RECEIPT_ID) ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 내부 단일 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 공개 UUID는 별도 유일 키이며 BIGINT wire는 십진 문자열이다.
+    history_storage:
+      mode: not_management_history
+      reason: 요구 기반 불변 관측/계량 또는 해당 소유 투영·수신 보조 기록. 관리 HIST를 복제하지 않는다.
+    delete_policy: 소유 보존/참조 종료 계약의 원자 파기만 허용. 일반 CRUD·CASCADE 삭제 금지. 기간 미설정 시 자동 파기 비활성.
+    rules:
+      - system 공개 포트가 확정한 정확 수신자+인앱 ID만 같은 트랜잭션에 기록한다. 상대 Repository 직접 접근/Portal ID 대체 없음.
+      - 기존 인앱 보존 종료 후에도 이 참조를 이유로 알림을 재생성하지 않는다. 현재 알림 행 FK/CASCADE를 두지 않으며 저장 시 소유 결과로 검증한다. 사건 기록 파기와 함께 정리하며 최소종결표에 수신자/알림ID를 복사하지 않는다.
+    sources: []
+    relations:
+      - entity: ENT-257
+        cardinality: N:1
+        description: RECEIPT_ID → RECEIPT_ID; 원 수신 결과와 같은 파기 단위

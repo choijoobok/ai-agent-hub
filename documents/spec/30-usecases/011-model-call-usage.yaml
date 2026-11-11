@@ -1,0 +1,150 @@
+usecases:
+  - id: UC-050
+    name: 모델 호출을 접수하고 관측·불명 결과를 보존한다
+    workstream: agent
+    design_status: draft
+    reqs:
+      - REQ-004
+      - REQ-107
+      - REQ-602
+    actors:
+      primary: ACT-001
+      secondary:
+        - ACT-012
+    process_step: PRC-02-04
+    precondition: 소유 서버의 현재 통제/작업과 공통 호출 계약이 정의돼 있다. 실제 생산 구현은 소유 G3 이후다.
+    trigger: 소유 작업이 실제 모델 전송 또는 계량 관측/집계 소비를 요청한다.
+    main_flow:
+      - 검증된 소유 작업/주체·고정 모델/설정·현재 통제와 입력 지문을 받는다.
+      - 단일 permit·호출 사전 기록·정확 설정 이력의 보호 참조를 함께 저장한다.
+      - 조건부 claim 뒤 integration이 DB 잠금 밖에서1회 전송한다.
+      - 관측/불변 사건과 현재 상태를 원 호출에 원자 반영한다.
+    alternative_flows:
+      - id: A1
+        condition: 원 요청 재수신 또는 운영 작업
+        flow:
+          - 동일 접수키/내용은 원 호출을 반환한다. 관리자 운영 호출은 턴 없이 운영 목적/실제 관리자에 귀속한다.
+    exception_flows:
+      - id: E1
+        condition: 기록·최신성·계량 완전성 실패
+        flow:
+          - 사전 저장 실패는 전송0. 전송 뒤 기록 불명은 성공 종결/자동 재송0이며 같은 원 호출을 대조한다.
+    postcondition: 원 호출과 비용 주체가 유지되고 기록 불명·관측·정정·집계 근거를 구분한다.
+    business_rules:
+      - FEAT-210.minimal_producer가 상세 정본이다. 전체 턴/화면 기능의 구현 완료를 뜻하지 않는다.
+    feature_contract: FEAT-210
+    sequence_design:
+      scope: 모델 호출을 접수하고 관측·불명 결과를 보존한다
+      contracts_from:
+        - FEAT-210
+        - FEAT-304
+      diagrams:
+        - key: minimum
+          title: 모델 호출을 접수하고 관측·불명 결과를 보존한다
+          transaction_boundary: 외부 송신은 DB 밖, 사전 수락과 관측/계량 반영은 각각 명시 원자 단위다.
+          reading_order:
+            - 주체/고정 입력을 먼저 확인한다.
+            - 저장 실패·중복·불명/완전성 분기를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant O as 소유 실행
+              participant R as agent 기록 생산
+              participant D as 공유 DB
+              participant I as integration 어댑터
+              O->>R: 현재 통제와 단일 전송 수락
+              R->>D: BEGIN 호출 사전기록 permit 참조보호
+              D-->>R: COMMIT
+              O->>R: claimDispatch
+              R->>D: 조건부 UNKNOWN과 관측 확정
+              R-->>O: 단일 전송 permit
+              O->>I: DB 잠금 밖 1회 송신
+              I->>R: 부분 완료 취소 사용량 관측
+              alt 기록 성공
+                R->>D: 불변 사건과 투영 원자 저장
+              else 기록 실패
+                R-->>O: 복구 필요, 성공 종결과 재송 금지
+              end
+          testcases:
+            - TC-2102
+            - TC-2103
+            - TC-2104
+            - TC-2105
+            - TC-2106
+            - TC-2107
+  - id: UC-051
+    name: 모델 사용량을 정정하고 불변 집계 근거를 제공한다
+    workstream: agent
+    design_status: draft
+    reqs:
+      - REQ-107
+      - REQ-116
+      - REQ-602
+    actors:
+      primary: ACT-001
+      secondary:
+        - ACT-012
+    process_step: PRC-02-04
+    precondition: 소유 서버의 현재 통제/작업과 공통 호출 계약이 정의돼 있다. 실제 생산 구현은 소유 G3 이후다.
+    trigger: 소유 작업이 실제 모델 전송 또는 계량 관측/집계 소비를 요청한다.
+    main_flow:
+      - 원 호출의 사용량 항목·원천/정규화 판·중복/정정 근거를 확인한다.
+      - 기존 관측을 보존하고 현재 유효값과 증감·소유 쿼터 반영을 같은 트랜잭션에 저장한다.
+      - 월/범위/기준시각의 반복가능 읽기로 정확 호출·선택 관측·누락을 확인한다.
+      - 불변 스냅샷과 근거를 저장하고 완전할 때만 admin 실적 소비자에게 제공한다.
+    alternative_flows:
+      - id: A1
+        condition: 원 요청 재수신 또는 운영 작업
+        flow:
+          - 추정700→확정900은 증분200, 같은 확정 재수신은0이다. 운영 호출은 전체 비용에 포함하고 Portal 쿼터에서는 분리한다.
+    exception_flows:
+      - id: E1
+        condition: 기록·최신성·계량 완전성 실패
+        flow:
+          - 최신성 불명/상이 내용 재수신은 충돌, 필수 계량 미제공은 불완전이며0/완전한 집계로 내보내지 않는다.
+    postcondition: 원 호출과 비용 주체가 유지되고 기록 불명·관측·정정·집계 근거를 구분한다.
+    business_rules:
+      - FEAT-211.minimal_producer가 상세 정본이다. 전체 턴/화면 기능의 구현 완료를 뜻하지 않는다.
+    feature_contract: FEAT-211
+    sequence_design:
+      scope: 모델 사용량을 정정하고 불변 집계 근거를 제공한다
+      contracts_from:
+        - FEAT-211
+        - FEAT-304
+      diagrams:
+        - key: minimum
+          title: 모델 사용량을 정정하고 불변 집계 근거를 제공한다
+          transaction_boundary: 외부 송신은 DB 밖, 사전 수락과 관측/계량 반영은 각각 명시 원자 단위다.
+          reading_order:
+            - 주체/고정 입력을 먼저 확인한다.
+            - 저장 실패·중복·불명/완전성 분기를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant I as integration 관측
+              participant A as agent 계량 생산
+              participant D as 공유 DB
+              participant M as admin 실적 소비
+              I->>A: 원 호출의 사용량과 정정 근거
+              A->>D: BEGIN 소유 쿼터 call head 잠금
+              alt 동일 관측 재수신
+                D-->>A: 원 결과 증분0
+              else 새 유효 관측
+                A->>D: 불변 관측 항목 head 증감 원장
+                A->>D: 같은 트랜잭션 소유 쿼터 반영
+              end
+              A->>D: COMMIT
+              M->>A: 월 범위 기준시각의 집계 요청
+              A->>D: 반복가능 읽기와 불변 근거 고정
+              alt 계량 완전
+                A-->>M: snapshotKey와 근거별 수량
+              else 불명 또는 미지원
+                A-->>M: Incomplete, 실적 확정 금지
+              end
+          testcases:
+            - TC-2112
+            - TC-2113
+            - TC-2114
+            - TC-2115
+            - TC-2116
+            - TC-2117
+            - TC-2118
+            - TC-2119

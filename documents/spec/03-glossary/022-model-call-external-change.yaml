@@ -1,0 +1,64 @@
+terms:
+  - id: TRM-300
+    term: 모델 호출 접수
+    key: modelCall
+    db_token: MODEL_CALL
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: 전송 전 고정 설정/입력·현재 통제 참조·단일 permit와 같은 트랜잭션에 기록한다. DB 접수와 외부 송신 사이 UNKNOWN을 삭제/자동 재송으로 없애지 않는다.
+  - id: TRM-301
+    term: 모델 호출 관측
+    key: callObservation
+    db_token: CALL_OBSERVATION
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: append-only。같은 call/key/내용만 재수락하며 다르면409이다. 검증 시각/수신 시각은 공급 사건 지문에 섞지 않는다.
+  - id: TRM-302
+    term: 모델 사용량 관측 항목
+    key: usageItem
+    db_token: USAGE_ITEM
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: 공급자 원 수량과 정규 의미를 구분하며 합계·캐시 부분항목을 함께 더하지 않는다. 필수 항목 미제공은 UNKNOWN이다. 정규화 오류/지원 불명은 차감 확정 금지.
+  - id: TRM-303
+    term: 모델 사용량 현재 반영
+    key: usageHead
+    db_token: USAGE_HEAD
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: 호출 잠금 안에서만 조건부 갱신하는 투영이다. 불변 관측과 ENT-262 증감 기록으로 재구성하며 현재값만 남기고 관측을 지우지 않는다.
+  - id: TRM-304
+    term: 모델 사용량 반영 원장
+    key: usageLedger
+    db_token: USAGE_LEDGER
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: 새 유효값 반영과 현재 head·실제 소유 쿼터 증감은 같은 트랜잭션이다. 700 추정→900 확정은 최초700/증분200으로 총900, 같은 사건 재수신 증분0이다.
+  - id: TRM-305
+    term: 모델 사용량 집계 스냅샷
+    key: usageSnapshot
+    db_token: USAGE_SNAPSHOT
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: REPEATABLE READ의 실제 가시 행 집합을 ENT-264로 고정한다. SYS_SEQUENCE 최댓값을 commit 순서 watermark로 사용하지 않는다. 같은 request key는 같은 불변 스냅샷만 반환한다.
+  - id: TRM-306
+    term: 모델 사용량 스냅샷 근거
+    key: usageSnapshotBasis
+    db_token: USAGE_SNAPSHOT_BASIS
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: 모델 호출·계량
+    definition: 스냅샷 시점의 call/선택된 불변 관측/유효수량/완전성을 연결한다. head가 바뀌어도 근거 행은 변하지 않는다. 현 원장에 JOIN해 과거 snapshot을 다시 계산하지 않는다.
+  - id: TRM-307
+    term: 외부 사건 최신성 기준
+    key: sourceChangeCursor
+    db_token: SOURCE_CHANGE_CURSOR
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: Portal 이용
+    definition: 서명키/검증 설정 세대와 사건 원천 epoch·계정 연결 BINDING_KEY는 다르다. 키 교체/프로세스 재시작으로 커서를 초기화하지 않는다.
+  - id: TRM-308
+    term: 외부 사건의 인앱 통지 참조
+    key: changeNotification
+    db_token: CHANGE_NOTIFICATION
+    db_token_reason: 요구 기반 호출/계량 또는 외부 사건 처리 개념의 물리 토큰
+    group: Portal 이용
+    definition: system 공개 포트가 확정한 정확 수신자+인앱 ID만 같은 트랜잭션에 기록한다. 상대 Repository 직접 접근/Portal ID 대체 없음.

@@ -1,0 +1,771 @@
+# 영역: 공통 명령·이력 보호·Portal 이용 기반 논리 모델
+entities:
+  - id: ENT-099
+    name: 공통 관리 명령 성공 결과
+    term: TRM-292
+    domain: 관리 변경
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-040
+    reqs:
+      - REQ-601
+    attributes:
+      - name: 원 명령 키
+        physical_name: COMMAND_KEY
+        pk: true
+        description: 원 명령 키
+      - name: 소유 기능
+        physical_name: OWNER_FEATURE
+        description: 소유 기능
+      - name: 실제 ADMIN 처리자
+        physical_name: ACTOR_ID
+        description: 실제 ADMIN 처리자
+      - name: 정규 입력 SHA-256
+        physical_name: REQUEST_DIGEST
+        description: 정규 입력 SHA-256
+      - name: 정규화 버전
+        physical_name: DIGEST_VERSION
+        description: 정규화 버전
+      - name: 대상 종류
+        physical_name: TARGET_KIND
+        description: 대상 종류
+      - name: 정확 대상 자연/대리 키
+        physical_name: TARGET_KEY
+        description: 정확 대상 자연/대리 키
+      - name: 결과 부모 리비전
+        physical_name: RESULT_REVISION
+        description: 결과 부모 리비전
+      - name: 새 성공 이력 번호
+        physical_name: HISTORY_NO
+        description: 새 성공 이력 번호
+      - name: 처리 결과
+        physical_name: OUTCOME_CD
+        description: 처리 결과
+      - name: 실제 반영 시각
+        physical_name: APPLIED_DTM
+        description: 실제 반영 시각
+    rules:
+      - FEAT-040.command_identity가 정본이다. ENT-019/028/036을 사용하는 소유 명령은 여기에 중복 기록하지 않는다.
+      - 대상/처리자 현재 행 삭제와 CASCADE하지 않는다. 결과 파기는 ADR-044 결정 전 비활성이다.
+      - 파기와 재수신은 commandKey 해시별 공통 잠금 아래 ENT-113을 먼저 확인한다. 주체/대상 현재 행 FK는 두지 않는다.
+    delete_policy: 원 결과/늦은 재수신 방지 근거를 함께 검증한 보존 계약만 파기할 수 있다.
+    table: AI_ADMIN_MANAGED_COMMAND
+    physical:
+      attributes:
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: OWNER_FEATURE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: ACTOR_ID
+          type: character varying(50)
+          nullable: false
+          default: null
+        - name: REQUEST_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: DIGEST_VERSION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: TARGET_KEY
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: true
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: OUTCOME_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: APPLIED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_MANAGED_COMMAND
+          definition: PRIMARY KEY (COMMAND_KEY)
+        - name: CK_MANAGED_COMMAND_1
+          definition: CHECK (OUTCOME_CD IN ('APPLIED','NO_CHANGE'))
+        - name: CK_MANAGED_COMMAND_2
+          definition: CHECK (OUTCOME_CD <> 'APPLIED' OR (HISTORY_NO IS NOT NULL AND APPLIED_DTM IS NOT NULL))
+      indexes:
+        - name: IX_MANAGED_COMMAND_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_MANAGED_COMMAND_1 ON AI_ADMIN_MANAGED_COMMAND (OWNER_FEATURE, TARGET_KEY)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    relations: []
+  - id: ENT-100
+    name: 관리 이력의 소비 참조 보호
+    term: TRM-293
+    domain: 관리 변경
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-040
+    reqs:
+      - REQ-601
+    attributes:
+      - name: 보호 참조 번호
+        physical_name: REFERENCE_ID
+        pk: true
+        description: 보호 참조 번호
+      - name: 소비 모듈
+        physical_name: CONSUMER_MODULE
+        description: 소비 모듈
+      - name: 소비 기록 종류
+        physical_name: CONSUMER_KIND
+        description: 소비 기록 종류
+      - name: 소비 안정 참조
+        physical_name: CONSUMER_KEY
+        description: 소비 안정 참조
+      - name: 원 관리 자산 종류
+        physical_name: ASSET_KIND
+        description: 원 관리 자산 종류
+      - name: 자산 자연/대리 키
+        physical_name: ASSET_KEY
+        description: 자산 자연/대리 키
+      - name: 성공 적용 리비전
+        physical_name: APPLIED_REVISION
+        description: 성공 적용 리비전
+      - name: 정확 이력 번호
+        physical_name: HISTORY_NO
+        description: 정확 이력 번호
+      - name: 보호 목적
+        physical_name: PURPOSE_CD
+        description: 보호 목적
+      - name: 전이 보호의 부모
+        physical_name: PARENT_REFERENCE_ID
+        description: 전이 보호의 부모
+      - name: 보호 등록 시각
+        physical_name: REGISTERED_DTM
+        description: 보호 등록 시각
+    uniqueness: 소비 모듈/종류/안정 참조 + 대상 종류/안정 ID/적용 리비전 + 목적
+    rules:
+      - 등록/해제/파기는 같은 이력 세트 잠금에서 직렬화한다.
+      - 소비자의 보존 종료가 확인되기 전 자동 만료하지 않는다. 전이 참조도 같은 보호 집합으로 완성한 뒤 성공한다.
+      - 다형 자산 참조는 허용 종류별 정확 HIST 어댑터로 검사한다. 가짜 공통 현재 테이블 FK를 만들지 않는다. 전이 참조 고리를 거부하고 같은 이력 잠금으로 등록/파기를 직렬화한다.
+    delete_policy: 소유 소비 기록의 적법한 파기/참조 종료와 원자 인계한 뒤 해제한다. 후행 조회 UI는 해제 권한이 없다.
+    table: AI_ADMIN_HISTORY_REF
+    physical:
+      attributes:
+        - name: REFERENCE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CONSUMER_MODULE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: CONSUMER_KIND
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: CONSUMER_KEY
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: ASSET_KIND
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ASSET_KEY
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: APPLIED_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: PURPOSE_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: PARENT_REFERENCE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: REGISTERED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_HISTORY_REF
+          definition: PRIMARY KEY (REFERENCE_ID)
+        - name: UK_HISTORY_REF_1
+          definition: UNIQUE (CONSUMER_MODULE, CONSUMER_KIND, CONSUMER_KEY, ASSET_KIND, ASSET_KEY, APPLIED_REVISION, PURPOSE_CD)
+        - name: FK_HISTORY_REF_1
+          definition: FOREIGN KEY (PARENT_REFERENCE_ID) REFERENCES AI_ADMIN_HISTORY_REF (REFERENCE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_HISTORY_REF_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_HISTORY_REF_1 ON AI_ADMIN_HISTORY_REF (ASSET_KIND, ASSET_KEY, HISTORY_NO)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    relations:
+      - entity: ENT-100
+        cardinality: N:1
+        description: PARENT_REFERENCE_ID → REFERENCE_ID; DB RESTRICT 참조
+  - id: ENT-101
+    name: Portal 이용자
+    term: TRM-245
+    domain: Portal 이용
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-005
+    reqs:
+      - REQ-616
+      - REQ-103
+      - REQ-609
+    attributes:
+      - name: Portal 안정 식별자
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: Portal 안정 식별자
+      - name: Portal 로그인 아이디
+        physical_name: LOGIN_ID
+        description: Portal 로그인 아이디
+      - name: 이름
+        physical_name: USER_NM
+        description: 이름
+      - name: 소속 조직
+        physical_name: ORGANIZATION_NM
+        description: 소속 조직
+      - name: 인증 모드
+        physical_name: AUTH_MODE_CD
+        description: 인증 모드
+      - name: 프로필 원천
+        physical_name: SOURCE_CD
+        description: 프로필 원천
+      - name: 사용 시작일
+        physical_name: USE_START_DT
+        description: 사용 시작일
+      - name: 사용 종료일
+        physical_name: USE_END_DT
+        description: 사용 종료일
+      - name: 이용 활성
+        physical_name: ACTIVE_YN
+        description: 이용 활성
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    uniqueness: 자체 로그인 ID의 소유 정규화 규칙 및 외부 인증원천+subject. 두 모드의 충돌은 명시 연결 절차 없이 병합하지 않는다.
+    history: 비밀을 제외한 원 관리값·소유 구성의 동형 전체 이력. 자체 자격정보는 별도 보안 저장 단위로 분해하며 HIST에 복사하지 않는다.
+    rules:
+      - FEAT-005.storage/access_contract/activation_and_quota를 따른다.
+      - 기간/활성/그룹 자격 변경은 달력 경계 잠금에 참여한다. 과거 상태의 수락 시각/효력일을 보존해 지연 월말 작업이 마감을 재현한다.
+      - 자체/외부 인증 세부는 ENT-114/131로 분리하며 비밀과 잠금 관측을 관리 HIST에 복사하지 않는다. 로그인 아이디는 보존된 안정 사용자에 연결하고 동일 이름/이메일로 합치지 않는다.
+    delete_policy: 비활성화와 개인정보 파기를 구분한다. ADR-044/ARCH-050 파기 계약 확정 전 물리 삭제·익명화 기능을 열지 않는다.
+    table: AI_ADMIN_PORTAL_USER
+    physical:
+      attributes:
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: LOGIN_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: USER_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: ORGANIZATION_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: AUTH_MODE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: SOURCE_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: USE_START_DT
+          type: date
+          nullable: false
+          default: null
+        - name: USE_END_DT
+          type: date
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_PORTAL_USER
+          definition: PRIMARY KEY (PORTAL_USER_ID)
+        - name: UK_PORTAL_USER_1
+          definition: UNIQUE (LOGIN_ID)
+        - name: CK_PORTAL_USER_1
+          definition: CHECK (AUTH_MODE_CD IN ('LOCAL','EXTERNAL'))
+        - name: CK_PORTAL_USER_2
+          definition: CHECK (USE_START_DT <= USE_END_DT)
+        - name: CK_PORTAL_USER_3
+          definition: CHECK (REVISION > 0)
+        - name: CK_PORTAL_USER_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_PORTAL_USER_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_PORTAL_USER_1 ON AI_ADMIN_PORTAL_USER (ACTIVE_YN, USE_START_DT, USE_END_DT)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-201
+      root: ENT-101
+    relations: []
+    copy_mapping:
+      history: ENT-201
+    revision_column: REVISION
+  - id: ENT-102
+    name: AI 데이터 접근 사용자 그룹
+    term: TRM-045
+    domain: Portal 이용
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-006
+    reqs:
+      - REQ-103
+      - REQ-605
+      - REQ-601
+    attributes:
+      - name: 그룹 안정 식별자
+        physical_name: GROUP_ID
+        pk: true
+        description: 그룹 안정 식별자
+      - name: 그룹명
+        physical_name: GROUP_NM
+        description: 그룹명
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 설명
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    history: 그룹 정의 전체 HIST. 자산 네 탭은 원 소유 링크의 역조회이며 복사하지 않는다.
+    rules:
+      - 현재 소속/자산 참조의 활성과 비활성을 구분하고 삭제/중지는 REQ-605로 판정한다.
+      - 신규 참조 생성과 삭제는 같은 정책 보호 경계에서 검증한다.
+      - SCR-006 사용 상태는 참조/현재 소속의 읽기 투영이다. 독립 그룹 활성 스위치/ACTIVE_YN 저장 필드를 추가하지 않는다.
+    delete_policy: 현재 참조 보호 규칙을 통과한 경우만 허용하며 과거 이력과 안정 ID는 보존한다.
+    table: AI_ADMIN_USER_GROUP
+    physical:
+      attributes:
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USER_GROUP
+          definition: PRIMARY KEY (GROUP_ID)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-202
+      root: ENT-102
+    relations: []
+    copy_mapping:
+      history: ENT-202
+    revision_column: REVISION
+  - id: ENT-103
+    name: Portal 이용자의 그룹 소속
+    term: TRM-045
+    domain: Portal 이용
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-005
+      - FEAT-006
+    reqs:
+      - REQ-103
+      - REQ-609
+      - REQ-601
+    attributes:
+      - name: 소유 Portal 이용자
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: 소유 Portal 이용자
+      - name: 그룹 참조
+        physical_name: GROUP_ID
+        pk: true
+        description: 그룹 참조
+      - name: 소속 활성
+        physical_name: ACTIVE_YN
+        description: 소속 활성
+      - name: 소속 변경 근거/메모
+        physical_name: MEMO
+        description: 소속 변경 근거/메모
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    relations:
+      - entity: ENT-101
+        cardinality: N:1
+        description: Portal 사용자 부모의 리비전/전체 HIST에 참여
+      - entity: ENT-102
+        cardinality: N:1
+        description: 현재 그룹 참조 및 삭제 경합 보호
+      - entity: ENT-101
+        cardinality: N:1
+        description: PORTAL_USER_ID → PORTAL_USER_ID; DB RESTRICT 참조
+      - entity: ENT-102
+        cardinality: N:1
+        description: GROUP_ID → GROUP_ID; DB RESTRICT 참조
+    history: Portal 부모 전체 이력에 포함하며 자식 독립 리비전을 만들지 않는다. 월 마감의 당시 자격 복원에 사용한다.
+    rules:
+      - 사용자/그룹 양쪽 명령은 같은 잠금/기대 부모 리비전을 사용한다.
+      - 현재 활성 소속과 자산 허용 그룹 교집합만 데이터 권한이다.
+      - 독립 리비전 없음. Portal 부모 잠금과 기대 리비전을 사용하고 소속 물리 삭제는 금지한다.
+    table: AI_ADMIN_USER_MEMBERSHIP
+    physical:
+      attributes:
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: MEMO
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USER_MEMBERSHIP
+          definition: PRIMARY KEY (PORTAL_USER_ID, GROUP_ID)
+        - name: FK_USER_MEMBERSHIP_1
+          definition: FOREIGN KEY (PORTAL_USER_ID) REFERENCES AI_ADMIN_PORTAL_USER (PORTAL_USER_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_USER_MEMBERSHIP_2
+          definition: FOREIGN KEY (GROUP_ID) REFERENCES AI_ADMIN_USER_GROUP (GROUP_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_USER_MEMBERSHIP_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_USER_MEMBERSHIP_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_USER_MEMBERSHIP_1 ON AI_ADMIN_USER_MEMBERSHIP (GROUP_ID, ACTIVE_YN, PORTAL_USER_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-101
+      entity: ENT-203
+      root: ENT-101
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    copy_mapping:
+      history: ENT-203
+  - id: ENT-104
+    name: Portal 이용자의 대상 신원 매핑
+    term: TRM-049
+    domain: Portal 이용
+    module: admin
+    implementation: planned
+    design_stage: physical
+    features:
+      - FEAT-005
+    reqs:
+      - REQ-609
+      - REQ-616
+    attributes:
+      - name: Portal 이용자
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: Portal 이용자
+      - name: 대상 종류
+        physical_name: TARGET_KIND
+        pk: true
+        description: 대상 종류
+      - name: 안정 대상 참조
+        physical_name: TARGET_ID
+        pk: true
+        description: 안정 대상 참조
+      - name: 직접 관리 대상 사용자 아이디
+        physical_name: EXTERNAL_USER_ID
+        description: 직접 관리 대상 사용자 아이디
+      - name: 매핑 활성
+        physical_name: MAPPING_ACTIVE_YN
+        description: 매핑 활성
+      - name: 신원 연결 근거
+        physical_name: IDENTITY_EVIDENCE
+        description: 신원 연결 근거
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    relations:
+      - entity: ENT-101
+        cardinality: N:1
+        description: 현재 소유 사용자와 부모 전체 이력
+      - entity: ENT-101
+        cardinality: N:1
+        description: PORTAL_USER_ID → PORTAL_USER_ID; DB RESTRICT 참조
+    rules:
+      - FEAT-005.identity_management과 REQ-609.identity_management의 직접 저장/유일성을 적용한다.
+      - 매핑 회수는 다음 접근/실행 및 실행용 토큰 소비의 현재 판정에 반영하며 세션의 옛 매핑을 사용하지 않는다.
+      - 대상 종류별 ENT-001/002 현재 부모를 잠그고 존재/유효성을 검증한다. 사용중지/회수와 실행 신원 소비도 같은 보호 경계다. 실행 토큰 저장소가 아니다.
+    history: Portal 부모와 같은 전체 세트에 비밀 없는 매핑/직접 변경 근거를 보존한다.
+    table: AI_ADMIN_USER_IDENTITY
+    physical:
+      attributes:
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: TARGET_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: EXTERNAL_USER_ID
+          type: character varying(200)
+          nullable: true
+          default: null
+        - name: MAPPING_ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: IDENTITY_EVIDENCE
+          type: text
+          nullable: true
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_USER_IDENTITY
+          definition: PRIMARY KEY (PORTAL_USER_ID, TARGET_KIND, TARGET_ID)
+        - name: FK_USER_IDENTITY_1
+          definition: FOREIGN KEY (PORTAL_USER_ID) REFERENCES AI_ADMIN_PORTAL_USER (PORTAL_USER_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_USER_IDENTITY_1
+          definition: CHECK (TARGET_KIND IN ('SYSTEM','DATA_SOURCE'))
+        - name: CK_USER_IDENTITY_2
+          definition: CHECK (MAPPING_ACTIVE_YN='N' OR (EXTERNAL_USER_ID IS NOT NULL AND IDENTITY_EVIDENCE IS NOT NULL))
+        - name: CK_USER_IDENTITY_MAPPING_ACTIVE_YN
+          definition: CHECK (MAPPING_ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_USER_IDENTITY_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_USER_IDENTITY_1 ON AI_ADMIN_USER_IDENTITY (TARGET_KIND, TARGET_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-101
+      entity: ENT-204
+      root: ENT-101
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    copy_mapping:
+      history: ENT-204

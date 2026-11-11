@@ -5,18 +5,56 @@ features:
     workstream: system
     roadmap: RM-P1
     type: transaction
-    title: "관리자 계정·인증·세션 운영"
-    approved_change: "CR-028 — system 관리자 자체 계정/인증은 Portal 계정/인증과 분리한다. CR-027의 공통 계정 방향은 철회됐으며 ARCH-050·UC-501의 인증 영역/세션·API 경계와 회귀 계약은 상세 설계·구현 대기다"
-    detail: "계정 상태·사용 기간·접속 IP·잠금·휴면·비밀번호를 한 로그인 판정으로 묶고, 관리자 계정 관리와 사용자 자기 서비스·활성 세션 종료를 같은 수명주기 계약으로 제공한다"
-    hard_rule: "조건 하나라도 실패하면 세션을 만들지 않으며 SYS_USER는 물리 삭제하지 않는다"
-    reqs: [REQ-501]
-    usecases: [UC-501]
-    entities: [ENT-501, ENT-502, ENT-503, ENT-504, ENT-505]
-    apis: [API-501, API-502, API-503, API-504, API-505, API-506, API-507, API-508, API-509, API-510, API-511, API-512, API-513, API-514, API-515, API-516, API-517, API-518, API-519, API-520, API-521, API-522, API-523]
-    screens: [SCR-501, SCR-502, SCR-503, SCR-504, SCR-505, SCR-506]
-    actors: [ACT-001, ACT-012]
+    title: 관리자 계정·인증·세션 운영
+    approved_change: CR-028/033·ADR-034/046의 관리자 독립 인증·현재 권한 회수 상세. FEAT-501.auth_precondition과 integration G3 동결 FEAT-301 수락 계약을 연결한다. system 영향 G2 승인과 G3 상세/변경 화면의 승인 상태는 project.state.yaml이 정본이며 system 소비 구현은 자체 G3 뒤 진행한다.
+    detail: 계정 상태·사용 기간·접속 IP·잠금·휴면·비밀번호를 한 로그인 판정으로 묶고, 관리자 계정 관리와 사용자 자기 서비스·활성 세션 종료를 같은 수명주기 계약으로 제공한다
+    hard_rule: 조건 하나라도 실패하면 세션을 만들지 않으며 SYS_USER는 물리 삭제하지 않는다
+    reqs:
+      - REQ-501
+    usecases:
+      - UC-501
+    entities:
+      - ENT-501
+      - ENT-502
+      - ENT-503
+      - ENT-504
+      - ENT-505
+    apis:
+      - API-501
+      - API-502
+      - API-503
+      - API-504
+      - API-505
+      - API-506
+      - API-507
+      - API-508
+      - API-509
+      - API-510
+      - API-511
+      - API-512
+      - API-513
+      - API-514
+      - API-515
+      - API-516
+      - API-517
+      - API-518
+      - API-519
+      - API-520
+      - API-521
+      - API-522
+      - API-523
+      - API-601
+    screens:
+      - SCR-501
+      - SCR-502
+      - SCR-503
+      - SCR-504
+      - SCR-505
+      - SCR-506
+    actors:
+      - ACT-001
+      - ACT-012
     complexity: high
-
   - id: FEAT-502
     module: system
     workstream: system

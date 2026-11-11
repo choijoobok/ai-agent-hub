@@ -1,0 +1,663 @@
+entities:
+  - id: ENT-216
+    name: 모델 용도 전체 설정 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_USAGE_SET_HIST
+    features:
+      - FEAT-015
+      - FEAT-040
+    reqs:
+      - REQ-602
+      - REQ-610
+      - REQ-601
+    term: TRM-231
+    domain: 모델 제공
+    sources: []
+    attributes:
+      - name: 전체 설정 고정 키
+        physical_name: SET_KEY
+        pk: false
+        description: 전체 설정 고정 키
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+        pk: false
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+        pk: false
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+        pk: false
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+        pk: false
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+        pk: false
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+        pk: false
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+      - name: 이력 생성 시각
+        physical_name: HIST_DTM
+        pk: false
+        description: 이력 생성 시각
+      - name: CREATE/CHANGE/DELETE
+        physical_name: HIST_ACTION
+        pk: false
+        description: CREATE/CHANGE/DELETE
+      - name: 실제 관리자
+        physical_name: HIST_ACTOR_ID
+        pk: false
+        description: 실제 관리자
+      - name: 관리/동기화 원천
+        physical_name: HIST_SOURCE_CD
+        pk: false
+        description: 관리/동기화 원천
+      - name: 원 명령 키
+        physical_name: HISTORY_COMMAND_KEY
+        pk: false
+        description: 원 명령 키
+      - name: 결과 버전
+        physical_name: RESULT_REVISION
+        pk: false
+        description: 결과 버전
+      - name: 직전 성공 세트
+        physical_name: BEFORE_HISTORY_NO
+        pk: false
+        description: 직전 성공 세트
+      - name: 이번 명령 사유
+        physical_name: HIST_REASON
+        pk: false
+        description: 이번 명령 사유
+      - name: 비밀 없는 변경 요약
+        physical_name: HIST_SUMMARY
+        pk: false
+        description: 비밀 없는 변경 요약
+      - name: 이력 읽기 구조 버전
+        physical_name: SCHEMA_VERSION
+        pk: false
+        description: 이력 읽기 구조 버전
+    physical:
+      attributes:
+        - name: SET_KEY
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ACTION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HIST_ACTOR_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: HIST_SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HISTORY_COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: BEFORE_HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: HIST_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: HIST_SUMMARY
+          type: text
+          nullable: false
+          default: null
+        - name: SCHEMA_VERSION
+          type: integer
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_USAGE_SET_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_MODEL_USAGE_SET_HIST_SET
+          definition: UNIQUE (HISTORY_NO, SET_KEY)
+        - name: UK_MODEL_USAGE_SET_HIST_NO
+          definition: UNIQUE (HISTORY_NO)
+        - name: UK_MODEL_USAGE_SET_HIST_REV
+          definition: UNIQUE (SET_KEY, RESULT_REVISION)
+        - name: CK_MODEL_USAGE_SET_HIST_ACTION
+          definition: CHECK (HIST_ACTION IN ('CREATE','CHANGE','DELETE'))
+      indexes:
+        - name: IX_MODEL_USAGE_SET_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_MODEL_USAGE_SET_HIST_LOOKUP ON AI_ADMIN_MODEL_USAGE_SET_HIST (SET_KEY, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-128
+      root_history: ENT-216
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations: []
+    history_copy_of: ENT-128
+    storage_role: history
+  - id: ENT-217
+    name: 모델 용도 후보와 기본 지정 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_USAGE_HIST
+    features:
+      - FEAT-015
+      - FEAT-040
+    reqs:
+      - REQ-602
+      - REQ-610
+      - REQ-601
+    term: TRM-231
+    domain: 모델 제공
+    sources: []
+    attributes:
+      - name: 용도 매핑 번호
+        physical_name: USAGE_ID
+        pk: false
+        description: 용도 매핑 번호
+      - name: 전체 설정 키
+        physical_name: SET_KEY
+        description: 전체 설정 키
+        pk: false
+      - name: 소스 계약 용도 코드
+        physical_name: USAGE_CD
+        description: 소스 계약 용도 코드
+        pk: false
+      - name: 등록 모델 조합
+        physical_name: MODEL_ID
+        description: 등록 모델 조합
+        pk: false
+      - name: 보조 판정 순위
+        physical_name: PRIORITY_NO
+        description: 보조 판정 순위
+        pk: false
+      - name: 해당 용도의 기본 지정
+        physical_name: DEFAULT_YN
+        description: 해당 용도의 기본 지정
+        pk: false
+      - name: 용도 설명
+        physical_name: DESCRIPTION
+        description: 용도 설명
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: USAGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SET_KEY
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: USAGE_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PRIORITY_NO
+          type: integer
+          nullable: true
+          default: null
+        - name: DEFAULT_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: character varying(1000)
+          nullable: true
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_USAGE_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_MODEL_USAGE_HIST_SET
+          definition: UNIQUE (HISTORY_NO, USAGE_ID)
+        - name: FK_MODEL_USAGE_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, SET_KEY) REFERENCES AI_ADMIN_MODEL_USAGE_SET_HIST (HISTORY_NO, SET_KEY) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_MODEL_USAGE_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_MODEL_USAGE_HIST_LOOKUP ON AI_ADMIN_MODEL_USAGE_HIST (USAGE_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-129
+      root_history: ENT-216
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-216
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-129
+    history_parent: ENT-216
+    storage_role: history
+  - id: ENT-218
+    name: 지식 검색 태그 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_SEARCH_TAG_HIST
+    features:
+      - FEAT-024
+      - FEAT-040
+    reqs:
+      - REQ-607
+      - REQ-601
+    term: TRM-042
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 안정 태그 번호
+        physical_name: TAG_ID
+        pk: false
+        description: 안정 태그 번호
+      - name: 대표 검색 표현
+        physical_name: SEARCH_TEXT
+        description: 대표 검색 표현
+        pk: false
+      - name: 중복 판정 표현
+        physical_name: NORMALIZED_TEXT
+        description: 중복 판정 표현
+        pk: false
+      - name: 검색 사용
+        physical_name: USE_YN
+        description: 검색 사용
+        pk: false
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+        pk: false
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+        pk: false
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+        pk: false
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+        pk: false
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+        pk: false
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+        pk: false
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+      - name: 이력 생성 시각
+        physical_name: HIST_DTM
+        pk: false
+        description: 이력 생성 시각
+      - name: CREATE/CHANGE/DELETE
+        physical_name: HIST_ACTION
+        pk: false
+        description: CREATE/CHANGE/DELETE
+      - name: 실제 관리자
+        physical_name: HIST_ACTOR_ID
+        pk: false
+        description: 실제 관리자
+      - name: 관리/동기화 원천
+        physical_name: HIST_SOURCE_CD
+        pk: false
+        description: 관리/동기화 원천
+      - name: 원 명령 키
+        physical_name: HISTORY_COMMAND_KEY
+        pk: false
+        description: 원 명령 키
+      - name: 결과 버전
+        physical_name: RESULT_REVISION
+        pk: false
+        description: 결과 버전
+      - name: 직전 성공 세트
+        physical_name: BEFORE_HISTORY_NO
+        pk: false
+        description: 직전 성공 세트
+      - name: 이번 명령 사유
+        physical_name: HIST_REASON
+        pk: false
+        description: 이번 명령 사유
+      - name: 비밀 없는 변경 요약
+        physical_name: HIST_SUMMARY
+        pk: false
+        description: 비밀 없는 변경 요약
+      - name: 이력 읽기 구조 버전
+        physical_name: SCHEMA_VERSION
+        pk: false
+        description: 이력 읽기 구조 버전
+    physical:
+      attributes:
+        - name: TAG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SEARCH_TEXT
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: NORMALIZED_TEXT
+          type: character varying(400)
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: HIST_ACTION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HIST_ACTOR_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: HIST_SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HISTORY_COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: BEFORE_HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: HIST_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: HIST_SUMMARY
+          type: text
+          nullable: false
+          default: null
+        - name: SCHEMA_VERSION
+          type: integer
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_SEARCH_TAG_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_SEARCH_TAG_HIST_SET
+          definition: UNIQUE (HISTORY_NO, TAG_ID)
+        - name: UK_SEARCH_TAG_HIST_NO
+          definition: UNIQUE (HISTORY_NO)
+        - name: UK_SEARCH_TAG_HIST_REV
+          definition: UNIQUE (TAG_ID, RESULT_REVISION)
+        - name: CK_SEARCH_TAG_HIST_ACTION
+          definition: CHECK (HIST_ACTION IN ('CREATE','CHANGE','DELETE'))
+      indexes:
+        - name: IX_SEARCH_TAG_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_SEARCH_TAG_HIST_LOOKUP ON AI_ADMIN_SEARCH_TAG_HIST (TAG_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-132
+      root_history: ENT-218
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations: []
+    history_copy_of: ENT-132
+    storage_role: history
+  - id: ENT-219
+    name: 태그 동의어 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TAG_SYNONYM_HIST
+    features:
+      - FEAT-024
+      - FEAT-040
+    reqs:
+      - REQ-607
+      - REQ-601
+    term: TRM-042
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 안정 동의어 번호
+        physical_name: SYNONYM_ID
+        pk: false
+        description: 안정 동의어 번호
+      - name: 태그 번호
+        physical_name: TAG_ID
+        description: 태그 번호
+        pk: false
+      - name: 동의어 표현
+        physical_name: SEARCH_TEXT
+        description: 동의어 표현
+        pk: false
+      - name: 중복 판정 표현
+        physical_name: NORMALIZED_TEXT
+        description: 중복 판정 표현
+        pk: false
+      - name: 표현 설명
+        physical_name: DESCRIPTION
+        description: 표현 설명
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: SYNONYM_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TAG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SEARCH_TEXT
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: NORMALIZED_TEXT
+          type: character varying(400)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TAG_SYNONYM_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_TAG_SYNONYM_HIST_SET
+          definition: UNIQUE (HISTORY_NO, SYNONYM_ID)
+        - name: FK_TAG_SYNONYM_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, TAG_ID) REFERENCES AI_ADMIN_SEARCH_TAG_HIST (HISTORY_NO, TAG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_TAG_SYNONYM_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_TAG_SYNONYM_HIST_LOOKUP ON AI_ADMIN_TAG_SYNONYM_HIST (SYNONYM_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-133
+      root_history: ENT-218
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-218
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-133
+    history_parent: ENT-218
+    storage_role: history

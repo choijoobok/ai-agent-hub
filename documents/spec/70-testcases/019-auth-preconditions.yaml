@@ -1,0 +1,89 @@
+testcases:
+  - id: TC-50110
+    feature: FEAT-501
+    usecase: UC-501
+    type: normal
+    actor: ACT-012
+    title: 비활성화 커밋 후 모든 노드의 다음 보호 요청 차단
+    given: 동일 ADMIN의 다중 노드/탭 세션과 같은 ID PORTAL 세션
+    when: ADMIN 비활성화 커밋 후 dirty 통지를 유실시키고 common/service 요청
+    then: ADMIN은401/업무효과0, PORTAL은 불변. 같은 날짜 캐시가 있어도 현재 계정을 검사한다.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-50111
+    feature: FEAT-501
+    usecase: UC-501
+    type: concurrency
+    actor: ACT-012
+    title: 관리 저장과 계정 회수의 두 확정 순서
+    given: 저장 S와 비활성화 R이 동시 진행
+    when: S 먼저/ R 먼저 잠금을 획득시켜 커밋하고 원 명령 재조회
+    then: S 선행이면 저장 유지 후 다음 접근401, R 선행이면 S효과0/401. 롤백된 R은 계정을 비활성화하지 않는다.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-5037
+    feature: FEAT-503
+    usecase: UC-503
+    type: concurrency
+    actor: ACT-012
+    title: 권한 회수와 저장/재생의 보호 구간
+    given: 역할/개인예외/메뉴API 변경의 모든 쓰기 경로
+    when: 각 회수와 저장/원 결과 읽기를 양 순서로 경합
+    then: 저장 선행 효과 유지, 회수 선행이면403/효과0. 판정 후 잠금 해제·REQUIRES_NEW·만료형 락으로 대체하면 실패.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-3014
+    feature: FEAT-301
+    usecase: UC-045
+    type: normal
+    actor: ACT-001
+    title: LOCAL 실제 로그인과 독립 세션 회전
+    given: 별도 LOCAL Portal 계정·초기 임시 비밀번호
+    when: 공개 CSRF 준비→login→강제변경→getMe→logout
+    then: 제한 세션에서 업무는거부, 변경 뒤 자기세션만 회전, 예전쿠키401, ADMIN 세션은유지. 대역이 아닌 실제 검증 경로를 사용한다.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-3015
+    feature: FEAT-301
+    usecase: UC-045
+    type: permission
+    actor: ACT-001
+    title: 교차 쿠키·CSRF·Origin·반환 경로 차단
+    given: 두 영역 같은 브라우저 로그인
+    when: 상대쿠키/CSRF, 외부Origin, //host·인코딩된 상대경로를 각각 제출
+    then: 영역혼동/CSRF 거부, 외부/상대영역으로 복귀하지 않음. public/common 포괄허용 변이는 실패.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-3016
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 자격 변경과 세션 발급/응답 유실
+    given: LOCAL 로그인 검증과 admin reset/본인 변경 동시 진행
+    when: 세대 변경을 앞뒤로 확정하고 세션 저장 실패·응답 유실 발생
+    then: 낡은 세대 세션은 다음 요청401. 암호변경 성공+세션실패는 재로그인 회복, 같은 관리 reset키로 새 비밀 생성/재노출 금지.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+  - id: TC-3017
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 외부 신원 검증과 하향 인증 금지
+    given: 검증 외부 source+subject 및 미등록/만료/재생/issuer불일치 증거
+    when: 서버 어댑터로 수락 시도와 EXTERNAL장애/검증기미설정
+    then: 정상 등록 주체만 해석, 나머지 이용 불가. 이메일병합·LOCAL자동전환·테스트검증기의 제품조립은 실패. 실SSO 통과는 별도 기록한다.
+    status: planned
+    verification: SLICE-301에서 검증 어댑터 대역과 실제 DB/서버의 신원 수락 경계·재생 거부·하향 금지를 먼저 시험한다. SLICE-306에서는 같은 수락 반례를 고객 실제 어댑터/콜백·서명키·실SSO로 다시 검증하고 별도 결과를 남긴다. 규칙을 반대로 구현한 변이에서 실패해야 하며 대역 통과를 실SSO 완료로 세지 않는다.
+  - id: TC-3018
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 원천 장애와 안전한 감사
+    given: 계정/권한/세션 저장소 각각 실패
+    when: 보호 요청/로그인/암호변경을 수행하고 로그/HIST/응답 조사
+    then: 503/부분성공 없음, 낡은권한폴백없음, 비밀번호/해시/쿠키/외부토큰원문0. 이미확정된 암호변경은 오류로 롤백된것처럼 표시하지 않음.
+    status: planned
+    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.

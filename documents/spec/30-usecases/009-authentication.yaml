@@ -1,0 +1,154 @@
+usecases:
+  - id: UC-045
+    name: Portal 별도 인증 세션으로 접속하고 종료한다
+    workstream: integration
+    design_status: draft
+    reqs:
+      - REQ-616
+      - REQ-103
+    actors:
+      primary: ACT-001
+      secondary: []
+    process_step: PRC-13-01
+    precondition: Portal 계정 원천과 LOCAL/EXTERNAL 배포 모드가 정해졌고 검증 어댑터/원장 공개 포트가 준비돼 있다. 제품 로그인 화면 완료는 선행 조건이 아니다.
+    trigger: Portal 서버 인증 경로로 로그인·본인 암호 변경·세션 확인/종료를 요청한다.
+    main_flow:
+      - Portal 익명 문맥/CSRF를 준비하고 같은 영역의 요청/Origin을 검증한다.
+      - LOCAL은 현재 Portal 원장/자격을 보호하고 암호/계정 상태를 검사한다. ADMIN 계정이나 요청 userId로 대체하지 않는다.
+      - 정상 수락은 동시 세션 정책·새 ID/CSRF·안전한 성공 사건을 DB에 확정한 뒤 쿠키를 응답한다.
+      - 보호 요청마다 세션 기한/자격세대/현재 계정을 검사하고 기능별 현재 그룹·대상/쿼터 조건을 별도로 확인한다.
+      - 명시 로그아웃/만료는 자기 영역 인증 세션만 종료하고 채팅·턴 기록은 보존 정책에 맡긴다.
+    alternative_flows:
+      - id: A1
+        condition: EXTERNAL 모드
+        flow:
+          - 설치된 어댑터가 증거·challenge 바인딩을 검증한다.
+          - IF-010의 일회 소비·현재 연결/계정·세션/사건을 원자 확정한다.
+      - id: A2
+        condition: 초기/만료 비밀번호
+        flow:
+          - 제한 세션으로 본인 암호 변경/확인/종료만 허용한다.
+          - 자격 변경·암호 이력·사건을 확정하고 새 세대로 세션을 회전한다.
+    exception_flows:
+      - id: E1
+        condition: 영역/CSRF/Origin/현재 계정 또는 암호 불일치
+        flow:
+          - 세션을 발급하지 않고 안전한 오류를 반환한다.
+          - 로그인 실패횟수/잠금 기록을 응답 예외 롤백으로 지우지 않는다.
+      - id: E2
+        condition: DB/감사 또는 세션 확정 실패
+        flow:
+          - 신규 인증 성공을 반환하지 않으며503이다.
+          - 암호 변경이 이미 확정된 뒤 회전 실패는 재로그인 복구로 구별한다.
+      - id: E3
+        condition: 외부 증거/요청 문맥 만료·재생·연결 충돌
+        flow:
+          - 소비/세션을 추가하지 않고401/409로 거부한다.
+          - LOCAL 자동 전환이나 이메일 병합을 하지 않는다.
+      - id: E4
+        condition: 동시 로그인/로그아웃/만료 청소와 늦은 세션 저장
+        flow:
+          - 주체별 입장 보호와 세션 행 존재/세대 확인으로 한도 초과·종료 ID 부활을 막는다.
+    postcondition: 허용된 주체만 PORTAL 인증 문맥을 가지며 실패/만료가 ADMIN 세션에 전파되지 않는다.
+    business_rules:
+      - FEAT-301이 인증/만료/실패 복구의 정본이다. 인증 성공을 실행 권한이나 채팅 세션 생성으로 해석하지 않는다.
+      - 익명/인증 세션·외부 증거·보안 사건의 수명을 분리한다. 대역 시험은 실SSO 검증을 대신하지 않는다.
+    feature_contract: FEAT-301
+    sequence_design:
+      scope: 서버 인증 수락·실패/복구. 제품 Portal UI와 고객 프로토콜 구현은 별도다.
+      contracts_from:
+        - FEAT-301
+        - IF-010
+      diagrams:
+        - key: local-login
+          title: 자체 로그인과 실패횟수 확정
+          transaction_boundary: 로그인 실패 결과도 횟수/사건 커밋 후 HTTP 실패로 변환한다. 성공 세션/사건은 같은 REQUIRED 트랜잭션이다.
+          apis:
+            - API-301
+            - API-302
+          testcases:
+            - TC-3014
+            - TC-3019
+            - TC-30110
+          reading_order:
+            - 영역/현재 주체와 입력 검증을 먼저 본다.
+            - DB 확정 경계와 HTTP 응답/실패를 구분한다.
+            - 대역 검증과 실제 고객 연동의 완료를 분리한다.
+          mermaid: |-
+            sequenceDiagram
+              participant B as Portal 요청
+              participant P as Portal 인증 조립
+              participant A as admin 자격 포트
+              participant D as 공유 DB
+              B->>P: LOCAL 로그인과 CSRF
+              P->>D: BEGIN
+              P->>A: 정책/사용자/자격 보호 후 검증
+              alt 자격 불일치
+                A->>D: 실패횟수/잠금 및 안전한 사건
+                P->>D: COMMIT
+                P-->>B: 401 안전 오류
+              else 수락
+                P->>D: 기존 세션 종료 및 새 세션/사건
+                P->>D: COMMIT
+                P-->>B: PORTAL 쿠키와 인증 상태
+              end
+        - key: external-consumption
+          title: 검증된 외부 증거의 일회 수락
+          transaction_boundary: 서명/원천 네트워크 검증은 DB 잠금 밖이다. challenge/증거 소비·세션/사건은 한 커밋이다.
+          apis:
+            - API-301
+          testcases:
+            - TC-3017
+            - TC-30111
+          reading_order:
+            - 영역/현재 주체와 입력 검증을 먼저 본다.
+            - DB 확정 경계와 HTTP 응답/실패를 구분한다.
+            - 대역 검증과 실제 고객 연동의 완료를 분리한다.
+          mermaid: |-
+            sequenceDiagram
+              participant V as 설치된 검증 어댑터
+              participant P as Portal 수락 포트
+              participant A as admin 신원 포트
+              participant D as 공유 DB
+              V->>V: 원천/서명/콜백 검증
+              V->>P: 검증 결과와 challenge 바인딩
+              P->>D: BEGIN 및 challenge 잠금
+              P->>A: 현재 연결/계정 보호 검사
+              alt 만료 또는 중복 소비
+                P->>D: ROLLBACK
+                P-->>V: 401/409
+              else 수락 가능
+                P->>D: 증거 UNIQUE 삽입/소비/세션/사건
+                P->>D: COMMIT
+                P-->>V: 인증 상태와 쿠키
+              end
+        - key: password-recovery
+          title: 비밀번호 확정과 세션 갱신 실패 복구
+          transaction_boundary: 자격/암호 이력/사건 커밋 뒤 별도 회전 구간이 실패할 수 있다. 이를 자격 변경 취소로 표시하지 않는다.
+          apis:
+            - API-304
+          testcases:
+            - TC-3016
+            - TC-30113
+          reading_order:
+            - 영역/현재 주체와 입력 검증을 먼저 본다.
+            - DB 확정 경계와 HTTP 응답/실패를 구분한다.
+            - 대역 검증과 실제 고객 연동의 완료를 분리한다.
+          mermaid: |-
+            sequenceDiagram
+              participant B as Portal 요청
+              participant P as Portal 인증 조립
+              participant A as admin 자격 포트
+              participant D as 공유 DB
+              B->>P: 본인 암호 변경
+              P->>A: 현재 암호/자격세대와 새 암호
+              A->>D: BEGIN 후 자격/이력/사건
+              A->>D: COMMIT 자격세대 증가
+              P->>D: BEGIN 세션 ID/CSRF 회전
+              alt 세션 저장 실패
+                P->>D: ROLLBACK 회전
+                P-->>B: 암호 변경 확정·재로그인 필요
+              else 회전 성공
+                P->>D: COMMIT 회전
+                P-->>B: 새 PORTAL 세션
+              end

@@ -1,0 +1,571 @@
+apis:
+  - id: API-086
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/getList
+    action: READ
+    summary: SCR-015 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015
+  - id: API-087
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/getOne
+    action: READ
+    summary: SCR-015 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-015 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015
+  - id: API-088
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/save
+    action: SAVE
+    summary: SCR-015 save
+    request: ManagedCommand<SCR-015 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015
+  - id: API-089
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/remove
+    action: SAVE
+    summary: SCR-015 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-090
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/getReferences
+    action: READ
+    summary: SCR-015 getReferences
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-015 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015
+  - id: API-091
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/model/getCandidates
+    action: READ
+    summary: SCR-015 getCandidates
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-015 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-015
+  - id: API-092
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/modelUsage/getOne
+    action: READ
+    summary: SCR-062 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-062 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-062
+  - id: API-093
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/modelUsage/save
+    action: SAVE
+    summary: SCR-062 save
+    request: ManagedCommand<SCR-062 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-062
+  - id: API-094
+    feature: FEAT-015
+    implementation: planned
+    method: POST
+    path: /api/service/admin/modelUsage/getUsageCandidates
+    action: READ
+    summary: SCR-062 getUsageCandidates
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-062 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-015.physical_contract.screens.SCR-062
+  - id: API-095
+    feature: FEAT-016
+    implementation: planned
+    method: POST
+    path: /api/service/admin/tokenRate/getList
+    action: READ
+    summary: SCR-016 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-016.physical_contract.screens.SCR-016
+  - id: API-096
+    feature: FEAT-016
+    implementation: planned
+    method: POST
+    path: /api/service/admin/tokenRate/getOne
+    action: READ
+    summary: SCR-016 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-016 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-016.physical_contract.screens.SCR-016
+  - id: API-097
+    feature: FEAT-042
+    implementation: planned
+    method: POST
+    path: /api/service/admin/quotaGrade/getList
+    action: READ
+    summary: SCR-064 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-042.physical_contract.screens.SCR-064
+  - id: API-098
+    feature: FEAT-042
+    implementation: planned
+    method: POST
+    path: /api/service/admin/quotaGrade/getOne
+    action: READ
+    summary: SCR-064 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-064 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-042.physical_contract.screens.SCR-064
+  - id: API-099
+    feature: FEAT-017
+    implementation: planned
+    method: POST
+    path: /api/service/admin/quotaPlan/getList
+    action: READ
+    summary: SCR-021 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-017.physical_contract.screens.SCR-021
+  - id: API-100
+    feature: FEAT-017
+    implementation: planned
+    method: POST
+    path: /api/service/admin/quotaPlan/getOne
+    action: READ
+    summary: SCR-021 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-021 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-017.physical_contract.screens.SCR-021
+  - id: API-101
+    feature: FEAT-005
+    implementation: planned
+    method: POST
+    path: /api/service/admin/portalUser/getList
+    action: READ
+    summary: SCR-005 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
+  - id: API-102
+    feature: FEAT-005
+    implementation: planned
+    method: POST
+    path: /api/service/admin/portalUser/getOne
+    action: READ
+    summary: SCR-005 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-005 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
+  - id: API-103
+    feature: FEAT-005
+    implementation: planned
+    method: POST
+    path: /api/service/admin/portalUser/getIdentityTargets
+    action: READ
+    summary: SCR-005 getIdentityTargets
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-005 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
+  - id: API-104
+    feature: FEAT-005
+    implementation: planned
+    method: POST
+    path: /api/service/admin/portalUser/resetCredential
+    action: SAVE
+    summary: SCR-005 resetCredential
+    request: targetId+expectedRevision+commandKey+reason; 비밀번호 입력 없음
+    response: ApiResponse<ManagedResult + 최초 응답에만 일회 표시 임시 비밀번호>
+    contract: FEAT-005.credential_commands. 원장/HIST/로그/재생 응답에 비밀번호를 넣지 않는다.
+  - id: API-105
+    feature: FEAT-006
+    implementation: planned
+    method: POST
+    path: /api/service/admin/userGroup/getList
+    action: READ
+    summary: SCR-006 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
+  - id: API-106
+    feature: FEAT-006
+    implementation: planned
+    method: POST
+    path: /api/service/admin/userGroup/getOne
+    action: READ
+    summary: SCR-006 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-006 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
+  - id: API-107
+    feature: FEAT-006
+    implementation: planned
+    method: POST
+    path: /api/service/admin/userGroup/getMembers
+    action: READ
+    summary: SCR-006 getMembers
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-006 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
+  - id: API-108
+    feature: FEAT-006
+    implementation: planned
+    method: POST
+    path: /api/service/admin/userGroup/getAssets
+    action: READ
+    summary: SCR-006 getAssets
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-006 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
+  - id: API-109
+    feature: FEAT-006
+    implementation: planned
+    method: POST
+    path: /api/service/admin/userGroup/remove
+    action: SAVE
+    summary: SCR-006 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-110
+    feature: FEAT-024
+    implementation: planned
+    method: POST
+    path: /api/service/admin/searchTag/getList
+    action: READ
+    summary: SCR-010 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
+  - id: API-111
+    feature: FEAT-024
+    implementation: planned
+    method: POST
+    path: /api/service/admin/searchTag/getOne
+    action: READ
+    summary: SCR-010 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-010 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
+  - id: API-112
+    feature: FEAT-024
+    implementation: planned
+    method: POST
+    path: /api/service/admin/searchTag/save
+    action: SAVE
+    summary: SCR-010 save
+    request: ManagedCommand<SCR-010 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
+  - id: API-113
+    feature: FEAT-024
+    implementation: planned
+    method: POST
+    path: /api/service/admin/searchTag/remove
+    action: SAVE
+    summary: SCR-010 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-114
+    feature: FEAT-024
+    implementation: planned
+    method: POST
+    path: /api/service/admin/searchTag/getReferences
+    action: READ
+    summary: SCR-010 getReferences
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-010 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
+  - id: API-115
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/getList
+    action: READ
+    summary: SCR-011 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-116
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/getOne
+    action: READ
+    summary: SCR-011 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-011 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-117
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/save
+    action: SAVE
+    summary: SCR-011 save
+    request: ManagedCommand<SCR-011 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-118
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/remove
+    action: SAVE
+    summary: SCR-011 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-119
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/getReferences
+    action: READ
+    summary: SCR-011 getReferences
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-011 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-120
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/getCatalogUnion
+    action: READ
+    summary: SCR-011 getCatalogUnion
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-011 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-121
+    feature: FEAT-014
+    implementation: planned
+    method: POST
+    path: /api/service/admin/knowledge/getEmbeddingStatus
+    action: READ
+    summary: SCR-011 getEmbeddingStatus
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-011 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-014.physical_contract.screens.SCR-011
+  - id: API-122
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/getList
+    action: READ
+    summary: SCR-012 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-023.physical_contract.screens.SCR-012
+  - id: API-123
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/getOne
+    action: READ
+    summary: SCR-012 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-012 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-023.physical_contract.screens.SCR-012
+  - id: API-124
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/save
+    action: SAVE
+    summary: SCR-012 save
+    request: ManagedCommand<SCR-012 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-023.physical_contract.screens.SCR-012
+  - id: API-125
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/remove
+    action: SAVE
+    summary: SCR-012 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-023.physical_contract.screens.SCR-012; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-126
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/extractCatalogs
+    action: READ
+    summary: SCR-012 extractCatalogs
+    request: exampleId|null, dataSourceId, sqlId|clientKey, sqlText, expectedSourceRevision. 현재 읽기/추출 권한.
+    response: ApiResponse<{inputDigest,sourceRevision,extractionReference,catalogRefs,unsupported,checkedAt}>
+    contract: FEAT-023. 관리값/이력 저장 없음. SQL과 정확 원천의 기술 참조만 추출하며 성공 근거를 서버에서 재검증한 뒤 save에 사용한다. 값 데이터/샘플을 영속 저장하지 않는다.
+  - id: API-127
+    feature: FEAT-023
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryExample/getReferences
+    action: READ
+    summary: SCR-012 getReferences
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-012 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-023.physical_contract.screens.SCR-012
+  - id: API-128
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/getList
+    action: READ
+    summary: SCR-009 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-009.physical_contract.screens.SCR-009
+  - id: API-129
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/getOne
+    action: READ
+    summary: SCR-009 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-009 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-009.physical_contract.screens.SCR-009
+  - id: API-130
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/save
+    action: SAVE
+    summary: SCR-009 save
+    request: ManagedCommand<SCR-009 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-009.physical_contract.screens.SCR-009
+  - id: API-131
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/remove
+    action: SAVE
+    summary: SCR-009 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-009.physical_contract.screens.SCR-009; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-132
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/extractParameters
+    action: READ
+    summary: SCR-009 extractParameters
+    request: policyId|null, catalogId, scopeId|clientKey, conditionSql; 원천/기준판
+    response: ApiResponse<{inputDigest,parameters:[name,sourceCd,description],extractionReference,checkedAt}>
+    contract: FEAT-009. 서버 파서가 정확 변수명을 도출하고 userId 출처는 SESSION으로 고정한다. 모델 제공값으로 신원을 바꿀 수 없다. 저장 시 조건식 지문을 재검증한다.
+  - id: API-133
+    feature: FEAT-009
+    implementation: planned
+    method: POST
+    path: /api/service/admin/queryPolicy/getReferences
+    action: READ
+    summary: SCR-009 getReferences
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-009 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-009.physical_contract.screens.SCR-009
+  - id: API-134
+    feature: FEAT-013
+    implementation: planned
+    method: POST
+    path: /api/service/admin/promptRule/getList
+    action: READ
+    summary: SCR-013 getList
+    request: QueryPage
+    response: ApiResponse<Page<요약 DTO>>
+    contract: FEAT-040.physical_transport; FEAT-013.physical_contract.screens.SCR-013
+  - id: API-135
+    feature: FEAT-013
+    implementation: planned
+    method: POST
+    path: /api/service/admin/promptRule/getOne
+    action: READ
+    summary: SCR-013 getOne
+    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    response: ApiResponse<SCR-013 상세/읽기 투영 DTO와 기준 리비전>
+    contract: FEAT-040.physical_transport; FEAT-013.physical_contract.screens.SCR-013
+  - id: API-136
+    feature: FEAT-013
+    implementation: planned
+    method: POST
+    path: /api/service/admin/promptRule/save
+    action: SAVE
+    summary: SCR-013 save
+    request: ManagedCommand<SCR-013 편집 DTO>; 신규 targetId/expectedRevision null, 기존 필수. 자식 전체 집합과 clientKey→stableId 매핑, 사유를 포함한다.
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-013.physical_contract.screens.SCR-013
+  - id: API-137
+    feature: FEAT-013
+    implementation: planned
+    method: POST
+    path: /api/service/admin/promptRule/remove
+    action: SAVE
+    summary: SCR-013 remove
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    contract: FEAT-040.physical_transport; FEAT-013.physical_contract.screens.SCR-013; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
+  - id: API-138
+    feature: FEAT-013
+    implementation: planned
+    method: POST
+    path: /api/service/admin/promptRule/review
+    action: EXECUTE
+    summary: SCR-013 review
+    request: reviewId:UUID, expectedSetDigest, editSet:[clientKey/ruleId,expectedRevision,operation(CREATE/CHANGE/REMOVE),title,useYn,markdownBody], expectedTemplateVersion, expectedOutputContractVersion, confirmedInputDigest. 관리자 설명 제외. 서버가 전체 저장 규칙을 읽어 편집 변경분과 병합한다.
+    response: ApiResponse<{reviewId,state,inputDigest,templateVersion,outputContractVersion,modelRef,producerRef,resultRef,safeFindings,stale}>
+    contract: FEAT-013 전체 규칙 검토·ENT-173. 현재 EXECUTE·완전 집합·저장판/템플릿/실제 모델 계약을 검사한다. 집합 변경409, 길이초과413, 실패/부분전송/미지원은 완료 아님. 늦은 결과는 원 inputDigest에만 연결한다. 실행 상태 조회는 같은 키 재조회이며 새 실제 호출을 만들지 않는다.
+  - id: API-139
+    feature: FEAT-010
+    implementation: planned
+    method: POST
+    path: /api/service/admin/chatHelp/getList
+    action: READ
+    summary: SCR-014 getList
+    request: '{}; 페이지·검색 조건 없음'
+    response: ApiResponse<고정3구분 요약 목록>
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+  - id: API-140
+    feature: FEAT-010
+    implementation: planned
+    method: POST
+    path: /api/service/admin/chatHelp/getOne
+    action: READ
+    summary: SCR-014 getOne
+    request: helpCd:USAGE_HELP|CHAT_START|INPUT_NOTICE
+    response: ApiResponse<안내 구분 전체 현재값>
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+  - id: API-141
+    feature: FEAT-010
+    implementation: planned
+    method: POST
+    path: /api/service/admin/chatHelp/save
+    action: SAVE
+    summary: SCR-014 save
+    request: commandKey, helpCd:고정3코드, expectedRevision:필수, values:{formatCd,body}, reason:필수
+    response: ApiResponse<ManagedResult>
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+  - id: API-142
+    feature: FEAT-005
+    implementation: planned
+    method: POST
+    path: /api/service/admin/portalUser/unlockCredential
+    action: SAVE
+    summary: 자체 Portal 이용자 로그인 잠금 해제
+    request: targetId+expectedRevision+commandKey+reason
+    response: ApiResponse<ManagedResult>
+    contract: FEAT-005.credential_commands. EXTERNAL은409. 소속/기간/그룹 제한은 해제하지 않는다.

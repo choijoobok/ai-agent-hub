@@ -1,0 +1,192 @@
+# 영역: 018-portal-security — 물리 설계 초안
+entities:
+  - id: ENT-114
+    name: Portal 자체 인증정보
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_PORTAL_CREDENTIAL
+    features:
+      - FEAT-005
+    reqs:
+      - REQ-616
+    term: TRM-245
+    domain: Portal 이용
+    attributes:
+      - name: Portal 이용자
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: Portal 이용자
+      - name: 자체 비밀번호 해시
+        physical_name: PASSWORD_HASH
+        description: 자체 비밀번호 해시
+      - name: 로그인 잠금
+        physical_name: LOCKED_YN
+        description: 로그인 잠금
+      - name: 실패 횟수
+        physical_name: FAILED_COUNT
+        description: 실패 횟수
+      - name: 비밀번호 변경 필요
+        physical_name: MUST_CHANGE_YN
+        description: 비밀번호 변경 필요
+      - name: 변경 시각
+        physical_name: PASSWORD_CHANGED_DTM
+        description: 변경 시각
+      - name: 자격정보 검증 세대
+        physical_name: CREDENTIAL_VERSION
+        description: 자격정보 검증 세대
+      - name: 실패 잠금 시각
+        physical_name: LOCKED_DTM
+        description: 실패 잠금 시각
+      - name: 임시 비밀번호 만료
+        physical_name: TEMP_EXPIRES_DTM
+        description: 임시 비밀번호 만료
+    physical:
+      attributes:
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PASSWORD_HASH
+          type: character varying(255)
+          nullable: false
+          default: null
+        - name: LOCKED_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: FAILED_COUNT
+          type: integer
+          nullable: false
+          default: null
+        - name: MUST_CHANGE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: PASSWORD_CHANGED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CREDENTIAL_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: LOCKED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: TEMP_EXPIRES_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_PORTAL_CREDENTIAL
+          definition: PRIMARY KEY (PORTAL_USER_ID)
+        - name: FK_PORTAL_CREDENTIAL_1
+          definition: FOREIGN KEY (PORTAL_USER_ID) REFERENCES AI_ADMIN_PORTAL_USER (PORTAL_USER_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_PORTAL_CREDENTIAL_1
+          definition: CHECK (FAILED_COUNT >= 0)
+        - name: CK_PORTAL_CREDENTIAL_2
+          definition: CHECK (CREDENTIAL_VERSION > 0)
+        - name: CK_PORTAL_CREDENTIAL_LOCKED_YN
+          definition: CHECK (LOCKED_YN IN ('Y','N'))
+        - name: CK_PORTAL_CREDENTIAL_MUST_CHANGE_YN
+          definition: CHECK (MUST_CHANGE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - LOCAL 계정에만 존재한다. 관리자 계정 암호 정책·소유 저장소와 분리하며 해시/로그인 실패값은 관리 HIST·일반 API에 반환하지 않는다. 비밀 없는 자격 변경 사건은 소유 보안 감사 계약으로 인계한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-101
+        cardinality: N:1
+        description: PORTAL_USER_ID → PORTAL_USER_ID; DB RESTRICT 참조
+  - id: ENT-131
+    name: Portal 외부 인증 주체 연결
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_PORTAL_EXTERNAL_ID
+    features:
+      - FEAT-005
+    reqs:
+      - REQ-616
+    term: TRM-245
+    domain: Portal 이용
+    attributes:
+      - name: Portal 이용자
+        physical_name: PORTAL_USER_ID
+        pk: true
+        description: Portal 이용자
+      - name: 검증된 외부 인증 원천
+        physical_name: SOURCE_KEY
+        description: 검증된 외부 인증 원천
+      - name: 원천 안정 주체
+        physical_name: SUBJECT_ID
+        description: 원천 안정 주체
+      - name: 검증 연결 시각
+        physical_name: LINKED_DTM
+        description: 검증 연결 시각
+      - name: 원천 연결 근거 판
+        physical_name: SOURCE_REVISION
+        description: 원천 연결 근거 판
+      - name: 원천 주체 연결 세대
+        physical_name: BINDING_KEY
+        description: 서버 UUID. 새 연결/재연결 때 새 값이며 프로필 수정·서명키 교체로 바꾸지 않는다.
+    physical:
+      attributes:
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SOURCE_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SUBJECT_ID
+          type: character varying(255)
+          nullable: false
+          default: null
+        - name: LINKED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: SOURCE_REVISION
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: BINDING_KEY
+          type: uuid
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_PORTAL_EXTERNAL_ID
+          definition: PRIMARY KEY (PORTAL_USER_ID)
+        - name: UK_PORTAL_EXTERNAL_ID_1
+          definition: UNIQUE (SOURCE_KEY, SUBJECT_ID)
+        - name: FK_PORTAL_EXTERNAL_ID_1
+          definition: FOREIGN KEY (PORTAL_USER_ID) REFERENCES AI_ADMIN_PORTAL_USER (PORTAL_USER_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 원문 인증 응답/토큰은 저장하지 않는다. 관리자와 공통 개인키로 연결하지 않는다.
+      - FEAT-305의 외부 사건은 현재 BINDING_KEY와 정확 연결 근거를 대조한다. 원천 subject 문자열이나 시각만으로 과거 연결을 새 연결에 적용하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-101
+      entity: ENT-209
+      root: ENT-101
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-101
+        cardinality: N:1
+        description: PORTAL_USER_ID → PORTAL_USER_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-209

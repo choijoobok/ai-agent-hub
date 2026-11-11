@@ -1,0 +1,406 @@
+entities:
+  - id: ENT-144
+    name: 프롬프트 규칙
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_PROMPT_RULE
+    features:
+      - FEAT-013
+    reqs:
+      - REQ-101
+      - REQ-104
+      - REQ-610
+    term: TRM-050
+    domain: 업무 지식
+    attributes:
+      - name: 안정 규칙 번호
+        physical_name: RULE_ID
+        pk: true
+        description: 안정 규칙 번호
+      - name: 제목
+        physical_name: TITLE
+        description: 제목
+      - name: 규칙 사용
+        physical_name: USE_YN
+        description: 규칙 사용
+      - name: 관리자 설명
+        physical_name: ADMIN_DESCRIPTION
+        description: 관리자 설명
+      - name: 모델 전달 Markdown 본문
+        physical_name: MARKDOWN_BODY
+        description: 모델 전달 Markdown 본문
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+      - name: 저장 판단의 검토 참조
+        physical_name: REVIEW_ID
+        description: 해당 저장에서 확인한 전체 검토 근거; 미실행/재사용 여부와 사유는 저장 계약으로 검증한다.
+    physical:
+      attributes:
+        - name: RULE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TITLE
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: ADMIN_DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: MARKDOWN_BODY
+          type: text
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: REVIEW_ID
+          type: character(36)
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_PROMPT_RULE
+          definition: PRIMARY KEY (RULE_ID)
+        - name: CK_PROMPT_RULE_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 관리자 설명은 이력에는 보존하지만 모델 입력/검토 입력에는 포함하지 않는다. 전체 활성 규칙을 RULE_ID 오름차순으로 조합하고 실제 순서·판·검토 지문을 소비자가 기록한다.
+      - 검토 참조가 있으면 현재 전체 가공본 지문/실제 결과·관리자 판단을 대조한다. 제목/설명만의 변경과 전송 내용 변경을 구별하고 단순 reviewId 존재를 통과 판정으로 사용하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-230
+      root: ENT-144
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-230
+    revision_column: REVISION
+  - id: ENT-145
+    name: 채팅 도움말 고정 구분 본문
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_CHAT_HELP
+    features:
+      - FEAT-010
+    reqs:
+      - REQ-308
+      - REQ-009
+      - REQ-601
+    term: TRM-294
+    domain: 업무 지식
+    attributes:
+      - name: 고정 구분
+        physical_name: HELP_CD
+        pk: true
+        description: 고정 구분
+      - name: 원문 형식
+        physical_name: FORMAT_CD
+        description: 원문 형식
+      - name: 원문
+        physical_name: BODY
+        description: 원문
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: HELP_CD
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: FORMAT_CD
+          type: character varying(10)
+          nullable: false
+          default: null
+        - name: BODY
+          type: text
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CHAT_HELP
+          definition: PRIMARY KEY (HELP_CD)
+        - name: CK_CHAT_HELP_1
+          definition: CHECK (HELP_CD IN ('USAGE_HELP','CHAT_START','INPUT_NOTICE'))
+        - name: CK_CHAT_HELP_2
+          definition: CHECK (FORMAT_CD IN ('MARKDOWN','HTML','TEXT'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 명칭·표시 위치/시점은 REQ-308 고정 계약. 동적 치환·안전 렌더 결과를 저장하지 않는다. 실제 제공한 판은 agent가 소비 참조로 보호한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-231
+      root: ENT-145
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-231
+    revision_column: REVISION
+  - id: ENT-146
+    name: 조회 정책 행 스코프
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_SCOPE
+    features:
+      - FEAT-009
+    reqs:
+      - REQ-611
+      - REQ-103
+    term: TRM-054
+    domain: 업무 지식
+    attributes:
+      - name: 스코프 번호
+        physical_name: SCOPE_ID
+        pk: true
+        description: 스코프 번호
+      - name: 부모 정책
+        physical_name: POLICY_ID
+        description: 부모 정책
+      - name: 스코프명
+        physical_name: SCOPE_NM
+        description: 스코프명
+      - name: WHERE 조건식 조각
+        physical_name: CONDITION_SQL
+        description: WHERE 조건식 조각
+      - name: 파라미터 추출 지문
+        physical_name: EXTRACTION_DIGEST
+        description: 파라미터 추출 지문
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+    physical:
+      attributes:
+        - name: SCOPE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SCOPE_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: CONDITION_SQL
+          type: text
+          nullable: false
+          default: null
+        - name: EXTRACTION_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_SCOPE
+          definition: PRIMARY KEY (SCOPE_ID)
+        - name: FK_QUERY_SCOPE_1
+          definition: FOREIGN KEY (POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY (POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_QUERY_SCOPE_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+        - name: CK_QUERY_SCOPE_RELEASE_ALLOWED_YN
+          definition: CHECK (RELEASE_ALLOWED_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-009
+      entity: ENT-232
+      root: ENT-009
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-009
+        cardinality: N:1
+        description: POLICY_ID → POLICY_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-232
+  - id: ENT-147
+    name: 행 스코프 파라미터
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_SCOPE_PARAM
+    features:
+      - FEAT-009
+    reqs:
+      - REQ-611
+      - REQ-103
+    term: TRM-054
+    domain: 업무 지식
+    attributes:
+      - name: 소유 스코프
+        physical_name: SCOPE_ID
+        pk: true
+        description: 소유 스코프
+      - name: 정확 추출 이름
+        physical_name: PARAMETER_NM
+        pk: true
+        description: 정확 추출 이름
+      - name: 값 출처
+        physical_name: SOURCE_CD
+        description: 값 출처
+      - name: 값 출처 설명
+        physical_name: DESCRIPTION
+        description: 값 출처 설명
+    physical:
+      attributes:
+        - name: SCOPE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PARAMETER_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SOURCE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_SCOPE_PARAM
+          definition: PRIMARY KEY (SCOPE_ID, PARAMETER_NM)
+        - name: FK_QUERY_SCOPE_PARAM_1
+          definition: FOREIGN KEY (SCOPE_ID) REFERENCES AI_ADMIN_QUERY_SCOPE (SCOPE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_QUERY_SCOPE_PARAM_1
+          definition: CHECK (SOURCE_CD IN ('SESSION','LLM'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - userId는 서버 대상 신원만 공급한다. SESSION 신원 값을 사용자/모델 입력으로 덮어쓸 수 없다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-146
+      entity: ENT-233
+      root: ENT-009
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-146
+        cardinality: N:1
+        description: SCOPE_ID → SCOPE_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-233

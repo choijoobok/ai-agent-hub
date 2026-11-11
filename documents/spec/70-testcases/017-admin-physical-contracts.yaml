@@ -1,0 +1,136 @@
+testcases:
+  - id: TC-0409
+    feature: FEAT-040
+    usecase: UC-006
+    screens:
+      - SCR-001
+      - SCR-011
+    type: business_exception
+    title: 서로 다른 원장의 같은 명령 UUID
+    actor: ACT-004
+    given: ENT-019와 ENT-099의 다른 기능/주체가 같은 UUID로 동시에 명령
+    when: 명령 해시 공통 잠금에서 모든 활성 원장/종료키를 검사
+    then: 한 소유 효과만 발생하고 다른 입력은409. 한 원장 파기 후 다른 원장의 유효 결과가 가려지는 상태가 생기지 않는다.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-04010
+    feature: FEAT-040
+    usecase: UC-006
+    screens:
+      - SCR-005
+      - SCR-011
+    type: business_exception
+    title: 동형 이력과 삭제·파기 경쟁
+    actor: ACT-004
+    given: 현재 부모/전체 자식의 두 판, 보호 등록과 파기 경합
+    when: 삭제 사건 생성·정확 과거판 조회·보호/파기 동시 수행
+    then: DELETE는 직전 원값+새 결과판, 이전 적용판 불변. 전체 열 타입/null 일치·루트만 HIST_DTM·자식은같은HISTORY_NO. 보호가 먼저면 파기없음, 파기가 먼저면 재현실패. 현재값 대체 금지.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-04511
+    feature: FEAT-045
+    usecase: UC-042
+    screens:
+      - SCR-021
+    type: business_exception
+    title: 월 FINAL 파기 뒤 재실행 금지
+    actor: ACT-004
+    given: 소비 보호가 끝난 보존 종료 월과 원 입력의 개인정보
+    when: 월 종결표와 원 입력/결과 전체 파기 후 같은 월 FINAL 재요청
+    then: 개인/등급/금액/실행시각은 남지 않고 월+FINALIZED만 남는다. 같은 월 재배정 불가, 다른 월 정상. 파기중실패는 전부롤백.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-04512
+    feature: FEAT-045
+    usecase: UC-042
+    screens:
+      - SCR-005
+      - SCR-021
+    type: business_exception
+    title: 0명 최초활성과 일할 입력 재현
+    actor: ACT-004
+    given: 마감0명 이후 최초 활성, 추가사용자 활성과 월초 지연복구
+    when: FINAL과 ensureAllocation 및 catch-up 중복 실행
+    then: 원 마감 입력과 최초활성/개별입력의 서로 다른 참조 보존. 사용자별1회, 분모1회, 재활성중복없음. ASSSESSED의NULL/0분모는DB제약실패.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-0243
+    feature: FEAT-024
+    usecase: UC-011
+    screens:
+      - SCR-010
+    type: business_exception
+    title: 태그 정규화와 연결 독립
+    actor: ACT-004
+    given: 대표 WMS와 공백·전각·대소문자 표현, 동일 부모 동의어
+    when: 중복 저장과 검색 후 태그 OFF/표현 변경
+    then: 정규화동일 대표/동의어 중복 거부, 원문보존. 다른태그동의어일치는복수검색. 연결지식본문/판/매핑불변이며OFF검색경로만제외.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-04011
+    feature: FEAT-040
+    usecase: UC-006
+    screens:
+      - SCR-012
+      - SCR-009
+    type: business_exception
+    title: 추출 근거 위조와 자식 재귀속 거부
+    actor: ACT-004
+    given: 다른 예제/정책 부모의 자식 ID와 클라이언트가 만든 추출지문
+    when: SQL/조건식 변경 뒤 위조근거로 저장
+    then: 선택부모에서 서버소유FK고정, 재귀속422. 서버에서정확SQL/원천판을재검증하고실패시현재/이력전부불변.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-04012
+    feature: FEAT-040
+    usecase: UC-006
+    screens:
+      - SCR-004
+      - SCR-019
+    type: business_exception
+    title: 도구/API 소유와 내부값 대응
+    actor: ACT-004
+    given: 같은 숫자 ID의 API/도구 필드 및 순수내부 바인딩
+    when: 도구저장에 API자식삽입 또는 referenceNo=null 내부값대응 저장
+    then: 혼입거부, 정상내부값대응성공. 도구HIST는도구루트만참조하며 API 원장/이력에부수쓰기없음.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-0138
+    feature: FEAT-013
+    usecase: UC-020
+    screens:
+      - SCR-013
+    type: business_exception
+    title: 전체 프롬프트 검토의 미저장 편집과 지연 결과
+    actor: ACT-004
+    given: 현재전체규칙+미저장추가/삭제/사용전환/설명변경
+    when: 완전집합을병합해검토하고검토중다른규칙변경
+    then: 서버전체규칙+편집집합실제가공본만검토. 설명제외,부분조회차단,늦은응답은원지문에만귀속. 같은키재조회로실제호출중복없음.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-0107
+    feature: FEAT-010
+    usecase: UC-021
+    screens:
+      - SCR-014
+    type: business_exception
+    title: 고정 안내 구분의 저장 범위
+    actor: ACT-004
+    given: 고정3코드와 임의코드/신규판null 요청
+    when: 목록/상세/형식본문저장
+    then: 목록은고정3구분, 임의코드/추가/삭제거부. 기존기대판필수, 원문만저장, agent 제공판은별도소비보호.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned
+  - id: TC-0058
+    feature: FEAT-005
+    usecase: UC-006
+    screens:
+      - SCR-005
+    type: business_exception
+    title: 자체 자격 초기화 응답 유실
+    actor: ACT-004
+    given: LOCAL 이용자와EXTERNAL 이용자 및 같은 초기화명령재전송
+    when: 임시비밀번호발급성공후응답유실·원키결과조회
+    then: LOCAL만첫응답1회표시, 원장/HIST/로그에는비밀없음. 같은키재발급없고SECRET_NOT_REPLAYABLE. 잠금해제가그룹/기간권한을풀지않음.
+    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
+    status: planned

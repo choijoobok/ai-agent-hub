@@ -1,41 +1,182 @@
 conventions:
-  surrogate_identifier: "REQ-601.surrogate_identifier — 내부 대리키 발급·전송·UI·자연/복합 키 제외의 정본. 기존 system의 실제 PK/API 계약은 보존하고 신규 admin의 물리 생성기 이름은 소유 상세 설계에서 확정한다"
+  surrogate_identifier: REQ-601.surrogate_identifier — 내부 대리키 발급·전송·UI·자연/복합 키 제외의 정본. 기존 system의 실제 PK/API 계약은 보존하고 신규 admin의 물리 생성기 이름은 소유 상세 설계에서 확정한다
   modeling:
-    sequence: "논리 엔티티·속성·관계·불변식 → 기존 용어 대조와 업무 영역 도출 → 영문 토큰/필요 약어 → 물리명·타입·키·제약 → 소유 G3 후 새 Liquibase 변경 파일과 구현"
-    logical_draft: "신규 ENT는 implementation: planned, design_stage: logical로 시작할 수 있다. name은 한글 논리명이며 table/physical은 아직 지정하지 않는다. 이 상태의 문서는 생성하되 물리 ERD 완성이나 G3 완료로 표시하지 않는다"
-    naming: "기존 AI_<MODULE>_<DETAIL>·테이블명 30자·SYS 기존명 보존 규칙을 따른다. 영문 어휘는 03-glossary.terms의 key이며 필요한 약어만 db_token과 근거를 등록한다. 논리 속성과 물리 컬럼은 physical_name으로 연결한다"
-    domain_scope: "업무 영역은 쓰기 소유 모듈 및 용어사전 group과 구분한다. 실제 목록과 영역 수식어의 필요성은 admin 도메인 도출 중 확정하고 아직 임의 코드/접두어를 배정하지 않는다"
+    sequence: 논리 엔티티·속성·관계·불변식 → 기존 용어 대조와 업무 영역 도출 → 영문 토큰/필요 약어 → 물리명·타입·키·제약 → 소유 G3 후 새 Liquibase 변경 파일과 구현
+    logical_draft: '신규 ENT는 implementation: planned, design_stage: logical로 시작할 수 있다. name은 한글 논리명이며 table/physical은 아직 지정하지 않는다. 이 상태의 문서는 생성하되 물리 ERD 완성이나 G3 완료로 표시하지 않는다'
+    naming: 기존 AI_<MODULE>_<DETAIL>·테이블명 30자·SYS 기존명 보존 규칙을 따른다. 영문 어휘는 03-glossary.terms의 key이며 필요한 약어만 db_token과 근거를 등록한다. 논리 속성과 물리 컬럼은 physical_name으로 연결한다
+    domain_scope: 업무 영역은 쓰기 소유 모듈 및 용어사전 group과 구분한다. 실제 목록과 영역 수식어의 필요성은 admin 도메인 도출 중 확정하고 아직 임의 코드/접두어를 배정하지 않는다
   business_domains:
-    - name: "연동 자산"
-      responsibility: "업무 API의 제공 주체와 DB/DW 조회 연결 단위의 관리 정의·배포 참조, 공개 카탈로그의 내용/변경 근거, 업무 API·등록 도구의 안정 식별·내용 리비전·입출력/코드명·검수/노출 구성을 소유한다. 지식별 사용 설명·현재 정책·배포 구현 및 실제 실행은 소유 기능의 계약으로 연결한다"
-      terms: [TRM-040, TRM-041, TRM-199, TRM-223, TRM-233, TRM-247, TRM-250, TRM-251, TRM-252, TRM-253, TRM-254, TRM-255, TRM-256, TRM-257, TRM-258, TRM-259, TRM-260, TRM-261, TRM-262, TRM-263, TRM-264, TRM-265, TRM-266, TRM-269, TRM-271, TRM-272, TRM-273, TRM-274, TRM-275, TRM-276, TRM-277, TRM-278, TRM-279, TRM-280, TRM-281, TRM-282, TRM-288, TRM-289]
-      boundary: "대상 시스템과 데이터소스는 서로 귀속 관계가 없는 별도 개념이다. 배포 연결 정의·비밀은 이 영역의 DB 모델에 복제하지 않는다. 업무 영역 이름은 메뉴 대분류나 물리 접두어를 확정하는 코드가 아니다"
+    - name: 관리 변경
+      responsibility: 소유 관리 저장의 원 명령 결과와 정확 이력 판의 소비 참조 보호를 제공한다. 자산 현재/HIST 원장은 각 소유 영역에 둔다.
+      terms:
+        - TRM-292
+        - TRM-293
+      boundary: 공통 기술 계약이지 관리자 승인/범용 자산 저장소가 아니다. 실행 턴 모델과 후행 이력 UI를 소유하지 않는다.
+    - name: Portal 이용
+      responsibility: 별도 Portal 계정·이용 조건·AI 그룹 소속·대상 신원 직접 매핑을 소유한다.
+      terms:
+        - TRM-245
+        - TRM-246
+        - TRM-045
+        - TRM-049
+      boundary: system 관리자 계정/역할과 구분한다. Portal 인증 수락 및 실행용 신원 토큰은 공개 소비 계약으로 연결한다.
+    - name: 쿼터 운영
+      responsibility: 시작월 등급·사용자 효력 등급·단가와 월 금융 기준·마감 입력·예정/최종 배정·개별 지급을 소유한다.
+      terms:
+        - TRM-046
+        - TRM-053
+        - TRM-090
+        - TRM-155
+        - TRM-157
+        - TRM-194
+        - TRM-195
+      boundary: agent 실제 호출 계량/동시 호출 집행과 후행 신청/통계 화면을 구분한다. 회계 정산 원장이 아니다.
+    - name: 연동 자산
+      responsibility: 업무 API의 제공 주체와 DB/DW 조회 연결 단위의 관리 정의·배포 참조, 공개 카탈로그의 내용/변경 근거, 업무 API·등록 도구의 안정 식별·내용 리비전·입출력/코드명·검수/노출 구성을 소유한다. 지식별 사용 설명·현재 정책·배포 구현 및 실제 실행은 소유 기능의 계약으로 연결한다
+      terms:
+        - TRM-040
+        - TRM-041
+        - TRM-199
+        - TRM-223
+        - TRM-233
+        - TRM-247
+        - TRM-250
+        - TRM-251
+        - TRM-252
+        - TRM-253
+        - TRM-254
+        - TRM-255
+        - TRM-256
+        - TRM-257
+        - TRM-258
+        - TRM-259
+        - TRM-260
+        - TRM-261
+        - TRM-262
+        - TRM-263
+        - TRM-264
+        - TRM-265
+        - TRM-266
+        - TRM-269
+        - TRM-271
+        - TRM-272
+        - TRM-273
+        - TRM-274
+        - TRM-275
+        - TRM-276
+        - TRM-277
+        - TRM-278
+        - TRM-279
+        - TRM-280
+        - TRM-281
+        - TRM-282
+        - TRM-288
+        - TRM-289
+      boundary: 대상 시스템과 데이터소스는 서로 귀속 관계가 없는 별도 개념이다. 배포 연결 정의·비밀은 이 영역의 DB 모델에 복제하지 않는다. 업무 영역 이름은 메뉴 대분류나 물리 접두어를 확정하는 코드가 아니다
+    - name: 모델 제공
+      responsibility: 등록 모델/가격과 용도별 후보 전체 설정. 배포 비밀/실제 호출은 integration에 위임한다.
+      terms:
+        - TRM-232
+        - TRM-231
+        - TRM-090
+      boundary: Portal 표시 허용은 내부 운영 후보와 독립이다.
+    - name: 업무 지식
+      responsibility: 태그·지식/안정 매핑·인증 예제 SQL·조회 정책·프롬프트·채팅 안내의 현재값과 전체 이력.
+      terms:
+        - TRM-042
+        - TRM-052
+        - TRM-043
+        - TRM-054
+        - TRM-048
+        - TRM-247
+        - TRM-050
+        - TRM-294
+      boundary: 실행/턴/품질 기록 및 벡터 실행 구현은 별도 소유 계약이다.
+    - name: 운영 진단
+      responsibility: 연결 설정의 비밀 없는 판정·경고·변화 사건.
+      terms:
+        - TRM-286
+        - TRM-287
+        - TRM-290
+      boundary: 관리 현재값 변경 이력 또는 후행 품질 UI가 아니다.
   liquibase:
     root: sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     resources: sources/backend/bootstrap/src/main/resources
-    scope: "제품 PostgreSQL 활성 include의 순방향 정의를 대조한다. 실제 DB 적용 여부와 고객별 수동 변경은 별도 마이그레이션 검증 대상이다. 비활성 schema/·local/sample 및 rollback은 합산하지 않는다"
+    scope: 제품 PostgreSQL 활성 include의 순방향 정의를 대조한다. 실제 DB 적용 여부와 고객별 수동 변경은 별도 마이그레이션 검증 대상이다. 비활성 schema/·local/sample 및 rollback은 합산하지 않는다
     technical_tables:
-      - { table: SYS_SEQUENCE, module: platform, reason: "기술 식별자 생성 기반. 업무 ENT를 만들지 않는다" }
-      - { table: SYS_DATA_LOCK, module: platform, reason: "공유 작업 잠금 기반. 업무 ENT를 만들지 않는다" }
-      - { table: SYS_JOB_PROGRESS, module: platform, reason: "공통 작업 진행 기반. 업무 ENT를 만들지 않는다" }
-      - { table: SPRING_SESSION, module: platform, reason: "Spring Session 세션 원천. 업무 ENT를 만들지 않는다" }
-      - { table: SPRING_SESSION_ATTRIBUTES, module: platform, reason: "Spring Session 속성 원천. 업무 ENT를 만들지 않는다" }
-  naming: "기존 SYS_* 이름 보존; 신규 system 테이블이 필요할 때만 승인된 changeset 규칙 적용"
-  time: "현재 컬럼 타입과 의미를 보존하고 신규 일시는 timestamptz"
-  audit: "REG_ID/REG_DTM/MOD_ID/MOD_DTM이 있는 테이블은 기존 감사 4컬럼 유지"
-  delete: "이력은 사용자·관리 API로 삭제하지 않고 설정된 보존 기간이 지난 행만 파기 배치가 hard delete한다. 계정·권한 기준은 참조 무결성 또는 비활성화, 사용자 UI 상태는 소유 범위 행만 hard delete한다"
-  source: "활성 경로는 conventions.liquibase.root가 정한다. 기존 schema/*.yaml은 이관 전 근거이며 현재 제품 스키마에 다시 합산하지 않는다"
-  requiredness: "PK attributes are non-null. All other nullable/default constraints are the currently applied Liquibase constraints; a system module move may not loosen or tighten them"
+      - table: SYS_SEQUENCE
+        module: platform
+        reason: 기술 식별자 생성 기반. 업무 ENT를 만들지 않는다
+      - table: SYS_DATA_LOCK
+        module: platform
+        reason: 공유 작업 잠금 기반. 업무 ENT를 만들지 않는다
+      - table: SYS_JOB_PROGRESS
+        module: platform
+        reason: 공통 작업 진행 기반. 업무 ENT를 만들지 않는다
+      - table: SPRING_SESSION
+        module: platform
+        reason: Spring Session 세션 원천. 업무 ENT를 만들지 않는다
+      - table: SPRING_SESSION_ATTRIBUTES
+        module: platform
+        reason: Spring Session 속성 원천. 업무 ENT를 만들지 않는다
+  naming: 기존 SYS_* 이름 보존; 신규 system 테이블이 필요할 때만 승인된 changeset 규칙 적용
+  time: 현재 컬럼 타입과 의미를 보존하고 신규 일시는 timestamptz
+  audit: REG_ID/REG_DTM/MOD_ID/MOD_DTM이 있는 테이블은 기존 감사 4컬럼 유지
+  delete: 이력은 사용자·관리 API로 삭제하지 않고 설정된 보존 기간이 지난 행만 파기 배치가 hard delete한다. 계정·권한 기준은 참조 무결성 또는 비활성화, 사용자 UI 상태는 소유 범위 행만 hard delete한다
+  source: 활성 경로는 conventions.liquibase.root가 정한다. 기존 schema/*.yaml은 이관 전 근거이며 현재 제품 스키마에 다시 합산하지 않는다
+  requiredness: PK attributes are non-null. All other nullable/default constraints are the currently applied Liquibase constraints; a system module move may not loosen or tighten them
   history_policy:
-    immutable_history: [ENT-505, ENT-521, ENT-522]
-    append_then_finalize: [ENT-524]
-    state_history: [ENT-527]
-    audit_columns_only: [ENT-501, ENT-502, ENT-503, ENT-506, ENT-507, ENT-508, ENT-509, ENT-510, ENT-511, ENT-512, ENT-513, ENT-514, ENT-515, ENT-516, ENT-517, ENT-518, ENT-520, ENT-523, ENT-525, ENT-526, ENT-528, ENT-529, ENT-531]
-    no_history: [ENT-504, ENT-519, ENT-530]
-
+    immutable_history:
+      - ENT-505
+      - ENT-521
+      - ENT-522
+    append_then_finalize:
+      - ENT-524
+    state_history:
+      - ENT-527
+    audit_columns_only:
+      - ENT-501
+      - ENT-502
+      - ENT-503
+      - ENT-506
+      - ENT-507
+      - ENT-508
+      - ENT-509
+      - ENT-510
+      - ENT-511
+      - ENT-512
+      - ENT-513
+      - ENT-514
+      - ENT-515
+      - ENT-516
+      - ENT-517
+      - ENT-518
+      - ENT-520
+      - ENT-523
+      - ENT-525
+      - ENT-526
+      - ENT-528
+      - ENT-529
+      - ENT-531
+    no_history:
+      - ENT-504
+      - ENT-519
+      - ENT-530
   identity_domain_scope:
     decision: ADR-034
-    source_contract: "ARCH-050.security_domains"
-    system_entities: "ENT-501~531의 SYS_USER 계정·권한·로그·알림·개인 UI 상태 참조는 관리자 영역이다. Portal 계정/이름을 같은 USER_ID로 조인하거나 SYS_USER FK에 넣지 않는다. 기존 물리 구조는 유지한다"
-    admin_actors: "ENT-001~004의 REG_ID/MOD_ID/ACTOR_ID 및 ENT-019/028/036 명령 원장의 ACTOR_ID는 실제 인증된 system 관리자 처리자다. 변경 대상 Portal 이용자/레거시 신원과 구분하며 Portal 세션으로 원 결과를 재생하지 않는다"
-    portal_models: "@defer P3 — admin 소유의 별도 Portal 계정·자체 인증정보/외부 연결·admin 관리/portal 인증 공개 계약·삭제/보존 및 Portal 감사/알림/개인 상태의 논리·물리 모델을 설계한다. 이번 방향 변경으로 임의 테이블·컬럼·FK를 추가하거나 구현 완료로 표시하지 않는다"
+    source_contract: ARCH-050.security_domains
+    system_entities: ENT-501~531의 SYS_USER 계정·권한·로그·알림·개인 UI 상태 참조는 관리자 영역이다. Portal 계정/이름을 같은 USER_ID로 조인하거나 SYS_USER FK에 넣지 않는다. 기존 물리 구조는 유지한다
+    admin_actors: ENT-001~004의 REG_ID/MOD_ID/ACTOR_ID 및 ENT-019/028/036 명령 원장의 ACTOR_ID는 실제 인증된 system 관리자 처리자다. 변경 대상 Portal 이용자/레거시 신원과 구분하며 Portal 세션으로 원 결과를 재생하지 않는다
+    portal_models: '@defer P3 — admin 소유의 별도 Portal 계정·자체 인증정보/외부 연결·admin 관리/portal 인증 공개 계약·삭제/보존 및 Portal 감사/알림/개인 상태의 논리·물리 모델을 설계한다. 이번 방향 변경으로 임의 테이블·컬럼·FK를 추가하거나 구현 완료로 표시하지 않는다'
+  foundation_physical:
+    status: 선행19 화면 P3 물리 설계 초안. planned 테이블은 현재 DB와 구분하고 Liquibase는 소유 G3 이후 작성한다.
+    precision:
+      amount: 계획 금액 numeric(28,6), 가격·환산율 numeric(28,12), 보정률 numeric(20,12), 등급 가중치 numeric(12,2). 입력 scale/범위 초과는422이며 조용히 반올림하지 않는다.
+      exact: ADR-045. 유한10진 입력을 정수/10의 거듭제곱으로 바꾸고 기약분수로 계산한다. 정확 비용/단가는 분자·분모 각각 최대128자리 양의 정수 문자열. BigInteger 연산이며 float/double 금지. 저장 문자열은 선행0 제거·분모>0·서로소로 정규화한다.
+      result: 최종 월 풀/기본 한도/일할 산식 경계에서만 floor. BIGINT 양수 범위 초과는 전체실패. USD 표시만 최대8자리 HALF_UP이며 표시값을 다음 계산 입력으로 사용하지 않는다.
+    wire: 내부 BIGINT·리비전은 양의 십진 문자열, 금액/분수는 십진 문자열, boolean은 JSON boolean↔CHAR(1) Y/N, unknown은 null을 보존한다. 날짜YYYY-MM-DD, 월YYYY-MM, 시각UTC ISO8601 및 업무 IANA zone 별도.
+    text: 본문/SQL/스키마 원문은 text. 중첩 JSON 원문은 버전 있는 UTF-8 JSON 문자열로 검증하고 text에 저장한다. JSONB/DB 배열/DB enum은 사용하지 않는다. 제한 없는 허용 입력이라는 뜻은 아니며 API 본문 바이트 상한을 적용한다.
+    keys: 내부 단일 BIGINT 키는 SYS_SEQUENCE/JPA TABLE, 부모/자식/동의어/SQL의 안정ID는 재사용하지 않는다. 같은 소유자 아래 새 행은 clientKey를 서버ID로 치환해 반환한다. 자연 키/조합 키/UUID는 자동 숫자 발급 제외. HISTORY_NO는 관리 전체에서 같은 SYS_SEQUENCE 명명 공간으로 발급해 루트 종류 사이에도 재사용하지 않는다. HIST_ID는 각 행의 발급 키이며 HISTORY_NO와 혼용하지 않는다.
+    history: history_storage의 entity/root와 각 ENT 물리 구조가 전체복사 대응표다. 원 관리값에 없는 열을 이력 원값으로 창작하지 않는다. 삭제는 직전 구성과 증가한 RESULT_REVISION으로 기록하고 성공 적용판 조회에서 DELETE를 제외한다. HIST_DTM은 루트 한 곳, 모든 자식은 같은 HISTORY_NO로 연결한다.
+    deletion: 관리 현재값은 전체 참조 보호·현재 권한/기대 버전 검증 후 소유 명령만 삭제한다. 현재/이력/불변 결과의 FK는 RESTRICT이고 cascade 삭제 없음. source/관측/내부ID 참조 중 과거 보존이 필요한 것은 현재행 FK를 두지 않고 쓰기시 정확 참조를 검증한다.
+    deployment: 한 번에 전체 테이블을 만드는 승인이 아니다. 소유 슬라이스별 부모·자식·HIST·원장 순으로 새 changeset을 만든다. 데이터 타입·키·FK·CHECK·인덱스를 이 정본과 비교하고 system 활성 테이블은 그대로 유지한다.

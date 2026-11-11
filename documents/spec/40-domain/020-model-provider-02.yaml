@@ -1,0 +1,196 @@
+# 영역: 020-model-provider — 물리 설계 초안
+entities:
+  - id: ENT-128
+    name: 모델 용도 전체 설정
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_USAGE_SET
+    features:
+      - FEAT-015
+    reqs:
+      - REQ-602
+      - REQ-610
+    term: TRM-231
+    domain: 모델 제공
+    attributes:
+      - name: 전체 설정 고정 키
+        physical_name: SET_KEY
+        pk: true
+        description: 전체 설정 고정 키
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: SET_KEY
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_MODEL_USAGE_SET
+          definition: PRIMARY KEY (SET_KEY)
+        - name: CK_MODEL_USAGE_SET_1
+          definition: CHECK (SET_KEY='GLOBAL')
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - SCR-062 전체 편집본/기본 지정을 하나의 원자 단위로 저장한다. 용도 정의 자체는 agent 소스 계약이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-216
+      root: ENT-128
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-216
+    revision_column: REVISION
+  - id: ENT-129
+    name: 모델 용도 후보와 기본 지정
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_MODEL_USAGE
+    features:
+      - FEAT-015
+    reqs:
+      - REQ-602
+      - REQ-610
+    term: TRM-231
+    domain: 모델 제공
+    attributes:
+      - name: 용도 매핑 번호
+        physical_name: USAGE_ID
+        pk: true
+        description: 용도 매핑 번호
+      - name: 전체 설정 키
+        physical_name: SET_KEY
+        description: 전체 설정 키
+      - name: 소스 계약 용도 코드
+        physical_name: USAGE_CD
+        description: 소스 계약 용도 코드
+      - name: 등록 모델 조합
+        physical_name: MODEL_ID
+        description: 등록 모델 조합
+      - name: 보조 판정 순위
+        physical_name: PRIORITY_NO
+        description: 보조 판정 순위
+      - name: 해당 용도의 기본 지정
+        physical_name: DEFAULT_YN
+        description: 해당 용도의 기본 지정
+      - name: 용도 설명
+        physical_name: DESCRIPTION
+        description: 용도 설명
+    physical:
+      attributes:
+        - name: USAGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SET_KEY
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: USAGE_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PRIORITY_NO
+          type: integer
+          nullable: true
+          default: null
+        - name: DEFAULT_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: character varying(1000)
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_MODEL_USAGE
+          definition: PRIMARY KEY (USAGE_ID)
+        - name: UK_MODEL_USAGE_1
+          definition: UNIQUE (USAGE_CD, MODEL_ID)
+        - name: FK_MODEL_USAGE_1
+          definition: FOREIGN KEY (SET_KEY) REFERENCES AI_ADMIN_MODEL_USAGE_SET (SET_KEY) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_MODEL_USAGE_2
+          definition: FOREIGN KEY (MODEL_ID) REFERENCES AI_ADMIN_MODEL (MODEL_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_MODEL_USAGE_1
+          definition: CHECK (PRIORITY_NO IS NULL OR PRIORITY_NO BETWEEN 1 AND 3)
+        - name: CK_MODEL_USAGE_DEFAULT_YN
+          definition: CHECK (DEFAULT_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 용도별1~3연속 순위/기본 한 개·필수 후보·미지원 용도는 전체 잠금/소스 계약으로 검증한다. 설명은 프롬프트 규칙이 아니다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-128
+      entity: ENT-217
+      root: ENT-128
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-128
+        cardinality: N:1
+        description: SET_KEY → SET_KEY; DB RESTRICT 참조
+      - entity: ENT-125
+        cardinality: N:1
+        description: MODEL_ID → MODEL_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-217

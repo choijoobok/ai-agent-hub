@@ -1,0 +1,125 @@
+entities:
+  - id: ENT-173
+    name: 전체 프롬프트 규칙 검토 근거
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_PROMPT_REVIEW
+    features:
+      - FEAT-013
+    reqs:
+      - REQ-101
+      - REQ-610
+    term: TRM-050
+    domain: 업무 지식
+    attributes:
+      - name: 검토 번호
+        physical_name: REVIEW_ID
+        pk: true
+        description: 검토 번호
+      - name: 운영 검토 관리자
+        physical_name: ACTOR_ID
+        description: 운영 검토 관리자
+      - name: 확인된 전체 가공본 지문
+        physical_name: INPUT_DIGEST
+        description: 확인된 전체 가공본 지문
+      - name: 판/미저장 편집을 합친 검토 가공본
+        physical_name: INPUT_SNAPSHOT
+        description: 판/미저장 편집을 합친 검토 가공본
+      - name: 조합 템플릿 판
+        physical_name: TEMPLATE_VERSION
+        description: 조합 템플릿 판
+      - name: 출력 계약 판
+        physical_name: OUTPUT_CONTRACT_VERSION
+        description: 출력 계약 판
+      - name: 선택 운영 모델
+        physical_name: MODEL_ID
+        description: 선택 운영 모델
+      - name: 정확 운영 모델 판
+        physical_name: MODEL_REVISION
+        description: 정확 운영 모델 판
+      - name: 검토 진행/완료/실패/불명
+        physical_name: STATE_CD
+        description: 검토 진행/완료/실패/불명
+      - name: agent 검토/계량 기록 참조
+        physical_name: PRODUCER_REF
+        description: agent 검토/계량 기록 참조
+      - name: 검토 결과 참조
+        physical_name: RESULT_REF
+        description: 검토 결과 참조
+      - name: 검토 요청 시각
+        physical_name: REQUESTED_DTM
+        description: 검토 요청 시각
+      - name: 종결 시각
+        physical_name: FINISHED_DTM
+        description: 종결 시각
+    physical:
+      attributes:
+        - name: REVIEW_ID
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ACTOR_ID
+          type: character varying(50)
+          nullable: false
+          default: null
+        - name: INPUT_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: INPUT_SNAPSHOT
+          type: text
+          nullable: false
+          default: null
+        - name: TEMPLATE_VERSION
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: OUTPUT_CONTRACT_VERSION
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MODEL_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: STATE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: PRODUCER_REF
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: RESULT_REF
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: REQUESTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: FINISHED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_PROMPT_REVIEW
+          definition: PRIMARY KEY (REVIEW_ID)
+        - name: CK_PROMPT_REVIEW_1
+          definition: CHECK (STATE_CD IN ('PENDING','RUNNING','SUCCEEDED','FAILED','UNKNOWN'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 관리자 설명은 입력 사본/모델 검토에서 제외한다. 저장된 전체 활성 규칙과 미저장 추가/수정/삭제를 실제 조합 순서로 합친다. 브라우저 부분 목록을 전체로 간주하지 않는다.
+      - 같은 검토 키/같은 주체·입력은 같은 진행/결과를 반환한다. 다른 입력은409. 전송 이후 결과불명은 자동 재호출하지 않고 producer 참조로 확인한다. 검토는 원 관리값 저장이 아니다.
+      - 원 관리 HIST가 이 검토 근거를 참조하면 보호가 끝날 때까지 보존하고 원 결과/가공본 접근은 현재 권한을 검사한다. 실제 호출/사용량/실행 로그의 정본은 agent 소유다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: 고객 보존 종료와 관리 HIST/소비 참조 해제 뒤 전체 검토 근거를 파기한다. 원 검토 키 재전송 보호는 agent 생산자 멱등 계약과 함께 검증한다.

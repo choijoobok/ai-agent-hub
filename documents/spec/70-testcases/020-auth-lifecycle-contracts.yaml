@@ -1,0 +1,188 @@
+testcases:
+  - id: TC-50112
+    feature: FEAT-501
+    usecase: UC-501
+    type: normal
+    actor: ACT-012
+    title: ADMIN 익명 CSRF와 로그인 수락
+    given: ADMIN 준비 문맥과 정상 관리자 자격
+    when: API-601 후 정상/다른 영역 CSRF로 API-501/503/504/505 호출
+    then: 정상만 해당 계약으로 처리, 위조/교차403; 정책 GET은 비밀 없음. public prefix 우회 변이는 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-50113
+    feature: FEAT-501
+    usecase: UC-501
+    type: business_exception
+    actor: ACT-012
+    title: 현재 상태·제한 세션·회수 경로 전체
+    given: 같은 날의 기존 ADMIN 세션과 두 노드
+    when: 비활성/기간만료/잠금·역할/개인/메뉴/API 변경 경로 각각 뒤 보호 요청 및 실패 로그인 임계 잠금과 보호 저장 경합
+    then: 계정 불가401·현재 액션 불가403·판정 장애503. dirty를 끄거나 각 변경 경로의 보호를 제거한 변이는 실패한다. API-501을 shared로 낮춰 자동 잠금/보호 저장 순서가 어긋나면 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-50114
+    feature: FEAT-501
+    usecase: UC-501
+    type: business_exception
+    actor: ACT-012
+    title: 관리자 암호 변경과 세션 회전 원자성
+    given: 변경 전 ADMIN 세션과 동시에 열린 PORTAL 세션
+    when: 새 해시/이력·기존 세션 삭제·새 세션 저장 각 지점에 장애 및 커밋 후 응답 유실
+    then: 커밋 전 전체 롤백, 커밋 후 새 암호 재로그인. 종료한 원 ID 늦은 flush 재생성0, Portal 상태 변화0. 별도 REQUIRES_NEW 세션 저장 변이는 실패한다. LOGIN admission 또는 다른 요청/세션의 RotationAdmission으로 암호 변경 후 회전을 시도하면 실패해야 한다. commit 결과 불명/응답 writer 실패에서 변경 미반영 단정·재실행·이중 쿠키 발급은 금지한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-5038
+    feature: FEAT-503
+    usecase: UC-503
+    type: security
+    actor: ACT-012
+    title: 정확 API 영역과 메뉴 매핑
+    given: 양 영역 쿠키 및 미등록/메서드변조/public 유사 URL
+    when: 단독/교차 쿠키·제한세션·Origin변조로 직접 호출
+    then: 서버 정확 영역/액션만 수락하며 미등록403·다른 영역401·CSRF403. 프런트 버튼 숨김이나 prefix만 검사한 변이는 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-3019
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 실패 로그인 횟수와 감사 커밋
+    given: LOCAL 존재 계정과 실패 잠금 직전 횟수
+    when: 잘못된 암호 요청 뒤 HTTP 실패·로그 저장 장애를 삽입
+    then: 정상 거부401에는 실패횟수/잠금/사건이 커밋된다. 필수 감사 DB 실패는 전체 롤백·503/성공세션0/자동재시도0이다. 정상401 응답 예외가 이미 필요한 실패횟수를 롤백하거나 감사 실패에도 성공 세션을 발급하는 변이는 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30110
+    feature: FEAT-301
+    usecase: UC-045
+    type: normal
+    actor: ACT-001
+    title: 다중 노드 동시 로그인과 독립 세션
+    given: 동일 PORTAL 주체·다른 ADMIN 주체 및 max-sessions=1
+    when: 두 노드 동시 로그인, 오래된 요청 flush, logout과 새 로그인 경합 및 PORTAL_SECURITY_CONTEXT만 둔 상태의 실제 principal index 조회
+    then: 현재 Portal 세션은 한도 이내·폐기 ID 부활0, ADMIN 그대로. 사용자별 보호 제거·삭제행 upsert 변이는 실패한다. PORTAL:<ID> 인덱스 누락/다른 영역 주체 혼합은 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30111
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 외부 증거 소비와 만료 청소 경합
+    given: 유효 challenge/검증 proof와 잘못된 issuer/nonce/browser/기간
+    when: 동일 증거 동시 수락·성공 후 응답 유실·청소 후 재생
+    then: 유효 최초 한 번만 세션/증거/사건 커밋, 중복409·만료/위조401. 원문 증거 저장0. UNIQUE/기한 검사 제거 변이는 실패한다. 대역과 실어댑터 결과는 별도다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30112
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 만료·재시작·종료 세션 부활 차단
+    given: 익명/인증 세션·challenge/증거 및 보안 사건
+    when: 만료 전후/정확 기한·다중노드 청소·재시작·DB 장애·오래된 save
+    then: 기한이상 수락0·없는 행 재생성0·다른 영역/보안 사건 삭제0. 노드 메모리 폴백·만료 검사 없이 청소만 의존한 변이는 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30113
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 자격 변경 확정 후 회전 실패
+    given: 제한/정상 PORTAL 세션과 기대 자격세대
+    when: 동시 암호 변경·관리자 reset·이력/사건 장애·세션 회전 장애·응답 유실
+    then: 자격/이력/사건은 원자, 이미 확정 뒤 회전 실패는 새 암호 재로그인. 이전 세대401·정상 응답 위장0·원 요청 자동재전송0. LOGIN admission·다른 세션/새 자격세대 불일치 RotationAdmission은 거부한다. Portal의 확정된 자격 변경을 회전 실패 때문에 되감지 않는다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30114
+    feature: FEAT-301
+    usecase: UC-045
+    type: security
+    actor: ACT-001
+    title: 인증 비밀의 일반 로그 유입 금지
+    given: 합성 비밀번호/쿠키/CSRF/state/nonce/토큰·양 영역 로그인
+    when: 성공/실패/예외/콜백·POST와 query 입력 뒤 일반접속/에러/APM/프록시·세션/감사 조회
+    then: 허용 인증세션/전용자격 저장 외 원문0·일반로그 Portal ADMIN_USER_ID 오기록0. 인증 경로 전문 수집 제외를 제거한 변이는 실패한다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30115
+    feature: FEAT-301
+    usecase: UC-045
+    type: business_exception
+    actor: ACT-001
+    title: 인증 형식 전환과 배포 복구
+    given: 현재 영역 없는 ADMIN 쿠키와 새 분리 버전/스키마
+    when: 배출·전환·검수 실패·롤백·구신 쿠키 교차 시도
+    then: 재인증 후만 수락·비호환 혼합/Portal 폴백0·계정/암호/사건 되감기0·미검수 EXTERNAL 활성0. 실제 소유 배포 시험 전 완료로 표시하지 않는다.
+    status: planned
+    verification: 소유 G3 후 실제 PostgreSQL/HTTP/다중노드 시험에서 단계별 장애/규칙 반전을 검증한다. 명세 작성과 제품 시험 통과는 별개다.
+  - id: TC-30116
+    feature: FEAT-301
+    usecase: UC-045
+    type: normal
+    title: 공통 영역 조립의 저장소/트랜잭션 전달
+    actor: ACT-001
+    given: 격리된 ADMIN/PORTAL repository와 등록된 테스트 API
+    when: 공통 필터 한 개로 영역별 요청/CSRF·SecurityContext·REQUIRED 세션 저장 계약 실행; 두 repository 무자격 주입·PORTAL Primary·ADMIN 인덱스 prefix 변경·TM 분리·기본 filter 중복을 각각 주입한다
+    then: 각 영역 repository만 호출·동일 DB 롤백 참여·익명과 인증 구분. 계정 업무 포트는 대역이며 실제 Portal 인증 완료를 주장하지 않는다. admin_interface_v1.startup_assertions 위반별 기동 실패를 확인한다. 같은 USER_ID 숫자의 다른 영역 세션 조회0, 정상 ADMIN raw 인덱스/Portal prefix 실조회는 성공한다.
+    status: implemented
+    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
+  - id: TC-30117
+    feature: FEAT-301
+    usecase: UC-045
+    type: security
+    title: 이중 필터·미등록 경로·저장소 폴백 차단
+    actor: ACT-001
+    given: 기본 자동 SessionRepositoryFilter 중복 등록·오타 namespace·미등록 API·저장소 장애
+    when: 기동 검수와 교차 쿠키 요청을 실행; 정확 public 카탈로그 대신 /api/public/** 예외·Portal의 ADMIN interceptor 통과·SessionPrincipal 직접 saveContext·임의 SessionDelta·응답 전 cookie 발급을 주입한다
+    then: 이중 등록/잘못된 namespace는 기동 실패·미등록/교차 거부·메모리 폴백0. 전체 public 허용·상대 영역 기본repository 변이는 실패한다. 각 우회는 기동/구조 또는 HTTP 계약 시험에서 실패해야 한다. API-601은 headerName만 JSON에, 실제 CSRF/세션은 올바른 영역 cookie로 발급하고 rollback 시 새 발급0이다. CredentialAdmission의 다른 요청/영역/주체/만료/재사용은 세션 저장과 쿠키 발급 없이 거절되고, CsrfIssue의 toString/디버그 직렬화에 합성 비밀이 나타나면 실패다.
+    status: implemented
+    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
+  - id: TC-5086
+    feature: FEAT-508
+    usecase: UC-508
+    type: concurrency
+    actor: ACT-012
+    title: 수동 접수와 권한 회수의 두 확정 순서
+    given: 두 노드의 API-572와 계정 중지/EXECUTE 회수
+    when: 회수 선행과 RUNNING 접수 커밋 선행 순서로 실행
+    then: 회수 선행401/403·신규 접수0; 접수 선행 작업은 대기 중이어도 유지·실제 결과 종결, 새 명령은 거부
+    status: planned
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.
+  - id: TC-5087
+    feature: FEAT-508
+    usecase: UC-508
+    type: concurrency
+    actor: ACT-012
+    title: 중단 접수와 권한 회수·실제 종결 경합
+    given: RUNNING 실행과 현재 EXECUTE 관리자. 같은 HIST_ID의 cancel/finish/markLost를 별도 DB 트랜잭션에서 경합시키고 오래된 엔티티를 먼저 읽은 경우도 준비
+    when: API-575와 계정/권한 회수를 양 순서로 확정하고 cancel↔finish 및 markLost↔finish의 양 잠금/커밋 순서, 중복 요청·역순 다중 이력 입력을 실행
+    then: 회수 선행이면 cancelReqDtm 불변, 중단 선행이면 최초 요청 시각 유지. 다른 권한 관리자의 중단은 가능하고 실제 정상 완료는 SUCCESS. finish 선행 뒤 cancel은 기존 중단 불가 오류·결과 변경0. markLost 선행 뒤 실제 finish는 실제 결과로 교정, finish 선행 뒤 markLost는 무변경. 최신 중단 시각 유실·종결 필드 초기화·ADMIN 역순 잠금0
+    status: planned
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드에서 barrier로 각 잠금/커밋 순서를 고정해 실행한다. ADMIN guard 제거·회수 뒤 cancel 허용·이력 행 잠금 제거·잠금 뒤 최신 조회 생략·최초 중단 시각 덮기 변이는 실패해야 한다. 목업이나 문서 검사를 실제 경합 시험으로 대체하지 않는다.
+  - id: TC-5088
+    feature: FEAT-508
+    usecase: UC-508
+    type: business_exception
+    actor: ACT-012
+    title: 수동 배치 커밋과 큐 인계 장애
+    given: RUNNING 접수/분산 잠금과 커밋 후 실행기
+    when: 커밋 전 장애·큐 거절·커밋 후 프로세스 종료·일정 삭제에 따른 LOST 조건 부재 주입
+    then: 커밋 전 RUNNING/큐0·획득 잠금 정리. 큐 거절은 해당 HIST_ID FAIL. 프로세스 단절은 기존 LOST 조건 또는 RUNNING 운영 확인이며 자동 재전송/거짓 SUCCESS0
+    status: planned
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.
+  - id: TC-5089
+    feature: FEAT-508
+    usecase: UC-508
+    type: concurrency
+    actor: ACT-012
+    title: 다중 대상 접수의 보호와 DB 실패
+    given: 정상·이미 실행 중 대상이 섞인 API-572 목록
+    when: 목록 처리 중 회수 및 RUNNING insert 장애 주입
+    then: 한 guard 아래 대상별 업무 결과를 판정하고 수락분은 같은 커밋. 회수 선행 신규0, DB 실패 모든 수락분 롤백·큐0, 이미 커밋한 인계 실패는 다른 접수를 취소하지 않음
+    status: planned
+    verification: system 소유 G3 후 실제 PostgreSQL/두 노드·큐 대역에서 실행한다. guard 제거·REQUIRES_NEW start·커밋 전 submit·회수 뒤 cancel 허용 변이는 실패해야 한다.

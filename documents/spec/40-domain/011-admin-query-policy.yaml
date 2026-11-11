@@ -1,25 +1,135 @@
 # 조회 정책 — 카탈로그 자식 물리 설계를 철회하고 access_policy 상세 설계로 이관한다.
 entities:
   - id: ENT-009
-    name: "필수 조회 제약"
+    name: 카탈로그 조회 정책 묶음
     term: TRM-247
-    domain: "이용자·접근 정책"
+    domain: 업무 지식
     module: admin
     implementation: planned
-    design_stage: logical
-    features: [FEAT-012]
-    reqs: [REQ-611]
-    description: "카탈로그별 직접 조회 정책 묶음의 논리 설계. 규칙 숫자 ID·현재 정책 리비전·규칙명/설명·안정 카탈로그 참조와 스코프/기본 필터/필수 조건 집합을 소유한다. 카탈로그 내용 버전과 독립이다."
+    design_stage: physical
+    features:
+      - FEAT-009
+      - FEAT-012
+    reqs:
+      - REQ-611
+      - REQ-103
+    description: 카탈로그별 직접 조회 정책 묶음의 논리 설계. 규칙 숫자 ID·현재 정책 리비전·규칙명/설명·안정 카탈로그 참조와 스코프/기본 필터/필수 조건 집합을 소유한다. 카탈로그 내용 버전과 독립이다.
     attributes:
-      - {"name":"규칙 식별자·정책 리비전","description":"REQ-601.surrogate_identifier의 기존 서버 시퀀스 숫자. 문자열 전송·미발급/클라이언트 행 키 분리. 전체 저장마다 정책 리비전 증가"}
-      - {"name":"규칙명·규칙 설명·카탈로그 참조","description":"선택 카탈로그 ID는 불변 참조, 데이터소스/명칭은 조회 투영. 실행 조건식과 업무 설명 구분"}
-      - {"name":"스코프 조건 집합","description":"각 항목 안정 ID·이름·SQL 조각·추출 파라미터의 이름/출처/설명·useYn/removable. 예약값은 서버 공급. 사용/해제 후 남은 스코프는 AND"}
-      - {"name":"기본 필터 집합","description":"각 항목 안정 ID·현재 컬럼 참조·자료형에 맞는 단일 상태값·useYn/removable. 등록값 일치 조건이며 복수 AND"}
-      - {"name":"필수 조건 집합","description":"각 항목 안정 ID·EQ/RANGE/JOIN 유형·EQ/RANGE 단일 columnId 또는 JOIN의 중복 없는 정확 columnIds 배열·최대 차이·useYn/removable. JOIN은 컬럼 모두 실제 조인되어야 한 항목 충족, 자료형/최대 차이는 해당 없음. 화면 콤마 문자열은 비저장 표시다. 날짜 정수 일수/숫자 차이. 사용/해제 후 남은 항목 중 하나 충족(OR). 별도 대체 키 없음"}
-      - {"name":"전체 변경 이력·사유","description":"현재 구성과 같은 원자 저장 단위. 수동 검수 상태 없음, 서버 검증은 유지"}
+      - name: 안정 조회 정책 번호
+        physical_name: POLICY_ID
+        pk: true
+        description: 안정 조회 정책 번호
+      - name: 적용 카탈로그
+        physical_name: CATALOG_ID
+        description: 적용 카탈로그
+      - name: 규칙명
+        physical_name: POLICY_NM
+        description: 규칙명
+      - name: 규칙 설명
+        physical_name: DESCRIPTION
+        description: 규칙 설명
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
     relations:
-      - {entity: ENT-005, cardinality: "규칙별 적용 대상 테이블", description: "카탈로그는 역조회만 하며 규칙 목록을 후보에 복사하지 않음"}
-      - {entity: ENT-007, cardinality: "대상 컬럼 1개 이상", description: "현재 사용한 카탈로그 참조 버전/권한과 함께 검증"}
-    rules: ["REQ-611.query_constraints를 따른다", "해제는 REQ-611.condition_exclusions로만 허용하며 실행 승인·카탈로그 복원으로 대체하지 않는다", "값 검증과 실제 SQL/최종 바인딩의 제약 적용을 모두 확인한다"]
-    delete_policy: "현재 조회 정책의 변경/보존 절차로 관리하며 카탈로그 후보 삭제·복원과 함께 바꾸지 않는다"
-    pending: ["@defer P3 access_policy SCR-009 — 통합 규칙/파라미터/조건·검증식·적용 매핑/버전·이력 물리 모델과 공개 API, 카탈로그 건수 역조회 계약 설계", "@defer P3 agent·integration — 지원 DBMS/표현식·차이 단위·모든 참조 조건 주입·최종 SQL/바인딩/정책 변경 경합 검증"]
+      - entity: ENT-005
+        cardinality: 규칙별 적용 대상 테이블
+        description: 카탈로그는 역조회만 하며 규칙 목록을 후보에 복사하지 않음
+      - entity: ENT-007
+        cardinality: 대상 컬럼 1개 이상
+        description: 현재 사용한 카탈로그 참조 버전/권한과 함께 검증
+      - entity: ENT-005
+        cardinality: N:1
+        description: CATALOG_ID → CATALOG_ID; DB RESTRICT 참조
+    rules:
+      - REQ-611.query_constraints를 따른다
+      - 해제는 REQ-611.condition_exclusions로만 허용하며 실행 승인·카탈로그 복원으로 대체하지 않는다
+      - 값 검증과 실제 SQL/최종 바인딩의 제약 적용을 모두 확인한다
+      - 대상 카탈로그의 모든 현재 정책 묶음에서 활성 스코프/기본 필터는 AND, 각 묶음의 활성 필수 조건은 OR로 평가한다. 여러 정책 묶음은 AND. 정책 조회 실패를 정책 없음으로 처리하지 않는다.
+    delete_policy: 현재 조회 정책의 변경/보존 절차로 관리하며 카탈로그 후보 삭제·복원과 함께 바꾸지 않는다
+    table: AI_ADMIN_QUERY_POLICY
+    physical:
+      attributes:
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_POLICY
+          definition: PRIMARY KEY (POLICY_ID)
+        - name: FK_QUERY_POLICY_1
+          definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG (CATALOG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_POLICY_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_POLICY_1 ON AI_ADMIN_QUERY_POLICY (CATALOG_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-200
+      root: ENT-009
+    copy_mapping:
+      history: ENT-200
+    revision_column: REVISION

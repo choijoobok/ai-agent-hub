@@ -47,7 +47,7 @@ usecases:
       - "@defer 전체 화면·업무 흐름 합의 후 — 항목별 정의와 기존 공통 조회 소비·적용 경계/기록을 ARCH-029·031·033과 대조한다. 기존 system 화면을 수정하거나 미정 숫자를 새 기본값으로 정하지 않는다"
   - id: UC-031
     name: "감사 이력을 조회하고 원본과 구분한 검토 의견을 남긴다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-107]
     actors: { primary: ACT-005, secondary: [] }
@@ -76,7 +76,7 @@ usecases:
 
   - id: UC-032
     name: "토큰 사용량과 공급사 월별 대조 근거를 확인한다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-118]
     actors: { primary: ACT-004, secondary: [] }
@@ -100,7 +100,7 @@ usecases:
 
   - id: UC-033
     name: "턴·시도의 실제 상태와 실행 점유 사건을 관측한다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-013, REQ-006]
     actors: { primary: ACT-005, secondary: [ACT-004] }
@@ -123,7 +123,7 @@ usecases:
 
   - id: UC-034
     name: "저장된 조회의 운영 상태와 복구 근거를 확인한다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-204, REQ-207]
     actors: { primary: [ACT-004, ACT-003, ACT-002, ACT-005], secondary: [ACT-001] }
@@ -147,7 +147,7 @@ usecases:
 
   - id: UC-035
     name: "품질 신고를 조사에 연결하고 신고자별 결과를 회신한다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-110]
     actors: { primary: ACT-005, secondary: [ACT-001] }
@@ -170,7 +170,7 @@ usecases:
 
   - id: UC-036
     name: "오류·품질 조사를 배정하고 조치의 실제 효과를 검증한다"
-    workstream: "admin"
+    workstream: admin-operations
     design_status: "draft"
     reqs:
       - "REQ-115"
@@ -232,7 +232,7 @@ usecases:
       - "@defer P3 — 원본별 단일 유효 연결·연결 취소 경합·조치 적용 범위·보호/해제·사후 연결/재발과 검증 증거의 데이터/API/화면 계약을 설계한다"
   - id: UC-037
     name: "실제 처리 사실에서 품질 지표와 보완 대상을 확인한다"
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-101, REQ-110, REQ-301]
     actors: { primary: ACT-005, secondary: [ACT-002, ACT-003] }
@@ -255,7 +255,7 @@ usecases:
 
   - id: UC-038
     name: "채팅 처리 오류 발생과 불변 증거를 접수한다"
-    workstream: admin
+    workstream: agent
     design_status: draft
     reqs: [REQ-115]
     actors: { primary: ACT-005, secondary: [ACT-001] }

@@ -3,48 +3,129 @@ features:
   - id: FEAT-301
     module: common
     roadmap: RM-P1
-    title: "영역별 인증·인가 경계"
-    detail: "관리 콘솔은 system 관리자 자체 계정·세션과 AUTHZ-090 관리 메뉴/액션 권한을 사용한다. Portal은 별도 Portal 계정·SSO/대상 인증 또는 자체 모드·별도 세션과 현재 Portal 이용 조건을 사용한다. 두 영역의 로그인·세션·현재 주체를 교차 수락하지 않으며 AI 데이터 범위는 Portal 주체의 AUTHZ-001 사용자 그룹으로 판정한다"
-    reqs: [REQ-103, REQ-501, REQ-616, REQ-041]
-    usecases: [UC-501, UC-023]
-    screens: [SCR-113, SCR-114, SCR-115]
-    pending: "@defer P3 — ARCH-050의 영역별 인증·세션·서버 전달·권한 수락과 독립 Portal 인증 화면을 상세 설계한다. 공통 구현은 기술 유틸만 재사용한다"
-    traces_to: [ARCH-050, AUTHZ-090, AUTHZ-001]
+    title: 영역별 인증·인가 경계
+    detail: 관리 콘솔은 system 관리자 자체 계정·세션과 AUTHZ-090 관리 메뉴/액션 권한을 사용한다. Portal은 별도 Portal 계정·SSO/대상 인증 또는 자체 모드·별도 세션과 현재 Portal 이용 조건을 사용한다. 두 영역의 로그인·세션·현재 주체를 교차 수락하지 않으며 AI 데이터 범위는 Portal 주체의 AUTHZ-001 사용자 그룹으로 판정한다
+    reqs:
+      - REQ-103
+      - REQ-501
+      - REQ-616
+      - REQ-041
+    usecases:
+      - UC-501
+      - UC-023
+      - UC-045
+    delivery_boundary: 서버의 영역별 인증·세션·주체/권한 수락 계약과 공통 기술 유틸을 integration에서 설계·구현한다. 제품 Portal 인증 화면은 FEAT-128이 소유하며 선행 계약 시험은 실제 인증 계약으로 준비한 시험 주체를 사용한다. 관리자 세션 대용·인가 우회 경로를 만들지 않는다.
+    implementation_ownership:
+      portal_server: Portal 로그인·LOCAL/EXTERNAL 인증 수락·세션과 본인 인증 API는 portal 제품 모듈에 구현하되 FEAT-301/integration 작업흐름 G3를 따른다. common 기능이라는 이유로 Portal 인증 업무를 shared/system으로 옮기지 않는다.
+      system: 관리자 로그인/세션·관리 API 권한 및 회수 변경은 FEAT-501/502/503과 system 소유 G3를 따른다.
+      admin: Portal 원장·자체 인증정보와 이용 조건의 저장/공개 제공은 FEAT-005/006과 admin 소유 G3를 따른다.
+      portal_ui: 제품 로그인/비밀번호/세션 안내 UI는 FEAT-128/portal 후행이다. 선행 시험은 서버의 실제 인증 경로를 사용하며 개발 전용 인증 우회 엔드포인트를 만들지 않는다.
+    pending: '@defer 소유 P4/P5 — integration G3에서 동결한 인증 조립/물리 저장·만료/감사/증거·복구를 구현하고 실제 시험한다. 승인 범위·승인일은 project.state.yaml의 integration.P3_design을 따른다. 고객별 IF-010 어댑터는 SLICE-306에서 완성한다. 제품 FEAT-128 화면은 후행이다.'
+    traces_to:
+      - ARCH-050
+      - AUTHZ-090
+      - AUTHZ-001
+      - ADR-046
+    workstream: integration
+    apis:
+      - API-301
+      - API-302
+      - API-303
+      - API-304
+      - API-305
+      - API-306
+    entities:
+      - ENT-252
+      - ENT-253
+      - ENT-254
+      - ENT-255
+      - ENT-256
   - id: FEAT-302
     module: common
     roadmap: RM-P1
-    title: "모듈별 환경 설정과 프로파일 관리"
-    detail: "환경별 설정 분리는 REQ-402, 접속 설정·비밀정보의 관리 대상·저장/주입·공통 설정 복호화 연동/운영 도구·비노출 경계는 REQ-403을 따른다. 비밀 원문 관리 화면을 만들지 않는다"
-    reqs: [REQ-402, REQ-403]
-    traces_to: [CON-011]
+    title: 모듈별 환경 설정과 프로파일 관리
+    detail: 환경별 설정 분리는 REQ-402, 접속 설정·비밀정보의 관리 대상·저장/주입·공통 설정 복호화 연동/운영 도구·비노출 경계는 REQ-403을 따른다. 비밀 원문 관리 화면을 만들지 않는다
+    reqs:
+      - REQ-402
+      - REQ-403
+    traces_to:
+      - CON-011
+    workstream: integration
+    usecases:
+      - UC-046
+    trigger: 공통 서버/운영 포트의 요청
+    public_contract: FEAT-302 상세는 50-api/017-integration-common-contracts.yaml을 따른다.
   - id: FEAT-303
     module: common
     roadmap: RM-P1
-    title: "그룹 판정 공통 컴포넌트"
-    detail: "사용자 소속 그룹과 객체 허용 그룹의 교집합 판정 · 컬럼/API 응답 경로의 원본 열람·마스킹 열람·접근 제한 결과 산출"
-    why: "**agent 의 조회·실행 통제와 portal 의 접근 가능 목록 조회가 함께 사용한다** — 같은 판정을 각각 구현하면 두 결과가 어긋난다"
-    reqs: [REQ-103, REQ-105]
-    nfrs: [NFR-026]
-    traces_to: [AUTHZ-001, ARCH-012]
+    title: 그룹 판정 공통 컴포넌트
+    detail: 사용자 소속 그룹과 객체 허용 그룹의 교집합 판정 · 컬럼/API 응답 경로의 원본 열람·마스킹 열람·접근 제한 결과 산출
+    why: '**agent 의 조회·실행 통제와 portal 의 접근 가능 목록 조회가 함께 사용한다** — 같은 판정을 각각 구현하면 두 결과가 어긋난다'
+    reqs:
+      - REQ-103
+      - REQ-105
+    nfrs:
+      - NFR-026
+    traces_to:
+      - AUTHZ-001
+      - ARCH-012
+    workstream: integration
+    usecases:
+      - UC-047
+    trigger: 공통 서버/운영 포트의 요청
+    public_contract: FEAT-303 상세는 50-api/017-integration-common-contracts.yaml을 따른다.
   - id: FEAT-304
     module: common
     roadmap: RM-P1
-    title: "외부 모델 호출 공통 컴포넌트"
-    detail: "공급 경로·모델 추상화 · 프롬프트 규칙 주입 · REQ-106의 자료 요청·동의 범위와 전송 정책 검사 · **호출 내용·토큰·비용 기록**. 구현체 공통 의미·지원 기능·요청/응답 변환·검증·문맥/자체 실행 통제와 공통 시험은 REQ-009, 변경의 사용자 동작 일치와 호출 취소/종료·계량 차이의 처리는 REQ-007·034, 프롬프트 조합은 REQ-610을 따른다 REQ-602의 보조 대체를 위해 ARCH-032에 따라 일시 장애/금지 오류·접수/종료·사용량 근거를 정규화한다. 후보 선택은 agent가 결정하며 하위 자동 재전송을 숨기지 않는다."
-    hard_rule: "**용도별로 인터페이스를 분리해 노출한다** — 대화·추론용과 임베딩용을 하나로 합치지 않는다. 그래야 'portal·admin 은 대화·추론 LLM 을 호출하지 않는다' 를 참조 관계로 검사할 수 있다. **호출 성공·실패와 무관하게 기록을 남기며 기록 없이 성공한 호출이 있으면 안 된다.** 호출 기록에 **호출 용도**를 함께 남긴다"
-    testability: "**테스트용 구현체(고정 응답 또는 녹화·재생)를 둘 자리를 인터페이스 설계 시점에 확보한다.** 구현 시점은 미룰 수 있으나 인터페이스가 이를 수용하지 못하면 나중에 추가할 수 없다"
-    reqs: [REQ-007, REQ-009, REQ-034, REQ-106, REQ-107, REQ-602]
-    nfrs: [NFR-026, NFR-027]
-    traces_to: [PRN-01, ARCH-013, ARCH-040]
+    title: 외부 모델 호출 공통 컴포넌트
+    detail: 공급 경로·모델 추상화 · 프롬프트 규칙 주입 · REQ-106의 자료 요청·동의 범위와 전송 정책 검사 · **호출 내용·토큰·비용 기록**. 구현체 공통 의미·지원 기능·요청/응답 변환·검증·문맥/자체 실행 통제와 공통 시험은 REQ-009, 변경의 사용자 동작 일치와 호출 취소/종료·계량 차이의 처리는 REQ-007·034, 프롬프트 조합은 REQ-610을 따른다 REQ-602의 보조 대체를 위해 ARCH-032에 따라 일시 장애/금지 오류·접수/종료·사용량 근거를 정규화한다. 후보 선택은 agent가 결정하며 하위 자동 재전송을 숨기지 않는다.
+    hard_rule: '**용도별로 인터페이스를 분리해 노출한다** — 대화·추론용과 임베딩용을 하나로 합치지 않는다. 그래야 ''portal·admin 은 대화·추론 LLM 을 호출하지 않는다'' 를 참조 관계로 검사할 수 있다. **호출 성공·실패와 무관하게 기록을 남기며 기록 없이 성공한 호출이 있으면 안 된다.** 호출 기록에 **호출 용도**를 함께 남긴다'
+    testability: '**테스트용 구현체(고정 응답 또는 녹화·재생)를 둘 자리를 인터페이스 설계 시점에 확보한다.** 구현 시점은 미룰 수 있으나 인터페이스가 이를 수용하지 못하면 나중에 추가할 수 없다'
+    reqs:
+      - REQ-007
+      - REQ-009
+      - REQ-034
+      - REQ-106
+      - REQ-107
+      - REQ-602
+    nfrs:
+      - NFR-026
+      - NFR-027
+    traces_to:
+      - PRN-01
+      - ARCH-013
+      - ARCH-040
+    workstream: integration
+    usecases:
+      - UC-048
+    trigger: 공통 서버/운영 포트의 요청
+    public_contract: FEAT-304 상세는 50-api/017-integration-common-contracts.yaml을 따른다.
+    interfaces:
+      - IF-003
+      - IF-004
   - id: FEAT-305
     module: common
     roadmap: RM-P1
-    title: "사용자 변경 이벤트 수신 인터페이스"
-    detail: "인사 시스템·그룹웨어가 폐쇄망 내부에서 보내는 변경 사건을 검증된 외부 연결의 Portal 계정에 적용한다. 퇴직은 Portal 비활성화, 조직 이동은 Portal 일시 비활성화와 관리자 통보이며 처리 결과를 정책 변경 이력에 남긴다. system 관리자 계정·세션에는 자동 전파하지 않는다"
-    reqs: [REQ-103, REQ-107]
-    nfrs: [NFR-027]
-    traces_to: [ARCH-050]
-
-# ── 결번 ───────────────────────────────────────────────────────────
-# **폐기한 기능의 번호는 재사용하지 않는다.** 결번을 표기 없이 비워 두면 누락인지 폐기인지
-# 구분되지 않으므로 사유와 대체를 함께 적는다.
+    title: 사용자 변경 이벤트 수신 인터페이스
+    detail: 인사 시스템·그룹웨어가 폐쇄망 내부에서 보내는 변경 사건을 검증된 외부 연결의 Portal 계정에 적용한다. 퇴직은 Portal 비활성화, 조직 이동은 Portal 일시 비활성화와 관리자 통보이며 처리 결과를 정책 변경 이력에 남긴다. system 관리자 계정·세션에는 자동 전파하지 않는다
+    reqs:
+      - REQ-103
+      - REQ-107
+    nfrs:
+      - NFR-027
+    traces_to:
+      - ARCH-050
+    workstream: integration
+    usecases:
+      - UC-049
+    trigger: 공통 서버/운영 포트의 요청
+    public_contract: FEAT-305와 FEAT-509.external_change_notification
+    interfaces:
+      - IF-006
+    apis:
+      - API-307
+    entities:
+      - ENT-257
+      - ENT-265
+      - ENT-266
+    decision: ADR-047

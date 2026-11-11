@@ -23,3 +23,11 @@ spec_set:
     - 012-identity-verification.yaml
     - 013-prompt-rule.yaml
     - 014-chat-help.yaml
+    - 015-foundation-contracts.yaml
+    - 016-quota-allocation-contracts.yaml
+    - 017-admin-physical-contracts.yaml
+    - 019-auth-preconditions.yaml
+    - 018-admin-nfr-contracts.yaml
+    - 020-auth-lifecycle-contracts.yaml
+    - 021-integration-common-contracts.yaml
+    - 022-model-call-external-change.yaml

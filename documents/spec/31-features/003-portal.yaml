@@ -1,5 +1,18 @@
 features:
 # ══ portal — 개인 사용자 (10.4) ══════════════════════════════════
+  - id: FEAT-128
+    module: portal
+    workstream: portal
+    roadmap: RM-P1
+    title: "Portal 인증·비밀번호·세션 안내 화면"
+    detail: "기존 SCR-113 로그인·SCR-114 자체 비밀번호 변경·SCR-115 세션 만료 안내의 제품 화면 소유를 FEAT-301 서버 인증 경계와 분리한다. 새 업무 기능을 추가하지 않으며 REQ-616·041과 ARCH-050의 별도 Portal 인증·PC/모바일·안전한 재인증 복귀를 표현한다."
+    screens: [SCR-113, SCR-114, SCR-115]
+    uses_features: [FEAT-301]
+    usecases: [UC-023]
+    reqs: [REQ-616, REQ-041]
+    nfrs: [NFR-028]
+    traces_to: [ARCH-050]
+    delivery_boundary: "제품 Portal 작업흐름에서 요건·목업·테스트를 상세화하고 별도 G3 뒤 구현한다. integration의 서버 인증/계약 시험이나 SCR-112 승인이 이 화면들의 승인을 대신하지 않는다."
   - id: FEAT-101
     module: portal
     uses_features: [FEAT-041]
@@ -21,7 +34,7 @@ features:
     title: "진행 상황 표시 · 중단 · 처리 중 추가 입력"
     detail: "REQ-006에 따른 실제 처리 이력의 최신 유효 진행·업무 대상이 드러나는 누적 수행 내역 · 현재 작업 시간 카운트·턴 누적 처리 시간 · 상세 펼침/접기로 작업별 시간·시도 소계·접수 후 경과/대기 시간 확인 · **개인 한도로 순서 대기 중임과 자동 처리 예정 안내·취소 버튼 또는 카드** · REQ-040에 따라 재접속 시 같은 턴의 현재 상태·이력/시간·허용 결과·유효 조작 복원, 이전 미종결 턴 안내/이동과 카드 제출 시 현재 유효성 재검사 · **도구 호출이 타임아웃으로 재시도 중일 때의 순번(2/2), 자동 재시도 소진 뒤 수동 재시도 가능 여부와 최종 사유, 실행 결과가 처리 중일 때의 수동 재확인 안내**. 추가 입력의 종류·대상 확인·병행형/차단형 확인과 접수/반영 결과·현재 유효 조작은 REQ-007·032를 따른다. CLI/API 구현체에 따른 별도 사용자 절차를 요구하지 않는다. REQ-007에 따라 중단 버튼/카드·자연어 대상 연결, 접수/반영중/처리 결과와 호출별 취소 여부·전송 후 취소 불가·응답 시간 초과/실행 결과 확인 불가·재시도 불가·다음 행동을 agent의 표준 문구로 표시하고 복원한다."
     reqs: [REQ-006, REQ-007, REQ-032, REQ-036, REQ-040, REQ-041]
-    nfrs: [NFR-022, NFR-028]
+    nfrs: [NFR-006, NFR-007, NFR-009, NFR-022, NFR-028]
     token_display: "REQ-006.personal_usage에 따라 각 질의·응답의 사용 토큰을 수행 시간과 함께 표시하고, 처리 중 누적·추정/미상 계량·새 턴 재요청·늦은 사용량 정정을 구분한다"
   - id: FEAT-103
     module: portal
@@ -31,7 +44,7 @@ features:
     result_paging: "REQ-011·NFR-002·003에 따라 페이지 상한 초과 시 페이징 필요를 알리고 다음 페이지 요청 또는 페이징 지원 그리드 등으로 처리한다. portal이 표현/조작을 결정하고 agent의 페이지/이어가기·끝/실패/만료 계약을 사용한다. 부분 범위·미상 총 건수·현재 페이지 정렬과 전체 정렬을 구분하며 원 SQL 실행이나 전체 자동 수집으로 대체하지 않는다"
     detail: "REQ-011에 따라 목록은 그리드, 값·설명/브리핑은 텍스트, 요청 시 차트로 표시하고 필드 타입·단위·코드명·시스템 기본/사용자 숫자·날짜 형식을 적용한다. 컴포넌트별 변환은 REQ-027의 portal 어댑터가 담당한다. agent 계약이 포함한 검토 필요 경고 문구와 의미 블록을 그대로 표시한다. portal은 경고 문구를 자체 생성하지 않으며, 지식 식별자·리비전·공개 객체명은 표시하지 않는다"
     reqs: [REQ-011, REQ-012, REQ-027, REQ-039, REQ-304, REQ-041]
-    nfrs: [NFR-028]
+    nfrs: [NFR-002, NFR-003, NFR-028]
   - id: FEAT-104
     module: portal
     screen: SCR-101
@@ -237,12 +250,16 @@ features:
 
   - id: FEAT-126
     module: portal
-    workstream: integration
+    workstream: integration-debug
     screen: SCR-112
     roadmap: RM-P1
-    title: "agent 응답 계약 시험"
-    detail: "질의를 접수하고 처리 상태를 조회한 뒤, 권한·보안·쿼터·감사를 거친 agent 최종 응답 계약의 원문과 메타데이터를 누락 없이 표시한다"
-    hard_rule: "**제품용 가공·이력 탐색·개인화·시각화는 넣지 않는다.** 모르는 표현 블록도 버리지 않고 원문으로 확인할 수 있어야 한다"
-    lifecycle: "admin·agent 핵심 개발 중 사용하는 내부 시험 기능. 제품 portal의 SCR-101과 별도 승인·별도 슬라이스로 관리한다"
-    reqs: [REQ-009, REQ-027]
-    traces_to: [ARCH-015, ARCH-019]
+    title: agent 응답 계약 시험
+    detail: 질의를 접수하고 처리 상태를 조회한 뒤, 권한·보안·쿼터·감사를 거친 agent 최종 응답 계약의 원문과 메타데이터를 누락 없이 표시한다
+    hard_rule: '**제품용 가공·이력 탐색·개인화·시각화는 넣지 않는다.** 모르는 표현 블록도 버리지 않고 원문으로 확인할 수 있어야 한다'
+    lifecycle: admin·agent 핵심 개발 중 사용하는 내부 시험 기능. 제품 portal의 SCR-101과 별도 승인·별도 슬라이스로 관리한다
+    reqs:
+      - REQ-009
+      - REQ-027
+    traces_to:
+      - ARCH-015
+      - ARCH-019

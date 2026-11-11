@@ -2,6 +2,7 @@ screens:
 # ══ admin — 연동 관리 (3.1) ══════════════════════════════════════
 # 카탈로그는 구조·업무 의미·관계를 관리한다. 행 스코프·기본 필터·조회 제약은 SCR-009가 관리한다.
   - id: SCR-001
+    workstream: admin
     configuration_cleanup: "REQ-601.configuration_cleanup. 상단 조회조건 전체의 확정 누락 건 일괄 삭제를 제공한다. 연결 정보 탭은 선택 시스템 아래 정확 연결 범위만 별도로 정리한다. 현재 SAVE·미리보기·새 사유·전체 재검증·참조 보호를 적용한다."
     type: "list_detail"
     route: "/admin/hub/target-system"
@@ -33,6 +34,7 @@ screens:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
   - id: SCR-002
+    workstream: admin
     configuration_cleanup: "REQ-601.configuration_cleanup. 상단 조회조건 전체의 확정 누락 건 일괄 삭제를 제공한다. 현재 SAVE·미리보기·새 사유·전체 재검증·참조 보호를 적용한다."
     features: [FEAT-002, FEAT-003]
     comparison: "REQ-304.batch_structure_comparison. 스케줄 배치 결과·선택 데이터소스의 수동 일괄 비교 버튼과 컬럼 불일치·인덱스 불일치 탭별 단일 그리드를 제공한다. 성공 확인된 해소만 현재 목록에서 제거하며 실패·부분 비교/오래된 결과로 삭제하지 않는다"
@@ -66,6 +68,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     note: "REQ-603.yaml_authority·data_query_guides. Hub spring.datasource 제외, app.external-datasources 기동 동기화. UI 마스터 신규/삭제/연결 정정과 옛 코드 정의/파라미터/결과 탭 없음. 가이드 여러 제목/상세+감사4개, 같은 DS 전체 저장/이력."
   - id: SCR-003
+    workstream: admin
     policy_workspace: "FEAT-007의 그룹/예외 편집은 이 화면의 사용자 그룹·컬럼 그룹 예외 탭에 통합한다. 독립 그룹 매핑 메뉴/저장소/리비전을 두지 않으며 영역별 현재 변경 권한은 정의 편집 권한과 분리해 검사한다."
     object_type: "OBJECT_TYPE의 TABLE/VIEW를 상단 목록과 조건·신규/정의에서 테이블/뷰로 표시한다. 유형은 필수이며 수동 지정/원천 관측 상태를 구분한다"
     code_workspace: "REQ-301.value_domain: nullable groupCode와 상세 설명 장문, PK/NOT NULL/개인정보 설정 스위치. 코드 값 수동 목록/값 방식 선택 없음."
@@ -112,6 +115,7 @@ screens:
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
     master_grid_projection: "상단 효력 상태와 조회 제약 컬럼 및 효력 상태 조회조건은 생략한다. 적용 리비전은 반영 시각 다음(기존 조회 제약 위치)에 기본 표시한다. 수동 사용 여부와 감사4개를 유지하며 사용 가능 여부·사용 불가 사유는 선택 열과 상속 이력 SCR-042에도 제공하지 않는다. 데이터소스 진단은 SCR-002에서 확인한다. 내부 lifecycle·조회 제약·실행 전 유효성 검사와 데이터소스 문제에 따른 업무 SQL 차단은 유지한다."
   - id: SCR-039
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "연동 관리"
@@ -136,6 +140,7 @@ screens:
     request_owner: "SCR-003"
     save_boundary: "별도 관리자 요청 원장/승인 루트나 관계 리비전을 만들지 않고 같은 소유 카탈로그 관계 영역 명령과 전체 HIST를 사용한다."
   - id: SCR-004
+    workstream: admin
     schema_sync: "REQ-608.schema_sync. 필드 구조는 원천에서 자동 도출하며 불일치 설정 보존·복사/붙여넣기·참조 검증 일괄 삭제를 제공한다. 행별 삭제 컬럼과 수동 추가는 해당 스키마 필드 그리드에 없다."
     policy_workspace: "사용자 그룹·응답 데이터 접근 제한 설정은 FEAT-008 소유 편집을 같은 API 전체 구성/이력으로 관리한다. 기본값·같은 유형의 덜 엄격한 수준 결합·Portal/이력 분리는 REQ-608.response_access를 따른다."
     usecases: [UC-018, UC-026]
@@ -168,6 +173,7 @@ screens:
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
     asset_availability: "REQ-601.asset_availability: 사용 여부 설정 스위치와 현재 적용본의 연결 설정 유효/사용 가능·사유를 분리한다. 시스템별 명시 연결 필수, 기본 연결 없음. 저장된 워크플로우도 전송 전 같은 검사."
   - id: SCR-005
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -190,6 +196,7 @@ screens:
     history_view: "SCR-044"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: SCR-006
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -211,6 +218,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-045
   - id: SCR-009
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -239,6 +247,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-046
   - id: SCR-010
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -263,6 +272,7 @@ screens:
     history_view: "SCR-047"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: SCR-011
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -287,6 +297,7 @@ screens:
     mapping_approval: "REQ-303.reference_mapping. 지식은 본문·사용자 그룹·안정 ID 매핑/사용 설명을 관리하고 요청 승인도 해당 소유 구성만 표시한다. 외부 자산 상세·고정 리비전을 지식 승인 내용에 포함하지 않는다. 외부 리비전 상승에 따른 매핑/지식 리비전 자동 동기화·자동 반려는 없으며 존재/연결 가능성·현재 권한과 지식 자기 기준 리비전은 검증한다."
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: SCR-012
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -310,6 +321,7 @@ screens:
     history_view: "SCR-049"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: SCR-013
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -330,6 +342,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-050
   - id: SCR-014
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "업무 지식 관리"
@@ -352,6 +365,7 @@ screens:
     usecases: [UC-021]
     save_boundary: "REQ-601.direct_management에 따라 선택 구분의 현재값/전체 이력을 현재 권한·기대 버전·사유 검증 후 원자 저장한다. 관리자 승인 요청 경로를 두지 않는다."
   - id: SCR-015
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -373,6 +387,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-051
   - id: SCR-062
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -394,6 +409,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-063
   - id: SCR-016
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -414,6 +430,8 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-052
   - id: SCR-017
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -427,12 +445,13 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/transfer-policy/requirements.md"
     screen_role: "readonly_monitoring"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-019
+    workstream: admin
     schema_sync: "REQ-612.schema_sync. 필드 구조는 원천에서 자동 도출하며 불일치 설정 보존·복사/붙여넣기·참조 검증 일괄 삭제를 제공한다. 행별 삭제 컬럼과 수동 추가는 해당 스키마 필드 그리드에 없다."
     tabs:
       - "도구 사용 가이드"
@@ -466,6 +485,8 @@ screens:
     history_view: "SCR-054"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
   - id: SCR-020
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -479,13 +500,14 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/saved-query/requirements.md"
     screen_role: "mixed_monitoring"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     uses_screens: [SCR-515]
     history_policy:
       kind: "business_record"
       rule: "제한 설정은 기존 system 시스템 환경설정(SCR-515)의 유효값을 참조한다. 새 설정 변경 이력 메뉴나 _HIST를 만들지 않는다. 저장 조회·위젯 등록/실행·개별 오류는 소유 업무 기록으로 조회한다."
   - id: SCR-021
+    workstream: admin
     module: "admin"
     entry: "menu"
     group: "공통 기반"
@@ -506,6 +528,7 @@ screens:
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: SCR-055
   - id: SCR-022
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "Portal 신청 승인"
@@ -527,6 +550,7 @@ screens:
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
     request_policy: "Portal 사용자의 신청은 원 제출본·요청 ID/버전·선행 상태·현재 처리 권한을 검증한 관리자가 승인/반려한다. 관리자 간 승인이나 설정에 따른 전결로 대체하지 않는다. REQ-601.request_integrity와 각 업무의 적용 월·지급/만료 경계를 유지한다."
   - id: SCR-035
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "Portal 신청 승인"
@@ -548,6 +572,7 @@ screens:
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
     request_policy: "Portal 사용자의 신청은 원 제출본·요청 ID/버전·선행 상태·현재 처리 권한을 검증한 관리자가 승인/반려한다. 관리자 간 승인이나 설정에 따른 전결로 대체하지 않는다. REQ-601.request_integrity와 각 업무의 적용 월·지급/만료 경계를 유지한다."
   - id: SCR-023
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "비용 관리"
@@ -567,6 +592,8 @@ screens:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-024
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "품질 관리"
@@ -580,12 +607,14 @@ screens:
     menu_parent: "HUB_QUALITY"
     target_doc: "documents/screen/admin/hub/quality-report/requirements.md"
     screen_role: "case_handling"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-033
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "품질 관리"
@@ -600,12 +629,13 @@ screens:
     menu_parent: "HUB_QUALITY"
     target_doc: "documents/screen/admin/hub/quality-investigation/requirements.md"
     screen_role: "case_handling"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-025
+    workstream: admin-operations
     scope_status: "REQ-615에 따라 전체 개발 완료 후 재검토하는 후보. 현재 화면 설계·구현 대상 제외"
     module: admin
     group: "품질 관리"
@@ -615,6 +645,8 @@ screens:
     roadmap: RM-P1
     agent_contact: "설정 + 산출"
   - id: SCR-026
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "품질 관리"
@@ -627,12 +659,14 @@ screens:
     menu_parent: "HUB_QUALITY"
     target_doc: "documents/screen/admin/hub/quality-metric/requirements.md"
     screen_role: "statistics"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-027
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -646,12 +680,14 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/conversation-history/requirements.md"
     screen_role: "runtime_audit"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-028
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -664,12 +700,14 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/query-history/requirements.md"
     screen_role: "runtime_audit"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-029
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -682,12 +720,14 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/execution-history/requirements.md"
     screen_role: "runtime_audit"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-030
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -700,12 +740,14 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/policy-decision-history/requirements.md"
     screen_role: "runtime_audit"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-031
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "변경 이력"
@@ -721,12 +763,14 @@ screens:
     menu_parent: "HUB_CHANGE_HISTORY"
     target_doc: "documents/screen/admin/hub/management-change-search/requirements.md"
     screen_role: "history_index"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-032
+    design_basis: "2026-11-09 사용자 결정: 현재 요건서의 화면 배치·목업 예시는 agent 설계/구현의 근거에서 제외한다. 질의/응답 요구 기반 기록 모델·생산/조회 계약(관리 변경은 원 저장/HIST 모델)을 먼저 검토한 뒤 화면 요건·목업을 재작성·사용자 승인한다. 기존 업무 요구와 보존/권한 의무는 유지한다."
+    workstream: admin-operations
     module: "admin"
     entry: "menu"
     group: "감사·이력"
@@ -739,12 +783,13 @@ screens:
     menu_parent: "HUB_AUDIT"
     target_doc: "documents/screen/admin/hub/execution-trace/requirements.md"
     screen_role: "runtime_audit"
-    design_status: "screen_draft"
+    design_status: "redesign_pending"
     menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
     history_policy:
       kind: "business_record"
       rule: "요청/판정·검토/조사·실행 로그/통계를 해당 업무 기록으로 조회한다. 이 화면 자체를 관리 구성 _HIST로 복사하지 않는다."
   - id: SCR-038
+    workstream: admin-operations
     module: "admin"
     group: "자동화 관리"
     title: "워크플로우 자동 승인 활성화 요청"
@@ -869,26 +914,22 @@ screens:
     note: "등록은 SCR-101"
   - id: SCR-112
     module: portal
-    workstream: integration
-    title: "Agent 계약 시험"
+    workstream: integration-debug
+    title: Agent 계약 시험
     feature: FEAT-126
     roadmap: RM-P1
     visibility: internal
-    route: "/internal/chat-test"
+    route: /internal/chat-test
     navigation: hidden
-    access: "전용 메뉴/액션 유효 권한 보유자만 접근한다. TESTER 역할은 권한을 배포하는 기본 묶음일 뿐 판정 조건이 아니다(AUTHZ-090)"
-    note: "질의 접수와 상태 조회, 최종 계약 원문 표시만 제공한다. 제품 portal의 메뉴와 사용자 편의 기능을 넣지 않으며 직접 URL도 서버 권한을 우회하지 않는다"
-
-# ══ system — 기존 백오피스 화면의 목표 경로와 소유권 ═════════════
-# 동작·컬럼·검증은 current_doc의 승인된 정본을 보존한다. 구현 슬라이스에서 소스 경로와
-# 함께 target_doc으로 옮기고 current_route를 즉시 제거한다(ARCH-025).
+    access: 전용 메뉴/액션 유효 권한 보유자만 접근한다. TESTER 역할은 권한을 배포하는 기본 묶음일 뿐 판정 조건이 아니다(AUTHZ-090)
+    note: 질의 접수와 상태 조회, 최종 계약 원문 표시만 제공한다. 제품 portal의 메뉴와 사용자 편의 기능을 넣지 않으며 직접 URL도 서버 권한을 우회하지 않는다
   - id: SCR-113
     module: portal
     workstream: portal
     entry: standalone
     group: "Portal 인증"
     title: "Portal 로그인"
-    feature: FEAT-301
+    feature: FEAT-128
     usecases: [UC-023]
     traces_to: [REQ-616, REQ-041, NFR-028, ARCH-050]
     roadmap: RM-P1
@@ -903,7 +944,7 @@ screens:
     entry: standalone
     group: "Portal 인증"
     title: "Portal 비밀번호 변경"
-    feature: FEAT-301
+    feature: FEAT-128
     usecases: [UC-023]
     traces_to: [REQ-616, ARCH-050]
     roadmap: RM-P1
@@ -918,7 +959,7 @@ screens:
     entry: standalone
     group: "Portal 인증"
     title: "Portal 세션 만료"
-    feature: FEAT-301
+    feature: FEAT-128
     usecases: [UC-023]
     traces_to: [REQ-616, REQ-041, ARCH-050]
     roadmap: RM-P1
@@ -957,6 +998,7 @@ screens:
 # ── 차수별 노출 ───────────────────────────────────────────
 
   - id: SCR-064
+    workstream: admin
     title: 쿼터 등급 관리
     module: admin
     entry: menu
@@ -977,6 +1019,7 @@ screens:
     note: 화면/업무 흐름 합의 전 요건·목업이다. 물리/API·제품 소스/시드는 미확정이며 소유 요구사항과 화면 요건서가 컬럼/검수/경계를 정의한다.
     history_view: SCR-065
   - id: SCR-066
+    workstream: admin-operations
     title: 사용자별 토큰 사용 통계
     module: admin
     entry: menu
@@ -995,6 +1038,7 @@ screens:
     design_status: draft
     note: 화면/업무 흐름 합의 전 요건·목업이다. 물리/API·제품 소스/시드는 미확정이며 소유 요구사항과 화면 요건서가 컬럼/검수/경계를 정의한다.
   - id: SCR-067
+    workstream: admin-operations
     title: 월별 토큰 사용 통계
     module: admin
     entry: menu
@@ -1014,6 +1058,7 @@ screens:
     note: 화면/업무 흐름 합의 전 요건·목업이다. 물리/API·제품 소스/시드는 미확정이며 소유 요구사항과 화면 요건서가 컬럼/검수/경계를 정의한다.
 
   - id: SCR-068
+    workstream: admin-operations
     title: 월별 사용자 쿼터 현황
     module: admin
     entry: menu

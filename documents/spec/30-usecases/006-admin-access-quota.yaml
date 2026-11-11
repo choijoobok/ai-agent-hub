@@ -182,7 +182,7 @@ usecases:
 
   - id: UC-028
     name: "승급 요청을 판정하고 미래 적용 월을 예약한다"
-    workstream: "admin"
+    workstream: admin-operations
     design_status: "draft"
     reqs:
       - "REQ-117"
@@ -227,7 +227,7 @@ usecases:
       - "@defer P3 — 승인 시 월 확정 경합·예약 고유성·취소 재요청과 권한별 처리 계약을 설계한다"
   - id: UC-029
     name: "당월 추가 토큰을 판정하고 중복 없이 반영한다"
-    workstream: "admin"
+    workstream: admin-operations
     design_status: "draft"
     reqs:
       - "REQ-119"
@@ -309,7 +309,7 @@ usecases:
       - '@defer 전체 화면 합의 후 — 복사/미래 이전 영향·월말 스냅샷 경합·물리/API 상세와 실제 검증을 설계한다'
   - id: UC-040
     name: 사용자별 토큰 사용과 배정 출처를 조회한다
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs:
       - REQ-118
@@ -345,7 +345,7 @@ usecases:
       - NFR-016
   - id: UC-041
     name: 월별 토큰 사용과 산정·대조 근거를 조회한다
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs:
       - REQ-118
@@ -424,11 +424,49 @@ usecases:
       - REQ-116.empty_population
       - REQ-606.business_rules
     pending:
-      - '@defer 전체 화면 합의 후 — 스케줄 시각/마감 스냅샷·일관 읽기/권한·중복 방지/원 작업 복구·물리/API 상세와 실제 계약 검증'
+      - '@defer admin G3 — FEAT-045 상세 계약과 ADR-043~045를 반영한 물리 설계와 운영 복구·마감 봉인 계약을 검토하고 구현 시험을 준비한다. 후행 화면 합의는 선행 조건이 아니다.'
+    sequence_design:
+      scope: "원 마감 입력의 내구 고정·전체 최종 배정·지연 중 신규 이용자 보완. 시간대/봉인 정책은 승인된 ADR-043을 적용한다."
+      contracts_from: [FEAT-045, FEAT-017, REQ-116, REQ-118, JOB-004]
+      diagrams:
+        - key: monthly-allocation
+          title: "월말 최종 배정과 같은 입력의 복구"
+          transaction_boundary: "입력 준비 트랜잭션과 전체 최종 효과 트랜잭션을 분리한다. 최종 개인 한도는 전체 커밋 뒤만 공개하며 개별 보완은 사용자별 원자 단위다."
+          testcases: [TC-0452, TC-0453, TC-0454, TC-0456, TC-0459, TC-04510]
+          mermaid: |
+            sequenceDiagram
+            autonumber
+            participant B as 배치 또는 복구 작업
+            participant Q as 쿼터 배정 서비스
+            participant D as AI 전용 DB
+            participant E as 신뢰된 실행 진입
+            B->>Q: 대상 월과 원 실행 확인
+            Q->>D: 달력 및 월 잠금
+            alt 이미 최종 확정
+              D-->>Q: 원 결과
+            else 아직 미확정
+              Q->>D: 원 마감 입력 최초 고정 후 준비 COMMIT
+              Q->>Q: 같은 고정 입력으로 산정
+              Q->>D: 월 잠금과 자동 월 기준 및 전체 개인 배정 기록
+              alt 모두 성공
+                D-->>Q: 최종 결과 COMMIT
+              else 오류 또는 중단
+                D-->>Q: 전체 효과 ROLLBACK
+                Q-->>B: 원 입력으로 재처리 필요
+              end
+            end
+            Q-->>B: 확인된 월 결과
+            opt 최종 확정 뒤 누락 개인 보완
+              B->>Q: 보존된 자격 발효 기록 재조정
+              E->>Q: 실행 전 ensureAllocation
+              Q->>D: 같은 월과 사용자 잠금 및 유일 배정
+              Q-->>E: 한도 확인 뒤 실행 또는 확인 불가 차단
+            end
+          reading_order: ["batchId 잠금만으로 업무 중복을 막지 않고 FINAL 월 유일성을 검사한다.", "실행이 늦어져도 원 마감 입력을 복원하며 확인 불가는 현재값으로 대체하지 않는다.", "0명 월은 준비 성공/개인 미산정으로 분리한다.", "지연 중 활성화한 사용자도 원 자격 발효일로 한번만 지급하고 기존 분모/한도를 바꾸지 않는다."]
 
   - id: UC-043
     name: 월별 사용자 쿼터 지급·사용과 추가 신청을 함께 조회한다
-    workstream: admin
+    workstream: admin-operations
     design_status: draft
     reqs: [REQ-116, REQ-118, REQ-119, REQ-601]
     actors: { primary: ACT-004, secondary: [] }

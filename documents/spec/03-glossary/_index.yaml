@@ -39,3 +39,8 @@ spec_set:
     - 015-integration-storage.yaml
     - 016-catalog-storage.yaml
     - 017-api-tool-storage.yaml
+    - 018-admin-foundation.yaml
+    - 019-chat-help.yaml
+    - 020-auth-boundary.yaml
+    - 021-integration-common.yaml
+    - 022-model-call-external-change.yaml

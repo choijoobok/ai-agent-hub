@@ -1,0 +1,144 @@
+entities:
+  - id: ENT-169
+    name: 일괄 설정 정리 미리보기
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_CLEANUP_PREVIEW
+    features:
+      - FEAT-001
+      - FEAT-002
+    reqs:
+      - REQ-601
+    term: TRM-263
+    domain: 연동 자산
+    attributes:
+      - name: 미리보기 키
+        physical_name: PREVIEW_ID
+        pk: true
+        description: 미리보기 키
+      - name: 현재 ADMIN
+        physical_name: ACTOR_ID
+        description: 현재 ADMIN
+      - name: 정리 범위 종류
+        physical_name: TARGET_KIND
+        description: 정리 범위 종류
+      - name: 전체 검색 조건 지문
+        physical_name: FILTER_DIGEST
+        description: 전체 검색 조건 지문
+      - name: 확인된 설정 세대
+        physical_name: CONFIG_ID
+        description: 확인된 설정 세대
+      - name: 만료 시각
+        physical_name: EXPIRES_DTM
+        description: 만료 시각
+    physical:
+      attributes:
+        - name: PREVIEW_ID
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ACTOR_ID
+          type: character varying(50)
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: FILTER_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: CONFIG_ID
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: EXPIRES_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CLEANUP_PREVIEW
+          definition: PRIMARY KEY (PREVIEW_ID)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+  - id: ENT-170
+    name: 일괄 설정 정리 미리보기 대상
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_CLEANUP_PREVIEW_ITEM
+    features:
+      - FEAT-001
+      - FEAT-002
+    reqs:
+      - REQ-601
+    term: TRM-263
+    domain: 연동 자산
+    attributes:
+      - name: 미리보기 키
+        physical_name: PREVIEW_ID
+        pk: true
+        description: 미리보기 키
+      - name: 대상 종류
+        physical_name: TARGET_KIND
+        pk: true
+        description: 대상 종류
+      - name: 정확 내부 대상
+        physical_name: TARGET_ID
+        pk: true
+        description: 정확 내부 대상
+      - name: 기대 관리 버전
+        physical_name: EXPECTED_VERSION
+        description: 기대 관리 버전
+      - name: 불일치 확정 근거
+        physical_name: DIAGNOSIS_ID
+        description: 불일치 확정 근거
+    physical:
+      attributes:
+        - name: PREVIEW_ID
+          type: character(36)
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: TARGET_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: EXPECTED_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: DIAGNOSIS_ID
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CLEANUP_PREVIEW_ITEM
+          definition: PRIMARY KEY (PREVIEW_ID, TARGET_KIND, TARGET_ID)
+        - name: FK_CLEANUP_PREVIEW_ITEM_1
+          definition: FOREIGN KEY (PREVIEW_ID) REFERENCES AI_ADMIN_CLEANUP_PREVIEW (PREVIEW_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 실제 명령은 이 행만 믿지 않고 현재 설정 세대/권한/모든 참조/판정을 전체 재검증한다. 만료는 명령 종료키와 무관한 임시 데이터 파기다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-169
+        cardinality: N:1
+        description: PREVIEW_ID → PREVIEW_ID; DB RESTRICT 참조

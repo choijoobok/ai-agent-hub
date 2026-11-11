@@ -1,0 +1,290 @@
+usecases:
+  - id: UC-046
+    name: 환경 설정과 비밀을 검증해 서비스를 기동한다
+    workstream: integration
+    design_status: draft
+    reqs:
+      - REQ-402
+      - REQ-403
+    actors:
+      primary: ACT-009
+      secondary: []
+    process_step: PRC-01-01
+    precondition: 배포 프로파일/연결 정의와 보호된 환경키 입력이 준비돼 있고 필수/선택 연결이 구분돼 있다.
+    trigger: 설치·설정 교체·키 교체 또는 이전 복구 세트로 기동을 요청한다.
+    main_flow:
+      - ConfigData가 환경/프로파일 우선순위와 원천을 해석한다.
+      - 공통 계층은 선택된 비밀값을 소비 바인딩에서 검증한다.
+      - 필수 연결·계약 버전·현재 키/암호문 짝을 확인하고 DB/Liquibase 등 구성요소를 기동한다.
+      - 검수된 설정 세대와 제한된 공개 연결 뷰를 소비자에 제공한다.
+    alternative_flows:
+      - id: A1
+        condition: 미사용 선택 연동
+        flow:
+          - 그 비밀을 소비하지 않으며 사용 요청 때 동일 검증을 수행한다.
+    exception_flows:
+      - id: E1
+        condition: 필수 비밀·형식·원천 또는 키 교체 짝 불일치
+        flow:
+          - 안전한 설정명/오류만 남기고 해당 기동을 막는다. 다른 기본값/평문/낮은 우선순위로 대체하지 않는다.
+    postcondition: 같은 기동 세대의 소비자들이 동일한 유효 연결을 사용하며 공개 뷰에 비밀이 없다.
+    business_rules:
+      - FEAT-302 공개 계약이 처리/오류·소유 경계의 정본이며 실제 구현·운영 지원 검증은 별도다.
+    feature_contract: FEAT-302
+    sequence_design:
+      scope: 환경 설정과 비밀을 검증해 서비스를 기동한다
+      contracts_from:
+        - FEAT-302
+      diagrams:
+        - key: boundary
+          title: 환경 설정과 비밀을 검증해 서비스를 기동한다
+          transaction_boundary: DB 보호/확정과 외부 호출·HTTP ACK를 분리한다. 설정 부팅은 별도 업무 쓰기 트랜잭션을 만들지 않는다.
+          reading_order:
+            - 소유 입력/현재 검사부터 확인한다.
+            - 실패 분기와 확정/외부 경계를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant O as 운영자
+              participant C as 공통 설정
+              participant B as 소비 바인더
+              participant D as DB와 Liquibase
+              O->>C: 프로파일과 보호된 키 입력
+              C->>C: 선택 원천과 설정 세대 고정
+              B->>C: 선택 비밀 소비
+              alt 형식 또는 키 실패
+                C-->>B: 안전 오류와 기동 차단
+              else 검증 성공
+                C-->>B: 메모리 비밀 전달
+                B->>D: 실제 연결과 스키마 검증
+                D-->>O: 검수 후 개방
+              end
+          testcases:
+            - TC-3021
+            - TC-3022
+            - TC-3023
+            - TC-3024
+            - TC-3025
+  - id: UC-047
+    name: 현재 접근 정책에 맞게 업무자료 제공 범위를 판정한다
+    workstream: integration
+    design_status: draft
+    reqs:
+      - REQ-103
+      - REQ-105
+    actors:
+      primary: ACT-002
+      secondary: []
+    process_step: PRC-02-02
+    precondition: 검증된 Portal 주체와 정확한 대상 자산/목적이 있고 admin 정책 공개 포트를 사용할 수 있다.
+    trigger: 검색·모델 입력·조회·실행 또는 결과 제공에서 현재 접근 판정을 요청한다.
+    main_flow:
+      - 소유 포트가 현재 계정/활성 소속·대상 정책을 같은 보호 구간에서 읽는다.
+      - 공통 판정기가 AUTHZ 정본의 그룹/상속·예외·마스킹 규칙으로 결과를 만든다.
+      - 필요 신원·행 스코프·동의·쿼터 관문은 해당 소유 검사와 결합한다.
+      - 현재 보호 구간에서 내부 수락/안전 투영을 확정하고 외부 호출은 잠금 밖에서 수행한다.
+    alternative_flows:
+      - id: A1
+        condition: 등록 컬럼에 별도 예외가 없음
+        flow:
+          - 상위 허용 그룹을 상속하며 미등록 원천 컬럼의 기본 차단과 구분한다.
+    exception_flows:
+      - id: E1
+        condition: 현재 원천 조회 실패·정책 불완전·대상 또는 목적 불일치
+        flow:
+          - UNAVAILABLE/DENY로 닫고 과거 허용 스냅샷이나 원문을 반환하지 않는다.
+    postcondition: 허용된 범위와 마스킹 근거만 소유 소비자에 전달되며 새 효과에 과거 결정을 재사용하지 않는다.
+    business_rules:
+      - FEAT-303 공개 계약이 처리/오류·소유 경계의 정본이며 실제 구현·운영 지원 검증은 별도다.
+    feature_contract: FEAT-303
+    sequence_design:
+      scope: 현재 접근 정책에 맞게 업무자료 제공 범위를 판정한다
+      contracts_from:
+        - FEAT-303
+      diagrams:
+        - key: boundary
+          title: 현재 접근 정책에 맞게 업무자료 제공 범위를 판정한다
+          transaction_boundary: DB 보호/확정과 외부 호출·HTTP ACK를 분리한다. 설정 부팅은 별도 업무 쓰기 트랜잭션을 만들지 않는다.
+          reading_order:
+            - 소유 입력/현재 검사부터 확인한다.
+            - 실패 분기와 확정/외부 경계를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant E as 실행 소비자
+              participant A as admin 정책 포트
+              participant P as 공통 판정기
+              E->>A: 현재 주체 대상 목적
+              A->>A: 보호 구간과 현재 원천 읽기
+              A->>P: 완전한 현재 정책
+              alt 누락 또는 허용 불가
+                P-->>E: DENY 또는 UNAVAILABLE
+              else 허용
+                P-->>A: 필드별 허용과 마스킹
+                A->>A: 내부 수락 확정
+                A-->>E: 같은 사용 구간의 결과
+              end
+          testcases:
+            - TC-3031
+            - TC-3032
+            - TC-3033
+            - TC-3034
+            - TC-3035
+  - id: UC-048
+    name: 통제된 모델 입력을 전송하고 호출 결과와 사용량을 기록한다
+    workstream: integration
+    design_status: draft
+    reqs:
+      - REQ-007
+      - REQ-009
+      - REQ-034
+      - REQ-106
+      - REQ-107
+      - REQ-602
+    actors:
+      primary: ACT-001
+      secondary: []
+    process_step: PRC-02-03
+    precondition: 소유자가 현재 접근/동의·예산/점유·기한과 입력을 준비했고 실제 기록 생산 포트가 준비돼 있다.
+    trigger: agent 추론 또는 허용된 admin/agent 임베딩 요청이 공통 포트에 도착한다.
+    main_flow:
+      - 추론/임베딩 타입과 고정 모델/연결·필요 지원 기능을 검증한다.
+      - 최종 전송형태의 입력 지문과 단일 전송 permit·필수 사전 기록을 확인한다.
+      - 어댑터가 고정 연결로1회 송신하며 원격 접수/부분·완료/실패를 원 호출에 귀속한다.
+      - 관측과 최종 또는 미확인 사용량을 기록한 뒤 소유 소비자에 반환한다.
+    alternative_flows:
+      - id: A1
+        condition: 소유자가 재시도/다음 후보를 허용함
+        flow:
+          - 새 호출 ID/permit·현재 검사·사전 기록을 확보하고 별도 시도로 송신한다.
+    exception_flows:
+      - id: E1
+        condition: 미지원 제어·사전/사후 기록 실패·취소 또는 단절 뒤 계량 부재
+        flow:
+          - 사전 실패는 송신0, 사후 실패는 성공 종결0/자동 재전송0, 계량 부재는UNKNOWN으로 남긴다.
+    postcondition: 실제 시도마다 근거와 관측이 연결되고 늦은 계량을 중복 반영하지 않는다. 부분 모델 원문은 Portal에 직접 공개되지 않는다.
+    business_rules:
+      - FEAT-304 공개 계약이 처리/오류·소유 경계의 정본이며 실제 구현·운영 지원 검증은 별도다.
+    feature_contract: FEAT-304
+    sequence_design:
+      scope: 통제된 모델 입력을 전송하고 호출 결과와 사용량을 기록한다
+      contracts_from:
+        - FEAT-304
+      diagrams:
+        - key: boundary
+          title: 통제된 모델 입력을 전송하고 호출 결과와 사용량을 기록한다
+          transaction_boundary: DB 보호/확정과 외부 호출·HTTP ACK를 분리한다. 설정 부팅은 별도 업무 쓰기 트랜잭션을 만들지 않는다.
+          reading_order:
+            - 소유 입력/현재 검사부터 확인한다.
+            - 실패 분기와 확정/외부 경계를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant A as agent 소유자
+              participant I as 공통 호출
+              participant R as 호출 기록 포트
+              participant P as 공급 경로
+              A->>I: 통제 입력과 호출 참조
+              I->>A: 최종 지문으로 단일 송신 수락
+              A->>R: 필수 사전 기록
+              alt 거부 또는 기록 실패
+                R-->>I: 송신 차단
+              else 수락
+                I->>P: 고정 구성으로 한 번 송신
+                P-->>I: 부분 완료 오류 또는 단절
+                I->>R: 원 호출 관측과 계량
+                alt 필수 기록 실패
+                  I-->>A: 결과 불명과 복구 필요
+                else 기록 확정
+                  I-->>A: 관측 결과와 사용량 상태
+                end
+              end
+          testcases:
+            - TC-3043
+            - TC-3044
+            - TC-3045
+            - TC-3046
+            - TC-3047
+            - TC-3048
+            - TC-3049
+  - id: UC-049
+    name: 검증된 외부 인사 사건을 Portal 이용 상태에 반영한다
+    workstream: integration
+    design_status: draft
+    reqs:
+      - REQ-103
+      - REQ-107
+    actors:
+      primary: ACT-008
+      secondary: []
+    process_step: PRC-04-01
+    precondition: 폐쇄망 등록 원천의 검증기와 source+subject 연결, 최신성/재수신 계약이 준비돼 있다.
+    trigger: 원천이 퇴직 또는 조직 이동 사건을 보낸다.
+    main_flow:
+      - 정확 수신 경로에서 원천·증명·사건 바인딩·최신성을 검증한다.
+      - sourceKey+eventId 보호 아래 기존 결과/입력 지문을 확인한다.
+      - admin 공개 포트가 보호 잠금 뒤 현재 연결·기대 판·검증 기한/원천 유효성을 재검사하고 비활성화/일시 비활성화를 적용한다.
+      - 수신 결과·정책 HIST/보호·cursor와 통지 상태를 확정한다. 유효 수신자가 있으면 정확 인앱 참조도 같은 commit, 정상0명이면 이용 중지와 통지 미완료를202로 반환한다.
+    alternative_flows:
+      - id: A1
+        condition: 같은 원천/키/내용의 동시 또는 지연 재수신
+        flow:
+          - 원효과는 재생만 한다. 통지 PENDING이면 현재 지정 역할/권한으로 수신자를 다시 구하고 알림·참조·상태만 원자 확정한다. STORED면 추가 알림0이다.
+    exception_flows:
+      - id: E1
+        condition: 원천 위장·다른 본문 재사용·최신성 불명·연결/기대 판 불일치·필수 기록 실패
+        flow:
+          - 거부/경합/503을 구분하고 효과를 원자적으로 막는다. ADMIN 계정이나 LOCAL 계정에 대신 적용하지 않는다.
+          - 일시 판 경합/증거 재확인 필요는409·일시 장애는503으로 반환하고 영구 REJECTED를 저장하지 않는다. 같은 사건을 원천부터 재검증한 재요청으로 복구한다.
+    postcondition: 검증 연결된 Portal 주체만 기존 규칙대로 변경되고 외부 처리자·정확 정책 이력과 중복 방지 근거가 남는다.
+    business_rules:
+      - FEAT-305 공개 계약이 처리/오류·소유 경계의 정본이며 실제 구현·운영 지원 검증은 별도다.
+    feature_contract: FEAT-305
+    sequence_design:
+      scope: 검증된 외부 인사 사건을 Portal 이용 상태에 반영한다
+      contracts_from:
+        - FEAT-305
+      diagrams:
+        - key: boundary
+          title: 검증된 외부 인사 사건을 Portal 이용 상태에 반영한다
+          transaction_boundary: 원효과/HIST/cursor/수신·통지상태는 같은 REQUIRED다. 정상0명은이용중지+pending, 수신자조회장애는rollback이다. 중복pending은통지만처리한다.
+          reading_order:
+            - 소유 입력/현재 검사부터 확인한다.
+            - 실패 분기와 확정/외부 경계를 확인한다.
+          mermaid: |-
+            sequenceDiagram
+              participant S as 외부 원천
+              participant I as 수신 조립
+              participant N as system 수신자 포트
+              participant A as admin 공개 포트
+              participant D as 공유 DB
+              S->>I: 사건과 정확 원천 증명
+              I->>I: 업무 지문과 최신성 검증
+              I->>D: BEGIN 사건 명령키 보호
+              I->>N: ADMIN 보호와 현재 역할 수신자
+              I->>A: 새 사건만 binding cursor 기대판 재검사
+              A->>D: Portal 상태 HIST 참조보호 cursor
+              alt 유효 수신자 존재
+                I->>N: 같은 REQUIRED 인앱 저장
+                N-->>I: 정확 수신자와 알림 ID
+                I->>D: 통지 참조와 STORED
+              else 정상 수신자0명
+                I->>D: PENDING_NO_RECIPIENT
+              end
+              alt 필수 조회 저장 실패
+                I->>D: ROLLBACK
+                I-->>S: 409 재검증 또는 503
+              else commit 완료
+                I->>D: COMMIT
+                I-->>S: 200 완료 또는 202 통지 미완료
+              end
+          testcases:
+            - TC-3051
+            - TC-3052
+            - TC-3053
+            - TC-3054
+            - TC-3055
+            - TC-3056
+            - TC-3057
+            - TC-3058
+            - TC-3059
+            - TC-30510
+            - TC-30511
+            - TC-30512

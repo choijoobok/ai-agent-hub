@@ -1,0 +1,661 @@
+entities:
+  - id: ENT-236
+    name: 필수 조건의 지정 컬럼 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_REQUIRE_COLUMN_HIST
+    features:
+      - FEAT-012
+      - FEAT-040
+    reqs:
+      - REQ-611
+      - REQ-601
+    term: TRM-247
+    domain: 업무 지식
+    sources: []
+    attributes:
+      - name: 필수 조건
+        physical_name: CONDITION_ID
+        pk: false
+        description: 필수 조건
+      - name: 정확 카탈로그 컬럼
+        physical_name: COLUMN_ID
+        pk: false
+        description: 정확 카탈로그 컬럼
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: CONDITION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_REQUIRE_COLUMN_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_QUERY_REQUIRE_COLUMN_HIST_SET
+          definition: UNIQUE (HISTORY_NO, CONDITION_ID, COLUMN_ID)
+        - name: FK_QUERY_REQUIRE_COLUMN_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, CONDITION_ID) REFERENCES AI_ADMIN_QUERY_REQUIREMENT_HIST (HISTORY_NO, CONDITION_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_QUERY_REQUIRE_COLUMN_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_QUERY_REQUIRE_COLUMN_HIST_LOOKUP ON AI_ADMIN_QUERY_REQUIRE_COLUMN_HIST (CONDITION_ID, COLUMN_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-150
+      root_history: ENT-200
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-200
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-150
+    history_parent: ENT-235
+    storage_role: history
+  - id: ENT-237
+    name: 업무 도구 필드 명세 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TOOL_FIELD_HIST
+    features:
+      - FEAT-021
+      - FEAT-040
+    reqs:
+      - REQ-612
+      - REQ-601
+    term: TRM-257
+    domain: 연동 자산
+    sources: []
+    attributes:
+      - name: 소유 안정 도구
+        physical_name: TOOL_ID
+        description: 소유 안정 도구
+        pk: false
+      - name: ENT-167의 안정 필드
+        physical_name: FIELD_ID
+        pk: false
+        description: ENT-167의 안정 필드
+      - name: INPUT/RESPONSE 방향
+        physical_name: DIRECTION_CD
+        description: INPUT/RESPONSE 방향
+        pk: false
+      - name: 정적 경로 토큰
+        physical_name: PATH_TOKENS
+        description: BODY/QUERY/HEADER 정적 경로. PATH는 변수 순서 바인딩을 사용하며 이름 토큰을 요구하지 않음
+        pk: false
+      - name: 방향·위치·정규 경로의 SHA-256. 전체 경로도 비교
+        physical_name: PATH_KEY
+        description: 방향과 정적 구조 경로의 정규 지문. HTTP 위치/경로변수 순서는 사용하지 않는다.
+        pk: false
+      - name: UNKNOWN/STRING/NUMBER/INTEGER/BOOLEAN/OBJECT/ARRAY
+        physical_name: WIRE_TYPE
+        description: UNKNOWN/STRING/NUMBER/INTEGER/BOOLEAN/OBJECT/ARRAY
+        pk: false
+      - name: 필드 업무 명칭
+        physical_name: BUSINESS_NAME
+        description: 필드 업무 명칭
+        pk: false
+      - name: 필드 업무 의미
+        physical_name: DESCRIPTION
+        description: 필드 업무 의미
+        pk: false
+      - name: UNKNOWN/TEXT/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER
+        physical_name: SEMANTIC_TYPE
+        description: UNKNOWN/TEXT/DATE/DATETIME/AMOUNT/QUANTITY/FLAG/CODE/IDENTIFIER
+        pk: false
+      - name: 해석 형식
+        physical_name: VALUE_FORMAT
+        description: 해석 형식
+        pk: false
+      - name: 필요한 시간대
+        physical_name: TIME_ZONE_ID
+        description: 필요한 시간대
+        pk: false
+      - name: 단위
+        physical_name: UNIT_CD
+        description: 단위
+        pk: false
+      - name: UNKNOWN/YES/NO. 경로 존재 필수
+        physical_name: REQUIRED_CD
+        description: UNKNOWN/YES/NO. 경로 존재 필수
+        pk: false
+      - name: UNKNOWN/YES/NO. 값 null 허용
+        physical_name: NULLABLE_CD
+        description: UNKNOWN/YES/NO. 값 null 허용
+        pk: false
+      - name: UNKNOWN/NONE/INLINE/REFERENCE
+        physical_name: VALUE_MODE
+        description: UNKNOWN/NONE/INLINE/REFERENCE
+        pk: false
+      - name: UNKNOWN/YES/NO
+        physical_name: PRIVACY_CD
+        description: UNKNOWN/YES/NO
+        pk: false
+      - name: 검수한 개인정보 분류 참조
+        physical_name: PRIVACY_TYPE
+        description: 검수한 개인정보 분류 참조
+        pk: false
+      - name: UNKNOWN/YES/NO. 정보주체 식별 용도
+        physical_name: SUBJECT_ID_CD
+        description: UNKNOWN/YES/NO. 정보주체 식별 용도
+        pk: false
+      - name: 공통 마스킹 유틸의 안정 정보 유형 코드. 알고리즘/DB 정책 사본 아님
+        physical_name: MASK_RULE_REF
+        description: 공통 마스킹 유틸의 안정 정보 유형 코드. 알고리즘/DB 정책 사본 아님
+        pk: false
+      - name: 검수 상태 UNKNOWN/VERIFIED/INVALID
+        physical_name: REVIEW_STATUS
+        description: 검수 상태 UNKNOWN/VERIFIED/INVALID
+        pk: false
+      - name: 실제 검수 주체
+        physical_name: REVIEWER_ID
+        description: 실제 검수 주체
+        pk: false
+      - name: 실제 검수 시각
+        physical_name: REVIEWED_DTM
+        description: 실제 검수 시각
+        pk: false
+      - name: 검수 근거. 비밀과 실제 업무 원값은 제외
+        physical_name: REVIEW_EVIDENCE
+        description: 검수 근거. 비밀과 실제 업무 원값은 제외
+        pk: false
+      - name: 이력 마스킹 수준
+        physical_name: HISTORY_MASK_LEVEL
+        description: 정보 유형별 지원 수준 코드. Portal 예외와 분리, 물리명 미정
+        pk: false
+      - name: 배열 항목 자료형
+        physical_name: ARRAY_ITEM_TYPE
+        description: 배열 컨테이너의 허용 항목 자료형과 미확인 상태. 물리명 미정
+        pk: false
+      - name: 결과 관련 역할
+        physical_name: RESULT_ROLE
+        description: 결과 관련 역할
+        pk: false
+      - name: 결과 관련 설명
+        physical_name: RESULT_DESCRIPTION
+        description: 결과 관련 설명
+        pk: false
+      - name: 스키마 일치/불일치/미확인
+        physical_name: SCHEMA_MATCHED_YN
+        description: 스키마 일치/불일치/미확인
+        pk: false
+      - name: 대조 원본 지문
+        physical_name: SCHEMA_SOURCE_DIGEST
+        description: 대조 원본 지문
+        pk: false
+      - name: 대조 원본 판
+        physical_name: SCHEMA_SOURCE_REVISION
+        description: 대조 원본 판
+        pk: false
+      - name: 대조 근거
+        physical_name: SCHEMA_REASON
+        description: 대조 근거
+        pk: false
+      - name: 보충 설정 검토
+        physical_name: SUPPLEMENT_REVIEW_CD
+        description: 보충 설정 검토
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: TOOL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: FIELD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: DIRECTION_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: PATH_TOKENS
+          type: text
+          nullable: false
+          default: null
+        - name: PATH_KEY
+          type: character(64)
+          nullable: false
+          default: null
+        - name: WIRE_TYPE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: BUSINESS_NAME
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: false
+          default: null
+        - name: SEMANTIC_TYPE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: VALUE_FORMAT
+          type: text
+          nullable: true
+          default: null
+        - name: TIME_ZONE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: UNIT_CD
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: REQUIRED_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: NULLABLE_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: VALUE_MODE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: PRIVACY_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: PRIVACY_TYPE
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: SUBJECT_ID_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: MASK_RULE_REF
+          type: text
+          nullable: true
+          default: null
+        - name: REVIEW_STATUS
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: REVIEWER_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REVIEWED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: REVIEW_EVIDENCE
+          type: text
+          nullable: true
+          default: null
+        - name: HISTORY_MASK_LEVEL
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: ARRAY_ITEM_TYPE
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: RESULT_ROLE
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: RESULT_DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+        - name: SCHEMA_MATCHED_YN
+          type: character(1)
+          nullable: true
+          default: null
+        - name: SCHEMA_SOURCE_DIGEST
+          type: character(64)
+          nullable: true
+          default: null
+        - name: SCHEMA_SOURCE_REVISION
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: SCHEMA_REASON
+          type: text
+          nullable: true
+          default: null
+        - name: SUPPLEMENT_REVIEW_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TOOL_FIELD_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_TOOL_FIELD_HIST_SET
+          definition: UNIQUE (HISTORY_NO, FIELD_ID)
+        - name: FK_TOOL_FIELD_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, TOOL_ID) REFERENCES AI_ADMIN_BUSINESS_TOOL_HIST (HISTORY_NO, TOOL_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_TOOL_FIELD_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_TOOL_FIELD_HIST_LOOKUP ON AI_ADMIN_TOOL_FIELD_HIST (FIELD_ID, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-155
+      root_history: ENT-067
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-067
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-155
+    history_parent: ENT-067
+    storage_role: history
+  - id: ENT-238
+    name: 도구 필드 정의 값 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TOOL_FIELD_VALUE_HIST
+    features:
+      - FEAT-021
+      - FEAT-040
+    reqs:
+      - REQ-612
+      - REQ-601
+    term: TRM-274
+    domain: 연동 자산
+    sources: []
+    attributes:
+      - name: TOOL_ID
+        physical_name: TOOL_ID
+        description: 현재 소유 마스터의 안정 식별자
+        pk: false
+      - name: 소유 필드
+        physical_name: FIELD_ID
+        pk: false
+        description: 소유 필드
+      - name: 필드 안의 정의 순서
+        physical_name: VALUE_NO
+        pk: false
+        description: 필드 안의 정의 순서
+      - name: ENUM/FIXED/DEFAULT/MEANING
+        physical_name: VALUE_ROLE
+        description: 허용값·고정값·기본값·의미 매핑 역할 구분. MEANING은 허용값을 자동 변경하지 않는다.
+        pk: false
+      - name: STRING/NUMBER/BOOLEAN/NULL
+        physical_name: VALUE_TYPE
+        description: STRING/NUMBER/BOOLEAN/NULL
+        pk: false
+      - name: 정형 스칼라 값. NULL 타입만 null
+        physical_name: VALUE_TEXT
+        description: 정형 스칼라 값. NULL 타입만 null
+        pk: false
+      - name: 역할·타입·정형 값 SHA-256
+        physical_name: VALUE_KEY
+        description: 역할·타입·정형 값 SHA-256
+        pk: false
+      - name: 값의 의미·사용 조건
+        physical_name: MEANING
+        description: 직접 등록 또는 열거 값의 업무 의미·적용 조건
+        pk: false
+      - name: 코드 명칭
+        physical_name: CODE_NM
+        description: MEANING 역할의 사용자 표시명. 물리명 미정
+        pk: false
+      - name: 정의 값 안정 식별자
+        physical_name: VALUE_ID
+        description: 최초 등록 시 부여하는 논리 itemId. 명칭/원값/정렬 변경에도 유지한다. 신규 값은 valueClientKey로 전체 구성 안에서 참조하고 저장 시 itemId로 해석한다. 물리명 미정
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: TOOL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: FIELD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: VALUE_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: VALUE_ROLE
+          type: text
+          nullable: false
+          default: null
+        - name: VALUE_TYPE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: VALUE_TEXT
+          type: text
+          nullable: false
+          default: null
+        - name: VALUE_KEY
+          type: character(64)
+          nullable: false
+          default: null
+        - name: MEANING
+          type: text
+          nullable: false
+          default: null
+        - name: CODE_NM
+          type: text
+          nullable: true
+          default: null
+        - name: VALUE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TOOL_FIELD_VALUE_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_TOOL_FIELD_VALUE_HIST_SET
+          definition: UNIQUE (HISTORY_NO, FIELD_ID, VALUE_NO)
+        - name: FK_TOOL_FIELD_VALUE_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, FIELD_ID) REFERENCES AI_ADMIN_TOOL_FIELD_HIST (HISTORY_NO, FIELD_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_TOOL_FIELD_VALUE_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_TOOL_FIELD_VALUE_HIST_LOOKUP ON AI_ADMIN_TOOL_FIELD_VALUE_HIST (FIELD_ID, VALUE_NO, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-156
+      root_history: ENT-067
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-067
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-156
+    history_parent: ENT-237
+    storage_role: history
+  - id: ENT-239
+    name: 도구 필드 검증 조건 전체 변경 이력
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TOOL_FIELD_CHECK_HIST
+    features:
+      - FEAT-021
+      - FEAT-040
+    reqs:
+      - REQ-612
+      - REQ-601
+    term: TRM-275
+    domain: 연동 자산
+    sources: []
+    attributes:
+      - name: TOOL_ID
+        physical_name: TOOL_ID
+        description: 현재 소유 마스터의 안정 식별자
+        pk: false
+      - name: 검증 필드
+        physical_name: FIELD_ID
+        pk: false
+        description: 검증 필드
+      - name: 필드 안의 조건 순서
+        physical_name: CHECK_NO
+        pk: false
+        description: 필드 안의 조건 순서
+      - name: MIN/MAX/MIN_LENGTH/MAX_LENGTH/MIN_ITEMS/MAX_ITEMS/FORMAT
+        physical_name: CHECK_KIND
+        description: MIN/MAX/MIN_LENGTH/MAX_LENGTH/MIN_ITEMS/MAX_ITEMS/FORMAT
+        pk: false
+      - name: NUMBER/STRING
+        physical_name: OPERAND_TYPE
+        description: NUMBER/STRING
+        pk: false
+      - name: 정형 기준값 또는 검증기 형식 식별자
+        physical_name: OPERAND_TEXT
+        description: 정형 기준값 또는 검증기 형식 식별자
+        pk: false
+      - name: MIN/MAX의 경계 포함 Y/N. 그 외 null
+        physical_name: INCLUSIVE_YN
+        description: MIN/MAX의 경계 포함 Y/N. 그 외 null
+        pk: false
+      - name: 이력 행 식별자
+        physical_name: HIST_ID
+        pk: true
+        description: 이력 행 식별자
+      - name: 전체 이력 세트 번호
+        physical_name: HISTORY_NO
+        pk: false
+        description: 전체 이력 세트 번호
+    physical:
+      attributes:
+        - name: TOOL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: FIELD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CHECK_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: CHECK_KIND
+          type: text
+          nullable: false
+          default: null
+        - name: OPERAND_TYPE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: OPERAND_TEXT
+          type: text
+          nullable: true
+          default: null
+        - name: INCLUSIVE_YN
+          type: character(1)
+          nullable: true
+          default: null
+        - name: HIST_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TOOL_FIELD_CHECK_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_TOOL_FIELD_CHECK_HIST_SET
+          definition: UNIQUE (HISTORY_NO, FIELD_ID, CHECK_NO)
+        - name: FK_TOOL_FIELD_CHECK_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, FIELD_ID) REFERENCES AI_ADMIN_TOOL_FIELD_HIST (HISTORY_NO, FIELD_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes:
+        - name: IX_TOOL_FIELD_CHECK_HIST_LOOKUP
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_TOOL_FIELD_CHECK_HIST_LOOKUP ON AI_ADMIN_TOOL_FIELD_CHECK_HIST (FIELD_ID, CHECK_NO, HISTORY_NO)
+    history_storage:
+      mode: immutable_snapshot
+      source: ENT-157
+      root_history: ENT-067
+    delete_policy: 현재값·보호 참조가 없는 보존 종료 전체 세트만 소유 파기 명령으로 자식→루트 순서 삭제한다. 현재 테이블 FK/cascade 없음. ADR-044의 원 명령 종료키 등록과 원장 파기를 원자 처리한다.
+    rules:
+      - 원본의 모든 소유 열을 타입/null까지 동형 복사한다. 이력 PK는 HIST_ID이며 원본 PK는 일반 원값이다.
+      - 신규/변경은 반영 후 전체, 삭제는 직전 전체와 새 RESULT_REVISION/DELETE 사건을 보존한다. 정확 성공 판 조회는 DELETE를 제외한다.
+      - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
+      - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
+    relations:
+      - entity: ENT-067
+        cardinality: N:1
+        description: HISTORY_NO → HISTORY_NO; DB RESTRICT 참조
+    history_copy_of: ENT-157
+    history_parent: ENT-237
+    storage_role: history

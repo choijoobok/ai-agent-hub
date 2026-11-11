@@ -1,0 +1,255 @@
+entities:
+  - id: ENT-257
+    name: 외부 사용자 변경 수신 결과
+    term: TRM-299
+    domain: Portal 이용
+    module: portal
+    workstream: integration
+    features:
+      - FEAT-305
+    reqs:
+      - REQ-103
+      - REQ-107
+    implementation: planned
+    design_stage: physical
+    table: AI_PORTAL_USER_CHANGE
+    attributes:
+      - name: RECEIPT_ID
+        physical_name: RECEIPT_ID
+        description: 서버 SYS_SEQUENCE 발급 수신 결과 ID
+        pk: true
+      - name: COMMAND_KEY
+        physical_name: COMMAND_KEY
+        description: 서버가 발급·보존하는 전역유일 UUID; 적용 HIST의 HISTORY_COMMAND_KEY와 동일
+      - name: SOURCE_KEY
+        physical_name: SOURCE_KEY
+        description: 검증된 배포 원천 키
+      - name: SOURCE_EVENT_ID
+        physical_name: SOURCE_EVENT_ID
+        description: 원천의 안정 사건 키·공백/대소문자 임의 정규화 없음
+      - name: REQUEST_DIGEST
+        physical_name: REQUEST_DIGEST
+        description: 정규 입력 SHA-256
+      - name: DIGEST_VERSION
+        physical_name: DIGEST_VERSION
+        description: 길이 구분/필드 규약의 정규화 버전
+      - name: SUBJECT_DIGEST
+        physical_name: SUBJECT_DIGEST
+        description: 원천 subject의 길이 구분 지문·원 식별자 중복 보관 제외
+      - name: EVENT_KIND
+        physical_name: EVENT_KIND
+        description: RETIRED/ORG_MOVED
+      - name: SOURCE_REVISION
+        physical_name: SOURCE_REVISION
+        description: 검증 원천 판 또는 최신성 근거의 안전 참조
+      - name: OCCURRED_DTM
+        physical_name: OCCURRED_DTM
+        description: 원천 발생시각·단독 순서 근거 아님
+      - name: VERIFIED_DTM
+        physical_name: VERIFIED_DTM
+        description: 서버 검증 시각
+      - name: RECEIVED_DTM
+        physical_name: RECEIVED_DTM
+        description: 서버 수신 시각
+      - name: PORTAL_USER_ID
+        physical_name: PORTAL_USER_ID
+        description: 대상 안정 참조·미등록 거부는 null
+      - name: RESULT_REVISION
+        physical_name: RESULT_REVISION
+        description: 적용 후 부모 판·거부는 null
+      - name: HISTORY_NO
+        physical_name: HISTORY_NO
+        description: 이번 적용의 정확 HIST·무변경/거부는 null
+      - name: OUTCOME_CD
+        physical_name: OUTCOME_CD
+        description: APPLIED/NO_CHANGE/REJECTED
+      - name: SAFE_CODE
+        physical_name: SAFE_CODE
+        description: 비밀 없는 결과 분류
+      - name: APPLIED_DTM
+        physical_name: APPLIED_DTM
+        description: 실제 변경 확정 시각
+      - name: EVENT_KEY_DIGEST
+        physical_name: EVENT_KEY_DIGEST
+        description: EVENT_KEY_DIGEST
+      - name: SOURCE_EPOCH
+        physical_name: SOURCE_EPOCH
+        description: SOURCE_EPOCH
+      - name: BINDING_KEY
+        physical_name: BINDING_KEY
+        description: BINDING_KEY
+      - name: ORDER_MODE
+        physical_name: ORDER_MODE
+        description: ORDER_MODE
+      - name: VERIFIER_GENERATION
+        physical_name: VERIFIER_GENERATION
+        description: VERIFIER_GENERATION
+      - name: FRESHNESS_DIGEST
+        physical_name: FRESHNESS_DIGEST
+        description: FRESHNESS_DIGEST
+      - name: NOTIFICATION_STATE
+        physical_name: NOTIFICATION_STATE
+        description: NOTIFICATION_STATE
+      - name: NOTIFICATION_REVISION
+        physical_name: NOTIFICATION_REVISION
+        description: NOTIFICATION_REVISION
+      - name: RECIPIENT_POLICY_VERSION
+        physical_name: RECIPIENT_POLICY_VERSION
+        description: RECIPIENT_POLICY_VERSION
+      - name: NOTIFIED_DTM
+        physical_name: NOTIFIED_DTM
+        description: NOTIFIED_DTM
+    physical:
+      attributes:
+        - name: RECEIPT_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COMMAND_KEY
+          type: uuid
+          nullable: false
+          default: null
+        - name: SOURCE_KEY
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: SOURCE_EVENT_ID
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: REQUEST_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: DIGEST_VERSION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: SUBJECT_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: EVENT_KIND
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: SOURCE_REVISION
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: OCCURRED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: VERIFIED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: RECEIVED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: PORTAL_USER_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: RESULT_REVISION
+          type: bigint
+          nullable: true
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: true
+          default: null
+        - name: OUTCOME_CD
+          type: character varying(16)
+          nullable: false
+          default: null
+        - name: SAFE_CODE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: APPLIED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: EVENT_KEY_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: SOURCE_EPOCH
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: BINDING_KEY
+          type: uuid
+          nullable: true
+          default: null
+        - name: ORDER_MODE
+          type: character varying(20)
+          nullable: true
+          default: null
+        - name: VERIFIER_GENERATION
+          type: character varying(128)
+          nullable: false
+          default: null
+        - name: FRESHNESS_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: NOTIFICATION_STATE
+          type: character varying(24)
+          nullable: false
+          default: null
+        - name: NOTIFICATION_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: RECIPIENT_POLICY_VERSION
+          type: character varying(128)
+          nullable: true
+          default: null
+        - name: NOTIFIED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_PORTAL_USER_CHANGE
+          definition: PRIMARY KEY (RECEIPT_ID)
+        - name: CK_PORTAL_CHANGE_KIND
+          definition: CHECK (EVENT_KIND IN ('RETIRED','ORG_MOVED'))
+        - name: CK_PORTAL_CHANGE_OUTCOME
+          definition: CHECK (OUTCOME_CD IN ('APPLIED','NO_CHANGE','REJECTED'))
+        - name: CK_PORTAL_CHANGE_APPLIED
+          definition: CHECK ((OUTCOME_CD = 'APPLIED' AND PORTAL_USER_ID IS NOT NULL AND RESULT_REVISION IS NOT NULL AND HISTORY_NO IS NOT NULL AND APPLIED_DTM IS NOT NULL) OR (OUTCOME_CD IN ('NO_CHANGE','REJECTED') AND HISTORY_NO IS NULL AND APPLIED_DTM IS NULL))
+        - name: UK_PORTAL_CHANGE_DIGEST
+          definition: UNIQUE (EVENT_KEY_DIGEST)
+        - name: CK_PORTAL_CHANGE_NOTIFY
+          definition: CHECK (NOTIFICATION_STATE IN ('NOT_REQUIRED','PENDING_NO_RECIPIENT','STORED'))
+      indexes:
+        - name: UX_PORTAL_CHANGE_EVENT
+          definition: CREATE UNIQUE INDEX UX_PORTAL_CHANGE_EVENT ON AI_PORTAL_USER_CHANGE (SOURCE_KEY, SOURCE_EPOCH, SOURCE_EVENT_ID)
+          unique: true
+          method: btree
+        - name: IX_PORTAL_CHANGE_HISTORY
+          definition: CREATE INDEX IX_PORTAL_CHANGE_HISTORY ON AI_PORTAL_USER_CHANGE (PORTAL_USER_ID, HISTORY_NO)
+          unique: false
+          method: btree
+        - name: UX_PORTAL_CHANGE_COMMAND
+          definition: CREATE UNIQUE INDEX UX_PORTAL_CHANGE_COMMAND ON AI_PORTAL_USER_CHANGE (COMMAND_KEY)
+          unique: true
+          method: btree
+    history_storage:
+      mode: not_management_history
+      reason: 소유 수신 명령의 결과/재수신 근거. 같은 Portal 전체 HIST를 중복 복사하지 않고 정확 부모+HISTORY_NO를 참조한다.
+    delete_policy: 초기 파기 비활성. 정책 이력/조사 참조와 오래된 사건의 재수락 방지를 함께 검수한 소유 보존 계약 전에 삭제하지 않는다. 대상 계정/HIST와 CASCADE하지 않는다.
+    rules:
+      - 논리 도출은 FEAT-305의 원천·사건·검증·결과·현재/HIST 연결이며 TRM-299를 사용해 물리명으로 대응했다. 포맷/기한 검증과 key별 동시성은 공개 계약이 소유한다.
+      - 원 비밀번호·인증 증거·원천 전체 본문을 저장하지 않는다. 원천/지문/시각도 접근 통제 대상이며 일반 관리자 CRUD로 수정하지 않는다.
+      - 외부 처리자는 SOURCE_KEY/RECEIPT_ID로 식별한다. 적용된 Portal HIST의 ADMIN 처리자 필드는 null이며 이 정확 참조가 반드시 같은 트랜잭션에 남는다.
+      - 재시도 가능한 현재 판/증거 기한 충돌·일시 장애는 terminal 결과로 저장하지 않는다. 확정 APPLIED/NO_CHANGE/영구 REJECTED만 같은 사건의 원 결과이며 전역 명령 키도 같은 트랜잭션에 등록한다.
+      - 적용된 정확 Portal HIST는 FEAT-040.protectHistoryUse/ENT-100으로 수신 결과 보존에 묶어 보호한다. 보호 실패 시 수신·상태·HIST를 함께 롤백한다.
+      - ADR-047의 역할 기반 수신과0명 미완료 정책. 현재 효과/원 결과는 불변, 통지 상태/리비전만 보호 갱신하며 정확 다수 인앱 ID는 ENT-266에 저장한다.
+      - FEAT-305.retention_detail의 사건키 최소종결과 보호 참조 해제/파기는 원자적이다. REQUEST_DIGEST는 업무본문, FRESHNESS_DIGEST는 현재 검증 근거이며 재전송 지문 비교에 서로 섞지 않는다.
+      - sourceEpoch는 검증된 원천 사건 ID 명명 공간의 세대다. eventId가 새 epoch에서 재사용돼도 구분하며 키 교체만으로 epoch를 바꾸지 않는다.
+    sources: []

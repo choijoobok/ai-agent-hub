@@ -1,0 +1,1078 @@
+feature_contracts:
+  FEAT-015:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-015:
+          root: ENT-125
+          owned_children:
+            - ENT-126
+            - ENT-127
+          storage: AI_ADMIN_MODEL
+          history: ENT-213
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-125:
+              modelId:
+                column: MODEL_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              providerCd:
+                column: PROVIDER_CD
+                type: character varying(100)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              connectionKey:
+                column: CONNECTION_KEY
+                type: character varying(100)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              modelCd:
+                column: MODEL_CD
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              modelNm:
+                column: MODEL_NM
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              modelType:
+                column: MODEL_TYPE
+                type: character varying(20)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              effortMode:
+                column: EFFORT_MODE
+                type: character varying(20)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              effortCd:
+                column: EFFORT_CD
+                type: character varying(100)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              effortNm:
+                column: EFFORT_NM
+                type: character varying(100)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              portalUseYn:
+                column: PORTAL_USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              description:
+                column: DESCRIPTION
+                type: text
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-126:
+              priceId:
+                column: PRICE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              modelId:
+                column: MODEL_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              startDt:
+                column: START_DT
+                type: date
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              priceRevision:
+                column: PRICE_REVISION
+                type: bigint
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              changeKind:
+                column: CHANGE_KIND
+                type: character varying(30)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              priceSource:
+                column: PRICE_SOURCE
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              checkedDt:
+                column: CHECKED_DT
+                type: date
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-127:
+              priceId:
+                column: PRICE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              meterUnit:
+                column: METER_UNIT
+                type: character varying(100)
+                nullable: false
+                write: 서버 값/안정 참조
+              usdPerMillion:
+                column: USD_PER_MILLION
+                type: numeric(28,12)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+          operations:
+            getList: API-086
+            getOne: API-087
+            save: API-088
+            remove: API-089
+            getReferences: API-090
+            getCandidates: API-091
+        SCR-062:
+          root: ENT-128
+          owned_children:
+            - ENT-129
+          storage: AI_ADMIN_MODEL_USAGE_SET
+          history: ENT-216
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-128:
+              setKey:
+                column: SET_KEY
+                type: character varying(20)
+                nullable: false
+                write: 서버 값/안정 참조
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-129:
+              usageId:
+                column: USAGE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              setKey:
+                column: SET_KEY
+                type: character varying(20)
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              usageCd:
+                column: USAGE_CD
+                type: character varying(100)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              modelId:
+                column: MODEL_ID
+                type: bigint
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              priorityNo:
+                column: PRIORITY_NO
+                type: integer
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              defaultYn:
+                column: DEFAULT_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              description:
+                column: DESCRIPTION
+                type: character varying(1000)
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+          operations:
+            getOne: API-092
+            save: API-093
+            getUsageCandidates: API-094
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-024:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-010:
+          root: ENT-132
+          owned_children:
+            - ENT-133
+          storage: AI_ADMIN_SEARCH_TAG
+          history: ENT-218
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-132:
+              tagId:
+                column: TAG_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              searchText:
+                column: SEARCH_TEXT
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              normalizedText:
+                column: NORMALIZED_TEXT
+                type: character varying(400)
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-133:
+              synonymId:
+                column: SYNONYM_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              tagId:
+                column: TAG_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              searchText:
+                column: SEARCH_TEXT
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              normalizedText:
+                column: NORMALIZED_TEXT
+                type: character varying(400)
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+              description:
+                column: DESCRIPTION
+                type: text
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+          operations:
+            getList: API-110
+            getOne: API-111
+            save: API-112
+            remove: API-113
+            getReferences: API-114
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-014:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-011:
+          root: ENT-134
+          owned_children:
+            - ENT-135
+            - ENT-136
+            - ENT-137
+            - ENT-138
+            - ENT-139
+            - ENT-140
+          storage: AI_ADMIN_KNOWLEDGE
+          history: ENT-220
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-134:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              title:
+                column: TITLE
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              body:
+                column: BODY
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-135:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              groupId:
+                column: GROUP_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-136:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              tagId:
+                column: TAG_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-137:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              catalogId:
+                column: CATALOG_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-138:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              exampleId:
+                column: EXAMPLE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-139:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              apiId:
+                column: API_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              purpose:
+                column: PURPOSE
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useCondition:
+                column: USE_CONDITION
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-140:
+              knowledgeId:
+                column: KNOWLEDGE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              toolId:
+                column: TOOL_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              activeYn:
+                column: ACTIVE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              purpose:
+                column: PURPOSE
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useCondition:
+                column: USE_CONDITION
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+          operations:
+            getList: API-115
+            getOne: API-116
+            save: API-117
+            remove: API-118
+            getReferences: API-119
+            getCatalogUnion: API-120
+            getEmbeddingStatus: API-121
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-023:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-012:
+          root: ENT-141
+          owned_children:
+            - ENT-142
+            - ENT-143
+          storage: AI_ADMIN_QUERY_EXAMPLE
+          history: ENT-227
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-141:
+              exampleId:
+                column: EXAMPLE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              title:
+                column: TITLE
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              dataSourceId:
+                column: DATA_SOURCE_ID
+                type: bigint
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-142:
+              sqlId:
+                column: SQL_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              exampleId:
+                column: EXAMPLE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              orderNo:
+                column: ORDER_NO
+                type: integer
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              title:
+                column: TITLE
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              description:
+                column: DESCRIPTION
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              sqlText:
+                column: SQL_TEXT
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              extractionDigest:
+                column: EXTRACTION_DIGEST
+                type: character(64)
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+              extractionSource:
+                column: EXTRACTION_SOURCE
+                type: text
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+              extractedDtm:
+                column: EXTRACTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+            ENT-143:
+              sqlId:
+                column: SQL_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              catalogId:
+                column: CATALOG_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              referenceRole:
+                column: REFERENCE_ROLE
+                type: character varying(40)
+                nullable: false
+                write: 서버 값/안정 참조
+          operations:
+            getList: API-122
+            getOne: API-123
+            save: API-124
+            remove: API-125
+            extractCatalogs: API-126
+            getReferences: API-127
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-009:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-009:
+          root: ENT-009
+          owned_children:
+            - ENT-146
+            - ENT-147
+            - ENT-148
+            - ENT-149
+            - ENT-150
+          storage: AI_ADMIN_QUERY_POLICY
+          history: ENT-200
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-009:
+              policyId:
+                column: POLICY_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              catalogId:
+                column: CATALOG_ID
+                type: bigint
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              policyNm:
+                column: POLICY_NM
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              description:
+                column: DESCRIPTION
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+            ENT-146:
+              scopeId:
+                column: SCOPE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              policyId:
+                column: POLICY_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              scopeNm:
+                column: SCOPE_NM
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              conditionSql:
+                column: CONDITION_SQL
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              extractionDigest:
+                column: EXTRACTION_DIGEST
+                type: character(64)
+                nullable: false
+                write: 서버 산출 읽기 전용. 클라이언트가 직접 제출한 원천 근거는 수락하지 않는다. 입력 지문과 현재 원천 판에서 다시 검증/산출한다.
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              releaseAllowedYn:
+                column: RELEASE_ALLOWED_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-147:
+              scopeId:
+                column: SCOPE_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              parameterNm:
+                column: PARAMETER_NM
+                type: character varying(100)
+                nullable: false
+                write: 서버 값/안정 참조
+              sourceCd:
+                column: SOURCE_CD
+                type: character varying(20)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              description:
+                column: DESCRIPTION
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-148:
+              filterId:
+                column: FILTER_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              policyId:
+                column: POLICY_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              columnId:
+                column: COLUMN_ID
+                type: bigint
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              valueType:
+                column: VALUE_TYPE
+                type: character varying(30)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              valueText:
+                column: VALUE_TEXT
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              releaseAllowedYn:
+                column: RELEASE_ALLOWED_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-149:
+              conditionId:
+                column: CONDITION_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              policyId:
+                column: POLICY_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              conditionKind:
+                column: CONDITION_KIND
+                type: character varying(20)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              valueType:
+                column: VALUE_TYPE
+                type: character varying(30)
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              maxDifference:
+                column: MAX_DIFFERENCE
+                type: character varying(100)
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              releaseAllowedYn:
+                column: RELEASE_ALLOWED_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+            ENT-150:
+              conditionId:
+                column: CONDITION_ID
+                type: bigint
+                nullable: false
+                write: 서버가 선택 부모 targetId/소유 자식 문맥에서 고정. 다른 부모 ID·기존 자식 재귀속은422. 신규 clientKey만 서버 발급 ID로 치환한다.
+              columnId:
+                column: COLUMN_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+          operations:
+            getList: API-128
+            getOne: API-129
+            save: API-130
+            remove: API-131
+            extractParameters: API-132
+            getReferences: API-133
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-013:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-013:
+          root: ENT-144
+          owned_children: []
+          storage: AI_ADMIN_PROMPT_RULE
+          history: ENT-230
+          write_unit: 기존 화면 저장 단위의 부모 전체 구성과 소유 자식; scope 밖은 잠근 현재값 보존
+          dto_fields:
+            ENT-144:
+              ruleId:
+                column: RULE_ID
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              title:
+                column: TITLE
+                type: character varying(200)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              useYn:
+                column: USE_YN
+                type: character(1)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              adminDescription:
+                column: ADMIN_DESCRIPTION
+                type: text
+                nullable: true
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              markdownBody:
+                column: MARKDOWN_BODY
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+          operations:
+            getList: API-134
+            getOne: API-135
+            save: API-136
+            remove: API-137
+            review: API-138
+      transport: FEAT-040.physical_transport를 따른다.
+  FEAT-010:
+    physical_contract:
+      implementation: planned
+      screens:
+        SCR-014:
+          root: ENT-145
+          owned_children: []
+          storage: AI_ADMIN_CHAT_HELP
+          history: ENT-231
+          write_unit: USAGE_HELP/CHAT_START/INPUT_NOTICE 중 기존 helpCd 1개의 형식·원문만 저장. 신규 코드/삭제/목록 페이지 없음. 초기 고정 행은 소유 구현 마이그레이션에서 만들며 내용 미설정은 미설정 상태로 반환한다.
+          dto_fields:
+            ENT-145:
+              helpCd:
+                column: HELP_CD
+                type: character varying(30)
+                nullable: false
+                write: 서버 값/안정 참조
+              formatCd:
+                column: FORMAT_CD
+                type: character varying(10)
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              body:
+                column: BODY
+                type: text
+                nullable: false
+                write: 소유 화면 편집 가능 값만 허용; 관측/계산값은 서버 산출
+              revision:
+                column: REVISION
+                type: bigint
+                nullable: false
+                write: 서버 값/안정 참조
+              acceptedDtm:
+                column: ACCEPTED_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              changeReason:
+                column: CHANGE_REASON
+                type: text
+                nullable: false
+                write: 서버 값/안정 참조
+              regId:
+                column: REG_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              regDtm:
+                column: REG_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+              modId:
+                column: MOD_ID
+                type: character varying(50)
+                nullable: true
+                write: 서버 값/안정 참조
+              modDtm:
+                column: MOD_DTM
+                type: timestamp with time zone
+                nullable: false
+                write: 서버 값/안정 참조
+          operations:
+            getList: API-139
+            getOne: API-140
+            save: API-141
+      transport: FEAT-040.physical_transport를 따른다.

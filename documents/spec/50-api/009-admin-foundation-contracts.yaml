@@ -1,0 +1,274 @@
+feature_contracts:
+  FEAT-040:
+    design_status: draft
+    implementation: planned
+    reqs:
+      - REQ-601
+    usecases:
+      - UC-001
+      - UC-002
+      - UC-003
+      - UC-006
+    scope: delivery_strategy.staged_delivery.admin_first의 19화면에 적용하는 상세 계약이다. 현재 소스 구현/물리 스키마 완성/G3 승인을 뜻하지 않는다. 원 화면의 입력 항목·저장 버튼 범위를 바꾸지 않는다.
+    rules_from:
+      - REQ-601.direct_management
+      - REQ-601.management_storage
+      - REQ-601.change_history
+      - REQ-601.surrogate_identifier
+    types:
+      ManagedCommand: commandKey:UUID, expectedRevision:기존 양의 십진 문자열/신규 null, targetId:기존 ID/신규 null, scope:소유 API가 허용한 저장 영역, values:영역별 완전한 편집 구성, reason:필수. actor/domain/action은 인증·경로에서 서버가 정한다. 임의 대상 종류/권한/이력 번호/서버 감사값 입력은 거부한다.
+      ManagedResult: commandKey, targetId, revision, historyNo, appliedAt:UTC Instant, action, outcome:APPLIED/NO_CHANGE. NO_CHANGE는 새 이력 번호/반영 시각을 만들지 않고 원 현재 판과 판정 결과만 반환한다. 단일 그리드의 여러 독립 행은 행별 결과이며 명시 복합 저장은 전체 하나의 결과다. 숫자 식별자/리비전은 JSON 정수 문자열이다.
+      ExactAssetRef: kind + stableId + appliedRevision. historyNo는 소유 조회로 해석하며 deleted 사건과 구분한다. 표시명·현재 리비전으로 대체하지 않는다.
+      HistoryUse: consumerDomain + consumerKind + consumerStableId + ExactAssetRef + purpose. consumerStableId는 소유 모듈의 불투명 안정 참조이며 이 계약이 턴/스텝 테이블을 정하지 않는다.
+      ContractFailure: code + retryable + safeMessageKey + requestTraceId + 원 commandKey/확인 경로. 참조/권한 상세는 현재 열람 범위로 제한한다.
+    command_identity:
+      base: FEAT-001.shared_write_contract.identity/input_digest/preflight/result의 지문·주체·동일 키 의미를 공통으로 재사용한다. 기존 ENT-019/028/036은 각 소유 결과 저장 어댑터이며 같은 명령을 ENT-099에 이중 저장하지 않는다. 나머지 관리 저장은 ENT-099를 사용한다.
+      uniqueness: 명령 UUID는 전체 관리 저장 어댑터에서 전역 유일하다. 해시별 공통 기술 잠금 아래 ENT-113 종결표와 ENT-019/028/036/099 및 외부 수신 ENT-257 활성 원장 전부의 소유/입력 지문을 조회한다. 다른 기능/주체/입력의 재사용은409이며 성공효과를 만들지 않는다. 같은 원장에 이중 기록하지 않는다. 원장 일부 조회 실패는503이며 미발견이 아니다.
+      late_replay: ADR-044·REQ-601.command_retention. 전체 성공 원장 보존 중은 원 결과 재생, 파기 후 최소 키 해시 종결 기록이 있으면 COMMAND_EXPIRED로 거부한다. 키 보호 조회 실패는 미발견이 아니며 새 적용을 차단한다.
+    transaction:
+      isolation: 공유 PostgreSQL의 READ COMMITTED와 아래 업무 잠금 프로토콜을 사용한다. 외부 네트워크 호출은 DB 잠금 전에 끝내고 검증 근거의 유효성/소유/버전을 잠금 안에서 다시 대조한다. 잠금 안에서 LLM·JDBC·SSO 응답을 기다리지 않는다.
+      sequence:
+        - 서버 인증영역·현재 메뉴 액션·입력 형식과 소유 저장 영역을 확인한다. 미조회 목록/원천 실패를 빈 전체 집합으로 받지 않는다.
+        - 업무 잠금을 정해진 순서로 획득하고 원 명령 결과를 다시 조회한다. 성공이 있으면 현재 권한을 재검사한 뒤 원 결과만 반환한다.
+        - 현재 변경 권한을 authoritative 소유 조회로 확인하고 부모의 기대 리비전·신규 부재·유일 업무 키·전체 참조를 검증한다. 요청 시작 때의 세션 스냅샷만으로 저장을 허용하지 않는다.
+        - 허용된 영역의 편집본을 잠근 현재 구성에 적용한다. 다른 탭의 현재값은 유지하고 소유 전체 세트를 검증한다. 임의 외부 자산은 쓰지 않는다.
+        - 소유 기능이 무변경 저장을 NO_CHANGE로 정의한 경우(FEAT-003.save_reason 등)는 현재 권한/기준본 검증 뒤 새 리비전/HIST 없이 종결 결과만 기록한다. 단순 재수신과 새 명령의 무변경 판정을 구분하고 다른 화면의 원 저장 의미를 일괄 바꾸지 않는다.
+        - 현재값·소유 자식·부모 리비전 1회 증가·동형 전체 HIST·성공 명령 결과를 같은 트랜잭션에 기록한다. 신규/수정은 반영 후 전체, 삭제는 직전 구성과 DELETE 사건이다.
+        - 커밋 성공 뒤 결과를 공개한다. 유일 키 경합·롤백된 트랜잭션 안에서는 결과 조회를 계속하지 않고 새 읽기에서 원 키를 확인한다.
+      units: 단일 그리드는 기존 행별 부분 성공을 유지한다. 마스터/탭·시작월 등급 전체 세트·최초 월 기준과 단가 고정은 각 전체 단위다. 하나의 저장 단위에서 HIST/자식 하나라도 실패하면 그 단위 전부 롤백한다.
+      current_source: RowTx.oneTxForAll은 원자 단위 안의 행 오류 수집, oneTxPerRow는 독립 행 저장에만 재사용한다. CustomLock은 바깥 트랜잭션이 없는 진입 빈에서 전체 집합 잠금을 잡을 때만 사용하며 이미 시작한 트랜잭션 안에 중첩하지 않는다.
+    locks:
+      order: 명령 키 해시 잠금 → 관리자 권한 보호 경계 → 쿼터 달력 경계(관련 작업만) → 쿼터 월 오름차순 → Portal 계정/그룹 경계 → 참조 부모 종류의 고정 순서·숫자 ID 오름차순 → 변경 부모/자식. 같은 종류는 표시명/문자열 숫자 정렬을 쓰지 않는다. 구현 전 모든 쓰기 진입점의 참여를 시험한다.
+      absent_rows: 신규/부재 행은 SELECT FOR UPDATE만으로 보호하지 못한다. 업무 키별 기술 잠금 또는 유일 제약을 함께 사용한다. 참조 대상 삭제와 자식/매핑 생성은 같은 참조 부모 잠금에 참여한다. 조회한 외부 대상 전체를 변경 대상으로 선점하지 않는다.
+      access: Portal 이용 조건/그룹/신원/자산 허용 매핑을 변경하는 모든 경로는 동일 접근 정책 보호 경계에서 현재 참조를 검증한다. 초기 단일 배포는 공유 정책 잠금으로 정확성을 확보하며 성능 개선은 같은 경합 시험을 통과한 뒤 세분한다. SYS_DATA_LOCK 기술 기반을 재사용하되 현재 제품에 이미 구현됐다고 표시하지 않는다.
+      admin_authority: FEAT-301.admin_authority_guard가 현재 계정/권한 원천 검사와 트랜잭션 공유/배타 보호를 소유한다. ADMIN_AUTHORITY_V1은 만료형 SYS_DATA_LOCK으로 대체하지 않는다. 저장/회수 순서는 해당 계약을 따르며 system 소유 변경은 별도 G3 대상이다.
+    history:
+      shape: REQ-601.change_history의 원본명_HIST·HIST_ID·HISTORY_NO·마스터 HIST_DTM·원 REG/MOD 유지 규약을 따른다. 리비전은 현재 부모에만 있고 자식 자체 리비전을 만들지 않는다. 이력 UI 완성은 생산 조건이 아니다.
+      scope: 소유 관리값과 매핑만 복사한다. 비밀번호 해시/비밀·실시간 연결 관측·역조회 사용처·실행 로그를 복사하지 않는다. Portal 비밀번호 초기화는 비밀을 제외한 수행 사건만 남긴다. 쿼터 계산/배정 결과는 별도 불변 업무 기록이며 관리 HIST로 대신하지 않는다.
+      resolution: 원 안정 ID+성공 적용 리비전에 성공 HISTORY_NO가 하나만 대응한다. 삭제 사건은 이전 성공 매핑을 덮지 않는다. 지원 스키마 버전으로 전체 세트를 읽고 소유 자식 일부 유실/파기/미지원이면 HISTORY_UNAVAILABLE로 실패한다. 삭제의 RESULT_REVISION은 마지막 판+1이며 원값 REVISION/MANAGEMENT_VERSION은 직전 구성대로 복사한다. 적용판 조회는 HIST_ACTION=DELETE를 제외한다.
+      protection: ENT-100에 실행/보존 소비자의 정확 자산 참조와 전이 참조를 등록한다. 등록과 파기는 같은 이력 세트 잠금을 사용한다. 실행 시작의 보호 등록은 현재 권한/유효성 확인과 함께 수행하며 실패하면 해당 실행을 시작하지 않는다.
+      purge: 현재 적용본·실행 중·장기 대기·다른 보존 기록의 직접/전이 참조가 남은 세트는 파기하지 않는다. consumer의 적법한 보존 종료와 원 기록 파기 확정 후에만 보호를 해제한다. 시간 초과나 마지막 접근 시각만으로 보호를 해제하지 않는다. admin 소비자 고장 시 보존하고 실패를 알린다.
+      purge_race: 파기가 먼저면 새 보호 등록/과거 실행 재현을 거부하고 현재값으로 대체하지 않는다. 보호 등록이 먼저면 파기가 건너뛴다. 세트 전체를 한 트랜잭션으로 삭제하며 일반 관리/조회 권한으로 이력을 수정하지 못한다. 실제 보존 기간은 ADR-044와 고객사 정책을 따른다.
+    screen_matrix:
+      - screen: SCR-015
+        feature: FEAT-015
+        unit: 모델 조합·가격 시작일 세트의 소유 저장 범위
+        history: 공급 경로/모델/effort·가격/계량 근거
+        consumer: integration 모델 어댑터·단가 산정
+        guard: 비밀 제외·이미 고정된 가격 사본 불변
+      - screen: SCR-062
+        feature: FEAT-015
+        unit: 모든 용도 매핑과 기본 지정 전체 세트
+        history: ENT-128/129 전체 구성
+        consumer: agent 스텝·integration 라우팅
+        guard: 중복 순위/미지원 조합 검증·운영용 분리
+      - screen: SCR-016
+        feature: FEAT-016
+        unit: 선택 월 단가 전체 구성
+        history: 요약·산정 행·가격/실적 스냅샷
+        consumer: FEAT-017
+        guard: 단독 확정 없음·최초 월 기준 저장과 고정 원자성
+      - screen: SCR-064
+        feature: FEAT-042
+        unit: 시작월의 등급 전체 세트
+        history: 등급 ID/순위/가중치·효력 이전 근거
+        consumer: 배정·Portal 사용자 등급
+        guard: 잠긴 월/후속 예약 참조 보호·한 세트 일관성
+      - screen: SCR-021
+        feature: FEAT-017
+        unit: 대상 월 금융 기준
+        history: 금액·고정 단가 참조·환산율·보정·메모
+        consumer: FEAT-045·agent 쿼터
+        guard: 예정과 최종 분리·당월/과거 수정 차단
+      - screen: SCR-006
+        feature: FEAT-006
+        unit: 그룹 행/소유 구성
+        history: 그룹 정의·소유 변경만
+        consumer: Portal 소속·자산 허용 매핑
+        guard: 네 자산 탭은 역투영·같은 소속 원장
+      - screen: SCR-005
+        feature: FEAT-005
+        unit: Portal 계정의 허용 저장 영역
+        history: 프로필·기간/상태·그룹·등급·신원 매핑의 비밀 없는 전체 관리 구성
+        consumer: Portal 인증·agent 현재 이용 조건
+        guard: 외부 프로필 읽기 전용·관리자/대상 사용자 분리
+      - screen: SCR-001
+        feature: FEAT-001
+        unit: 시스템/소유 연결 표시 보완
+        history: ENT-003/044
+        consumer: API·신원 대상 참조
+        guard: 기술 정의는 integration 소유·일반 신규/삭제 없음
+      - screen: SCR-002
+        feature: FEAT-002
+        unit: 데이터소스/그룹/가이드
+        history: ENT-004/045/097
+        consumer: 카탈로그·agent SQL
+        guard: 그룹은 관리 어휘·하위 활성 참조 보호
+      - screen: SCR-003
+        feature: FEAT-003
+        unit: 카탈로그 부모와 소유 컬럼/키/그룹
+        history: 기존 카탈로그 history_mapping
+        consumer: 지식·예제·agent 조회
+        guard: 영역 저장 뒤 전체 복사·샘플/관측 제외
+      - screen: SCR-039
+        feature: FEAT-011
+        unit: 관계 소유 부모와 컬럼 쌍
+        history: ENT-057/079 및 부모 세트
+        consumer: agent 조인 후보
+        guard: 양쪽 역조회로 원장 중복 생성 금지
+      - screen: SCR-004
+        feature: FEAT-004
+        unit: API 부모의 전체 명세/허용 구성
+        history: 기존 API history_mapping
+        consumer: 도구·지식·실행/마스킹
+        guard: 배포 연결/검수 근거 재확인·호출 승인과 구분
+      - screen: SCR-019
+        feature: FEAT-021
+        unit: 도구 부모의 전체 명세/가이드
+        history: 기존 도구 history_mapping
+        consumer: agent 도구 선택/실행
+        guard: 배포 빈/메서드 관측과 관리값 분리
+      - screen: SCR-010
+        feature: FEAT-024
+        unit: 태그와 동의어 소유 집합
+        history: 태그·동의어 전체
+        consumer: 지식 검색
+        guard: 연결 지식은 역조회·태그가 권한을 부여하지 않음
+      - screen: SCR-011
+        feature: FEAT-014
+        unit: 지식 본문·그룹·매핑/설명 전체
+        history: 외부 자산 상세 제외·안정 ID 링크 보존
+        consumer: agent 검색/컨텍스트
+        guard: 외부 리비전 상승만으로 저장 충돌 금지·실행 판은 별도 보호
+      - screen: SCR-012
+        feature: FEAT-023
+        unit: 예제와 SQL 변형/필수 기술 참조
+        history: SQL·설명·추출 참조 전체
+        consumer: 지식·agent SQL 후보
+        guard: 추출 실패를 빈 참조로 저장 금지·모든 필수 자산 접근 검사
+      - screen: SCR-009
+        feature: FEAT-009
+        unit: 조회 정책 소유 부모/조건 세트
+        history: 행 범위·필터·필수 제약 전체
+        consumer: FEAT-012·integration 판정·agent 검증
+        guard: 정책 조회 후 실행 전 현재 권한 재검사
+      - screen: SCR-013
+        feature: FEAT-013
+        unit: 선택 프롬프트 규칙의 제목·사용·관리자 설명·Markdown 본문
+        history: 관리자 설명 포함 전체 관리값; 모델 입력에서는 관리자 설명 제외
+        consumer: agent 프롬프트 조립
+        guard: 지침은 인가 우회 수단 아님·실제 사용 판 기록
+      - screen: SCR-014
+        feature: FEAT-010
+        unit: 고정 안내 구분의 형식·원문
+        history: 같은 구분의 형식·원문과 변경 메타
+        consumer: Portal·agent 안내
+        guard: 안내 표시를 실행 승인/안전 검사로 대체 금지
+    module_handoffs:
+      - owner: system
+        consumers:
+          - admin
+          - integration
+        refs:
+          - FEAT-501
+          - FEAT-301
+          - AUTHZ-090
+        input: 관리자 인증 주체·menu/action·대상 범위
+        output: 현재 유효 권한·계정 상태·판정 근거/버전
+        failure: 미등록 API/무권한 거부, 원천 장애는 검증 불가로 차단. Portal 주체 수락 금지.
+        before: admin 첫 저장 통합 시험 전 현재 권한/회수 직렬화 계약, 영향 system G3 후 구현
+      - owner: admin
+        consumers:
+          - portal
+          - agent
+          - integration
+        refs:
+          - FEAT-005
+          - FEAT-006
+          - FEAT-303
+          - ARCH-050
+        input: 서버 인증된 PORTAL 주체·접근 목적·정확 자산 참조
+        output: 현재 계정/기간·활성 그룹/매핑·정책 근거·허용/거부/확인 불가
+        failure: 빈 그룹=권한 없음, 조회 실패=확인 불가. 관리자 역할/동일 문자열 ID로 대체하지 않음.
+        before: FEAT-005 계약과 분리된 인증/세션 구현 후 실제 Portal 주체 시험
+      - owner: integration
+        consumers:
+          - admin
+          - agent
+        refs:
+          - FEAT-302
+          - FEAT-304
+          - ARCH-028
+          - ARCH-030
+        input: 정확 연결/모델 ID·지원 능력·node/boot/appliedSettings 문맥
+        output: 비밀 없는 현재 지원/연결/계량 정의·정확 설정 세대
+        failure: MISSING/UNAVAILABLE/UNSUPPORTED 분리. 후보 페이지 미발견을 부재 확정으로 사용하지 않음.
+        before: 저장 검증은 대역 가능, 실제 연결/모델/계량 검수는 integration 소유 구현 뒤
+      - owner: agent
+        consumers:
+          - admin
+          - integration
+        refs:
+          - FEAT-203
+          - FEAT-205
+          - FEAT-211
+          - FEAT-221
+        input: 검증 목적·자산 현재/후보 구성·운영자 호출 문맥 또는 사용자 귀속 호출 문맥
+        output: 검증 결과/근거·비중복 사용량 원천·실제 소비 자산 판
+        failure: 미구현은 UNSUPPORTED이며 검수 성공/사용량0으로 저장하지 않음. 운영용 호출과 Portal 개인 소비 구분.
+        before: admin 계약 대역 시험 후 agent 첫 슬라이스에서 실연결; 기록 모델은 요구에서 별도 도출
+      - owner: admin
+        consumers:
+          - agent
+          - integration
+          - admin-operations
+        refs:
+          - FEAT-040
+          - FEAT-033
+          - FEAT-210
+        input: 정확 관리 자산 판 + HistoryUse
+        output: 불변 전체 이력 읽기·보호 등록/해제 확인
+        failure: 보존 실패/누락이면 시작·재현 차단. 후행 조회 UI는 현재 열람 권한을 추가 검사.
+        before: admin 생산 시험 완료 후 agent 기록/보존 경합 통합 시험
+      - owner: system
+        consumers:
+          - admin
+          - agent
+          - integration
+        refs:
+          - FEAT-020
+          - ARCH-029
+          - REQ-614
+        input: 소유 기능에 등록된 설정 키와 작업 시작 문맥
+        output: ConfigLookup 작업 단위 값·타입/범위 검증
+        failure: 미등록/유효하지 않은 필수값으로 기능 활성화 금지. 별도 admin 설정 저장소 없음.
+        before: 해당 기능 첫 구현에서 필요한 키만 등록/검증; system 전체 이력 확장 없음
+    errors:
+      VALIDATION_ERROR: 400 형식/허용 영역/필수 구성 오류
+      AUTHORIZATION_DENIED: 403 현재 변경 권한 없음
+      REVISION_CONFLICT: 409 기준본 변경; 편집값 보존 후 재조회
+      REFERENCE_CONFLICT: 409 참조 삭제/중지 경합; 안전한 사용처만 반환
+      COMMAND_CONFLICT: 409 같은 키 다른 입력
+      DEPENDENCY_UNAVAILABLE: 503 현재 권한/원천 검증 불가; 빈 성공 금지
+      HISTORY_UNAVAILABLE: 과거 세트 누락/파기/미지원; 현재값 대체 금지
+      COMMAND_EXPIRED: 409 보존 종료된 원 명령 키. 입력/원 결과를 복원하지 않고 새 변경으로 자동 전환하지 않는다.
+    remaining: 이 물리 초안은 40-domain의 현재/자식/HIST와 각 feature_contracts.physical_contract에 연결했다. AUTHZ-090/ARCH-050 영향 G2·소유 G3, 구현 MSG/시드와 실제 DB 동시성 시험은 후속이다. 게이트 승인을 대신하지 않는다.
+    physical_transport:
+      authentication: ADMIN 인증 주체만 수락한다. 요청 actorId/권한/tenant 같은 자기 주장으로 소유권을 결정하지 않는다. 소유 메뉴 READ/SAVE 및 서버 범위 검사. 내부 소비 계약은 외부 임의 HTTP 라우트로 노출하지 않는다.
+      query_page: page:1부터, size:기본50/최대200, filters:해당 화면 명시 조회필드만, sort:해당 DTO의 정적 허용 열 최대3개. 미지원 필드/연산/정렬400. 문자열 부분검색은 %, _를 이스케이프한다. 같은 값은 안정PK로 정렬해 순서를 확정한다. total은 같은 권한 범위의 조회 시점 값이며 별도 조회 중 변경될 수 있다.
+      detail: targetId(고정 구분은 targetKey)로 부모/소유 자식을 한 읽기 스냅샷에서 반환한다. references/현재 연결/현재 권한/임베딩 상태는 별도 관측시각·상태와 함께 반환하며 저장 편집본에서 제외한다.
+      payload: 본문 상한2MiB, 한 소유 자식 목록최대10000행. 초과는413이며 절대 잘라 저장하지 않는다. 길이는 Unicode 코드포인트로 검증하고 DB/UTF-8 바이트 상한도 선검증한다. 기술 상한은 부하시험에서 조정하되 대량 전체 저장을 페이지별 부분 저장으로 바꾸지 않는다.
+      validation: 화면이 필수로 정의한 문자열은 비공백; DB NOT NULL인 선택 설명은 빈 문자열 허용, 미확인/미지정은 nullable 계약의 null과 구분, id는양의십진문자열, 날짜/월 실재값, enum은정적 허용목록. 미지원 필드400, 업무 입력422, 무인증401/무권한403, 범위 안 미존재404, 판/참조/키 충돌409, 원천 확인실패503. 타 주체 명령 조회는 UNKNOWN으로 통일해 존재를 유출하지 않는다.
+      save: 서버 산출/읽기 전용/외부 원천 필드는 DTO에서 write 금지. 서버가 현재값에서 유지하거나 검증 근거에서 다시 산출한다. 누락 자식 배열은 비어있음이 아니며 완전한 영역임을 명시해야 한다. scope는 각 저장 API의 허용 세트만 수락한다.
+      authorization_race: 권한/소속/자산 활성 회수와 저장·실행 진입을 같은 보호 경계에서 직렬화한다. read model 캐시만으로 명령을 승인하지 않는다.
+      idempotency: 원 명령 키 전역유일/command_identity에 등록한 전체 활성 원장과 종료키 검사는 command_identity. 새 명령과 입력이 같아도 화면의 NO_CHANGE 규칙을 따르며 실패를 성공 원장에 남기지 않는다.
+      projections: SCR-006 그룹 사용 상태·자산/소속 역조회, SCR-011 합산 카탈로그, 가격 종료일·운영상태는 현재 원장들에서 계산하며 별도 편집 필드/테이블로 복제하지 않는다.
+    internal_ports:
+      readExactAsset: ExactAssetRef(kind,stableId,appliedRevision) → 불변 전체 세트 + historyNo + schemaVersion; 없거나 일부누락/파기면 HISTORY_UNAVAILABLE. 내부 호출자도 용도별 현재 열람/사용 권한을 검사한다.
+      protectHistoryUse: HistoryUse + exactRef → referenceId; 실행의 안정 소비 참조를 먼저 확보하고 같은 세트 잠금으로 보호를 등록한다. 등록 실패면 실행 시작 금지. 동일키 재호출은 기존 referenceId. 해제는 소비자의 보존 종료 확인 뒤만 허용한다.
+      resolveCurrentAccess: 서버 PORTAL principal + stable asset IDs + purpose → ALLOW/DENY/UNKNOWN + 이용/그룹/정책 판; UNKNOWN은503이며 DB조회실패를 빈 그룹/기본허용으로 바꾸지 않는다.
+      ensureAllocation: 인증된 PortalUserId+targetMonth+원실행문맥 → 확정 allocationId/limit 또는 미배정사유. 명령 서비스이며 월/사용자 잠금·월종결표·자격발효입력·unique(month,user)·FINAL catch-up을 사용한다. 실제사용량/차감/동시실행은 agent의 소유원장이다.
+      loadUsageSnapshot: agent FEAT-211이 month+cutoff+scope를 받아 sourceSnapshotKey/watermark/normalizationVersion + 용도/모델/effort/세부단위/측정근거별 비중복 수량을 반환한다. 미구현/집계불완전은UNKNOWN/UNSUPPORTED,0으로 저장금지.
+      embeddingWork: integration은 ENT-165 작업을 admin claimWork(owner,lease)→세대/입력반환→completeWork(jobId,generation,resultRef)로 처리한다. 만료 재점유는 세대 증가, 이전 세대 결과 차단. 모델 비밀/벡터 본문을 관리 API에 노출하지 않는다.
+      implementation_catalog: integration의 모델/연결/도구 구현 조회는 node/boot/appliedSettingsId·지원 계약버전·완전성으로 범위를 증명한다. 확인불가면 저장/정리 검증 실패이며 원천 전체부재로 해석하지 않는다.
+      auth_boundary: FEAT-301/ARCH-050 영향 G2·G3에서 ADMIN/PORTAL principal 수락/세션 무효화/권한회수 직렬화와 안정 사용자 ID를 검증한다. internal port 명세가 인증 구현을 승인하지 않는다.

@@ -1,0 +1,19 @@
+interfaces:
+  - id: IF-010
+    name: Portal 외부 로그인 검증 결과 수락
+    direction: inbound
+    peer: ACT-008
+    feature: FEAT-301
+    reqs:
+      - REQ-616
+      - REQ-103
+    protocol: 설치별 검증 어댑터 → 서버 내부 수락 포트. 외부 HTTP 콜백은 고객 프로토콜 계약에서 정확 method/path를 등록한다.
+    ownership: 외부 원천은 신원 증명, integration은 검증/일회 소비와 세션 조립, admin은 원천+subject 연결/현재 이용 조건을 소유한다.
+    contract: FEAT-301.external_acceptance/auth_transactions. 브라우저가 VerifiedExternalIdentity를 직접 보낼 수 없다.
+    request: sourceKey, subject, issuer/audience 검증 근거, challenge/nonce 바인딩, 증거 지문, verifiedAt/expiresAt, 허용 프로필. 원 비밀번호·토큰은 수락 포트 이후 전달하지 않는다.
+    response: PORTAL 안정 ID·인증 수준·세션 회전 또는 안전 거부. 인증 성공은 그룹/쿼터/대상 실행 허가가 아니다.
+    errors: 401 잘못된 증거/만료/바인딩·미등록, 403 현재 이용 불가, 409 중복 소비/연결 충돌, 422 모드 불일치, 503 검증기/원천/저장 장애. 브라우저 메시지는 계정 존재를 구분하지 않는다.
+    preconditions: SLICE-301은 시험 전용 어댑터와 실제 저장 경계로 계약을 검증한다. SLICE-306은 정확 콜백·신뢰키/회전·프로토콜·로그아웃·실환경을 별도 검수하며 미완료 EXTERNAL은 운영 활성 불가.
+    testcases:
+      - TC-3017
+      - TC-30111

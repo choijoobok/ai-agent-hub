@@ -20,3 +20,14 @@ spec_set:
     - 006-admin-catalog-apis.yaml
     - 007-admin-api-tool-contracts.yaml
     - 008-admin-api-tool-apis.yaml
+    - 009-admin-foundation-contracts.yaml
+    - 010-admin-access-contracts.yaml
+    - 011-admin-quota-contracts.yaml
+    - 012-admin-foundation-apis.yaml
+    - 013-admin-physical-apis.yaml
+    - 014-admin-physical-contracts.yaml
+    - 015-auth-boundary-contracts.yaml
+    - 016-auth-boundary-apis.yaml
+    - 017-integration-common-contracts.yaml
+    - 018-external-user-change-apis.yaml
+    - 019-model-call-usage-contracts.yaml

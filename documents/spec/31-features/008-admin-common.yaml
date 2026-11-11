@@ -1,42 +1,126 @@
 # 영역: admin 공통 관리 승인·오류 접수
 features:
   - id: FEAT-040
-    module: "admin"
-    roadmap: "RM-P1"
-    design_status: "draft"
-    title: "관리 직접 저장·전체 이력 무결성 공통 처리"
-    type: "transaction"
+    delivery_boundary: 선행 admin 공통 저장의 기능이다. 원 변경과 전체 이력·리비전·명령 결과의 원자성, 비밀/관측값 제외·불변성·보존/파기 경계를 G3 전에 확정하고 조회 UI와 독립 검증한다. 후행 FEAT-033은 생산 결과를 읽기만 한다.
+    workstream: admin
+    module: admin
+    roadmap: RM-P1
+    design_status: draft
+    title: 관리 직접 저장·전체 이력 무결성 공통 처리
+    type: transaction
     reqs:
-      - "REQ-601"
+      - REQ-601
     usecases:
-      - "UC-001"
-      - "UC-003"
-      - "UC-004"
-      - "UC-005"
-      - "UC-006"
+      - UC-001
+      - UC-002
+      - UC-003
+      - UC-006
     traces_to:
-      - "ARCH-029"
-    trigger: "admin 관리 기능이 자산·권한·그룹 전체 변경을 직접 저장할 때 내부에서 사용한다"
-    detail: "현재 변경 권한·전체 입력·참조/기술 계약·기대 버전을 검증하고 적용값·전체 이력·리비전·원 명령 결과를 같은 성공 단위로 확정한다. 관리자 승인 단계·원장·SNP·전결 모드는 제공하지 않는다."
+      - ARCH-029
+    trigger: admin 관리 기능이 자산·권한·그룹 전체 변경을 직접 저장할 때 내부에서 사용한다
+    detail: 현재 변경 권한·전체 입력·참조/기술 계약·기대 버전을 검증하고 적용값·전체 이력·리비전·원 명령 결과를 같은 성공 단위로 확정한다. 관리자 승인 단계·원장·SNP·전결 모드는 제공하지 않는다.
     inputs:
-      - "실제 변경 대상 종류·안정 ID·기대 버전·전체 편집 구성·변경 사유·원 명령키"
-      - "현재 변경 권한·참조/기술 검증 결과와 원 소유 저장/효력 계약"
+      - 실제 변경 대상 종류·안정 ID·기대 버전·전체 편집 구성·변경 사유·원 명령키
+      - 현재 변경 권한·참조/기술 검증 결과와 원 소유 저장/효력 계약
     outputs:
-      - "직접 반영 현재값·결과 리비전·HISTORY_NO·행위자/시각·원 명령 결과"
-      - "권한·기준본·참조 충돌 또는 실패/결과 불명 근거"
+      - 직접 반영 현재값·결과 리비전·HISTORY_NO·행위자/시각·원 명령 결과
+      - 권한·기준본·참조 충돌 또는 실패/결과 불명 근거
     rules_from:
-      - "REQ-601.direct_management"
-      - "REQ-601.management_storage"
-      - "REQ-601.change_history"
+      - REQ-601.direct_management
+      - REQ-601.management_storage
+      - REQ-601.change_history
     boundaries:
-      - "전용 관리자 승인 UI/요청 원장/SNP를 만들지 않는다. 각 소유 관리 화면이 공통 저장 검증을 소비한다."
-      - "조회/영향만 확인하는 외부 자산은 실제 변경 대상으로 선점하지 않고 명시 복합 변경은 일부만 반영하지 않는다."
-      - "Portal 사용자 신청 승인·실제 실행 사용자 확인·외부 코드/배포 검수는 소유 계약을 유지한다."
+      - 전용 관리자 승인 UI/요청 원장/SNP를 만들지 않는다. 각 소유 관리 화면이 공통 저장 검증을 소비한다.
+      - 조회/영향만 확인하는 외부 자산은 실제 변경 대상으로 선점하지 않고 명시 복합 변경은 일부만 반영하지 않는다.
+      - Portal 사용자 신청 승인·실제 실행 사용자 확인·외부 코드/배포 검수는 소유 계약을 유지한다.
     pending:
-      - "@defer P3 — 현재 권한·기대 버전/부모 잠금·전체 이력·리비전·멱등 결과/불명 복구를 소유 데이터/API에 연결한다."
-    entities: []
-    storage_contract: "REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다."
+      - '@defer admin G3 — 50-api의 FEAT-040 공통 상세안과 ENT-099/100·TC-0401~0408을 검토하고 보존 결정 ADR-044·소유별 물리/HIST 전개·권한 회수 직렬화 연동을 완성한다.'
+    entities:
+      - ENT-099
+      - ENT-100
+      - ENT-003
+      - ENT-004
+      - ENT-044
+      - ENT-045
+      - ENT-097
+      - ENT-051
+      - ENT-053
+      - ENT-055
+      - ENT-057
+      - ENT-059
+      - ENT-061
+      - ENT-063
+      - ENT-065
+      - ENT-067
+      - ENT-069
+      - ENT-071
+      - ENT-073
+      - ENT-079
+      - ENT-081
+      - ENT-083
+      - ENT-085
+      - ENT-087
+      - ENT-089
+      - ENT-091
+      - ENT-093
+      - ENT-113
+      - ENT-200
+      - ENT-201
+      - ENT-202
+      - ENT-203
+      - ENT-204
+      - ENT-205
+      - ENT-206
+      - ENT-207
+      - ENT-208
+      - ENT-209
+      - ENT-210
+      - ENT-211
+      - ENT-212
+      - ENT-213
+      - ENT-214
+      - ENT-215
+      - ENT-216
+      - ENT-217
+      - ENT-218
+      - ENT-219
+      - ENT-220
+      - ENT-221
+      - ENT-222
+      - ENT-223
+      - ENT-224
+      - ENT-225
+      - ENT-226
+      - ENT-227
+      - ENT-228
+      - ENT-229
+      - ENT-230
+      - ENT-231
+      - ENT-232
+      - ENT-233
+      - ENT-234
+      - ENT-235
+      - ENT-236
+      - ENT-237
+      - ENT-238
+      - ENT-239
+      - ENT-240
+      - ENT-241
+      - ENT-242
+      - ENT-243
+      - ENT-244
+      - ENT-245
+      - ENT-246
+      - ENT-247
+      - ENT-248
+      - ENT-249
+      - ENT-250
+    apis:
+      - API-082
+    storage_contract: REQ-601.management_storage. 현재 적용본을 기준으로 전체 편집본을 직접 저장하고 현재값·마스터 리비전·전체 HIST 세트·성공 결과를 원자 확정한다. 별도 관리자 요청 원장/SNP/승인 상태는 만들지 않는다.
   - id: FEAT-041
+    delivery_boundary: "모듈 소유는 admin, 개발/승인 작업흐름은 agent다. 질의/응답 요구 기반 기록 모델과 오류 생산·접수 계약을 함께 설계하며 기존 SCR-033 목업을 설계 근거로 쓰지 않는다. 조회·조사 UI는 admin-operations가 후행 개발한다."
+    workstream: agent
     module: admin
     roadmap: RM-P1
     design_status: draft

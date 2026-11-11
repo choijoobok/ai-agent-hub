@@ -1,0 +1,46 @@
+feature_contracts:
+  FEAT-210:
+    design_status: draft
+    implementation: planned
+    reqs: [REQ-004, REQ-107, REQ-108, REQ-602]
+    usecases: [UC-050]
+    entities: [ENT-258, ENT-259]
+    minimal_producer:
+      scope: 공통 모델 전송에 필요한 접수·관측·불명 복구만 선행한다. 전체 턴/시도/회차/스텝·응답/원문·오류/품질 화면의 설계를 대체하지 않는다. 기존 목업은 입력에서 제외한다.
+      identity: 공개 callKey UUID는 ENT-258.CALL_KEY unique, 내부 FK는 CALL_RECORD_ID BIGINT다. 같은 논리 작업의 재시도마다 새 callKey/attemptOrdinal을 받으며 원 호출을 수정해 새 전송으로 재사용하지 않는다. OWNER_KIND=TURN_WORK|ADMIN_OPERATION|EMBEDDING_TASK. TURN_WORK는 작업 문맥이며 실제 LLM 스텝 생성과 다르다.
+      owner: actor는 검증된 PORTAL/ADMIN 또는 등록 SERVER 작업 주체다. ADMIN_OPERATION은 실제 관리자 ID와 운영 목적을 기록하고 턴을 꾸며 만들지 않는다. PORTAL 비용 주체/월/배정은 검증된 실행 문맥에서 고정하며 요청 body로 선택하지 않는다.
+      inputs: AuthorizedCallAdmission={owner/actor,logicalWorkRef,attemptOrdinal,purpose,connectionKey/configGeneration,modelId/revision,effort,usageDefinitionRef/normalizationVersion,inputDigest,controlRef/controlDigest,permitRef,dispatchDeadline,quotaScope/month/allocation}. 단일 소비·입력/현재 정책/점유에 결합된 소유 서버 값이다. 원 프롬프트/응답·비밀은 없다.
+      reserve: reserveCall(admission) -> Reserved(callKey,version)|Duplicate(original)|Conflict|Denied|Unavailable. 같은 admission key/내용만 원 결과 재생. 현재 인가/동의/예산/점유 검사·필수 설정 참조 보호·permit 소비·호출 사전 기록을 같은 소유 REQUIRED 트랜잭션으로 확정한다. 실패/commit 불명은 송신0이며 같은 키 상태를 조회한다.
+      dispatch: claimDispatch(callKey,expectedVersion,inputDigest) -> OneShotPermit|AlreadyClaimed|Expired|Denied|Unavailable. 정확 ADMITTED→DISPATCH_UNKNOWN 비교 갱신과 불변 DISPATCH 관측을 같은 트랜잭션에 저장한 뒤 한 번만 네트워크에 넘긴다. 이 사이 프로세스가 죽으면 송신했는지 알 수 없으므로 자동 재시도하지 않는다. 어댑터가 미전송을 확실히 증명한 경우만 NOT_SENT로 추가 기록한다.
+      observe: appendObservation(callKey,observationKey,canonicalObservation) -> Stored|AlreadyStored|Conflict|Unavailable. 사건 키+정규화 버전+동일 내용만 중복이다. 수신 시각을 지문에 넣지 않는다. 늦은/역순 사건을 그대로 추가하되 현재 투영을 이전 상태로 되돌리지 않는다. 상충하는 공급자 완료/실패는 원 관측을 유지하고 RECOVERY_REQUIRED로 표시한다.
+      states: DISPATCH_STATE=ADMITTED|UNKNOWN|NOT_SENT|ACCEPTED, RESPONSE_STATE=NONE|PARTIAL|COMPLETED|FAILED|UNKNOWN, CANCEL_STATE=NONE|REQUESTED|ACKNOWLEDGED|CONFIRMED|UNKNOWN, RECORD_STATE=READY|RECOVERY_REQUIRED|RECONCILED. CLI 중단 접수/종결을 공급자 원격 종료 CONFIRMED로 번역하지 않는다. 관리 이력용 상태가 아니라 호출 관측 투영이다.
+      failure: 전송 후 필수 관측/사용량 기록 실패는 성공 종결·새 전송을 막는다. 사전 호출 행은 UNKNOWN/RECOVERY_REQUIRED의 복구 출발점이다. 장애 때문에 실패 관측 자체가 못 쓰였어도 미완결 호출 대조로 찾는다. 저장되지 않은 출력의 처리/공개는 금지한다.
+      recovery: reconcileCall(callKey,expectedVersion,evidence) -> Recorded|StillUnknown|Conflict. 원천별 지원된 조회 또는 보존한 비밀 없는 수신 관측만 같은 호출에 보완한다. 지원 없는 CLI 경로는 StillUnknown이다. 원 요청 재실행·신규 callKey 자동 생성·현재 턴 재개를 복구로 수행하지 않는다. 이미 종결된 턴은 유지한다.
+      fencing: Portal 실행 효과/현재 상태 갱신은 현재 turn/attempt/revision/fence·미만료 리스를 검사한다. 점유를 잃은 worker의 새 효과는0이다. 원 callKey에 대한 늦은 계량·취소 관측만 등록된 recorder 경로에서 수락할 수 있으며 다른 owner/새 실행으로 재결합하지 않는다.
+      locks: 소유 ADMIN guard(운영 주체인 경우) → 달력/월 → Portal 정책/사용자 → 배정·쿼터 → 소유 실행 점유 → call PK → usage head 순서를 공통 생산 경계에 고정한다. 실제 상위 소유 잠금의 기존 순서를 역전하지 않도록 소유 G3에서 대조한다. 외부 네트워크는 모든 DB 잠금 밖이다.
+      retention: 원문 없는 호출/관측 메타데이터는 CON-032와 REQ-107 보존 설정·조사/소비 보호를 적용한다. 조회 결과 사본의7일을 이 테이블에 적용하지 않는다. 고객 보존기간 미설정이면 자동 파기 비활성이다. 사용량 head/ledger/snapshot 또는 조사 참조가 남으면 호출/관측을 먼저 파기하지 않는다.
+      implementation: SLICE-230이 agent 소유 최소 기록 생산이다. integration SLICE-304는 그 실제 포트 검증 후 실호출을 연다. agent 소유 G3 전체가 미승인이므로 이 문서나 integration G3가 agent 소스를 열지 않는다. 화면 CRUD 선행과 실제 모델 연동 검증 시점을 구분한다.
+    verification: TC-2101~2107. 실제 DB 동시 접수·claim 중복·commit 불명·전송 후 기록 장애·늦은 worker·운영 호출의 턴 비생성을 검사한다.
+
+  FEAT-211:
+    design_status: draft
+    implementation: planned
+    reqs: [REQ-602, REQ-107, REQ-116]
+    usecases: [UC-051]
+    entities: [ENT-258, ENT-259, ENT-260, ENT-261, ENT-262, ENT-263, ENT-264]
+    minimal_producer:
+      scope: 호출별 사용량 관측·정정·비중복 집계의 최소 생산. 전체 월 쿼터 예약/동시 실행/예산 알고리즘과 전체 agent 기능의 승인을 대신하지 않는다. 기존 admin ENT-118 실적 사본·ENT-129 용도 매핑·ENT-122 월배정 시도 ID를 호출 원장으로 재사용하지 않는다.
+      observation: UsageEnvelope={callKey,observationKey,source:PROVIDER|ESTIMATE|UNKNOWN,usageScope,counterSemantics,observationPhase,attributionState,reportedExecutionRef?,final,sourceRevision,previousObservationRef?,normalizationVersion,items[{metric,unit,quantity|null,valueState}]}. 공급자 지문/정규화 정의가 수량 의미를 결정한다. 필수 항목 누락은 UNKNOWN, 실제0만 KNOWN0이다.
+      attribution: 수신 turnId/sessionId/context만으로 원 호출 귀속을 확정하지 않는다. 원천의 실제 요청/메시지 참조·고정 어댑터 버전의 범위/수량 의미·원 호출 매핑을 검증한다. usageScope=CALL|TURN|THREAD|SESSION|ACCOUNT|UNKNOWN, counterSemantics=DELTA|CUMULATIVE|UNKNOWN, observationPhase=START|STREAM|TERMINAL|POST_TERMINAL|RESUME|UNKNOWN, attributionState=VERIFIED|UNVERIFIED를 보존한다. CALL 또는 정확한 단일 호출 매핑이 검증된 TURN만 호출 계량에 사용할 수 있다. 검증된 로컬 추정은 CALL/ESTIMATE이며 공급자 확정으로 승격하지 않는다. THREAD/SESSION/ACCOUNT 누적, 초기 자리표시, 귀속불명은 수신 관측/원 수량·지문을 보존하되 head/ledger/쿼터 반영에서 제외한다. 최종량 부재는 UNKNOWN이며 기존 추정/예약을 자동 해제하지 않는다. 같은 수량이라는 사실만으로 중복이나0사용을 판정하지 않는다.
+      cli_evidence: ARCH-032.capability_contract.p3_usage_evidence가 실측 정본이다. Codex의 중단 turnId로 재표시된 이전 last/total, Claude 오류 result의0·assistant output 자리표시와 누적 modelUsage/비용을 원 호출의 최종 계량으로 쓰지 않는다. CLI 원천에서 확인한 input/cache 같은 부분 관측은 보존하되 필수 output/최종량 부재를 덮지 않는다. 어댑터 수신 종료와 공급자 계량 확정은 별도다.
+      normalization: 고정된 사용량 정의가 입력 총량/캐시 읽기/캐시 쓰기/출력/추론 포함관계를 명시하고 서로 겹치지 않는 과금 항목으로 만든다. 포함관계/단위/차원 불명·음수/범위 초과는 지원 불명으로 보존하고 확정 반영하지 않는다. tokenizer 추정은 ESTIMATE 표시를 유지하며 공급자 사실로 덮어쓰지 않는다.
+      order: 수신 시각/관측 PK 최댓값을 최신 계량 근거로 삼지 않는다. 같은 호출의 단조 공급 판 또는 검증된 previousObservationRef를 사용한다. 최종값은 부분/추정보다 우선하지만 서로 다른 최종값은 명시 정정 근거가 없으면 Conflict다. 순서 불명은 원 관측을 보존하고 현재 유효값은 유지한다.
+      apply: appendUsage는 호출/관련 head를 정해진 순서로 잠그고 불변 관측/항목·새 head판·증감 ledger·소유 쿼터의 정확 증감을 같은 REQUIRED에서 확정한다. 전부 롤백 또는 전부 적용이며 원천 관측과 현재 투영을 별도 독립 commit하지 않는다. 700 추정→900 확정→같은 확정 재수신은 유효900·증분700/200/0이다.
+      unknown: UNKNOWN은 누적량0/차감0 확정이 아니다. 이미 반영한 추정량과 불명 상태·예약 근거를 함께 유지하며 불명으로 인해 예약/예산을 자동 해제하지 않는다. 뒤늦은 실제량이 생기면 같은 원 호출의 해당 월/주체에만 정정한다. 지원되지 않는 계량을 다른 모델/사용자 평균으로 채우지 않는다.
+      math: 수량은 비음수 정수·numeric(38,0), 증감은 부호 있는 정수다. 모델/effort/용도·고정 단가판·환산 정의를 함께 사용하며 ADR-045의 정확 유리수 산식과 정해진 최종 floor만 적용한다. 가격/표시용 반올림을 ledger 입력에 사용하지 않는다. 정정으로 유효량이 음수가 되거나 상한을 넘으면 전체 실패다.
+      scopes: PORTAL은 원 사용자/배정월/배정ID의 쿼터에만 반영한다. 관리자 운영/지식 임베딩 작업은 OPERATIONS로 별도 집계하고 Portal 쿼터에 차감하지 않는다. source/metric별로 구분하며 실패·취소 호출의 관측된 사용량도 제외하지 않는다.
+      snapshot: loadUsageSnapshot(month,cutoff,scope,requestKey) -> Complete(snapshotKey,basisDigest,normalizationVersion,groups)|Incomplete(safeReasons)|Unavailable. REPEATABLE READ에서 원 호출·head·선택된 불변 항목과 누락 호출을 함께 읽고 ENT-263/264를 같은 트랜잭션에 고정한다. 단순 MAX(ID)는 commit 순서가 아니므로 watermark로 쓰지 않는다. 전달 watermark는 이 불변 snapshotKey/basisDigest다.
+      completeness: 범위 내 필수 계량 미제공/호출 기록 불명/정규화 미지원은 INCOMPLETE이며 부분합을 admin 실적 확정에 쓰지 않는다. 월말 뒤 도착한 계량은 원 발생월에 귀속하되 이전 스냅샷·이미 확정한 단가 근거를 소급 갱신하지 않는다. 새 실적 검토는 새 snapshotKey를 받는다.
+      deletion: 호출·불변 계량·ledger·스냅샷의 직접/전이 소비 보호와 조사 보호가 해제된 집합만 소유 보존 절차로 파기한다. 월 집계 사본이 참조한 snapshot은 해당 소비 보존 종료 전 보호한다. 고객 보존기간은 후속 고객 협의이며 범용 제품에 임의 일수를 넣지 않는다.
+      implementation: SLICE-230. 소유 쿼터/실행 포트가 미구현이면 해당 PORTAL 경로는 실제 전송 불가다. OPERATIONS 최소 생산과 대역 계약 시험은 별도로 검증하며 제품 전체 비용/쿼터 집행 완료로 표시하지 않는다.
+    verification: TC-2111~2119·TC-21190~21193. 추정/확정/중복·역순·정정·UNKNOWN·원자 롤백·미커밋 낮은ID·늦은 이전월·운영/Portal 분리를 검사한다.

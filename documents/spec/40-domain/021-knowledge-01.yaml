@@ -1,0 +1,381 @@
+entities:
+  - id: ENT-132
+    name: 지식 검색 태그
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_SEARCH_TAG
+    features:
+      - FEAT-024
+    reqs:
+      - REQ-607
+      - REQ-601
+    term: TRM-042
+    domain: 업무 지식
+    attributes:
+      - name: 안정 태그 번호
+        physical_name: TAG_ID
+        pk: true
+        description: 안정 태그 번호
+      - name: 대표 검색 표현
+        physical_name: SEARCH_TEXT
+        description: 대표 검색 표현
+      - name: 중복 판정 표현
+        physical_name: NORMALIZED_TEXT
+        description: 중복 판정 표현
+      - name: 검색 사용
+        physical_name: USE_YN
+        description: 검색 사용
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: TAG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SEARCH_TEXT
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: NORMALIZED_TEXT
+          type: character varying(400)
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: '''N'''
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_SEARCH_TAG
+          definition: PRIMARY KEY (TAG_ID)
+        - name: UK_SEARCH_TAG_1
+          definition: UNIQUE (NORMALIZED_TEXT)
+        - name: CK_SEARCH_TAG_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-218
+      root: ENT-132
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-218
+    revision_column: REVISION
+  - id: ENT-133
+    name: 태그 동의어
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TAG_SYNONYM
+    features:
+      - FEAT-024
+    reqs:
+      - REQ-607
+    term: TRM-042
+    domain: 업무 지식
+    attributes:
+      - name: 안정 동의어 번호
+        physical_name: SYNONYM_ID
+        pk: true
+        description: 안정 동의어 번호
+      - name: 태그 번호
+        physical_name: TAG_ID
+        description: 태그 번호
+      - name: 동의어 표현
+        physical_name: SEARCH_TEXT
+        description: 동의어 표현
+      - name: 중복 판정 표현
+        physical_name: NORMALIZED_TEXT
+        description: 중복 판정 표현
+      - name: 표현 설명
+        physical_name: DESCRIPTION
+        description: 표현 설명
+    physical:
+      attributes:
+        - name: SYNONYM_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TAG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: SEARCH_TEXT
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: NORMALIZED_TEXT
+          type: character varying(400)
+          nullable: false
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_TAG_SYNONYM
+          definition: PRIMARY KEY (SYNONYM_ID)
+        - name: UK_TAG_SYNONYM_1
+          definition: UNIQUE (TAG_ID, NORMALIZED_TEXT)
+        - name: FK_TAG_SYNONYM_1
+          definition: FOREIGN KEY (TAG_ID) REFERENCES AI_ADMIN_SEARCH_TAG (TAG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - REQ-607.text_normalization. 부모 대표 표현과 같은 동의어도 거부한다. 다른 태그에 같은 동의어가 있으면 검색은 접근 가능한 모든 일치 태그를 반환한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-132
+      entity: ENT-219
+      root: ENT-132
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-132
+        cardinality: N:1
+        description: TAG_ID → TAG_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-219
+  - id: ENT-134
+    name: 업무 지식
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+      - REQ-601
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 안정 지식 번호
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 안정 지식 번호
+      - name: 지식 제목
+        physical_name: TITLE
+        description: 지식 제목
+      - name: 지식 본문
+        physical_name: BODY
+        description: 지식 본문
+      - name: 지식 사용
+        physical_name: USE_YN
+        description: 지식 사용
+      - name: 부모 관리 리비전
+        physical_name: REVISION
+        description: 부모 관리 리비전
+      - name: 업무 잠금 뒤 수락 시각
+        physical_name: ACCEPTED_DTM
+        description: 업무 잠금 뒤 수락 시각
+      - name: 변경 사유
+        physical_name: CHANGE_REASON
+        description: 변경 사유
+      - name: 등록 관리자
+        physical_name: REG_ID
+        description: 등록 관리자
+      - name: 등록 시각
+        physical_name: REG_DTM
+        description: 등록 시각
+      - name: 수정 관리자
+        physical_name: MOD_ID
+        description: 수정 관리자
+      - name: 수정 시각
+        physical_name: MOD_DTM
+        description: 수정 시각
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TITLE
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: BODY
+          type: text
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: REVISION
+          type: bigint
+          nullable: false
+          default: '1'
+        - name: ACCEPTED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: CHANGE_REASON
+          type: text
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: MOD_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE
+          definition: PRIMARY KEY (KNOWLEDGE_ID)
+        - name: CK_KNOWLEDGE_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: root
+      entity: ENT-220
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+    copy_mapping:
+      history: ENT-220
+    revision_column: REVISION
+  - id: ENT-135
+    name: 지식 접근 그룹 매핑
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_GROUP
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 소유 지식
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 소유 지식
+      - name: 접근 그룹 참조
+        physical_name: GROUP_ID
+        pk: true
+        description: 접근 그룹 참조
+      - name: 매핑 활성
+        physical_name: ACTIVE_YN
+        description: 매핑 활성
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_GROUP
+          definition: PRIMARY KEY (KNOWLEDGE_ID, GROUP_ID)
+        - name: FK_KNOWLEDGE_GROUP_1
+          definition: FOREIGN KEY (KNOWLEDGE_ID) REFERENCES AI_ADMIN_KNOWLEDGE (KNOWLEDGE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_KNOWLEDGE_GROUP_2
+          definition: FOREIGN KEY (GROUP_ID) REFERENCES AI_ADMIN_USER_GROUP (GROUP_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_KNOWLEDGE_GROUP_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_KNOWLEDGE_GROUP_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_GROUP_1 ON AI_ADMIN_KNOWLEDGE_GROUP (GROUP_ID, KNOWLEDGE_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 운영 매핑은 안정 ID를 참조하고 상대 리비전을 고정하지 않는다. 실행 시 실제 선택 판은 소비 참조로 보호한다. 역조회·합산 카탈로그는 저장하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-134
+      entity: ENT-221
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-134
+        cardinality: N:1
+        description: KNOWLEDGE_ID → KNOWLEDGE_ID; DB RESTRICT 참조
+      - entity: ENT-102
+        cardinality: N:1
+        description: GROUP_ID → GROUP_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-221

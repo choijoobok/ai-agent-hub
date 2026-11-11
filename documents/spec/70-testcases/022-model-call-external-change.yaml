@@ -1,0 +1,265 @@
+testcases:
+  - id: TC-2102
+    feature: FEAT-210
+    usecase: UC-050
+    type: normal
+    actor: ACT-001
+    title: 운영 호출의 독립 접수
+    given: 검증된 관리자 운영 작업
+    when: 단일 호출 접수
+    then: UUID 공개키와 BIGINT 내부키 연결·TURN_ID 생성0·운영 비용 분리
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2103
+    feature: FEAT-210
+    usecase: UC-050
+    type: business_exception
+    actor: ACT-001
+    title: 접수/claim 중복과 다른 내용
+    given: 같은 소유 요청·permit·동일/상이 지문
+    when: 동시 접수와 claim
+    then: 동일 원 결과·실제 송신1회 이하, 상이내용409
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2104
+    feature: FEAT-210
+    usecase: UC-050
+    type: business_exception
+    actor: ACT-001
+    title: 전송 전 필수 저장 실패
+    given: 권한/참조/permit/호출 저장 각 실패
+    when: 사전 접수 commit
+    then: 부분 접수0·외부 송신0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2105
+    feature: FEAT-210
+    usecase: UC-050
+    type: business_exception
+    actor: ACT-001
+    title: 전송 후 기록 불명
+    given: 전송됨 또는 UNKNOWN 이후 DB 장애
+    when: 관측 저장 및 재접속
+    then: 성공종결/자동재송0·원 call 복구 가능 상충하는 완료/실패 관측은 RECOVERY_REQUIRED로만 표시하며 미정의 상태값 저장0.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2106
+    feature: FEAT-210
+    usecase: UC-050
+    type: permission
+    actor: ACT-001
+    title: 점유 상실과 늦은 관측
+    given: 이전 worker와 회수된 현재 권한
+    when: 새 효과와 원 호출 계량 수신
+    then: 새 효과0·원 call의 검증된 늦은 관측만 보완
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2107
+    feature: FEAT-210
+    usecase: UC-050
+    type: business_exception
+    actor: ACT-001
+    title: 사전 접수 후 프로세스 종료
+    given: claim UNKNOWN commit 뒤 송신 여부 불명
+    when: 재시작과 reconcile
+    then: 새 call/새송신0, 지원없는 원천 StillUnknown
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2112
+    feature: FEAT-211
+    usecase: UC-051
+    type: normal
+    actor: ACT-001
+    title: 추정 확정 및 중복 대사
+    given: 추정700·확정900·동일 확정 반복
+    when: 동일 호출 계량 반영
+    then: 유효900, ledger증분700/200/0·중복 차감0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2113
+    feature: FEAT-211
+    usecase: UC-051
+    type: business_exception
+    actor: ACT-001
+    title: 역순과 근거 없는 정정
+    given: 최종900 뒤 부분800·다른 최종850
+    when: 수신 순서를 변경
+    then: 부분으로회귀0·정정 근거 없는 최종은충돌
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2114
+    feature: FEAT-211
+    usecase: UC-051
+    type: validation
+    actor: ACT-001
+    title: UNKNOWN과0·겹친 지표
+    given: 미제공·실제0·캐시 포함 총량·중단 호출에 재표시된 thread 누적/CLI 오류 result0
+    when: 정규화/집계
+    then: UNKNOWN≠0, 중복 합산0·미지원은 INCOMPLETE. head의 UNKNOWN+수량/선택항목 존재 또는 KNOWN+NULL 조합은 DB/서버 양쪽 거부. 미귀속 숫자는 관측 항목으로만 남고 유효 KNOWN head/ledger 반영0, 최종량이 없는 snapshot은 INCOMPLETE다. 귀속/단위가 검증된 실제0 대조군은 KNOWN0을 허용한다. 직접 item ID를 보내 소유/metric/unit 검사를 통과해도 부모 귀속이 UNVERIFIED이면 head/ledger 저장 경계에서 거부·전체 롤백한다.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2115
+    feature: FEAT-211
+    usecase: UC-051
+    type: business_exception
+    actor: ACT-001
+    title: 계량 원자 반영 실패
+    given: 관측/item/head/ledger/쿼터 각 지점 장애
+    when: 정정 트랜잭션
+    then: 모두rollback·같은사건 재시도1회 적용
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2116
+    feature: FEAT-211
+    usecase: UC-051
+    type: normal
+    actor: ACT-001
+    title: 운영과 Portal 귀속
+    given: 관리자 운영·Portal 호출과 늦은이전월 사용량
+    when: 월/주체별 집계
+    then: 운영은 Portal 차감0·늦은 값은 원월/원주체·새 턴 변경0. PORTAL actor를 OPERATIONS/ADMIN_OPERATION 또는 배정 없는 조합으로 넣으면 접수 거부. Portal EMBEDDING_TASK의 TURN_REVISION/EXECUTION_FENCE가 NULL이면 SQL CHECK의 UNKNOWN 통과 없이 DB/서버 양쪽 거부.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2117
+    feature: FEAT-211
+    usecase: UC-051
+    type: business_exception
+    actor: ACT-001
+    title: 미커밋 낮은 ID와 스냅샷
+    given: 낮은ledgerID가늦게commit·동시정정
+    when: REPEATABLE READ 집계
+    then: 고정근거의가시집합만포함·MAX(ID)완전성추정0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2118
+    feature: FEAT-211
+    usecase: UC-051
+    type: business_exception
+    actor: ACT-001
+    title: 과거 실적 근거 불변
+    given: admin이사용한snapshot와늦은정정
+    when: 새집계/파기후보
+    then: 과거근거변경0·새snapshot만변경·소비중파기0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-2119
+    feature: FEAT-211
+    usecase: UC-051
+    type: business_exception
+    actor: ACT-001
+    title: 불명 호출의 집계 누락 방지
+    given: 범위내UNKNOWN호출과확정호출혼재
+    when: 실적집계 요청
+    then: 부분합Complete반환0·미관측비용0치환0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-3057
+    feature: FEAT-305
+    usecase: UC-049
+    type: normal
+    actor: ACT-008
+    title: 역할0명과 통지만 복구
+    given: 검증된퇴직·수신자0명
+    when: 접수 뒤 역할설정 후 동일사건재전송
+    then: 첫202/이용중지·통지pending, 뒤200/통지만1회·HIST추가0 후속 사건/cursor진전·수동재활성화/재연결 뒤에도 과거pending의 통지만1회 완료하고 현재계정/이력 변경0.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-3058
+    feature: FEAT-305
+    usecase: UC-049
+    type: business_exception
+    actor: ACT-008
+    title: 동시 통지 복구와 조회 장애
+    given: 같은pending사건2요청 또는 수신자조회DB실패
+    when: 현재 수신자 보호/저장
+    then: 인앱/참조1세트·조회실패는0명으로치환0/rollback 이미 확정된pending 복구 실패는 이번통지만rollback, 이전이용중지/HIST/pending유지.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-3059
+    feature: FEAT-305
+    usecase: UC-049
+    type: validation
+    actor: ACT-008
+    title: 재서명과 사건 본문 지문
+    given: 새nonce/검증시각/서명키로 같은본문 재전송
+    when: 원결과조회
+    then: 같은사건재생·검증메타로409발생0·kind변조거부
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-30510
+    feature: FEAT-305
+    usecase: UC-049
+    type: business_exception
+    actor: ACT-008
+    title: 연결 세대와 NO_CHANGE 순서
+    given: 현재binding·NO_CHANGE후과거사건·재연결
+    when: cursor/기한재검사
+    then: NO_CHANGE도watermark진전·옛binding/과거사건새효과0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-30511
+    feature: FEAT-305
+    usecase: UC-049
+    type: business_exception
+    actor: ACT-008
+    title: 원결과 파기 뒤 사건 재수신
+    given: 원결과와서버UUID매핑파기·최소사건키보존
+    when: 서명키교체후같은사건재전송
+    then: EXPIRED409·계정/HIST/인앱재생성0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-30512
+    feature: FEAT-305
+    usecase: UC-049
+    type: validation
+    actor: ACT-008
+    title: 인앱과 수신 결과의 보존 분리
+    given: STORED인앱90일파기 또는 pending사건
+    when: 원사건재조회/파기
+    then: 파기된인앱재생성0·pending수신결과파기0 pending 자체로 무기한 보존0·보존종결정책 미설정 자동파기0·고객종결정책/정당한보호 대조.
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-5098
+    feature: FEAT-509
+    usecase: UC-509
+    type: normal
+    actor: ACT-012
+    title: 역할 기반 다수 알림 저장
+    given: 지정역할중복·유효관리자·동일문자열Portal대상
+    when: 공개수신자/저장포트
+    then: 현재조회권한수신자합집합·1인1행·정확ID반환·Portal문자열자동제외0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-5099
+    feature: FEAT-509
+    usecase: UC-509
+    type: permission
+    actor: ACT-012
+    title: 현재 수신 권한 회수와 실패
+    given: 회수경합·조회실패·유효수신자0
+    when: ADMIN보호에서대상판정
+    then: 현재수신자만확정·NoRecipients와Unavailable구분·역순잠금0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-50910
+    feature: FEAT-509
+    usecase: UC-509
+    type: business_exception
+    actor: ACT-012
+    title: 통지 부분 저장과 참조 실패
+    given: 다수수신자 중 저장 또는ENT266실패
+    when: 같은REQUIRED처리
+    then: 전체rollback·독립알림/부분참조0
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+  - id: TC-50911
+    feature: FEAT-509
+    usecase: UC-509
+    type: validation
+    actor: ACT-012
+    title: 기존 알림 회귀와 새 종류
+    given: PORTAL_CHANGE와AUTHZ·기존4종
+    when: 만료예고/알림함 표시
+    then: 새종류가AUTHZ최근발송판정에간섭0·기존알림조회/읽음/90일파기유지
+    status: planned
+    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.

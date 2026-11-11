@@ -1,0 +1,29 @@
+terms:
+  - id: TRM-295
+    term: 인증 세션
+    key: authSession
+    db_token: SESSION
+    db_token_reason: 인증 저장 단위의 명확한 영문 토큰
+    group: 인증
+    definition: 로그인 주체·인증 수준과 만료를 서버가 보관하는 접속 문맥. TRM-001의 채팅 세션·턴과 다르며 종료해도 턴 기록을 삭제하지 않는다.
+  - id: TRM-296
+    term: 외부 로그인 요청 문맥
+    key: loginChallenge
+    db_token: LOGIN_CHALLENGE
+    db_token_reason: 인증 저장 단위의 명확한 영문 토큰
+    group: 인증
+    definition: 외부 인증 시작 때 브라우저·원천·복귀 경로·만료를 고정하고 콜백을 한 번만 수락하는 임시 기록.
+  - id: TRM-297
+    term: 소비한 인증 증거
+    key: authEvidence
+    db_token: AUTH_EVIDENCE
+    db_token_reason: 인증 저장 단위의 명확한 영문 토큰
+    group: 인증
+    definition: 검증 어댑터가 확인한 외부 증거의 원천과 지문을 한 번만 소비했음을 남기는 단기 기록. 원 토큰·어설션은 보관하지 않는다.
+  - id: TRM-298
+    term: 인증 보안 사건
+    key: authEvent
+    db_token: AUTH_EVENT
+    db_token_reason: 인증 저장 단위의 명확한 영문 토큰
+    group: 인증
+    definition: 로그인·로그아웃·자격 변경·세션 거부의 영역/안정 주체/안전 결과를 보관하는 기록. 질의·응답 감사와 관리 변경 HIST를 대체하지 않는다.

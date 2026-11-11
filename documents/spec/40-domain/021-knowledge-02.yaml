@@ -1,0 +1,307 @@
+entities:
+  - id: ENT-136
+    name: 지식 태그 매핑
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_TAG
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 소유 지식
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 소유 지식
+      - name: 태그 참조
+        physical_name: TAG_ID
+        pk: true
+        description: 태그 참조
+      - name: 매핑 활성
+        physical_name: ACTIVE_YN
+        description: 매핑 활성
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TAG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_TAG
+          definition: PRIMARY KEY (KNOWLEDGE_ID, TAG_ID)
+        - name: FK_KNOWLEDGE_TAG_1
+          definition: FOREIGN KEY (KNOWLEDGE_ID) REFERENCES AI_ADMIN_KNOWLEDGE (KNOWLEDGE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_KNOWLEDGE_TAG_2
+          definition: FOREIGN KEY (TAG_ID) REFERENCES AI_ADMIN_SEARCH_TAG (TAG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_KNOWLEDGE_TAG_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_KNOWLEDGE_TAG_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_TAG_1 ON AI_ADMIN_KNOWLEDGE_TAG (TAG_ID, KNOWLEDGE_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 운영 매핑은 안정 ID를 참조하고 상대 리비전을 고정하지 않는다. 실행 시 실제 선택 판은 소비 참조로 보호한다. 역조회·합산 카탈로그는 저장하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-134
+      entity: ENT-222
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-134
+        cardinality: N:1
+        description: KNOWLEDGE_ID → KNOWLEDGE_ID; DB RESTRICT 참조
+      - entity: ENT-132
+        cardinality: N:1
+        description: TAG_ID → TAG_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-222
+  - id: ENT-137
+    name: 지식 직접 카탈로그 매핑
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_CATALOG
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 소유 지식
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 소유 지식
+      - name: 직접 카탈로그 참조
+        physical_name: CATALOG_ID
+        pk: true
+        description: 직접 카탈로그 참조
+      - name: 매핑 활성
+        physical_name: ACTIVE_YN
+        description: 매핑 활성
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_CATALOG
+          definition: PRIMARY KEY (KNOWLEDGE_ID, CATALOG_ID)
+        - name: FK_KNOWLEDGE_CATALOG_1
+          definition: FOREIGN KEY (KNOWLEDGE_ID) REFERENCES AI_ADMIN_KNOWLEDGE (KNOWLEDGE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_KNOWLEDGE_CATALOG_2
+          definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG (CATALOG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_KNOWLEDGE_CATALOG_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_KNOWLEDGE_CATALOG_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_CATALOG_1 ON AI_ADMIN_KNOWLEDGE_CATALOG (CATALOG_ID, KNOWLEDGE_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 운영 매핑은 안정 ID를 참조하고 상대 리비전을 고정하지 않는다. 실행 시 실제 선택 판은 소비 참조로 보호한다. 역조회·합산 카탈로그는 저장하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-134
+      entity: ENT-223
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-134
+        cardinality: N:1
+        description: KNOWLEDGE_ID → KNOWLEDGE_ID; DB RESTRICT 참조
+      - entity: ENT-005
+        cardinality: N:1
+        description: CATALOG_ID → CATALOG_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-223
+  - id: ENT-138
+    name: 지식 인증 예제 매핑
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_EXAMPLE
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 소유 지식
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 소유 지식
+      - name: 인증 예제 참조
+        physical_name: EXAMPLE_ID
+        pk: true
+        description: 인증 예제 참조
+      - name: 매핑 활성
+        physical_name: ACTIVE_YN
+        description: 매핑 활성
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: EXAMPLE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_EXAMPLE
+          definition: PRIMARY KEY (KNOWLEDGE_ID, EXAMPLE_ID)
+        - name: FK_KNOWLEDGE_EXAMPLE_1
+          definition: FOREIGN KEY (KNOWLEDGE_ID) REFERENCES AI_ADMIN_KNOWLEDGE (KNOWLEDGE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_KNOWLEDGE_EXAMPLE_2
+          definition: FOREIGN KEY (EXAMPLE_ID) REFERENCES AI_ADMIN_QUERY_EXAMPLE (EXAMPLE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_KNOWLEDGE_EXAMPLE_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_KNOWLEDGE_EXAMPLE_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_EXAMPLE_1 ON AI_ADMIN_KNOWLEDGE_EXAMPLE (EXAMPLE_ID, KNOWLEDGE_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 운영 매핑은 안정 ID를 참조하고 상대 리비전을 고정하지 않는다. 실행 시 실제 선택 판은 소비 참조로 보호한다. 역조회·합산 카탈로그는 저장하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-134
+      entity: ENT-224
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-134
+        cardinality: N:1
+        description: KNOWLEDGE_ID → KNOWLEDGE_ID; DB RESTRICT 참조
+      - entity: ENT-141
+        cardinality: N:1
+        description: EXAMPLE_ID → EXAMPLE_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-224
+  - id: ENT-139
+    name: 지식 업무 API 매핑
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_API
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+      - REQ-103
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 소유 지식
+        physical_name: KNOWLEDGE_ID
+        pk: true
+        description: 소유 지식
+      - name: 업무 API 참조
+        physical_name: API_ID
+        pk: true
+        description: 업무 API 참조
+      - name: 매핑 활성
+        physical_name: ACTIVE_YN
+        description: 매핑 활성
+      - name: 매핑 용도
+        physical_name: PURPOSE
+        description: 매핑 용도
+      - name: 사용 조건
+        physical_name: USE_CONDITION
+        description: 사용 조건
+    physical:
+      attributes:
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: API_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: PURPOSE
+          type: text
+          nullable: false
+          default: null
+        - name: USE_CONDITION
+          type: text
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_API
+          definition: PRIMARY KEY (KNOWLEDGE_ID, API_ID)
+        - name: FK_KNOWLEDGE_API_1
+          definition: FOREIGN KEY (KNOWLEDGE_ID) REFERENCES AI_ADMIN_KNOWLEDGE (KNOWLEDGE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_KNOWLEDGE_API_2
+          definition: FOREIGN KEY (API_ID) REFERENCES AI_ADMIN_BUSINESS_API (API_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_KNOWLEDGE_API_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes:
+        - name: IX_KNOWLEDGE_API_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_API_1 ON AI_ADMIN_KNOWLEDGE_API (API_ID, KNOWLEDGE_ID)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 운영 매핑은 안정 ID를 참조하고 상대 리비전을 고정하지 않는다. 실행 시 실제 선택 판은 소비 참조로 보호한다. 역조회·합산 카탈로그는 저장하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-134
+      entity: ENT-225
+      root: ENT-134
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-134
+        cardinality: N:1
+        description: KNOWLEDGE_ID → KNOWLEDGE_ID; DB RESTRICT 참조
+      - entity: ENT-011
+        cardinality: N:1
+        description: API_ID → API_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-225

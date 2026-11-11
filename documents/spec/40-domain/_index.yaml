@@ -22,3 +22,43 @@ spec_set:
     - 012-admin-change-history.yaml
     - 013-admin-management-history.yaml
     - 014-configuration-alerts.yaml
+    - 015-admin-foundation-access.yaml
+    - 016-admin-quota.yaml
+    - 017-foundation-technical-01.yaml
+    - 018-portal-security-01.yaml
+    - 019-quota-components-01.yaml
+    - 019-quota-components-02.yaml
+    - 019-quota-components-03.yaml
+    - 019-quota-components-04.yaml
+    - 020-model-provider-01.yaml
+    - 020-model-provider-02.yaml
+    - 021-knowledge-01.yaml
+    - 021-knowledge-02.yaml
+    - 021-knowledge-03.yaml
+    - 021-knowledge-04.yaml
+    - 021-knowledge-05.yaml
+    - 022-integration-components-01.yaml
+    - 022-integration-components-02.yaml
+    - 022-integration-components-03.yaml
+    - 022-integration-components-04.yaml
+    - 022-integration-components-05.yaml
+    - 023-operational-components.yaml
+    - 024-management-history-01.yaml
+    - 024-management-history-02.yaml
+    - 024-management-history-03.yaml
+    - 024-management-history-04.yaml
+    - 024-management-history-05.yaml
+    - 024-management-history-06.yaml
+    - 024-management-history-07.yaml
+    - 024-management-history-08.yaml
+    - 024-management-history-09.yaml
+    - 024-management-history-10.yaml
+    - 024-management-history-11.yaml
+    - 024-management-history-12.yaml
+    - 024-management-history-13.yaml
+    - 025-prompt-review.yaml
+    - 026-portal-password-history.yaml
+    - 027-portal-auth-runtime.yaml
+    - 028-external-user-change.yaml
+    - 029-model-call-usage.yaml
+    - 030-external-change-support.yaml

@@ -1,298 +1,589 @@
 # admin 현재/요청/이력 저장의 논리 설계 — 물리 상세는 소유 G3 전 확정
 entities:
   - id: ENT-020
-    name: "카탈로그 구성 식별"
-    term: "TRM-264"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 카탈로그 구성 식별
+    term: TRM-264
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
-      - "FEAT-011"
+      - FEAT-003
+      - FEAT-011
     reqs:
-      - "REQ-301"
+      - REQ-301
     attributes:
-      - name: "컬럼·관계의 안정 식별자"
-        physical_name: "MEMBER_ID"
+      - name: 컬럼·관계의 안정 식별자
+        physical_name: MEMBER_ID
         pk: true
-        description: "컬럼·관계의 안정 식별자"
-      - name: "생성 시 고정한 소유 카탈로그"
-        physical_name: "CATALOG_ID"
-        description: "생성 시 고정한 소유 카탈로그"
-      - name: "구성 종류"
-        physical_name: "MEMBER_KIND"
-        description: "COLUMN/RELATION"
-      - name: "생성 주체"
-        physical_name: "REG_ID"
-        description: "생성 주체"
-      - name: "생성 시각"
-        physical_name: "REG_DTM"
-        description: "생성 시각"
+        description: 컬럼·관계의 안정 식별자
+      - name: 생성 시 고정한 소유 카탈로그
+        physical_name: CATALOG_ID
+        description: 생성 시 고정한 소유 카탈로그
+      - name: 구성 종류
+        physical_name: MEMBER_KIND
+        description: COLUMN/RELATION
+      - name: 생성 주체
+        physical_name: REG_ID
+        description: 생성 주체
+      - name: 생성 시각
+        physical_name: REG_DTM
+        description: 생성 시각
     relations:
-      - entity: "ENT-005"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
+      - entity: ENT-005
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-005
+        cardinality: N:1
+        description: CATALOG_ID → CATALOG_ID; DB RESTRICT 참조
     rules:
-      - "소유 카탈로그·종류·식별자는 생성 후 불변이다. 이름 변경이나 미사용/폐기 뒤 다른 구성에 ID를 재사용하지 않는다"
-      - "카탈로그 부모 잠금 아래 실제 초안 구성과 함께 생성하며 관계의 관리측 이전을 차단한다"
-    delete_policy: "소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다"
-    pending:
-      - "@defer G3 전 — 새 current/HIST 소유 마스터와 업무 키/FK의 물리 계약 확정"
+      - 소유 카탈로그·종류·식별자는 생성 후 불변이다. 이름 변경이나 미사용/폐기 뒤 다른 구성에 ID를 재사용하지 않는다
+      - 카탈로그 부모 잠금 아래 실제 초안 구성과 함께 생성하며 관계의 관리측 이전을 차단한다
+    delete_policy: 소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다
+    table: AI_ADMIN_CATALOG_MEMBER
+    physical:
+      attributes:
+        - name: MEMBER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MEMBER_KIND
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: REG_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_MEMBER
+          definition: PRIMARY KEY (MEMBER_ID)
+        - name: FK_CATALOG_MEMBER_1
+          definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG (CATALOG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
   - id: ENT-021
-    name: "카탈로그 식별키"
-    term: "TRM-265"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 카탈로그 식별키
+    term: TRM-265
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
+      - FEAT-003
     reqs:
-      - "REQ-301"
+      - REQ-301
     attributes:
-      - name: "CATALOG_ID"
-        physical_name: "CATALOG_ID"
-        description: "현재 소유 마스터의 안정 식별자"
-      - name: "판 안의 키 번호"
-        physical_name: "KEY_NO"
+      - name: CATALOG_ID
+        physical_name: CATALOG_ID
         pk: true
-        description: "판 안의 키 번호"
-      - name: "식별키 종류"
-        physical_name: "KEY_KIND"
-        description: "PRIMARY/UNIQUE"
-      - name: "확인한 원천 키 이름. 논리 유일성 근거는 null 가능"
-        physical_name: "SOURCE_NAME"
-        description: "확인한 원천 키 이름. 논리 유일성 근거는 null 가능"
-      - name: "검수 상태 UNKNOWN/VERIFIED/INVALID"
-        physical_name: "REVIEW_STATUS"
-        description: "검수 상태 UNKNOWN/VERIFIED/INVALID"
-      - name: "실제 검수자"
-        physical_name: "REVIEWER_ID"
-        description: "실제 검수자"
-      - name: "실제 검수 시각"
-        physical_name: "REVIEWED_DTM"
-        description: "실제 검수 시각"
-      - name: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
-        physical_name: "REVIEW_EVIDENCE"
-        description: "검수 근거. 샘플 원값이나 비밀을 넣지 않는다"
+        description: 현재 소유 마스터의 안정 식별자
+      - name: 판 안의 키 번호
+        physical_name: KEY_NO
+        pk: true
+        description: 판 안의 키 번호
+      - name: 식별키 종류
+        physical_name: KEY_KIND
+        description: PRIMARY/UNIQUE
+      - name: 확인한 원천 키 이름. 논리 유일성 근거는 null 가능
+        physical_name: SOURCE_NAME
+        description: 확인한 원천 키 이름. 논리 유일성 근거는 null 가능
+      - name: 검수 상태 UNKNOWN/VERIFIED/INVALID
+        physical_name: REVIEW_STATUS
+        description: 검수 상태 UNKNOWN/VERIFIED/INVALID
+      - name: 실제 검수자
+        physical_name: REVIEWER_ID
+        description: 실제 검수자
+      - name: 실제 검수 시각
+        physical_name: REVIEWED_DTM
+        description: 실제 검수 시각
+      - name: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
+        physical_name: REVIEW_EVIDENCE
+        description: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
     relations:
-      - entity: "ENT-005"
-        cardinality: "소유 현재 구성 1:N"
-        description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
+      - entity: ENT-005
+        cardinality: 소유 현재 구성 1:N
+        description: 과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다.
+      - entity: ENT-005
+        cardinality: N:1
+        description: CATALOG_ID → CATALOG_ID; DB RESTRICT 참조
     rules:
-      - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
-      - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
-    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
-    pending:
-      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
-    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
-    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
-    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
+      - 업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다.
+      - 현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다.
+      - 같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다.
+    delete_policy: 허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다.
+    description: 소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다.
+    storage_contract: REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다.
+    audit: 원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다.
     copy_mapping:
-      history: "ENT-071"
+      history: ENT-071
+    table: AI_ADMIN_CATALOG_KEY
+    physical:
+      attributes:
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: KEY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: KEY_KIND
+          type: text
+          nullable: false
+          default: null
+        - name: SOURCE_NAME
+          type: text
+          nullable: true
+          default: null
+        - name: REVIEW_STATUS
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: REVIEWER_ID
+          type: character varying(50)
+          nullable: true
+          default: null
+        - name: REVIEWED_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: REVIEW_EVIDENCE
+          type: text
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_CATALOG_KEY
+          definition: PRIMARY KEY (CATALOG_ID, KEY_NO)
+        - name: FK_CATALOG_KEY_1
+          definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG (CATALOG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-005
+      entity: ENT-071
+      root: ENT-005
   - id: ENT-022
-    name: "카탈로그 식별키 컬럼"
-    term: "TRM-266"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 카탈로그 식별키 컬럼
+    term: TRM-266
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
+      - FEAT-003
     reqs:
-      - "REQ-301"
+      - REQ-301
     attributes:
-      - name: "CATALOG_ID"
-        physical_name: "CATALOG_ID"
-        description: "현재 소유 마스터의 안정 식별자"
-      - name: "소유 키"
-        physical_name: "KEY_NO"
+      - name: CATALOG_ID
+        physical_name: CATALOG_ID
+        description: 현재 소유 마스터의 안정 식별자
         pk: true
-        description: "소유 키"
-      - name: "키 안의 컬럼 순서"
-        physical_name: "POSITION_NO"
+      - name: 소유 키
+        physical_name: KEY_NO
         pk: true
-        description: "키 안의 컬럼 순서"
-      - name: "같은 판의 안정 컬럼"
-        physical_name: "COLUMN_ID"
-        description: "같은 판의 안정 컬럼"
+        description: 소유 키
+      - name: 키 안의 컬럼 순서
+        physical_name: POSITION_NO
+        pk: true
+        description: 키 안의 컬럼 순서
+      - name: 같은 판의 안정 컬럼
+        physical_name: COLUMN_ID
+        description: 같은 판의 안정 컬럼
+        pk: false
     relations:
-      - entity: "ENT-021"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-007"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-005"
-        cardinality: "소유 현재 구성 1:N"
-        description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
+      - entity: ENT-021
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-007
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-005
+        cardinality: 소유 현재 구성 1:N
+        description: 과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다.
+      - entity: ENT-021
+        cardinality: N:1
+        description: CATALOG_ID, KEY_NO → CATALOG_ID, KEY_NO; DB RESTRICT 참조
+      - entity: ENT-007
+        cardinality: N:1
+        description: CATALOG_ID, COLUMN_ID → CATALOG_ID, COLUMN_ID; DB RESTRICT 참조
     rules:
-      - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
-      - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
-    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
-    pending:
-      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
-    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
-    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
-    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
+      - 업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다.
+      - 현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다.
+      - 같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다.
+    delete_policy: 허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다.
+    description: 소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다.
+    storage_contract: REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다.
+    audit: 원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다.
     copy_mapping:
-      history: "ENT-073"
+      history: ENT-073
+    table: AI_ADMIN_CATALOG_KEY_COLUMN
+    physical:
+      attributes:
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: KEY_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: POSITION_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_KEY_COLUMN
+          definition: PRIMARY KEY (CATALOG_ID, KEY_NO, POSITION_NO)
+        - name: FK_CATALOG_KEY_COLUMN_1
+          definition: FOREIGN KEY (CATALOG_ID, KEY_NO) REFERENCES AI_ADMIN_CATALOG_KEY (CATALOG_ID, KEY_NO) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_CATALOG_KEY_COLUMN_2
+          definition: FOREIGN KEY (CATALOG_ID, COLUMN_ID) REFERENCES AI_ADMIN_CATALOG_COLUMN (CATALOG_ID, COLUMN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-021
+      entity: ENT-073
+      root: ENT-005
   - id: ENT-025
-    name: "권장 조인 컬럼 쌍"
-    term: "TRM-269"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 권장 조인 컬럼 쌍
+    term: TRM-269
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
-      - "FEAT-011"
+      - FEAT-003
+      - FEAT-011
     reqs:
-      - "REQ-301"
+      - REQ-301
     attributes:
-      - name: "CATALOG_ID"
-        physical_name: "CATALOG_ID"
-        description: "현재 소유 마스터의 안정 식별자"
-      - name: "관계 안정 식별자"
-        physical_name: "RELATION_ID"
+      - name: CATALOG_ID
+        physical_name: CATALOG_ID
+        description: 현재 소유 마스터의 안정 식별자
         pk: true
-        description: "관계 안정 식별자"
-      - name: "전체 조인 쌍 안의 순서"
-        physical_name: "PAIR_NO"
+      - name: 관계 안정 식별자
+        physical_name: RELATION_ID
         pk: true
-        description: "전체 조인 쌍 안의 순서"
-      - name: "왼쪽 역할 판"
-        physical_name: "LEFT_REVISION_ID"
-        description: "왼쪽 역할 판"
-      - name: "왼쪽 역할 컬럼"
-        physical_name: "LEFT_COLUMN_ID"
-        description: "왼쪽 역할 컬럼"
-      - name: "오른쪽 역할 판"
-        physical_name: "RIGHT_REVISION_ID"
-        description: "오른쪽 역할 판"
-      - name: "오른쪽 역할 컬럼"
-        physical_name: "RIGHT_COLUMN_ID"
-        description: "오른쪽 역할 컬럼"
+        description: 관계 안정 식별자
+      - name: 전체 조인 쌍 안의 순서
+        physical_name: PAIR_NO
+        pk: true
+        description: 전체 조인 쌍 안의 순서
+      - name: 왼쪽 역할 판
+        physical_name: LEFT_REVISION_ID
+        description: 왼쪽 역할 판
+        pk: false
+      - name: 왼쪽 역할 컬럼
+        physical_name: LEFT_COLUMN_ID
+        description: 왼쪽 역할 컬럼
+        pk: false
+      - name: 오른쪽 역할 판
+        physical_name: RIGHT_REVISION_ID
+        description: 오른쪽 역할 판
+        pk: false
+      - name: 오른쪽 역할 컬럼
+        physical_name: RIGHT_COLUMN_ID
+        description: 오른쪽 역할 컬럼
+        pk: false
     relations:
-      - entity: "ENT-008"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-007"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-005"
-        cardinality: "소유 현재 구성 1:N"
-        description: "과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다."
+      - entity: ENT-008
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-007
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-005
+        cardinality: 소유 현재 구성 1:N
+        description: 과거 판의 FK 대신 안정 소유 마스터를 참조한다. 요청/이력은 복사 세트 문맥으로 제한한다.
+      - entity: ENT-008
+        cardinality: N:1
+        description: CATALOG_ID, RELATION_ID → CATALOG_ID, RELATION_ID; DB RESTRICT 참조
     rules:
-      - "업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다."
-      - "현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다."
-      - "같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다."
-    delete_policy: "허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다."
-    pending:
-      - "@defer G3 전 — 현재 적용값/HIST의 타입·업무키/내부 FK·기대 버전·전체 복사/멱등 결과 원자성과 물리 계약을 확정한다."
-    description: "소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다."
-    storage_contract: "REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다."
-    audit: "원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다."
+      - 업무 속성/검수 규칙은 소유 REQ와 50-api의 전체 구성 계약을 따른다. 저장 문맥은 REQ-601.management_storage가 정본이다.
+      - 현재 구성의 소유 키에는 독립 REVISION_ID를 두지 않는다. 외부 자산의 *_REVISION_ID는 정확 적용 리비전 참조로 보존하며 _HIST 공개 조회로 해석한다.
+      - 같은 명시 전체 변경의 임시 내부 참조는 저장 트랜잭션에서 새 적용 리비전/구성 ID로 확정한다. 외부 정확 기술 참조는 자동 최신화하지 않는다.
+    delete_policy: 허용된 삭제는 현재 변경 권한·기대 버전·참조 검증·전체 이력을 원자 처리한다. 과거 이력에 현재 행 삭제의 연쇄 삭제 FK를 두지 않는다.
+    description: 소유 마스터의 현재 적용 구성. 성공한 과거 전체 구성은 같은 HISTORY_NO의 동형 HIST에서 읽는다.
+    storage_contract: REQ-601.management_storage. 본 테이블은 현재 적용값, 원본별 HIST는 성공한 전체 적용 이력이다. 현재값·REVISION·전체 HISTORY_NO·멱등 결과는 직접 저장의 같은 트랜잭션으로 확정한다. 관리자 요청/SNP는 없다.
+    audit: 원 등록/수정 감사와 실제 직접 변경자·시각·사유를 보존한다. 정확 과거 적용 리비전은 해당 마스터 HIST/HISTORY_NO로 해석하며 현재값으로 바꾸지 않는다.
     copy_mapping:
-      history: "ENT-079"
+      history: ENT-079
+    table: AI_ADMIN_CATALOG_JOIN_PAIR
+    physical:
+      attributes:
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RELATION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PAIR_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: LEFT_REVISION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: LEFT_COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RIGHT_REVISION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RIGHT_COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_JOIN_PAIR
+          definition: PRIMARY KEY (CATALOG_ID, RELATION_ID, PAIR_NO)
+        - name: FK_CATALOG_JOIN_PAIR_1
+          definition: FOREIGN KEY (CATALOG_ID, RELATION_ID) REFERENCES AI_ADMIN_CATALOG_RELATION (CATALOG_ID, RELATION_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-008
+      entity: ENT-079
+      root: ENT-005
   - id: ENT-027
-    name: "카탈로그 근거 대상"
-    term: "TRM-271"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 카탈로그 근거 대상
+    term: TRM-271
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
+      - FEAT-003
     reqs:
-      - "REQ-304"
+      - REQ-304
     attributes:
-      - name: "원 변경 근거"
-        physical_name: "EVIDENCE_ID"
+      - name: 원 변경 근거
+        physical_name: EVIDENCE_ID
         pk: true
-        description: "원 변경 근거"
-      - name: "근거 안의 관련 대상 순서"
-        physical_name: "TARGET_NO"
+        description: 원 변경 근거
+      - name: 근거 안의 관련 대상 순서
+        physical_name: TARGET_NO
         pk: true
-        description: "근거 안의 관련 대상 순서"
-      - name: "관련 등록 항목"
-        physical_name: "CATALOG_ID"
-        description: "관련 등록 항목"
-      - name: "근거 대상 역할"
-        physical_name: "REFERENCE_ROLE"
-        description: "OBSERVED/BEFORE/AFTER/CANDIDATE"
-      - name: "읽기/명령 대상 문맥"
-        description: "CURRENT 자산ID, REQUEST 요청번호+대상키, HISTORY 자산ID+적용리비전/HISTORY_NO 중 명시된 한 종류. null은 현재값으로 치환하지 않는다."
+        description: 근거 안의 관련 대상 순서
+      - name: 관련 등록 항목
+        physical_name: CATALOG_ID
+        description: 관련 등록 항목
+      - name: 근거 대상 역할
+        physical_name: REFERENCE_ROLE
+        description: OBSERVED/BEFORE/AFTER/CANDIDATE
+      - name: 읽기/명령 대상 문맥
+        physical_name: TARGET_CONTEXT
+        description: CURRENT 자산ID, REQUEST 요청번호+대상키, HISTORY 자산ID+적용리비전/HISTORY_NO 중 명시된 한 종류. null은 현재값으로 치환하지 않는다.
     relations:
-      - entity: "ENT-010"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-005"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
-      - entity: "ENT-006"
-        cardinality: "소유 판·구성의 복합 키로 참조"
-        description: "명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다"
+      - entity: ENT-010
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-005
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-006
+        cardinality: 소유 판·구성의 복합 키로 참조
+        description: 명시된 physical 외래키를 따른다. 보존·고정과 현재 권한 판정은 별도 계약이다
+      - entity: ENT-010
+        cardinality: N:1
+        description: EVIDENCE_ID → EVIDENCE_ID; DB RESTRICT 참조
     rules:
-      - "공개 범위의 관측/변경 근거이며 모든 대상이 세트의 실제 변경 대상이라는 뜻은 아니다"
-      - "기준 판 미특정과 대상 없음은 관측 상태로 구분하고 현재 리비전으로 과거를 채우지 않는다"
-    delete_policy: "소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다"
-    pending:
-      - "@defer G3 전 — current/HIST 문맥의 참조·키·타입 물리 확정"
-    storage_contract: "REQ-601.management_storage. 현재 대상은 안정 ID/현재 리비전, 과거 적용은 안정 ID+적용 REVISION 또는 HISTORY_NO로 구분한다. REQUEST_NO/관리자 요청 초안은 지원하지 않는다."
+      - 공개 범위의 관측/변경 근거이며 모든 대상이 세트의 실제 변경 대상이라는 뜻은 아니다
+      - 기준 판 미특정과 대상 없음은 관측 상태로 구분하고 현재 리비전으로 과거를 채우지 않는다
+    delete_policy: 소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다
+    storage_contract: REQ-601.management_storage. 현재 대상은 안정 ID/현재 리비전, 과거 적용은 안정 ID+적용 REVISION 또는 HISTORY_NO로 구분한다. REQUEST_NO/관리자 요청 초안은 지원하지 않는다.
+    table: AI_ADMIN_CATALOG_EVID_TARGET
+    physical:
+      attributes:
+        - name: EVIDENCE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: TARGET_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: REFERENCE_ROLE
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: TARGET_CONTEXT
+          type: text
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_EVID_TARGET
+          definition: PRIMARY KEY (EVIDENCE_ID, TARGET_NO)
+        - name: FK_CATALOG_EVID_TARGET_1
+          definition: FOREIGN KEY (EVIDENCE_ID) REFERENCES AI_ADMIN_CATALOG_EVIDENCE (EVIDENCE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
   - id: ENT-028
-    name: "카탈로그 편집 처리"
-    term: "TRM-272"
-    domain: "연동 자산"
-    module: "admin"
-    implementation: "planned"
-    design_stage: "logical"
+    name: 카탈로그 편집 처리
+    term: TRM-272
+    domain: 연동 자산
+    module: admin
+    implementation: planned
+    design_stage: physical
     features:
-      - "FEAT-003"
-      - "FEAT-011"
+      - FEAT-003
+      - FEAT-011
     reqs:
-      - "REQ-301"
-      - "REQ-304"
-      - "REQ-601"
+      - REQ-301
+      - REQ-304
+      - REQ-601
     attributes:
-      - name: "카탈로그 초안 편집/근거 접수의 UUID"
-        physical_name: "COMMAND_KEY"
+      - name: 카탈로그 초안 편집/근거 접수의 UUID
+        physical_name: COMMAND_KEY
         pk: true
-        description: "카탈로그 초안 편집/근거 접수의 UUID"
-      - name: "현재 주체"
-        physical_name: "ACTOR_ID"
-        description: "현재 주체"
-      - name: "작업 종류"
-        physical_name: "ACTION_CD"
-        description: "CREATE_DRAFT/SAVE_DRAFT/COPY_DRAFT/RECORD_EVIDENCE"
-      - name: "전체 입력과 기대 편집 버전/주체의 지문"
-        physical_name: "REQUEST_DIGEST"
-        description: "전체 입력과 기대 편집 버전/주체의 지문"
-      - name: "대상 카탈로그. 근거만 등록하면 null"
-        physical_name: "CATALOG_ID"
-        description: "대상 카탈로그. 근거만 등록하면 null"
-      - name: "근거 접수 결과. 초안 편집이면 null"
-        physical_name: "EVIDENCE_ID"
-        description: "근거 접수 결과. 초안 편집이면 null"
-      - name: "결과 봉투 형식 버전"
-        physical_name: "RESULT_FORMAT"
-        description: "결과 봉투 형식 버전"
-      - name: "v1 신규 구성의 클라이언트 임시 참조→안정 ID 매핑. 재수신 때 같은 값 반환"
-        physical_name: "RESULT_MAPPING"
-        description: "v1 신규 구성의 클라이언트 임시 참조→안정 ID 매핑. 재수신 때 같은 값 반환"
-      - name: "성공 처리 시각"
-        physical_name: "APPLIED_DTM"
-        description: "성공 처리 시각"
-      - name: "읽기/명령 대상 문맥"
-        description: "CURRENT 자산ID, REQUEST 요청번호+대상키, HISTORY 자산ID+적용리비전/HISTORY_NO 중 명시된 한 종류. null은 현재값으로 치환하지 않는다."
+        description: 카탈로그 초안 편집/근거 접수의 UUID
+      - name: 현재 주체
+        physical_name: ACTOR_ID
+        description: 현재 주체
+      - name: 작업 종류
+        physical_name: ACTION_CD
+        description: CREATE/CHANGE/COPY/RECORD_EVIDENCE
+      - name: 전체 입력과 기대 편집 버전/주체의 지문
+        physical_name: REQUEST_DIGEST
+        description: 전체 입력과 기대 편집 버전/주체의 지문
+      - name: 대상 카탈로그. 근거만 등록하면 null
+        physical_name: CATALOG_ID
+        description: 대상 카탈로그. 근거만 등록하면 null
+      - name: 근거 접수 결과. 초안 편집이면 null
+        physical_name: EVIDENCE_ID
+        description: 근거 접수 결과. 초안 편집이면 null
+      - name: 결과 봉투 형식 버전
+        physical_name: RESULT_FORMAT
+        description: 결과 봉투 형식 버전
+      - name: v1 신규 구성의 클라이언트 임시 참조→안정 ID 매핑. 재수신 때 같은 값 반환
+        physical_name: RESULT_MAPPING
+        description: v1 신규 구성의 클라이언트 임시 참조→안정 ID 매핑. 재수신 때 같은 값 반환
+      - name: 성공 처리 시각
+        physical_name: APPLIED_DTM
+        description: 성공 처리 시각
+      - name: 읽기/명령 대상 문맥
+        physical_name: COMMAND_CONTEXT
+        description: CURRENT 자산ID, REQUEST 요청번호+대상키, HISTORY 자산ID+적용리비전/HISTORY_NO 중 명시된 한 종류. null은 현재값으로 치환하지 않는다.
+      - name: 소유 기능
+        physical_name: OWNER_FEATURE
+        description: 소유 기능
+      - name: 정규화 버전
+        physical_name: DIGEST_VERSION
+        description: 정규화 버전
+      - name: 처리 결과
+        physical_name: OUTCOME_CD
+        description: 처리 결과
     rules:
-      - "관리 직접 저장 명령의 주체·종류/대상·명령키·정규 입력 지문·원 성공 결과를 보존한다. 같은 주체/종류/명령키의 같은 입력만 원 결과를 재생한다."
-      - "같은 키로 입력을 바꾸면 거부하고 결과 불명은 원 명령키로 조회한다. 현재 변경 권한 검증을 우회하지 않는다."
-      - "본 데이터·현재 리비전·전체 HIST·명령 성공 결과는 같은 소유 저장 단위에서 원자 확정한다. 관리자 요청/승인·전결·서버 초안 상태는 없다."
-    delete_policy: "소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다"
-    pending:
-      - "@defer G3 전 — current/HIST 문맥의 참조·키·타입 물리 확정"
-    storage_contract: "REQ-601.management_storage. 현재 대상은 안정 ID/현재 리비전, 과거 적용은 안정 ID+적용 REVISION 또는 HISTORY_NO로 구분한다. REQUEST_NO/관리자 요청 초안은 지원하지 않는다."
+      - 관리 직접 저장 명령의 주체·종류/대상·명령키·정규 입력 지문·원 성공 결과를 보존한다. 같은 주체/종류/명령키의 같은 입력만 원 결과를 재생한다.
+      - 같은 키로 입력을 바꾸면 거부하고 결과 불명은 원 명령키로 조회한다. 현재 변경 권한 검증을 우회하지 않는다.
+      - 본 데이터·현재 리비전·전체 HIST·명령 성공 결과는 같은 소유 저장 단위에서 원자 확정한다. 관리자 요청/승인·전결·서버 초안 상태는 없다.
+    delete_policy: 소유 리비전/근거의 불변성과 보존을 따른다. 현재 후보에서 제거해도 과거 판/안정 식별/성공 결과를 연쇄 삭제하지 않는다. 초안 자식 교체는 부모 잠금 아래 같은 트랜잭션으로 처리한다
+    storage_contract: REQ-601.management_storage. 현재 대상은 안정 ID/현재 리비전, 과거 적용은 안정 ID+적용 REVISION 또는 HISTORY_NO로 구분한다. REQUEST_NO/관리자 요청 초안은 지원하지 않는다.
+    table: AI_ADMIN_CATALOG_COMMAND
+    physical:
+      attributes:
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ACTOR_ID
+          type: character varying(50)
+          nullable: false
+          default: null
+        - name: ACTION_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: REQUEST_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: CATALOG_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: EVIDENCE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: RESULT_FORMAT
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: RESULT_MAPPING
+          type: text
+          nullable: false
+          default: null
+        - name: APPLIED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: COMMAND_CONTEXT
+          type: text
+          nullable: false
+          default: null
+        - name: OWNER_FEATURE
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: DIGEST_VERSION
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: OUTCOME_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_COMMAND
+          definition: PRIMARY KEY (COMMAND_KEY)
+        - name: CK_CATALOG_COMMAND_1
+          definition: CHECK (ACTION_CD IN ('CREATE','CHANGE','COPY','RECORD_EVIDENCE','DELETE'))
+        - name: CK_CATALOG_COMMAND_2
+          definition: CHECK (OUTCOME_CD IN ('APPLIED','NO_CHANGE'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    relations: []

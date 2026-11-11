@@ -7,3 +7,4 @@ spec_set:
     - "001-common.yaml"
     - "002-system-jobs.yaml"
     - "003-schema-comparison.yaml"
+    - "004-quota-allocation.yaml"

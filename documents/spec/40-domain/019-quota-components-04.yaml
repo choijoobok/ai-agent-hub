@@ -1,0 +1,166 @@
+# 영역: 019-quota-components — 물리 설계 초안
+entities:
+  - id: ENT-124
+    name: 예정 배분의 등급 결과
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_PREVIEW_GRADE
+    features:
+      - FEAT-017
+    reqs:
+      - REQ-116
+      - REQ-118
+    term: TRM-195
+    domain: 쿼터 운영
+    attributes:
+      - name: 예정 원 실행
+        physical_name: RUN_ID
+        pk: true
+        description: 예정 원 실행
+      - name: 등급
+        physical_name: GRADE_ID
+        pk: true
+        description: 등급
+      - name: 예정 인원
+        physical_name: USER_COUNT
+        description: 예정 인원
+      - name: 예정 개인 기본한도
+        physical_name: BASE_TOKENS
+        description: 예정 개인 기본한도
+    physical:
+      attributes:
+        - name: RUN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: USER_COUNT
+          type: bigint
+          nullable: false
+          default: null
+        - name: BASE_TOKENS
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUOTA_PREVIEW_GRADE
+          definition: PRIMARY KEY (RUN_ID, GRADE_ID)
+        - name: FK_QUOTA_PREVIEW_GRADE_1
+          definition: FOREIGN KEY (RUN_ID) REFERENCES AI_ADMIN_QUOTA_RUN (RUN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-109
+        cardinality: N:1
+        description: RUN_ID → RUN_ID; DB RESTRICT 참조
+  - id: ENT-130
+    name: 최초 단가 고정 비교 문맥
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_RATE_FREEZE_REVIEW
+    features:
+      - FEAT-016
+    reqs:
+      - REQ-613
+    term: TRM-090
+    domain: 쿼터 운영
+    attributes:
+      - name: 비교 문맥 키
+        physical_name: REVIEW_KEY
+        pk: true
+        description: 비교 문맥 키
+      - name: 실제 관리자
+        physical_name: ACTOR_ID
+        description: 실제 관리자
+      - name: 대상 월
+        physical_name: TARGET_MONTH
+        description: 대상 월
+      - name: 원 단가
+        physical_name: RATE_ID
+        description: 원 단가
+      - name: 원 단가 판
+        physical_name: RATE_REVISION
+        description: 원 단가 판
+      - name: 고정 실적 상한
+        physical_name: USAGE_CUTOFF
+        description: 고정 실적 상한
+      - name: 선택 실적 지문
+        physical_name: USAGE_DIGEST
+        description: 선택 실적 지문
+      - name: 선택 가격 지문
+        physical_name: PRICE_DIGEST
+        description: 선택 가격 지문
+      - name: 가격/실적 비교의 버전 있는 직렬화
+        physical_name: REVIEW_INPUT
+        description: 가격/실적 비교의 버전 있는 직렬화
+      - name: 만료 시각
+        physical_name: EXPIRES_DTM
+        description: 만료 시각
+    physical:
+      attributes:
+        - name: REVIEW_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ACTOR_ID
+          type: character varying(50)
+          nullable: false
+          default: null
+        - name: TARGET_MONTH
+          type: character(7)
+          nullable: false
+          default: null
+        - name: RATE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RATE_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: USAGE_CUTOFF
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: USAGE_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: PRICE_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: REVIEW_INPUT
+          type: text
+          nullable: false
+          default: null
+        - name: EXPIRES_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_RATE_FREEZE_REVIEW
+          definition: PRIMARY KEY (REVIEW_KEY)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 사업 입력/HIST가 아닌 임시 비교 근거. 저장 승인/권한 토큰이 아니다. 현재 원천과 재검사하며 만료 뒤 단가를 자동 고정하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []

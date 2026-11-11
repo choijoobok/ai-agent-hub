@@ -1,0 +1,312 @@
+# 영역: 019-quota-components — 물리 설계 초안
+entities:
+  - id: ENT-115
+    name: 안정 쿼터 등급 식별
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_GRADE
+    features:
+      - FEAT-042
+    reqs:
+      - REQ-606
+      - REQ-116
+    term: TRM-046
+    domain: 쿼터 운영
+    attributes:
+      - name: 안정 등급 번호
+        physical_name: GRADE_ID
+        pk: true
+        description: 안정 등급 번호
+      - name: 최초 생성 시각
+        physical_name: CREATED_DTM
+        description: 최초 생성 시각
+    physical:
+      attributes:
+        - name: GRADE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CREATED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUOTA_GRADE
+          definition: PRIMARY KEY (GRADE_ID)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 이름/순위/가중치는 시작월 세트 자식이 소유한다. 단순 식별 행은 재사용/연쇄 삭제하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+      reason: 기술/불변 업무 기록 또는 비밀 저장 단위
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []
+  - id: ENT-116
+    name: 시작월별 등급 구성
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUOTA_GRADE_ITEM
+    features:
+      - FEAT-042
+    reqs:
+      - REQ-606
+      - REQ-116
+    term: TRM-046
+    domain: 쿼터 운영
+    attributes:
+      - name: 등급 세트
+        physical_name: GRADE_SET_ID
+        pk: true
+        description: 등급 세트
+      - name: 안정 등급
+        physical_name: GRADE_ID
+        pk: true
+        description: 안정 등급
+      - name: 당시 등급명
+        physical_name: GRADE_NM
+        description: 당시 등급명
+      - name: 등급 순위
+        physical_name: RANK_NO
+        description: 등급 순위
+      - name: 배분 가중치
+        physical_name: WEIGHT
+        description: 배분 가중치
+      - name: 제거/통합 시 이전 대상 등급
+        physical_name: TRANSFER_GRADE_ID
+        description: 제거/통합 시 이전 대상 등급
+      - name: 설명
+        physical_name: DESCRIPTION
+        description: 설명
+    physical:
+      attributes:
+        - name: GRADE_SET_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GRADE_NM
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: RANK_NO
+          type: integer
+          nullable: false
+          default: null
+        - name: WEIGHT
+          type: numeric(12,2)
+          nullable: false
+          default: null
+        - name: TRANSFER_GRADE_ID
+          type: bigint
+          nullable: true
+          default: null
+        - name: DESCRIPTION
+          type: text
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_QUOTA_GRADE_ITEM
+          definition: PRIMARY KEY (GRADE_SET_ID, GRADE_ID)
+        - name: UK_QUOTA_GRADE_ITEM_1
+          definition: UNIQUE (GRADE_SET_ID, RANK_NO)
+        - name: FK_QUOTA_GRADE_ITEM_1
+          definition: FOREIGN KEY (GRADE_SET_ID) REFERENCES AI_ADMIN_QUOTA_GRADE_SET (GRADE_SET_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_QUOTA_GRADE_ITEM_2
+          definition: FOREIGN KEY (GRADE_ID) REFERENCES AI_ADMIN_QUOTA_GRADE (GRADE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_QUOTA_GRADE_ITEM_1
+          definition: CHECK (RANK_NO > 0)
+        - name: CK_QUOTA_GRADE_ITEM_2
+          definition: CHECK (WEIGHT > 0)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 순위별 비감소 가중치/정확 이전 대상·후속 예약은 전체 세트 잠금에서 검사한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-105
+      entity: ENT-210
+      root: ENT-105
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-105
+        cardinality: N:1
+        description: GRADE_SET_ID → GRADE_SET_ID; DB RESTRICT 참조
+      - entity: ENT-115
+        cardinality: N:1
+        description: GRADE_ID → GRADE_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-210
+  - id: ENT-117
+    name: 월 단가 산정 항목
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TOKEN_RATE_ITEM
+    features:
+      - FEAT-016
+    reqs:
+      - REQ-613
+    term: TRM-090
+    domain: 쿼터 운영
+    attributes:
+      - name: 항목 번호
+        physical_name: RATE_ITEM_ID
+        pk: true
+        description: 항목 번호
+      - name: 월 단가
+        physical_name: RATE_ID
+        description: 월 단가
+      - name: 당시 호출 용도
+        physical_name: USAGE_CD
+        description: 당시 호출 용도
+      - name: 안정 모델 조합
+        physical_name: MODEL_ID
+        description: 안정 모델 조합
+      - name: 당시 모델 표시
+        physical_name: MODEL_NM
+        description: 당시 모델 표시
+      - name: 당시 effort
+        physical_name: EFFORT_CD
+        description: 당시 effort
+      - name: 정규 계량 단위
+        physical_name: METER_UNIT
+        description: 정규 계량 단위
+      - name: 추정/보완 수량
+        physical_name: ESTIMATED_TOKENS
+        description: 추정/보완 수량
+      - name: 선택 가격 세트
+        physical_name: PRICE_ID
+        description: 선택 가격 세트
+      - name: 선택 가격 판
+        physical_name: PRICE_REVISION
+        description: 선택 가격 판
+      - name: 가격 시작일
+        physical_name: PRICE_START_DT
+        description: 가격 시작일
+      - name: 가격 선택 기준일
+        physical_name: PRICE_REFERENCE_DT
+        description: 가격 선택 기준일
+      - name: 당시 세부 단가
+        physical_name: USD_PER_MILLION
+        description: 당시 세부 단가
+      - name: 가격 출처
+        physical_name: PRICE_SOURCE
+        description: 가격 출처
+      - name: 확인일
+        physical_name: PRICE_CHECKED_DT
+        description: 확인일
+      - name: 수량 출처
+        physical_name: QUANTITY_ORIGIN
+        description: 수량 출처
+      - name: 보완 사유
+        physical_name: CORRECTION_REASON
+        description: 보완 사유
+    physical:
+      attributes:
+        - name: RATE_ITEM_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RATE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: USAGE_CD
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MODEL_NM
+          type: character varying(200)
+          nullable: false
+          default: null
+        - name: EFFORT_CD
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: METER_UNIT
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: ESTIMATED_TOKENS
+          type: bigint
+          nullable: false
+          default: null
+        - name: PRICE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: PRICE_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: PRICE_START_DT
+          type: date
+          nullable: false
+          default: null
+        - name: PRICE_REFERENCE_DT
+          type: date
+          nullable: false
+          default: null
+        - name: USD_PER_MILLION
+          type: numeric(28,12)
+          nullable: false
+          default: null
+        - name: PRICE_SOURCE
+          type: text
+          nullable: false
+          default: null
+        - name: PRICE_CHECKED_DT
+          type: date
+          nullable: false
+          default: null
+        - name: QUANTITY_ORIGIN
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: CORRECTION_REASON
+          type: text
+          nullable: true
+          default: null
+      constraints:
+        - name: PK_TOKEN_RATE_ITEM
+          definition: PRIMARY KEY (RATE_ITEM_ID)
+        - name: UK_TOKEN_RATE_ITEM_1
+          definition: UNIQUE (RATE_ID, USAGE_CD, MODEL_ID, METER_UNIT)
+        - name: FK_TOKEN_RATE_ITEM_1
+          definition: FOREIGN KEY (RATE_ID) REFERENCES AI_ADMIN_TOKEN_RATE (RATE_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_TOKEN_RATE_ITEM_1
+          definition: CHECK (ESTIMATED_TOKENS >= 0)
+        - name: CK_TOKEN_RATE_ITEM_2
+          definition: CHECK (USD_PER_MILLION >= 0)
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 외부 모델/가격 현재 행 FK를 과거 고정 사본의 생존 조건으로 삼지 않는다. 현행 선택/신규 저장 시에는 정확 원천을 검사한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-107
+      entity: ENT-211
+      root: ENT-107
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-107
+        cardinality: N:1
+        description: RATE_ID → RATE_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-211

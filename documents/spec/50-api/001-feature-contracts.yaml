@@ -1,63 +1,147 @@
 feature_contracts:
   FEAT-501:
-    security_scope: "ARCH-050.admin_account_contract — 관리자 자체 계정/인증·세션 명령이며 Portal 계정/인증 요청에 재사용하지 않는다"
-    request_rule: "관리 API의 userId는 필수이며 자기 서비스의 사용자 ID는 세션에서 얻는다; 비밀번호·토큰 원문은 응답·로그에 쓰지 않는다"
-    response_rule: "현재 DTO 필드·null 의미·페이징을 보존하고 세션에는 authzVersion을 포함한다"
-    transaction: "계정/역할/IP/비밀번호 이력 변경은 각 명령 단위로 원자적"
-    exception_map: { UC-501.E1: LOGIN_CONDITION_DENIED, UC-501.E2: CREDENTIAL_OR_SESSION_CONFLICT }
+    security_scope: ARCH-050.admin_account_contract — 관리자 자체 계정/인증·세션 명령이며 Portal 계정/인증 요청에 재사용하지 않는다
+    request_rule: 관리 API의 userId는 필수이며 자기 서비스의 사용자 ID는 세션에서 얻는다; 비밀번호·토큰 원문은 응답·로그에 쓰지 않는다
+    response_rule: 현재 DTO 필드·null 의미·페이징을 보존하고 세션에는 authzVersion을 포함한다
+    transaction: 계정/역할/IP/비밀번호 이력 변경은 각 명령 단위로 원자적
+    exception_map:
+      UC-501.E1: LOGIN_CONDITION_DENIED
+      UC-501.E2: CREDENTIAL_OR_SESSION_CONFLICT
+    auth_precondition:
+      status: CR-028/033·ADR-034/046의 system 영향 상세 초안·미구현
+      shared_contract: FEAT-301.request_boundary/session_isolation/admin_authority_guard/migration_detail를 수락한다. API-601과 ADMIN 쿠키/CSRF 준비는 system, 영역 선택 필터/공통 조립은 integration 소유다.
+      exact_paths: API-501~505의 정확 public method/path와 API-601만 관리자 인증 익명 목록에 둔다. API-501/503/504/505는 POST CSRF/Origin을 검증한다. getPasswordPolicy는 비밀 없는 조회다. common API-506~509는 ADMIN 본인 문맥만 수락한다.
+      restricted: 초기/만료 비밀번호 제한 세션은 getMe/heartbeat/changePassword/logout과 자기 CSRF 준비만 가능하다. 반드시 현재 계정 검사를 먼저 하고 메뉴/일반 저장은403이다. 기존 데이터/비밀번호 이력 정책은 유지한다.
+      transaction_port: system 공개 withCurrentAdminAuthority(context, exactApi, mode, callback)는 호출자의 REQUIRED 트랜잭션에 참여한다. 공유/배타 선택·잠금 뒤 현재 계정/액션·callback 효과를 같은 구간에 둔다. 단순 boolean을 반환해 경계 밖 저장에 재사용하지 않는다.
+      scope: ADMIN 요청 수락은 대상 사용자 선택 ID와 별개다. 비밀번호/잠금·기간·사용/IP·역할/개인 권한·메뉴/API 변경 경로를 보호 매트릭스로 연결한다. 시작 후 ADMIN guard 잠금 업그레이드는 금지한다.
+      sessions: 기존 ADMIN JDBC SessionRepository/SPRING_SESSION은 관리자 전용으로 유지한다. Portal 주체 인덱스를 섞지 않는다. 본인 암호 변경은 해시/이력과 해당 기존 세션 삭제·새 ID/CSRF 저장을 같은 REQUIRED DB 트랜잭션에 조립한다. 응답 전 확정하며 실패하면 변경 전체를 롤백한다. 커밋 후 응답 유실이면 새 암호로 재인증한다. Portal credentialVersion을 SYS_USER 필드로 추가하지 않는다.
+      audit: 기존 SYS_LO_LOGIN·SYS_LO_ACCESS의 ADMIN 저장/보존 사실은 유지한다. 전용 권한 원장을 새로 만들지 않는다. Portal 경로를 일반 ADMIN 요청 전문에서 제외하고 인증 비밀은 수집 단계에서 차단한다.
+      screen: SCR-501의 목표 동작과 CR-033 검수를 따른다. 사용자가 2026-11-10 거절한 기존 확정 변경 유지 안내 문구를 새로 추가하지 않는다. 비활성화 동작 계약과 시험은 유지한다.
+      verification: TC-50110~50114·TC-5037/5038을 양 노드/양 순서·기한/권한·회전/응답 유실·public 위장으로 검증한다. 기존 현재 소스 시험을 새 계약 통과로 세지 않는다.
+      late_flush: 영역 공통 세션 조립은 폐기된 세션 ID의 늦은 저장을 INSERT로 되살리지 않는다. 인증/익명 생성 경로와 기존 세션 갱신 경로를 분리하고 삭제된 원 행 갱신은 폐기한다. ADMIN과 PORTAL 모두 회전/종료/만료 경합을 검증한다.
+      guard_modes:
+        exclusive:
+          - API-508
+          - API-511
+          - API-512
+          - API-513
+          - API-514
+          - API-516
+          - API-518
+          - API-525
+          - API-528
+          - API-532
+          - API-534
+          - API-539
+          - API-540
+          - API-541
+          - API-542
+        public_credentials: API-501은 실패횟수 임계 잠금/성공 해제도 계정 상태 변경이므로 처음부터 exclusive 보호를 획득하고 수락/세션 확정까지 유지한다. API-505도 검증된 복구 문맥의 자격 변경/기존 세션 종료를 exclusive로 보호한다. 익명에 관리자 메뉴 권한을 부여하지 않고 로그인 증거 또는 복구 토큰의 목적/본인/만료로 수락한다. API-503/504의 원천 검증·메일 송신은 기존 복구 계약을 유지하며 네트워크를 보호 안에서 기다리지 않는다.
+        shared: 위 배타/익명 수락 외 모든 ADMIN 보호 조회·본인 서비스·관리 쓰기. API-509 종료는 본인 세션만 삭제한다. self profile/locale은 권한 입력을 바꿀 수 없고 바꾸는 필드가 추가되면 배타 분류를 먼저 변경한다.
+        non_http: 기동 시 메뉴/API/권한 캐시 구성과 새 시드 적용은 배출된 서비스 경계에서 수행한다. 운영 중 직접 SQL/오래된 캐시로 변경을 우회하지 않는다. 만료 시각 도달은 요청마다 원천 시각 검사로 집행한다.
+      session_adapter: FEAT-301.shared_session_adapter의 ADMIN 인스턴스를 사용한다. 자동 filter/REQUIRES_NEW 저장을 남겨둔 채 원자성을 주장하지 않는다. 현재 서버 sessionRef 재검사·조건부 기존행 갱신·요청 wrapper flush 종료를 함께 적용한다.
+      login_failure_commit: 계정 상태·실패횟수 쓰기는 ADMIN 배타 보호와 같은 트랜잭션에 참여한다. 로그인 거부는 결과값으로 반환하고 횟수/잠금 커밋 뒤 HTTP401로 변환한다. 기존 ADMIN 일반 로그인 이력의 독립 저장/실패 정책과 Portal 필수 보안 사건 정책은 구별하며 관리자 로그 실패를 권한 허용으로 바꾸지 않는다.
+      interface_version: FEAT-301.admin_interface_v1의 admin-auth-boundary/v1. 소유 integration 계약 승인·SLICE-307 완료 후 SLICE-520에서 실제 ADMIN 소비를 조립한다.
+      async_admission: FEAT-508.manual_admission은 수동 배치의 보호 접수 경계다. 접수 뒤 장기 실행은 같은 HTTP/guard 트랜잭션에 포함하지 않는다. 다른 비동기/외부효과는 각 소유의 인수 계약 없이 이 예외를 일반화하지 않는다.
   FEAT-502:
-    request_rule: "부여 대상 사용자·역할·메뉴·액션과 유효 기간을 명시한다"
-    response_rule: "저장 전 영향 사용자와 저장 후 유효 권한을 같은 합성 규칙으로 계산한다"
-    transaction: "한 저장 요청의 부여·회수와 권한 버전 증가는 원자적"
-    concurrency: "같은 역할의 권한 전체 저장이 겹치면 나중에 완료된 전체 스냅샷이 이기고 서버는 두 요청을 자동 병합하지 않는다"
-    exception_map: { UC-502.E1: AUTHZ_TARGET_INVALID, UC-502.E2: AUTHZ_VERSION_STALE }
+    request_rule: 부여 대상 사용자·역할·메뉴·액션과 유효 기간을 명시한다
+    response_rule: 저장 전 영향 사용자와 저장 후 유효 권한을 같은 합성 규칙으로 계산한다
+    transaction: 한 저장 요청의 부여·회수와 권한 버전 증가는 원자적
+    concurrency: 같은 역할의 권한 전체 저장이 겹치면 나중에 완료된 전체 스냅샷이 이기고 서버는 두 요청을 자동 병합하지 않는다
+    exception_map:
+      UC-502.E1: AUTHZ_TARGET_INVALID
+      UC-502.E2: AUTHZ_VERSION_STALE
+    revocation_guard: FEAT-301.admin_authority_guard. 사용자/역할/개인 예외·유효기간·역할 사용 변경은 처음부터 배타 보호로 현재 관리자 SAVE 권한과 대상을 검사한다. 기존 전체 스냅샷 최종 저장 우선 규칙은 유지하며 dirty는 커밋 후 보조 갱신이다.
   FEAT-503:
-    request_rule: "메뉴 위치 변경은 전용 트리 명령으로만 받고 API는 배포 선언에서 생성된 후보만 매핑한다"
-    response_rule: "미등록·미매핑·액션 불일치는 모두 업무 서비스 호출 전 403"
-    transaction: "노드·트리·API 매핑 명령은 각각 원자적"
-    exception_map: { UC-503.E1: AUTHORIZATION_DENIED, UC-503.E2: MENU_TREE_CONFLICT }
+    request_rule: 메뉴 위치 변경은 전용 트리 명령으로만 받고 API는 배포 선언에서 생성된 후보만 매핑한다
+    response_rule: 미등록·미매핑·액션 불일치는 모두 업무 서비스 호출 전 403
+    transaction: 노드·트리·API 매핑 명령은 각각 원자적
+    exception_map:
+      UC-503.E1: AUTHORIZATION_DENIED
+      UC-503.E2: MENU_TREE_CONFLICT
+    revocation_guard: FEAT-301.admin_authority_guard. 메뉴 사용/액션·API 매핑/활성 변경과 자동 등록·시드 이행을 포함한다. 요청 중 직접 DB/캐시 갱신으로 우회하지 않는다. 오프라인 시드 변경은 배출/재기동 검수로 캐시를 재구성한다. 정확 경로/영역/액션 카탈로그 누락 시 닫는다.
   FEAT-504:
     reference_combo_contract:
       implementation: planned
-      request: "API-600 body는 grpCd(필수 1~30자)·refCd(필수 1~30자)·refVal(필수 1~200자) 세 문자열이다. 그룹/참조 키의 공백뿐 값과 refVal의 null/빈 문자열을 거부한다. 참조값의 내부/앞뒤 공백·대소문자를 임의 정규화하지 않고 저장 원문과 정확 비교한다. 열 이름·SQL·연산자·정렬 문자열을 입력받지 않는다. DBMS 버전은 조회 인자가 아니다"
-      query: "SYS_CODE와 SYS_CODE_REF를 GRP_CD/DTL_CD로 조인하고 그룹코드=grpCd, 참조코드=refCd, 참조값=refVal, SYS_CODE.USE_YN=Y를 모두 적용한다. SYS_CODE_GRP_REF의 현재 해당 참조 정의도 확인한다. 파라미터 바인딩을 사용하고 결과는 중복 없는 DTL_CD를 SORT_NO/DTL_CD 순서로 반환한다. 일치하지 않는 코드/참조 정의는 빈 성공 목록이며 조회 실패와 다르다. SQL 삽입 문자열도 단순 참조값으로 비교한다"
-      response: "ApiResponse<CodeRefListResponse>이며 data={version:CODE 캐시 버전,codes:상세 코드 문자열 배열}이다. 기존 API-554처럼 CODE 버전을 먼저 읽고 코드 목록을 조회한다. 조회 후 새 버전을 읽어 이전 데이터에 붙이지 않는다. 표시명은 기존 code.{grpCd}.{dtlCd} 메시지와 label 경로로 만든다. 임의 참조속성/전체 관리 DTO를 응답에 싣지 않는다. NATIVE_TYPE은 카탈로그 서버가 별도 내부 코드/참조 조회로 검증·해석하며 콤보 응답에 있다고 가정하지 않는다"
-      access: "기존 common 계층의 인증·유효 세션/계정·제한 세션·authzVersion 계약을 유지한다. CODE_MGMT 관리 메뉴 권한과 SYS_MENU_API 매핑을 요구하지 않으며 관리 저장 권한은 확대하지 않는다. Portal 인증 주체를 관리자 세션으로 받아들이는 별칭을 만들지 않는다"
-      frontend: "shared/code/api/endpoints.ts·codeApi.ts에 getListByRef를 선언하고 shared/code/useCodeOptionsByRef의 공통 훅으로 콤보 옵션을 만든다. CodeSelect에 선택적 refFilter={refCd,refVal}를 두어 재사용한다. refFilter가 없으면 기존 그룹 전체 조회, 있으면 참조 조건 조회이며 조건 미완성 시 요청하지 않고 후보 없음/선행 선택 필요를 표시한다. 기존 선택값과 로딩/실패/미지원 표시를 구분하고 첫 후보를 자동 선택하지 않는다. 화면마다 같은 조인/후보 필터를 구현하지 않는다"
-      cache: "필터 결과는 기존 codeStore.groups[grpCd] 전체 목록에 넣지 않는다. (grpCd,refCd,refVal) 튜플을 구조적으로 직렬화한 별도 캐시 키를 사용한다. 공백 연결 키는 금지한다. API-554/600 응답 version과 현재 CODE 버전을 함께 대조해 새 버전이면 전체/필터 캐시를 모두 비운 뒤 해당 결과만 적재한다. 이전 버전의 늦은 응답은 버전을 내리거나 캐시에 다시 적재하지 않는다. CODE 버전 변경 알림도 양쪽 캐시를 함께 무효화한다. 조건 변경 후 이전 응답이 새 후보를 덮지 않게 요청 키를 대조한다. 빈 성공은 캐시 가능하나 실패는 빈 성공으로 캐시하지 않는다"
-      errors: "필수/길이 오류 400, 인증/세션 오류는 기존 common 계약, 의존 조회 실패는 오류로 반환한다. 클라이언트는 로딩·빈 결과·조회 실패를 구분한다. 구체 MsgKey 및 source_contract는 소유 G3 이후 구현과 시드 생성에서 연결한다"
-      verification: "TC-5046. 같은 그룹 다른 부모·같은 참조값 다른 그룹/참조 키·비활성·빈 결과·누락 조건·따옴표/공백 값·일반 로그인 권한·전체 캐시 오염·CODE 무효화와 늦은 응답을 검증한다"
-    request_rule: "그룹·코드·참조 정의·참조값의 행 상태와 키를 함께 보낸다"
-    response_rule: "조회는 사용 중 값과 명시된 정렬을 유지한다"
-    transaction: "원본 코드와 코드명·참조값 정리는 한 트랜잭션"
-    exception_map: { UC-504.E1: SYSTEM_CODE_PROTECTED, UC-504.E2: CODE_REFERENCE_CONFLICT }
+      request: API-600 body는 grpCd(필수 1~30자)·refCd(필수 1~30자)·refVal(필수 1~200자) 세 문자열이다. 그룹/참조 키의 공백뿐 값과 refVal의 null/빈 문자열을 거부한다. 참조값의 내부/앞뒤 공백·대소문자를 임의 정규화하지 않고 저장 원문과 정확 비교한다. 열 이름·SQL·연산자·정렬 문자열을 입력받지 않는다. DBMS 버전은 조회 인자가 아니다
+      query: SYS_CODE와 SYS_CODE_REF를 GRP_CD/DTL_CD로 조인하고 그룹코드=grpCd, 참조코드=refCd, 참조값=refVal, SYS_CODE.USE_YN=Y를 모두 적용한다. SYS_CODE_GRP_REF의 현재 해당 참조 정의도 확인한다. 파라미터 바인딩을 사용하고 결과는 중복 없는 DTL_CD를 SORT_NO/DTL_CD 순서로 반환한다. 일치하지 않는 코드/참조 정의는 빈 성공 목록이며 조회 실패와 다르다. SQL 삽입 문자열도 단순 참조값으로 비교한다
+      response: ApiResponse<CodeRefListResponse>이며 data={version:CODE 캐시 버전,codes:상세 코드 문자열 배열}이다. 기존 API-554처럼 CODE 버전을 먼저 읽고 코드 목록을 조회한다. 조회 후 새 버전을 읽어 이전 데이터에 붙이지 않는다. 표시명은 기존 code.{grpCd}.{dtlCd} 메시지와 label 경로로 만든다. 임의 참조속성/전체 관리 DTO를 응답에 싣지 않는다. NATIVE_TYPE은 카탈로그 서버가 별도 내부 코드/참조 조회로 검증·해석하며 콤보 응답에 있다고 가정하지 않는다
+      access: 기존 common 계층의 인증·유효 세션/계정·제한 세션·authzVersion 계약을 유지한다. CODE_MGMT 관리 메뉴 권한과 SYS_MENU_API 매핑을 요구하지 않으며 관리 저장 권한은 확대하지 않는다. Portal 인증 주체를 관리자 세션으로 받아들이는 별칭을 만들지 않는다
+      frontend: shared/code/api/endpoints.ts·codeApi.ts에 getListByRef를 선언하고 shared/code/useCodeOptionsByRef의 공통 훅으로 콤보 옵션을 만든다. CodeSelect에 선택적 refFilter={refCd,refVal}를 두어 재사용한다. refFilter가 없으면 기존 그룹 전체 조회, 있으면 참조 조건 조회이며 조건 미완성 시 요청하지 않고 후보 없음/선행 선택 필요를 표시한다. 기존 선택값과 로딩/실패/미지원 표시를 구분하고 첫 후보를 자동 선택하지 않는다. 화면마다 같은 조인/후보 필터를 구현하지 않는다
+      cache: 필터 결과는 기존 codeStore.groups[grpCd] 전체 목록에 넣지 않는다. (grpCd,refCd,refVal) 튜플을 구조적으로 직렬화한 별도 캐시 키를 사용한다. 공백 연결 키는 금지한다. API-554/600 응답 version과 현재 CODE 버전을 함께 대조해 새 버전이면 전체/필터 캐시를 모두 비운 뒤 해당 결과만 적재한다. 이전 버전의 늦은 응답은 버전을 내리거나 캐시에 다시 적재하지 않는다. CODE 버전 변경 알림도 양쪽 캐시를 함께 무효화한다. 조건 변경 후 이전 응답이 새 후보를 덮지 않게 요청 키를 대조한다. 빈 성공은 캐시 가능하나 실패는 빈 성공으로 캐시하지 않는다
+      errors: 필수/길이 오류 400, 인증/세션 오류는 기존 common 계약, 의존 조회 실패는 오류로 반환한다. 클라이언트는 로딩·빈 결과·조회 실패를 구분한다. 구체 MsgKey 및 source_contract는 소유 G3 이후 구현과 시드 생성에서 연결한다
+      verification: TC-5046. 같은 그룹 다른 부모·같은 참조값 다른 그룹/참조 키·비활성·빈 결과·누락 조건·따옴표/공백 값·일반 로그인 권한·전체 캐시 오염·CODE 무효화와 늦은 응답을 검증한다
+    request_rule: 그룹·코드·참조 정의·참조값의 행 상태와 키를 함께 보낸다
+    response_rule: 조회는 사용 중 값과 명시된 정렬을 유지한다
+    transaction: 원본 코드와 코드명·참조값 정리는 한 트랜잭션
+    exception_map:
+      UC-504.E1: SYSTEM_CODE_PROTECTED
+      UC-504.E2: CODE_REFERENCE_CONFLICT
   FEAT-505:
-    request_rule: "생성된 MSG_KEY의 언어별 값만 변경 가능"
-    response_rule: "번들은 요청 언어→기본 언어→키 문자열 폴백과 cacheVersion을 제공한다"
-    transaction: "메시지 값과 MESSAGE 캐시 버전 증가를 원자 처리"
-    exception_map: { UC-505.E1: MESSAGE_KEY_CREATION_FORBIDDEN, UC-505.E2: MESSAGE_VERSION_ROLLBACK }
+    request_rule: 생성된 MSG_KEY의 언어별 값만 변경 가능
+    response_rule: 번들은 요청 언어→기본 언어→키 문자열 폴백과 cacheVersion을 제공한다
+    transaction: 메시지 값과 MESSAGE 캐시 버전 증가를 원자 처리
+    exception_map:
+      UC-505.E1: MESSAGE_KEY_CREATION_FORBIDDEN
+      UC-505.E2: MESSAGE_VERSION_ROLLBACK
   FEAT-506:
-    request_rule: "`sys-config.*` 아래 등록된 화면 노출용 키와 타입에 맞는 값만 받으며, 비밀값·임의 변경 금지 값의 별도 프로퍼티 경로는 받지 않는다"
-    response_rule: "화면 노출용 설정의 배포 기본값과 오버라이드를 합성하고 값 원천·경고를 함께 표시하며, 별도 프로퍼티 경로 값은 응답하지 않는다"
-    transaction: "오버라이드와 CONFIG 캐시 버전 증가를 원자 처리"
-    exception_map: { UC-506.E1: CONFIG_VALUE_INVALID, UC-506.E2: CONFIG_VERSION_ROLLBACK }
+    request_rule: '`sys-config.*` 아래 등록된 화면 노출용 키와 타입에 맞는 값만 받으며, 비밀값·임의 변경 금지 값의 별도 프로퍼티 경로는 받지 않는다'
+    response_rule: 화면 노출용 설정의 배포 기본값과 오버라이드를 합성하고 값 원천·경고를 함께 표시하며, 별도 프로퍼티 경로 값은 응답하지 않는다
+    transaction: 오버라이드와 CONFIG 캐시 버전 증가를 원자 처리
+    exception_map:
+      UC-506.E1: CONFIG_VALUE_INVALID
+      UC-506.E2: CONFIG_VERSION_ROLLBACK
   FEAT-507:
-    request_rule: "기간·사용자·경로·결과·traceId와 제한된 페이지 범위를 받는다"
-    response_rule: "목록과 상세를 분리하되 요청·오류 전문은 목록과 같은 해당 이력 메뉴의 현재 READ 판정을 거친다"
-    transaction: "조회 전용; 열람 요청의 접근 이력만 새로 기록"
-    exception_map: { UC-507.E1: AUTHORIZATION_DENIED, UC-507.E2: LOG_QUERY_RANGE_INVALID }
+    request_rule: 기간·사용자·경로·결과·traceId와 제한된 페이지 범위를 받는다
+    response_rule: 목록과 상세를 분리하되 요청·오류 전문은 목록과 같은 해당 이력 메뉴의 현재 READ 판정을 거친다
+    transaction: 조회 전용; 열람 요청의 접근 이력만 새로 기록
+    exception_map:
+      UC-507.E1: AUTHORIZATION_DENIED
+      UC-507.E2: LOG_QUERY_RANGE_INVALID
   FEAT-508:
-    request_rule: "등록 beanId·유효 cron·IANA timezone·양수 잠금/쿨다운과 JSON 파라미터를 받는다"
-    response_rule: "실행 ID와 RUNNING/SUCCESS/FAIL/SKIP_LOCK/SKIP_COOLDOWN/CANCELED/LOST 결과를 구분한다"
-    transaction: "일정 저장, 실행 시작, 결과 확정은 각각 원자적이며 분산 잠금과 함께 판정"
-    exception_map: { UC-508.E1: BATCH_DEFINITION_INVALID, UC-508.E2: BATCH_EXECUTION_CONFLICT }
+    request_rule: 등록 beanId·유효 cron·IANA timezone·양수 잠금/쿨다운과 JSON 파라미터를 받는다
+    response_rule: 실행 ID와 RUNNING/SUCCESS/FAIL/SKIP_LOCK/SKIP_COOLDOWN/CANCELED/LOST 결과를 구분한다
+    transaction: 일정 저장, 실행 시작, 결과 확정은 각각 원자적이며 분산 잠금과 함께 판정
+    exception_map:
+      UC-508.E1: BATCH_DEFINITION_INVALID
+      UC-508.E2: BATCH_EXECUTION_CONFLICT
+    manual_admission:
+      decision: 'ADR-046: 2026-11-10 사용자 A 선택. 이미 접수·확정된 배치는 계속 처리하며 비활성화/권한회수 뒤 새 실행·중단 요청은 차단한다.'
+      scope: API-572 수동 실행과 API-575 중단은 ADMIN 보호 접수 명령이다. API-571 일정 저장은 일반 보호 저장이다. 예약 실행은 서버 소유이며 현재 관리자 세션을 만들거나 주입하지 않는다.
+      boundary: 공유 ADMIN guard에서 현재 계정/EXECUTE를 확인한 뒤 수락 RUNNING 행을 같은 REQUIRED 트랜잭션에 저장한다. 커밋이 접수 확정점이며 executor 제출은 AFTER_COMMIT이다. 회수 선행은401/403·신규 lock/RUNNING/큐0, 접수 선행은 그 작업을 유지한다. guard를 장기 job 실행 동안 잡지 않는다.
+      multiple: API-572 한 HTTP 요청의 대상 목록은 한 guard 보호/트랜잭션에서 판정한다. 없는 일정 BATCH_ID는 전체 요청 오류로 사전 거부한다. 이미 RUNNING 등 기존 건별 업무 결과는 유지한다. 수락 대상 RUNNING을 함께 커밋하며 DB 장애는 전체 접수 롤백으로 실패한다. 배포 후 BatchJob bean 소실은 접수 뒤 실행 FAIL이며 없는 일정 ID와 구분한다. 트랜잭션 오류를 잡고 일부 성공 응답을 보내지 않는다.
+      handoff: 획득한 분산 잠금/heartbeat의 rollback 정리를 등록하고 커밋 전에는 worker를 실행하지 않는다. AFTER_COMMIT 큐 제출 실패는 해당 확정 HIST_ID를 FAIL로 종결하고 잠금을 정리한다. 이미 접수한 다른 대상은 취소하지 않는다. 커밋 후 프로세스 종료는 자동 재전송하지 않으며 기존 heartbeat/잠금 만료·LOST 조건으로 진단한다. 일정 삭제 등 기존 LOST 조건 불충족은 RUNNING 기록을 보존해 운영 확인하며 성공/중단으로 위장하지 않는다.
+      revocation: 접수 뒤 대기/실행은 서버 소유의 확정 작업이다. 요청자 계정 상태에 따른 암묵 취소/재인가를 추가하지 않는다. 다른 현재 EXECUTE 보유 관리자의 별도 중단 요청은 가능하다.
+      cancel: 현재 ADMIN 권한 확인과 RUNNING 행 cancelReqDtm 기록은 같은 guard/트랜잭션이다. 회수 선행이면 기록0, 중단 접수 선행이면 요청은 유지된다. checkpoint가 실제 중단한 경우만 CANCELED이며 정상 반환은 SUCCESS다.
+      history_concurrency: 'CR-033 목표·미구현. cancel/finish/markLost는 같은 HIST_ID 행의 DB 쓰기 잠금을 획득한 뒤 최신 상태를 다시 읽는다. 기존 영속성 문맥에 행이 있으면 잠금만으로 갱신됐다고 가정하지 않고 refresh 또는 동등한 최신 조회를 보장한다. cancel은 ADMIN guard→현재 권한→중복 제거한 HIST_ID 오름차순 잠금 순서이며, 없는 행/최신 상태가 RUNNING이 아닌 행은 기존 전체 요청 오류로 롤백한다. 최초 cancelReqDtm만 설정하고 결과/종결 필드를 바꾸지 않는다. finish/markLost는 해당 행 잠금만 사용하고 ADMIN guard에 재진입하지 않으며 기존 REQUIRES_NEW 경계를 유지한다. finish는 최신 중단 시각을 보존해 실제 SUCCESS/FAIL/CANCELED를 적는다. markLost는 최신 RUNNING에만 적용한다. LOST 선행 뒤 실제 finish는 실제 결과로 교정하고, finish 선행 뒤 markLost는 무변경이라는 기존 의미를 유지한다. 장기 실행 동안 행 잠금을 유지하지 않는다.'
+      current_gap: 현 BatchHistoryWriter.start의 REQUIRES_NEW와 즉시 메모리 제출은 목표 접수 경계를 충족하지 않는다. 수동 경로만 REQUIRED 접수/커밋 후 인계로 정비하고 예약·청크·종결의 독립 트랜잭션은 유지한다. 현 cancel/finish/markLost의 잠금 없는 조회·전체 행 갱신에는 결과/중단 시각 유실 경합이 있어 history_concurrency를 함께 구현한다. 기존 HIST의 NODE_ID를 요청자 ID로 해석하지 않는다.
+      verification: TC-5086~5089, SLICE-520. 인터셉터 검사만 남기는 변이, REQUIRES_NEW start/커밋 전 submit·회수 후 cancel 허용·큐 실패 성공 위장과 이력 잠금/최신 조회 제거로 결과·최초 중단 시각을 덮는 반례를 시험한다.
   FEAT-509:
-    request_rule: "공지 기간과 요청 판정 사유를 검증하고 알림 소유자는 세션·계약 발신자로 고정한다"
-    response_rule: "현재 노출 가능 공지와 자기 요청·자기 알림만 반환한다"
-    transaction: "요청 판정은 대상 행을 PK 오름차순으로 잠근 뒤 결과 알림 생성과 원자적으로 처리하며, 뒤 동시 요청은 상태 충돌로 거부하고 계정·권한 데이터는 건드리지 않는다"
-    exception_map: { UC-509.E1: NOTICE_OUTSIDE_WINDOW, UC-509.E2: NOTIFICATION_REQUEST_STATE_CONFLICT }
+    request_rule: 공지 기간과 요청 판정 사유를 검증하고 알림 소유자는 세션·계약 발신자로 고정한다
+    response_rule: 현재 노출 가능 공지와 자기 요청·자기 알림만 반환한다
+    transaction: 요청 판정은 대상 행을 PK 오름차순으로 잠근 뒤 결과 알림 생성과 원자적으로 처리하며, 뒤 동시 요청은 상태 충돌로 거부하고 계정·권한 데이터는 건드리지 않는다
+    exception_map:
+      UC-509.E1: NOTICE_OUTSIDE_WINDOW
+      UC-509.E2: NOTIFICATION_REQUEST_STATE_CONFLICT
+      UC-509.E3: NoRecipients — 공개 포트 정상 결과이며 HTTP 오류를 새로 만들지 않는다
+      UC-509.E4: Unavailable — 현재 수신자 조회 실패를 정상0명과 구분한다
+      UC-509.E5: 저장 예외 전파·동일 트랜잭션 전체 롤백 — UC-049의 저장 실패 경로로 인계한다
+    external_change_notification:
+      decision: ADR-047·CR-034. 구현 전 호환 확장이다. 기존 void send/sendAll과 기존 종류의 동작을 바꾸지 않는다.
+      types: RecipientPolicyRef={configGeneration,policyVersion,roleCodes[],requiredReadMenuActions[]}; VerifiedSourceNotificationOrigin={receiptId,eventKeyDigest,kind,safeTargetRef}; RecipientSnapshot={policyVersion,sortedDistinctAdminIds,checkedAt}. 임의 HTTP 클라이언트가 내부 origin/수신자 목록을 제출할 수 없다.
+      policy: 고객 배포 설정에서 기존 system 역할 코드를 수신 역할로 지정한다. 제품 고정 역할명/코드·개인 수신목록·새 화면을 만들지 않는다. 실제 코드 목록은 외부 연동 운영 검수 전 정의하며 공란/삭제된 역할로 정상0명이면 NoRecipients다.
+      resolve: withCurrentSourceNotificationRecipients(origin,policyRef,callback) -> Stored|NoRecipients|Unavailable. ADMIN_AUTHORITY_V1 공유 보호를 달력/Portal 잠금 전에 획득하고 현재 SYS_USER 이용조건·역할 소속/유효성·관련 조회 권한을 원천으로 확인한다. 지정 역할 합집합의 중복 관리자는1명이다. 계정/역할 조회 실패를 정상0명으로 반환하지 않는다. 외부 원천을ADMIN principal로 위장하지 않는다.
+      guard_scope: 보호 구간은 현재 수신자 결정과 동일 REQUIRED 저장/참조 인계 commit까지다. 원천 검증 네트워크나 실제 화면 읽기는 포함하지 않는다. 전송 시점에 끝난 알림을 후속 권한 회수로 되돌리지 않으며 상세 링크는 현재 READ로 재인가한다.
+      store: storeSourceChangeNotification(origin,RecipientSnapshot) -> Stored([{adminUserId,notiId}],policyVersion)|NoRecipients|Unavailable. 기존 SYS_NOTI_INBOX/NotificationSender의 단일 저장 진입을 확장하며 정확 저장 ID를 반환한다. 호출자와 같은 AI DB REQUIRED, REQUIRES_NEW/AFTER_COMMIT 알림 생성 금지. 반환ID와 ENT-266을 같은 commit에 기록한다.
+      type: 새 인앱 종류 PORTAL_CHANGE를 추가한다. 기존 AUTHZ는 만료예고 중복 판정에 쓰이므로 재사용하지 않는다. 프런트 타입/MSG 키와 기존 알림함 표시를 호환 확장하며 별도 메뉴/페이지는 만들지 않는다.
+      content: 원천 subject·원문 인사 내용·조직 세부·비밀은 본문에 복사하지 않는다. 안전 사건 종류와 조회 권한이 있는 상세 링크만 제공한다. Portal 대상ID와 같은 문자열 관리자ID를 자동 연결/제외하지 않는다.
+      delivery: 인앱 행 commit이 도달이다. 기존90일 파기/본인 읽음 규칙을 유지한다. 브라우저 재조회 실패로 알림을 다시 만들지 않는다. 다수 수신자 중 일부만 저장되면전체rollback이다.
+      ownership: SLICE-521 system 소유. integration SLICE-305는 해당 실제 공개 포트와 함께 검증한다. system G3의 CR-034 타입/MSG/기존 만료예고 회귀 승인 범위는 project.state.yaml을 따른다. SLICE-520 이후 구현하며 다른 소유 G3로 소스를 열지 않는다.
+      verification: TC-5098~50911. 같은 사람의 복수역할/권한회수·정상0명/조회장애·partial 저장 실패·기존 AUTHZ 예고 비간섭·기존 알림함 종류/표시 회귀.
   FEAT-510:
-    request_rule: "userId는 세션에서, menuCd/gridId/conditionName은 등록된 범위에서 얻는다"
-    response_rule: "system/admin 관리 콘솔의 동일 관리자·메뉴 키에 같은 값을 반환한다. Portal 인증·같은 문자열 ID로 system 개인 상태를 읽거나 쓰지 않는다"
-    transaction: "개별 사용자 상태 저장/초기화와 월별 사용 횟수 증가는 원자적"
-    exception_map: { UC-510.E1: USER_STATE_OWNER_MISMATCH, UC-510.E2: USER_STATE_ORPHAN }
+    request_rule: userId는 세션에서, menuCd/gridId/conditionName은 등록된 범위에서 얻는다
+    response_rule: system/admin 관리 콘솔의 동일 관리자·메뉴 키에 같은 값을 반환한다. Portal 인증·같은 문자열 ID로 system 개인 상태를 읽거나 쓰지 않는다
+    transaction: 개별 사용자 상태 저장/초기화와 월별 사용 횟수 증가는 원자적
+    exception_map:
+      UC-510.E1: USER_STATE_OWNER_MISMATCH
+      UC-510.E2: USER_STATE_ORPHAN

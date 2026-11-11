@@ -7,43 +7,122 @@ requirements:
   - id: REQ-501
     type: functional
     priority: must
-    priority_reason: "계정 판정이 없으면 모든 화면과 API의 인증 전제가 성립하지 않으며 현재 백오피스의 기존 동작을 잃으므로 RM-P1 필수다"
+    priority_reason: 계정 판정이 없으면 모든 화면과 API의 인증 전제가 성립하지 않으며 현재 백오피스의 기존 동작을 잃으므로 RM-P1 필수다
     workstream: system
-    actors: [ACT-012]
+    actors:
+      - ACT-012
     process_step: PRC-06-01
-    title: "관리자 계정 상태와 접속 조건을 한 판정으로 관리한다"
-    detail: "시스템 관리자는 관리 콘솔 전용 자체 계정을 등록·수정하고 역할 부여, 사용 기간, 잠금·휴면, 접속 허용 IP, 비밀번호 변경·초기화와 활성 세션 종료를 관리할 수 있어야 한다. 관리자 계정은 system이 소유하며 Portal 계정·자격증명·인증과 분리한다. SSO·대상 시스템 계정 연동은 Portal 요구이며 관리자 인증에 확대 적용하지 않는다. ITO 운영자도 관리자 계정으로 관리 콘솔만 이용하고 Portal 이용에는 별도 계정을 발급받는다"
-    acceptance: "상태·기간·잠금·휴면·IP 중 하나라도 실패한 관리자 계정은 관리자 세션을 얻지 못한다. Portal 계정·SSO 응답·Portal 세션을 관리자 인증으로 수락하지 않으며 반대 방향도 같다. 관리자 계정의 등록·비활성화·비밀번호·세션 변경이 Portal 계정을 생성·연결·수정하지 않는다. SYS_USER 물리 삭제 금지는 유지한다"
-    source: "기존 관리자 자체 인증 구현 역추적 및 2026-10-29 사용자 CR-028 결정 — CR-027의 공통 계정 방향을 철회하고 관리자와 Portal의 계정·로그인 인증을 분리한다"
+    title: 관리자 계정 상태와 접속 조건을 한 판정으로 관리한다
+    detail: 시스템 관리자는 관리 콘솔 전용 자체 계정을 등록·수정하고 역할 부여, 사용 기간, 잠금·휴면, 접속 허용 IP, 비밀번호 변경·초기화와 활성 세션 종료를 관리할 수 있어야 한다. 관리자 계정은 system이 소유하며 Portal 계정·자격증명·인증과 분리한다. SSO·대상 시스템 계정 연동은 Portal 요구이며 관리자 인증에 확대 적용하지 않는다. ITO 운영자도 관리자 계정으로 관리 콘솔만 이용하고 Portal 이용에는 별도 계정을 발급받는다
+    acceptance: '상태·기간·잠금·휴면·IP 중 하나라도 실패한 관리자 계정은 관리자 세션을 얻지 못한다. Portal 계정·SSO 응답·Portal 세션을 관리자 인증으로 수락하지 않으며 반대 방향도 같다. 관리자 계정의 등록·비활성화·비밀번호·세션 변경이 Portal 계정을 생성·연결·수정하지 않는다. SYS_USER 물리 삭제 금지는 유지한다 ADR-046·CR-033: 관리자 비활성화 커밋 뒤 시작한 보호 요청은 기존 세션이어도 401로 차단한다. 진행 중 관리 저장은 회수와 같은 권한 보호 경계의 확정 순서를 따르고 먼저 확정된 저장을 소급 취소하지 않는다.'
+    source: 기존 관리자 자체 인증 구현 역추적 및 2026-10-29 사용자 CR-028 결정 — CR-027의 공통 계정 방향을 철회하고 관리자와 Portal의 계정·로그인 인증을 분리한다 · 2026-11-10 사용자 OQ-037 A 승인(ADR-046/CR-033)
     evidence:
-      frontend: ["modules/system/features/user","modules/system/public/auth","modules/system/public/profile","modules/system/public/settings"]
-      backend: ["sources/backend/modules/system/src/main/java/com/aiagent/system/api/auth/LoginService.java","sources/backend/domain/src/main/java/com/aiagent/domain/user/service/UserAccountService.java","sources/backend/domain/src/main/java/com/aiagent/domain/user/service/PasswordChangeService.java","sources/backend/domain/src/main/java/com/aiagent/domain/user/service/PasswordResetService.java"]
-      tables: [SYS_USER, SYS_USER_PWD_HIST, SYS_USER_IP_ALLOW, SYS_USER_PWD_RESET, SYS_LO_LOGIN]
-      screens: ["/admin/system/user","_standalone/system/login","_standalone/system/profile","_standalone/system/settings","_standalone/system/pwd-change","_standalone/system/session-expire"]
+      frontend:
+        - modules/system/features/user
+        - modules/system/public/auth
+        - modules/system/public/profile
+        - modules/system/public/settings
+      backend:
+        - sources/backend/modules/system/src/main/java/com/aiagent/system/api/auth/LoginService.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/user/service/UserAccountService.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/user/service/PasswordChangeService.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/user/service/PasswordResetService.java
+      tables:
+        - SYS_USER
+        - SYS_USER_PWD_HIST
+        - SYS_USER_IP_ALLOW
+        - SYS_USER_PWD_RESET
+        - SYS_LO_LOGIN
+      screens:
+        - /admin/system/user
+        - _standalone/system/login
+        - _standalone/system/profile
+        - _standalone/system/settings
+        - _standalone/system/pwd-change
+        - _standalone/system/session-expire
     roadmap: RM-P1
-    summary: "관리자 계정 상태와 접속 조건을 한 판정으로 관리한다"
-    intent: {"problem":"계정 상태·기간·접속 조건과 비밀번호·세션 처리가 갈리면 허용되지 않은 로그인이 성립한다","goal":"기존 로그인·계정 관리의 판정과 이력·세션 종료 경계를 보존한다","not":["공통 Hub 계정 원장을 만들거나 같은 사람·이메일·로그인 ID를 근거로 관리자와 Portal의 계정·세션을 연결하지 않는다"]}
-    goal_trace: ["IN-07"]
-    decider: "제품 오너(사용자)"
-    preconditions: ["기존 system 작업흐름 승인과 UC-501·FEAT-501 및 해당 화면 요건을 전제로 현재 소스에 대조한다"]
-    data: [{"item":"SYS_USER·SYS_USER_PWD_HIST·SYS_USER_IP_ALLOW·SYS_USER_PWD_RESET·SYS_LO_LOGIN","origin":"기존 system 기능의 관리 입력과 서버 처리","sensitivity":"기존 행위별 권한과 데이터 보호 규칙 적용","retention":"기존 엔티티·화면·운영 보존 규칙을 따른다. 이번 확정으로 기간을 변경하지 않는다"}]
-    business_rules: ["업무 범위와 판정은 이 카드의 detail·acceptance 및 UC-501를 따른다"]
-    exceptions: ["정상·예외 판정은 examples와 기존 UC-501·TC의 거부/실패 기준을 적용한다"]
-    lifecycle: "계정 관리·인증·비밀번호 변경/초기화·세션 종료는 UC-501과 해당 화면 요건의 기존 전이를 따른다"
-    permissions: "UC-501·연결 화면/API의 기존 public·common·service 구분과 행위별 유효 권한을 적용한다"
-    audit: "기존 구현의 이력과 UC-501의 처리 근거를 유지한다. 이번 카드 작성으로 별도 감사 저장소를 추가하지 않는다"
-    volume: "현재 화면·API의 조회/처리 범위와 기존 제한을 유지한다. 새로운 용량·성능 목표를 부여하지 않는다"
-    config: "기존 계정·암호·세션 설정과 UC-501의 조건을 적용한다"
-    risk: "CR-028의 계정·인증 영역 분리를 실제 라우트·공개 API·세션 저장/수락·인가에 집행하는 상세 설계와 계약/회귀 시험이 필요하다. 기존 관리자 자체 인증 소스가 Portal 분리 구현 완료를 뜻하지 않는다"
-    relations: {"depends_on":[],"constrains":["REQ-616"],"conflicts_with":[],"nfr":[],"interfaces":[]}
-    realization: {"features":["FEAT-501","FEAT-301"],"screens":["SCR-501","SCR-502","SCR-503","SCR-505","SCR-506"]}
-    examples: [{"kind":"정상","case":"허용된 사용자 user01이 유효 기간과 허용 IP로 로그인","result":"성공 세션과 현재 유효 권한을 발급하고 로그인 이력을 남긴다"},{"kind":"예외","case":"user01의 계정을 잠그거나 허용 IP 밖에서 로그인","result":"세션을 만들지 않고 해당 실패 이력을 남긴다"}]
-    volatility: {"level":"low","what":"이미 구현된 system 기준선이다. 향후 업무 규칙·범위 변경은 기존 변경 절차를 따른다"}
-    source_review: {"at":"2026-10-26","result":"기존 관리자 로컬 인증의 소스 대조 기록이다. CR-028의 별도 Portal 인증·세션 경계 구현 완료를 뜻하지 않는다","scope":"변경 전 관리자 계정·로그인·비밀번호·세션 구현과 기존 테스트를 대조했다","tests":["sources/backend/modules/system/src/test/java/com/aiagent/system/api/auth/LoginSlice501Test.java","sources/backend/domain/src/test/java/com/aiagent/domain/user/PasswordChangeServiceTest.java","sources/backend/domain/src/test/java/com/aiagent/domain/user/PasswordResetServiceTest.java"],"findings":[]}
-    approved_change: { change: CR-028, contract: "ARCH-050.admin_account_contract", status: "설계 방향 승인·상세 계약/구현 대기", verification: [TC-5017, TC-5018, TC-5019] }
-    open: ["@defer P3 — ARCH-050의 관리자/Portal 인증 수락·세션·경로·API 경계와 같은 문자열 ID 충돌, 로그/알림/개인 설정의 참조 분리를 상세 설계한다. 기존 관리자 자체 등록·인증은 유지하며 Portal 계정 원장은 공유하지 않는다"]
-    maturity: {"level":"confirmed","at":"2026-10-29","by":"AI — CR-028 사용자 명시 변경 반영","confirmed_by":"사용자 — 공통 계정 요구 철회, 관리자/Portal 계정 개별 등록과 별도 로그인 인증, 겸임자의 별도 Portal 계정 발급을 명시했다. 상세 설계·구현 승인은 별도다"}
-
+    summary: 관리자 계정 상태와 접속 조건을 한 판정으로 관리한다
+    intent:
+      problem: 계정 상태·기간·접속 조건과 비밀번호·세션 처리가 갈리면 허용되지 않은 로그인이 성립한다
+      goal: 기존 로그인·계정 관리의 판정과 이력·세션 종료 경계를 보존한다
+      not:
+        - 공통 Hub 계정 원장을 만들거나 같은 사람·이메일·로그인 ID를 근거로 관리자와 Portal의 계정·세션을 연결하지 않는다
+    goal_trace:
+      - IN-07
+    decider: 제품 오너(사용자)
+    preconditions:
+      - 기존 system 작업흐름 승인과 UC-501·FEAT-501 및 해당 화면 요건을 전제로 현재 소스에 대조한다
+    data:
+      - item: SYS_USER·SYS_USER_PWD_HIST·SYS_USER_IP_ALLOW·SYS_USER_PWD_RESET·SYS_LO_LOGIN
+        origin: 기존 system 기능의 관리 입력과 서버 처리
+        sensitivity: 기존 행위별 권한과 데이터 보호 규칙 적용
+        retention: 기존 엔티티·화면·운영 보존 규칙을 따른다. 이번 확정으로 기간을 변경하지 않는다
+    business_rules:
+      - 업무 범위와 판정은 이 카드의 detail·acceptance 및 UC-501를 따른다
+    exceptions:
+      - 정상·예외 판정은 examples와 기존 UC-501·TC의 거부/실패 기준을 적용한다
+    lifecycle: 계정 관리·인증·비밀번호 변경/초기화·세션 종료는 UC-501과 해당 화면 요건의 기존 전이를 따른다
+    permissions: UC-501·연결 화면/API의 기존 public·common·service 구분과 행위별 유효 권한을 적용한다
+    audit: 기존 구현의 이력과 UC-501의 처리 근거를 유지한다. 이번 카드 작성으로 별도 감사 저장소를 추가하지 않는다
+    volume: 현재 화면·API의 조회/처리 범위와 기존 제한을 유지한다. 새로운 용량·성능 목표를 부여하지 않는다
+    config: 기존 계정·암호·세션 설정과 UC-501의 조건을 적용한다
+    risk: CR-028의 계정·인증 영역 분리를 실제 라우트·공개 API·세션 저장/수락·인가에 집행하는 상세 설계와 계약/회귀 시험이 필요하다. 기존 관리자 자체 인증 소스가 Portal 분리 구현 완료를 뜻하지 않는다
+    relations:
+      depends_on: []
+      constrains:
+        - REQ-616
+      conflicts_with: []
+      nfr: []
+      interfaces: []
+    realization:
+      features:
+        - FEAT-501
+        - FEAT-301
+      screens:
+        - SCR-501
+        - SCR-502
+        - SCR-503
+        - SCR-505
+        - SCR-506
+    examples:
+      - kind: 정상
+        case: 허용된 사용자 user01이 유효 기간과 허용 IP로 로그인
+        result: 성공 세션과 현재 유효 권한을 발급하고 로그인 이력을 남긴다
+      - kind: 예외
+        case: user01의 계정을 잠그거나 허용 IP 밖에서 로그인
+        result: 세션을 만들지 않고 해당 실패 이력을 남긴다
+    volatility:
+      level: low
+      what: 이미 구현된 system 기준선이다. 향후 업무 규칙·범위 변경은 기존 변경 절차를 따른다
+    source_review:
+      at: '2026-10-26'
+      result: 기존 관리자 로컬 인증의 소스 대조 기록이다. CR-028의 별도 Portal 인증·세션 경계 구현 완료를 뜻하지 않는다
+      scope: 변경 전 관리자 계정·로그인·비밀번호·세션 구현과 기존 테스트를 대조했다
+      tests:
+        - sources/backend/modules/system/src/test/java/com/aiagent/system/api/auth/LoginSlice501Test.java
+        - sources/backend/domain/src/test/java/com/aiagent/domain/user/PasswordChangeServiceTest.java
+        - sources/backend/domain/src/test/java/com/aiagent/domain/user/PasswordResetServiceTest.java
+      findings: []
+    approved_change:
+      change: CR-028
+      contract: ARCH-050.admin_account_contract
+      status: 설계 방향 승인·상세 계약/구현 대기
+      verification:
+        - TC-5017
+        - TC-5018
+        - TC-5019
+    open:
+      - '@defer P3 — ARCH-050의 관리자/Portal 인증 수락·세션·경로·API 경계와 같은 문자열 ID 충돌, 로그/알림/개인 설정의 참조 분리를 상세 설계한다. 기존 관리자 자체 등록·인증은 유지하며 Portal 계정 원장은 공유하지 않는다'
+    maturity:
+      level: confirmed
+      at: '2026-10-29'
+      by: AI — CR-028 사용자 명시 변경 반영
+      confirmed_by: 사용자 — 공통 계정 요구 철회, 관리자/Portal 계정 개별 등록과 별도 로그인 인증, 겸임자의 별도 Portal 계정 발급을 명시했다. 상세 설계·구현 승인은 별도다
+    security_change:
+      status: approved_direction_not_implemented
+      contract: FEAT-301.admin_authority_guard
+      current: 현재 소스는 dirty/날짜 경과 재계산 때 계정 재검사하며 비활성화 저장 직후 차단은 보장하지 않는다.
+      target: 다음 보호 요청마다 현재 계정 상태를 검증하고 관리 쓰기/회수를 직렬화한다. 캐시 무효화 실패로 접근을 유지하지 않는다.
   - id: REQ-502
     type: functional
     priority: must

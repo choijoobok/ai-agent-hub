@@ -1,6 +1,6 @@
 delivery_strategy:
   decision: "ADR-006 · ADR-007"
-  first: "SCR-112 계약 시험 화면을 integration 작업흐름에서 먼저 설계한다"
+  first: "31-features.delivery_strategy.staged_delivery에 따라 admin 선행 19화면 이후 agent와 SCR-112 계약 시험 화면을 함께 개발한다. integration 계약 설계는 admin 선행 의존성을 먼저 다룬다."
   later: "SCR-101~111 제품 portal 화면은 admin·agent 핵심 안정 뒤 portal 작업흐름에서 상세 설계한다"
   hard_rule: "SCR-112 승인은 SCR-101 채팅이나 다른 제품 portal 화면의 승인으로 간주하지 않는다"
   portal_responsive: "SCR-101~111 및 제품 Portal이 사용하는 공통 화면은 REQ-041·NFR-028을 같은 화면 ID의 PC·모바일 표현으로 설계·검증한다. 각 화면 요건서·목업과 테스트·매뉴얼에서 지원 환경별 차이를 참조하며 SCR-112 계약 시험 화면은 이 제품 지원 범위에 포함하지 않는다"

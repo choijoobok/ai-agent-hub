@@ -1,0 +1,385 @@
+entities:
+  - id: ENT-148
+    name: 조회 정책 기본 필터
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_FILTER
+    features:
+      - FEAT-012
+    reqs:
+      - REQ-611
+    term: TRM-048
+    domain: 업무 지식
+    attributes:
+      - name: 필터 번호
+        physical_name: FILTER_ID
+        pk: true
+        description: 필터 번호
+      - name: 소유 정책
+        physical_name: POLICY_ID
+        description: 소유 정책
+      - name: 카탈로그 컬럼
+        physical_name: COLUMN_ID
+        description: 카탈로그 컬럼
+      - name: 등록값 자료형
+        physical_name: VALUE_TYPE
+        description: 등록값 자료형
+      - name: 정확 등록값 원문
+        physical_name: VALUE_TEXT
+        description: 정확 등록값 원문
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+    physical:
+      attributes:
+        - name: FILTER_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: VALUE_TYPE
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: VALUE_TEXT
+          type: text
+          nullable: false
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_FILTER
+          definition: PRIMARY KEY (FILTER_ID)
+        - name: FK_QUERY_FILTER_1
+          definition: FOREIGN KEY (POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY (POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_QUERY_FILTER_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+        - name: CK_QUERY_FILTER_RELEASE_ALLOWED_YN
+          definition: CHECK (RELEASE_ALLOWED_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 등록값 일치만 허용한다. COLUMN_ID는 정책의 카탈로그에 소속된 안정 컬럼이어야 한다. 리터럴 연결 대신 형식 검증과 바인딩을 적용한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-009
+      entity: ENT-234
+      root: ENT-009
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-009
+        cardinality: N:1
+        description: POLICY_ID → POLICY_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-234
+  - id: ENT-149
+    name: 필수 조회 조건
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_REQUIREMENT
+    features:
+      - FEAT-012
+    reqs:
+      - REQ-611
+    term: TRM-247
+    domain: 업무 지식
+    attributes:
+      - name: 조건 번호
+        physical_name: CONDITION_ID
+        pk: true
+        description: 조건 번호
+      - name: 소유 정책
+        physical_name: POLICY_ID
+        description: 소유 정책
+      - name: EQUALITY/RANGE/JOIN
+        physical_name: CONDITION_KIND
+        description: EQUALITY/RANGE/JOIN
+      - name: 범위/동일값 자료형
+        physical_name: VALUE_TYPE
+        description: 범위/동일값 자료형
+      - name: 정확 최대 차이
+        physical_name: MAX_DIFFERENCE
+        description: 정확 최대 차이
+      - name: 조건 사용
+        physical_name: USE_YN
+        description: 조건 사용
+      - name: 정책 해제 허용
+        physical_name: RELEASE_ALLOWED_YN
+        description: 정책 해제 허용
+    physical:
+      attributes:
+        - name: CONDITION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: POLICY_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: CONDITION_KIND
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: VALUE_TYPE
+          type: character varying(30)
+          nullable: true
+          default: null
+        - name: MAX_DIFFERENCE
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: USE_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: RELEASE_ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_REQUIREMENT
+          definition: PRIMARY KEY (CONDITION_ID)
+        - name: FK_QUERY_REQUIREMENT_1
+          definition: FOREIGN KEY (POLICY_ID) REFERENCES AI_ADMIN_QUERY_POLICY (POLICY_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_QUERY_REQUIREMENT_1
+          definition: CHECK (CONDITION_KIND IN ('EQUALITY','RANGE','JOIN'))
+        - name: CK_QUERY_REQUIREMENT_2
+          definition: CHECK (CONDITION_KIND='RANGE' OR MAX_DIFFERENCE IS NULL)
+        - name: CK_QUERY_REQUIREMENT_USE_YN
+          definition: CHECK (USE_YN IN ('Y','N'))
+        - name: CK_QUERY_REQUIREMENT_RELEASE_ALLOWED_YN
+          definition: CHECK (RELEASE_ALLOWED_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - RANGE는 숫자/날짜/시간에 맞는 정확 양수 최대 차이가 필수다. JOIN은 자료형/최대 차이 null. EQUALITY/RANGE는 컬럼1개, JOIN은1개 이상.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-009
+      entity: ENT-235
+      root: ENT-009
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-009
+        cardinality: N:1
+        description: POLICY_ID → POLICY_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-235
+  - id: ENT-150
+    name: 필수 조건의 지정 컬럼
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_QUERY_REQUIRE_COLUMN
+    features:
+      - FEAT-012
+    reqs:
+      - REQ-611
+    term: TRM-247
+    domain: 업무 지식
+    attributes:
+      - name: 필수 조건
+        physical_name: CONDITION_ID
+        pk: true
+        description: 필수 조건
+      - name: 정확 카탈로그 컬럼
+        physical_name: COLUMN_ID
+        pk: true
+        description: 정확 카탈로그 컬럼
+    physical:
+      attributes:
+        - name: CONDITION_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_QUERY_REQUIRE_COLUMN
+          definition: PRIMARY KEY (CONDITION_ID, COLUMN_ID)
+        - name: FK_QUERY_REQUIRE_COLUMN_1
+          definition: FOREIGN KEY (CONDITION_ID) REFERENCES AI_ADMIN_QUERY_REQUIREMENT (CONDITION_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - JOIN 항목은 지정 컬럼 전체의 실제 조인을 확인해야 충족한다. 동일값/범위/조인 항목 사이는 OR이다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-149
+      entity: ENT-236
+      root: ENT-009
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-149
+        cardinality: N:1
+        description: CONDITION_ID → CONDITION_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-236
+  - id: ENT-165
+    name: 지식 임베딩 작업과 현재 관측
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_KNOWLEDGE_EMBED_JOB
+    features:
+      - FEAT-014
+    reqs:
+      - REQ-303
+    term: TRM-052
+    domain: 업무 지식
+    attributes:
+      - name: 작업 번호
+        physical_name: JOB_ID
+        pk: true
+        description: 작업 번호
+      - name: 대상 안정 지식
+        physical_name: KNOWLEDGE_ID
+        description: 대상 안정 지식
+      - name: 정확 본문 지문
+        physical_name: BODY_DIGEST
+        description: 정확 본문 지문
+      - name: 요청 임베딩 모델
+        physical_name: MODEL_ID
+        description: 요청 임베딩 모델
+      - name: 요청 모델 판
+        physical_name: MODEL_REVISION
+        description: 요청 모델 판
+      - name: 작업 상태
+        physical_name: STATE_CD
+        description: 작업 상태
+      - name: 시도 횟수
+        physical_name: ATTEMPT_NO
+        description: 시도 횟수
+      - name: 실행 가능 시각
+        physical_name: AVAILABLE_DTM
+        description: 실행 가능 시각
+      - name: 점유 만료
+        physical_name: LEASE_UNTIL
+        description: 점유 만료
+      - name: 작업자
+        physical_name: LEASE_OWNER
+        description: 작업자
+      - name: 재점유 fencing 세대
+        physical_name: GENERATION_NO
+        description: 재점유 fencing 세대
+      - name: 벡터 결과 참조
+        physical_name: RESULT_REF
+        description: 벡터 결과 참조
+      - name: 마지막 시도
+        physical_name: LAST_ATTEMPT_DTM
+        description: 마지막 시도
+      - name: 안전한 오류 코드
+        physical_name: ERROR_CD
+        description: 안전한 오류 코드
+      - name: 생성 시각
+        physical_name: CREATED_DTM
+        description: 생성 시각
+    physical:
+      attributes:
+        - name: JOB_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: KNOWLEDGE_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: BODY_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: MODEL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: MODEL_REVISION
+          type: bigint
+          nullable: false
+          default: null
+        - name: STATE_CD
+          type: character varying(20)
+          nullable: false
+          default: null
+        - name: ATTEMPT_NO
+          type: integer
+          nullable: false
+          default: null
+        - name: AVAILABLE_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+        - name: LEASE_UNTIL
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: LEASE_OWNER
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: GENERATION_NO
+          type: bigint
+          nullable: false
+          default: null
+        - name: RESULT_REF
+          type: character varying(200)
+          nullable: true
+          default: null
+        - name: LAST_ATTEMPT_DTM
+          type: timestamp with time zone
+          nullable: true
+          default: null
+        - name: ERROR_CD
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: CREATED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_KNOWLEDGE_EMBED_JOB
+          definition: PRIMARY KEY (JOB_ID)
+        - name: UK_KNOWLEDGE_EMBED_JOB_1
+          definition: UNIQUE (KNOWLEDGE_ID, BODY_DIGEST, MODEL_ID, MODEL_REVISION)
+        - name: CK_KNOWLEDGE_EMBED_JOB_1
+          definition: CHECK (STATE_CD IN ('PENDING','RUNNING','SUCCEEDED','FAILED','SUPERSEDED'))
+      indexes:
+        - name: IX_KNOWLEDGE_EMBED_JOB_1
+          unique: false
+          method: btree
+          definition: CREATE INDEX IX_KNOWLEDGE_EMBED_JOB_1 ON AI_ADMIN_KNOWLEDGE_EMBED_JOB (STATE_CD, AVAILABLE_DTM)
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 본문/모델이 바뀐 저장과 같은 트랜잭션으로 대기 작업을 등록한다. 그룹·매핑·설명 변화만으로 재생성하지 않는다. integration 어댑터는 공개 임대/완료 계약으로만 처리한다. 완료는 점유 세대와 현재 본문/모델 일치를 CAS로 검사하며 늦은 결과는 SUPERSEDED로 남긴다. 관리 HIST/턴 실행 기록을 대체하지 않는다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations: []

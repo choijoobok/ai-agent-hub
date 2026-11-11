@@ -16,3 +16,4 @@ spec_set:
   parts:
     - 001-interfaces.yaml
     - 002-not-interfaces.yaml
+    - 003-portal-authentication.yaml

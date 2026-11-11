@@ -1,0 +1,14 @@
+# 영역: 공통 관리 저장과 이력 보호
+terms:
+  - id: TRM-292
+    term: "관리 명령 결과"
+    key: managedCommandResult
+    group: 운영
+    definition: "관리 직접 저장의 원 명령 키·주체/입력 지문과 확인된 반영 결과를 연결하여 재전송의 중복 변경을 막는 기술 업무 기록"
+    relation: "FEAT-040·ENT-019/028/036/099. 관리자 승인 요청 원장·변경 전체 HIST·HTTP 추적 ID와 구분한다."
+  - id: TRM-293
+    term: "이력 참조 보호"
+    key: historyReferenceProtection
+    group: 운영
+    definition: "실행 중·장기 대기·보존 자산이 참조하는 정확 관리 이력 판과 전이 참조를 파기하지 않도록 소비 목적과 수명을 연결하는 기록"
+    relation: "REQ-601.management_storage.history_resolution·FEAT-040·ENT-100. 열람 권한이나 무기한 보존 정책을 부여하지 않는다."

@@ -1,0 +1,325 @@
+entities:
+  - id: ENT-152
+    name: 필드 그룹 전달 예외 CATALOG_ID
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_COLUMN_ACCESS_POLICY
+    features:
+      - FEAT-008
+    reqs:
+      - REQ-111
+      - REQ-103
+    term: TRM-253
+    domain: 연동 자산
+    attributes:
+      - name: 소유 자산
+        physical_name: CATALOG_ID
+        pk: true
+        description: 소유 자산
+      - name: 소유 필드
+        physical_name: COLUMN_ID
+        pk: true
+        description: 소유 필드
+      - name: 예외 허용 그룹
+        physical_name: GROUP_ID
+        pk: true
+        description: 예외 허용 그룹
+      - name: 지원 전달 수준
+        physical_name: ACCESS_LEVEL
+        description: 지원 전달 수준
+      - name: 예외 활성
+        physical_name: ACTIVE_YN
+        description: 예외 활성
+    physical:
+      attributes:
+        - name: CATALOG_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: COLUMN_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACCESS_LEVEL
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_COLUMN_ACCESS_POLICY
+          definition: PRIMARY KEY (CATALOG_ID, COLUMN_ID, GROUP_ID)
+        - name: FK_COLUMN_ACCESS_POLICY_1
+          definition: FOREIGN KEY (CATALOG_ID, COLUMN_ID) REFERENCES AI_ADMIN_CATALOG_COLUMN (CATALOG_ID, COLUMN_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_COLUMN_ACCESS_POLICY_2
+          definition: FOREIGN KEY (GROUP_ID) REFERENCES AI_ADMIN_USER_GROUP (GROUP_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_COLUMN_ACCESS_POLICY_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 필드 분류/기본 마스킹과 현재 그룹 판정은 소유 요구를 따른다. 허용 그룹 없음은 전체 허용이 아니다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-007
+      entity: ENT-248
+      root: ENT-005
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-007
+        cardinality: N:1
+        description: CATALOG_ID, COLUMN_ID → CATALOG_ID, COLUMN_ID; DB RESTRICT 참조
+      - entity: ENT-102
+        cardinality: N:1
+        description: GROUP_ID → GROUP_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-248
+  - id: ENT-154
+    name: 필드 그룹 전달 예외 API_ID
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_API_RESPONSE_POLICY
+    features:
+      - FEAT-004
+    reqs:
+      - REQ-111
+      - REQ-103
+    term: TRM-257
+    domain: 연동 자산
+    attributes:
+      - name: 소유 자산
+        physical_name: API_ID
+        pk: true
+        description: 소유 자산
+      - name: 소유 필드
+        physical_name: FIELD_ID
+        pk: true
+        description: 소유 필드
+      - name: 예외 허용 그룹
+        physical_name: GROUP_ID
+        pk: true
+        description: 예외 허용 그룹
+      - name: 지원 전달 수준
+        physical_name: ACCESS_LEVEL
+        description: 지원 전달 수준
+      - name: 예외 활성
+        physical_name: ACTIVE_YN
+        description: 예외 활성
+    physical:
+      attributes:
+        - name: API_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: FIELD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACCESS_LEVEL
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_API_RESPONSE_POLICY
+          definition: PRIMARY KEY (API_ID, FIELD_ID, GROUP_ID)
+        - name: FK_API_RESPONSE_POLICY_1
+          definition: FOREIGN KEY (API_ID, FIELD_ID) REFERENCES AI_ADMIN_API_FIELD (API_ID, FIELD_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_API_RESPONSE_POLICY_2
+          definition: FOREIGN KEY (GROUP_ID) REFERENCES AI_ADMIN_USER_GROUP (GROUP_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_API_RESPONSE_POLICY_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 필드 분류/기본 마스킹과 현재 그룹 판정은 소유 요구를 따른다. 허용 그룹 없음은 전체 허용이 아니다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-013
+      entity: ENT-249
+      root: ENT-011
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-013
+        cardinality: N:1
+        description: API_ID, FIELD_ID → API_ID, FIELD_ID; DB RESTRICT 참조
+      - entity: ENT-102
+        cardinality: N:1
+        description: GROUP_ID → GROUP_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-249
+  - id: ENT-164
+    name: 필드 그룹 전달 예외 TOOL_ID
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_TOOL_RESPONSE_POLICY
+    features:
+      - FEAT-021
+    reqs:
+      - REQ-111
+      - REQ-103
+    term: TRM-257
+    domain: 연동 자산
+    attributes:
+      - name: 소유 자산
+        physical_name: TOOL_ID
+        pk: true
+        description: 소유 자산
+      - name: 소유 필드
+        physical_name: FIELD_ID
+        pk: true
+        description: 소유 필드
+      - name: 예외 허용 그룹
+        physical_name: GROUP_ID
+        pk: true
+        description: 예외 허용 그룹
+      - name: 지원 전달 수준
+        physical_name: ACCESS_LEVEL
+        description: 지원 전달 수준
+      - name: 예외 활성
+        physical_name: ACTIVE_YN
+        description: 예외 활성
+    physical:
+      attributes:
+        - name: TOOL_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: FIELD_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: GROUP_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: ACCESS_LEVEL
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: ACTIVE_YN
+          type: character(1)
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TOOL_RESPONSE_POLICY
+          definition: PRIMARY KEY (TOOL_ID, FIELD_ID, GROUP_ID)
+        - name: FK_TOOL_RESPONSE_POLICY_1
+          definition: FOREIGN KEY (TOOL_ID, FIELD_ID) REFERENCES AI_ADMIN_TOOL_FIELD (TOOL_ID, FIELD_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: FK_TOOL_RESPONSE_POLICY_2
+          definition: FOREIGN KEY (GROUP_ID) REFERENCES AI_ADMIN_USER_GROUP (GROUP_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: CK_TOOL_RESPONSE_POLICY_ACTIVE_YN
+          definition: CHECK (ACTIVE_YN IN ('Y','N'))
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 필드 분류/기본 마스킹과 현재 그룹 판정은 소유 요구를 따른다. 허용 그룹 없음은 전체 허용이 아니다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: full_owned_snapshot
+      parent: ENT-155
+      entity: ENT-250
+      root: ENT-015
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-155
+        cardinality: N:1
+        description: TOOL_ID, FIELD_ID → TOOL_ID, FIELD_ID; DB RESTRICT 참조
+      - entity: ENT-102
+        cardinality: N:1
+        description: GROUP_ID → GROUP_ID; DB RESTRICT 참조
+    copy_mapping:
+      history: ENT-250
+  - id: ENT-168
+    name: 일괄 연동 정리 명령 결과 행
+    module: admin
+    implementation: planned
+    design_stage: physical
+    table: AI_ADMIN_ASSET_COMMAND_RESULT
+    features:
+      - FEAT-001
+      - FEAT-002
+    reqs:
+      - REQ-601
+    term: TRM-263
+    domain: 연동 자산
+    attributes:
+      - name: 소유 명령
+        physical_name: COMMAND_KEY
+        pk: true
+        description: 소유 명령
+      - name: 정리 대상 종류
+        physical_name: TARGET_KIND
+        pk: true
+        description: 정리 대상 종류
+      - name: 정확 내부 대상
+        physical_name: TARGET_ID
+        pk: true
+        description: 정확 내부 대상
+      - name: 삭제 결과 판
+        physical_name: RESULT_VERSION
+        description: 삭제 결과 판
+      - name: 해당 이력 세트
+        physical_name: HISTORY_NO
+        description: 해당 이력 세트
+    physical:
+      attributes:
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: TARGET_KIND
+          type: character varying(30)
+          nullable: false
+          default: null
+        - name: TARGET_ID
+          type: bigint
+          nullable: false
+          default: null
+        - name: RESULT_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: HISTORY_NO
+          type: bigint
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_ASSET_COMMAND_RESULT
+          definition: PRIMARY KEY (COMMAND_KEY, TARGET_KIND, TARGET_ID)
+        - name: FK_ASSET_COMMAND_RESULT_1
+          definition: FOREIGN KEY (COMMAND_KEY) REFERENCES AI_ADMIN_ASSET_COMMAND (COMMAND_KEY) ON UPDATE NO ACTION ON DELETE RESTRICT
+      indexes: []
+    identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
+    rules:
+      - 조회 페이지 밖을 포함한 실제 전체 대상별 결과. 현재 대상 FK 없음. 원 명령/이력과 함께 파기한다.
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
+    sources: []
+    history_storage:
+      mode: not_management_history
+    delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
+    relations:
+      - entity: ENT-019
+        cardinality: N:1
+        description: COMMAND_KEY → COMMAND_KEY; DB RESTRICT 참조

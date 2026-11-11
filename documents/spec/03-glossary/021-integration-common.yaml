@@ -1,0 +1,8 @@
+terms:
+  - id: TRM-299
+    term: 외부 사용자 변경 수신 결과
+    key: externalUserChangeReceipt
+    db_token: USER_CHANGE
+    db_token_reason: 검증된 외부 사용자 변경 사건의 수신/중복 결과를 나타내는 토큰
+    group: Portal 이용
+    definition: 검증 원천과 사건 키별 적용/거부 결과 및 정확 정책 이력 연결. 외부 로그인 증거·관리자 명령·턴 이력과 구분한다.

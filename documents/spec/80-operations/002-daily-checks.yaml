@@ -1,11 +1,13 @@
 daily_checks:
   - id: RUN-101
-    title: "배치 실행 결과 확인"
-    purpose: "지난 24시간의 배치 실행에서 실패·재실행 제한 위반·유령 종결이 있었는지, 활성 배치가 그 안에 한 번은 실행됐는지 확인한다"
-    traces_to: [FEAT-508]
+    title: 배치 실행 결과 확인
+    purpose: 지난 24시간의 배치 실행에서 실패·재실행 제한 위반·유령 종결이 있었는지, 활성 배치가 그 안에 한 번은 실행됐는지 확인한다
+    traces_to:
+      - FEAT-508
     procedure:
-      - "SYS_BATCH_HISTORY에서 RSLT_CD가 FAIL·SKIP_COOLDOWN·LOST이고 START_DTM이 24시간 이내인 행을 확인한다 — SKIP_LOCK은 다중화에서 다른 노드가 실행 중인 정상 동작이라 넣지 않는다"
-      - "USE_YN='Y'인 배치 중 24시간 내 실행 이력이 없는 것을 확인한다"
-    verify: "합성 픽스처(FAIL·SKIP_COOLDOWN·LOST·SKIP_LOCK·SUCCESS 각 1건)로 두 질의를 검증했다(2026-09-14) — 문제 상태 3건만 걸리고 SUCCESS·SKIP_LOCK은 걸리지 않았으며, 활성 배치 무실행 질의는 그 이력이 있는 동안 0건을 반환했다. **실제 배치 실행으로는 아직 검증하지 않았다** — 다음 자연 실행(EXPIRY_NOTICE, 04:10)에서 SUCCESS 행이 그대로 잡히는지 재확인한다"
-    rollback: "FAIL·SKIP_COOLDOWN은 ERR_MSG로 원인을 보고 재실행 여부를 판단한다. LOST는 유령 종결 자체가 정상 동작이므로 되돌릴 것이 없고 다음 주기가 정상 실행되는지만 본다"
+      - SYS_BATCH_HISTORY에서 RSLT_CD가 FAIL·SKIP_COOLDOWN·LOST이고 START_DTM이 24시간 이내인 행을 확인한다 — SKIP_LOCK은 다중화에서 다른 노드가 실행 중인 정상 동작이라 넣지 않는다
+      - USE_YN='Y'인 배치 중 24시간 내 실행 이력이 없는 것을 확인한다
+    verify: 합성 픽스처(FAIL·SKIP_COOLDOWN·LOST·SKIP_LOCK·SUCCESS 각 1건)로 두 질의를 검증했다(2026-09-14) — 문제 상태 3건만 걸리고 SUCCESS·SKIP_LOCK은 걸리지 않았으며, 활성 배치 무실행 질의는 그 이력이 있는 동안 0건을 반환했다. **실제 배치 실행으로는 아직 검증하지 않았다** — 다음 자연 실행(EXPIRY_NOTICE, 04:10)에서 SUCCESS 행이 그대로 잡히는지 재확인한다
+    rollback: FAIL·SKIP_COOLDOWN은 ERR_MSG로 원인을 보고 재실행 여부를 판단한다. LOST는 유령 종결 자체가 정상 동작이므로 되돌릴 것이 없고 다음 주기가 정상 실행되는지만 본다
     status: verified
+    planned_auth_maintenance: '@defer 인증 구현/P5 — FEAT-301의 내부 만료 정리는 등록형 BatchJob이 아니다. 영역별 만료 세션 수·청소 성공/실패·DB 판정 장애·challenge/증거 기한·보안 사건 append 실패와 양 노드 시각을 확인한다. 지연 중에도 만료 접근은 거부돼야 한다. 보안 사건 파기는 별도 아카이브/보존 활성화 전제이며 현재 system 정리 대상으로 추가하지 않는다.'

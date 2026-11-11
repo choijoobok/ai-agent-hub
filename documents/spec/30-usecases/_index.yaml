@@ -15,3 +15,6 @@ spec_set:
     - 006-admin-access-quota.yaml
     - 007-admin-operations.yaml
     - 008-agent-identity.yaml
+    - 009-authentication.yaml
+    - 010-integration-common.yaml
+    - 011-model-call-usage.yaml

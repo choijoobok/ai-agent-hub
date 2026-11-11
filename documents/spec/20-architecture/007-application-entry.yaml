@@ -7,7 +7,7 @@ application_entry:
     - { path: "/admin", owner: system, meaning: "관리 콘솔 진입과 허용된 첫 화면 선택" }
     - { path: "/admin/system/**", owner: system, meaning: "기존 백오피스 시스템 관리" }
     - { path: "/admin/hub/**", owner: admin, meaning: "AI Hub 관리" }
-    - { path: "/internal/**", owner: integration, meaning: "메뉴에 노출하지 않는 내부 시험 화면" }
+    - { path: "/internal/**", owner: integration-debug, meaning: "메뉴에 노출하지 않는 내부 시험 화면" }
   api:
     convention: "/api/{계층}/{모듈}/{도메인}/{동작}"
     layers: [public, common, service]
