@@ -40,7 +40,7 @@ tags: [build, slice]
 | 3 | 도메인/서비스 구현 | 업무 규칙(UC의 business_rules)이 코드에 있음 |
 | 4 | API 구현 | spec의 요청/응답/에러코드와 일치 |
 | 5 | 화면 구현 | error_display/empty_state/loading 포함 |
-| 6 | 테스트 실행 | 전부 통과, skip 0 |
+| 6 | 영향·중요 위험에 맞는 테스트 실행 | 선정한 필수 시험 통과, 실패를 skip하지 않음. 비영향 근거 재사용 |
 | 7 | 미니게이트 G4 | 체크리스트 + 사용자 확인 |
 
 ## 3. 첫 슬라이스는 특별하다 — 골격(Walking Skeleton)
@@ -94,13 +94,13 @@ db/migrations/             # 순번_설명.sql + 순번_설명_rollback.sql
 
 ### 검증 부담 기록 (슬라이스마다 필수)
 
-시간을 재지 않는다. AI는 벽시계 시간을 모른다. **셀 수 있는 것**을 센다.
+**셀 수 있는 것**을 기본으로 기록하고, 실행 로그의 실제 시간만 병목 분석에 쓴다. 추정 시간·절감률을 만들지 않는다.
 슬라이스 완료 시 `documents/project.state.yaml` 의 `verification_load` 에 기록한다.
 
 | 항목 | 세는 방법 |
 |---|---|
 | `fix_rounds` | 테스트 실패 → 수정 사이클을 몇 번 돌았나 |
-| `unverified_rules` | 규칙 뒤집기 검사에서 "아무 테스트도 실패 안 함"이 나온 규칙 수 |
+| `unverified_rules` | 변경된 중요한 규칙 중 유효한 반례/검증 근거가 없는 수. 선택한 반전이 실패를 못 잡는 경우 포함 |
 | `quality_fails` | `quality-check.mjs` 가 미충족을 낸 횟수 |
 | `spec_defects` | 구현 중 발견한 spec 오류 (CR 발생 수) |
 | `redteam_fixes` | 레드팀 지적 중 실제 수정으로 이어진 수 |

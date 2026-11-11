@@ -75,7 +75,7 @@ testcases:
     when: DB새grant/payload/속성/이력 각지점실패·twoinstance staleflush·다른DS/TM오조립
     then: 같은물리commit/rollback·쿠키최종commit후1회. 분리TM기동거부·기존부모행0갱신시insert0. v1 SLICE-307의 확정 근거는보존하고v2회귀를별도기록.
     status: planned
-    verification: SLICE-308 실제 PG/JPA/HTTP와 기존 TC-30116~30120 회귀·PIT75%이상. Redis에이전체물리rollback보장을전이하지않는다.
+    verification: SLICE-308 실제 PG/JPA/HTTP와 기존 TC-30116~30120의 비영향 회귀 근거·중요 원자성 반례를 확인한다. 사용자 승인 최소 검증 정책에 따라 자동 변이 점수는 필수가 아니다. Redis에이전체물리rollback보장을전이하지않는다.
   - id: TC-30128
     feature: FEAT-301
     usecase: UC-045

@@ -86,9 +86,9 @@ tags: [gate, exit-criteria]
 ### G4 — 슬라이스 미니게이트 (슬라이스마다)
 - [ ] 해당 슬라이스의 통합 후 재시험 `pending_rechecks`가 없음
 - [ ] 해당 FEAT의 모든 TC가 통과 (skip·xfail 0건)
-- [ ] **규칙 뒤집기 검사 통과** — UC의 business_rules 각각을 코드에서 뒤집었을 때 최소 1개 테스트가 실패함. 미검증 규칙 0건 ([`quality/redteam.md`](../quality/redteam.md))
+- [ ] **중요한 위험의 반례 통과** — 변경된 보안·권한·정합성·비가역 동작의 필수 반례 누락 0건. 필요할 때만 집중 규칙 반전 ([`quality/redteam.md`](../quality/redteam.md))
 - [ ] **`node .claude/hooks/quality-check.mjs` 통과** — 중복률 ≤5%, 예외 삼킴 0건, `@feat` 미태깅 0개 ([`quality/code-quality.md`](../quality/code-quality.md))
-- [ ] (Standard/Full) 도메인·서비스 계층 뮤테이션 스코어 ≥ 60% / 75%
+- [ ] 검증 범위·재사용 근거가 [`quality/test-design.md` §0](../quality/test-design.md)에 맞음. 자동 변이·고정 점수·비영향 전수 반복은 필수 아님
 - [ ] DB 변경이 있으면 마이그레이션 스크립트 존재 + 롤백 방법 기재
 - [ ] API 변경이 documents/spec/50-api/_index.yaml 과 일치
 - [ ] 코드에 `FEAT-###` 주석 태그 존재

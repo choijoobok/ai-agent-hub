@@ -117,8 +117,8 @@ final_answer에서 다시 표시한다. 이는 매 요청 규칙이 아니다. �
 8. 메뉴 트리·컨트롤러·`endpoints.ts`·`messageKeys.ts` 변경 시 생성 태스크로 시드 CSV를 갱신한다.
    적재된 changeset은 수정하지 않고 새 파일을 추가한다.
 9. 큰 파일은 통째로 읽지 않고 검색으로 필요한 범위를 먼저 좁힌다.
-10. 리뷰·점검은 문제·위험·누락부터 쓴다. 테스트 통과만으로 완료라 하지 않고 업무 규칙을
-   뒤집었을 때 테스트가 실패하는지 확인한다.
+10. 리뷰·점검은 문제·위험·누락부터 쓴다. 테스트 통과만으로 완료라 하지 않고 중요한 업무
+   위험의 반례가 실제로 차단되는지 확인한다. 자동 변이·모든 규칙의 수동 반전은 기본 의무가 아니다.
 11. 생성 산출물(예: 시드 CSV · provider별 `SKILL.md` · `developer-guide/07-harness.md` · `build/deliverables/` · `documents/generated/`)은 손편집하지 않는다.
    `mockup.html`은 그림만 편집하며 표와 확인 목록은 건드리지 않는다.
 12. 게이트 승인에는 결정 카드(업무 언어 3~5줄)와 역질문 1~2개를 붙인다. 절차 축소 요청은
@@ -168,8 +168,10 @@ final_answer에서 다시 표시한다. 이는 매 요청 규칙이 아니다. �
 node aidd-guide/harness/runtime/harness-check.mjs && node aidd-guide/meta/_meta/lint.mjs && node .claude/hooks/trace-check.mjs --all
 ```
 
-백엔드는 `sources/`에서 `./gradlew check -PskipFrontend`, 프론트엔드는 `sources/frontend/`에서
-`npm run lint && npx tsc -b --noEmit && npm run test`를 실행한다.
+검증 선정의 정본은 [`test-design.md` §0](aidd-guide/quality/test-design.md)다. 변경 범위의 중요한
+시험을 먼저 고르고, 수정 중에는 관련 시험만 실행한다. 비영향 통과 결과는 재사용하며 자동 변이·고정 점수는 필수가 아니다.
+백엔드는 영향 모듈의 `test`/컴파일, 프론트는 lint·타입 검사와 관련 테스트를 선택한다. 공통 배선·빌드·여러 모듈에
+영향이 있거나 통합 회귀 근거가 없을 때만 `./gradlew check -PskipFrontend` 또는 프론트 전체 시험을 최종 한 번 실행한다.
 
 ## 8. 소스 규약 — 기계와 사람이 함께 지킨다
 

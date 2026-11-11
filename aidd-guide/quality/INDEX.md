@@ -36,7 +36,7 @@ tags: [index, quality, test, redteam, evals]
 | 파일 | 무엇 | 언제 |
 |---|---|---|
 | [test-design.md](test-design.md) | 최소 세트(정상·경계·거부·예외) · TC 작성 형식 · 비기능 TC | **P3** — 구현 전에 존재해야 한다 |
-| [redteam.md](redteam.md) | 자기반박 절차 · 레드팀 규칙 · **규칙 뒤집기** · 뮤테이션 | **게이트마다 필수** |
+| [redteam.md](redteam.md) | 자기반박 · 중요 반례 · 선택적 규칙 반전/자동 변이 | **레드팀 필수 · 변이 선택** |
 | [code-quality.md](code-quality.md) | 중복률 · 예외 삼킴 · `@feat` 태깅 · 미니게이트 · 결함 관리 | **슬라이스 완료 시** |
 | [evals/INDEX.md](evals/INDEX.md) | 골든셋 · 회귀 · A/B · 화면 재현 | 프롬프트·지식·카탈로그를 고칠 때 |
 | [observability/INDEX.md](observability/INDEX.md) | 라우팅 정확도 · 토큰 경제 · Context Rot 감시 | 상시 |

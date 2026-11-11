@@ -84,8 +84,8 @@ expectations:
 
 ## 3. 장치 B — 검증 부담 측정 (P4, 슬라이스마다)
 
-**시간을 재지 않는다.** AI는 벽시계 시간을 정확히 모르고, 재봤자 신뢰할 수 없다.
-대신 **셀 수 있는 것**을 센다. 이게 검증 비용의 실제 대리 지표다.
+도구 로그에 실제 시간이 있으면 병목 분석에 쓴다. 로그 없이 소요 시간·절감률을 추정하지 않는다.
+기본 지표는 **셀 수 있는 것**이며, 비영향 전수 반복 대신 `quality/test-design.md` §0으로 범위를 정한다.
 
 `documents/project.state.yaml` 의 각 슬라이스에 기록한다.
 
@@ -96,7 +96,7 @@ slices:
     status: done
     verification_load:
       fix_rounds: 3          # 테스트 실패 → 수정 사이클 횟수
-      unverified_rules: 1    # 규칙 뒤집기에서 발견된 미검증 업무 규칙
+      unverified_rules: 1    # 변경된 중요한 규칙 중 반례/검증 근거가 없는 수
       quality_fails: 2       # quality-check.mjs 미충족 횟수 (중복/예외삼킴/태깅)
       spec_defects: 1        # 구현 중 발견한 spec 오류 (CR 발생 수)
       redteam_fixes: 2       # 레드팀 지적 중 실제 수정으로 이어진 수

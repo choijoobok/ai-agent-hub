@@ -107,8 +107,11 @@ SLICE-308의 공개 설치점은 `SessionV2Assembly.create`와 `verifyInstallati
 같은 본문을 controller가 재독한 뒤 `Scope.inspectionFor`로 대상 일치를 재검사한다.
 Redis 네트워크를 소유 guard 안에서 호출하지 않는다. 실제 system 설치/경로·화면 활성화는 SLICE-520에서 한다.
 
-변이 시험은 `-PmutationTargets=... -PmutationTests=... -PmutationThreads=1`로 범위를 명시한다.
-공유 Redis를 실제 중단하는 시험은 직렬 독립 실행하고, PIT에서도 함께 실행할 경우 직렬화한다.
+일상 수정은 관련 단위/계약 시험부터 실행하고, DB/Redis/HTTP 계약이 바뀔 때만 해당 실환경 시험을 실행한다.
+비영향 통과 결과는 재사용하고 공통 배선 변경의 최종 전체 회귀는 한 번만 한다.
+자동 변이는 검증 공백이 의심될 때만 `-PmutationTargets=... -PmutationTests=... -PmutationThreads=1`로 좁혀 실행한다.
+기본 점수 문턱은 없고 명시 목표가 있을 때만 `-PmutationThreshold=...`를 준다. 대상/시험을 생략한 전수 실행은 거부한다.
+실제 Redis 중단·HTTP·마이그레이션 시험을 변이마다 반복하지 않는다. 중요한 반례·적용/복구의 의미는 유지한다.
 
 ## 5. ⑥ 개선 요청 — 어디로 돌아가나
 

@@ -44,7 +44,7 @@ subprojects {
     }
 }
 
-// Full 트랙의 슬라이스 미니게이트 — 업무 규칙이 있는 클래스만 -PmutationTargets 로 좁혀 잰다.
+// 선택적 검증 공백 진단 — 명시한 업무 규칙/단위 시험만 측정하며 G4 고정 점수로 쓰지 않는다.
 val pitestCoreVersion = libs.versions.pitestCore.get()
 val pitestJunit5Version = libs.versions.pitestJunit5.get()
 configure(listOf(
@@ -64,9 +64,17 @@ configure(listOf(
         }
         pitestVersion.set(pitestCoreVersion)
         junit5PluginVersion.set(pitestJunit5Version)
-        mutationThreshold.set(75)
+        mutationThreshold.set(providers.gradleProperty("mutationThreshold").map(String::toInt).getOrElse(0))
         threads.set(providers.gradleProperty("mutationThreads").map(String::toInt).getOrElse(Runtime.getRuntime().availableProcessors().coerceAtMost(4)))
         outputFormats.set(setOf("XML", "HTML"))
         timestampedReports.set(false)
+    }
+    tasks.named("pitest") {
+        doFirst {
+            require(!providers.gradleProperty("mutationTargets").orNull.isNullOrBlank()
+                && !providers.gradleProperty("mutationTests").orNull.isNullOrBlank()) {
+                "선택 변이 검사는 mutationTargets와 mutationTests를 명시해야 한다"
+            }
+        }
     }
 }

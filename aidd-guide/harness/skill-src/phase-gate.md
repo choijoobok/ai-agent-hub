@@ -34,7 +34,7 @@ P1~P5에 `workstreams`가 있으면 **전역인지 어느 작업흐름인지도 
     *해결됨* 으로 보고하지도 않는다. 아직 오지 않은 것이다
   - 미해결 `ASM-###` 수 (`documents/decisions/ASSUMPTIONS.md`)
   - `proposed` 상태 ADR 수
-  - 테스트 실행 결과
+  - `quality/test-design.md` §0에 따라 고른 필수 시험 결과와 비영향 근거 재사용. 자동 변이·고정 점수·반복 전수 검사는 요구하지 않는다.
   - G3의 데이터 모델 또는 G4의 DB 변경은 `node aidd-guide/harness/runtime/domain-schema.mjs`와 doc-gen `--check`를 실행한다. 예정 설계와 현재 구현을 구분하고 Liquibase 변경·물리 계약·테이블 명세서가 일치해야 한다. 실제 DB 적용/복구 시험은 소스 대조로 대체하지 않는다.
 - **❌ 가 하나라도 있으면 승인을 요청하지 않는다.** 먼저 해결하거나, 해결 불가 사유를 명시한다.
 
