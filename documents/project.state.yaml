@@ -18,7 +18,7 @@ current:
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-040          # 공통 저장·이력 기반 구현 완료, G4 사용자 승인 대기
+  slice: SLICE-006          # SLICE-040 G4 승인 후 사용자 그룹 정의 구현 중
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -514,7 +514,7 @@ workstreams:
           features: [FEAT-015, FEAT-016, FEAT-017, FEAT-020, FEAT-040, FEAT-042, FEAT-045]
           progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
           detail_design: "2026-11-09 사용자3정책A를 ADR-043~045에 반영하고 태그정규화A를 REQ-607에 기록했다. 선행19화면의 물리 현재/자식·76개HIST·원장/작업기록과 API DTO/입력경계·내부 소비 계약을 spec에 전개했다. 19화면 저장 단위는 FEAT-040.screen_matrix와 각 소유 physical_contract가 연결한다. 제품 DB/Liquibase 적용은 없다."
-          remaining: "admin G3 승인·SLICE-040 공통 구현/실제 DB 검증 완료, G4 사용자 승인 뒤 SLICE-006 등 소유 화면/스키마·MSG/시드 연결 검증. agent 계량/턴 모델과 감사·이력·품질 새 목업은 후속 소유 설계다. 보존 기간 미설정이면 자동 파기는 비활성이다."
+          remaining: "admin G3·SLICE-040 G4 승인 완료, SLICE-006부터 소유 화면/스키마·MSG/시드 연결 검증. agent 계량/턴 모델과 감사·이력·품질 새 목업은 후속 소유 설계다. 보존 기간 미설정이면 자동 파기는 비활성이다."
           latest_review: "2026-11-14 FEAT-040.implementation_design과 TC-04013/04014에 권한 보호 전 명령 키 잠금·단일 원자 요청·독립 행 요청 결과 집계를 구체화했다. 전체 이력 보호 집합의 공유 하위 판 해제 조건과 미설치 명령 원장 등록을 보완했다. 실제 코드/DB 변경 없이 설계 검사만 수행했다."
           verification_note: "2026-11-09 물리 설계 독립 검토의 전역 명령키/월 파기 후 재실행/NULL 분모, 도구 소유 혼입, 서버 추출값/자식 재귀속, 전체 프롬프트 검토/고정 안내 계약을 보완했다. 엄격 YAML239개·19화면 소유 매핑·188개 admin 물리표의 FK/키/타입·76개 전체HIST 동형 검사 통과. 생성기 계약 시험9개 통과. 하네스/lint·추적성 오류0/후속경고86·활성 Liquibase36표 일치, 생성387개 ID1343/장문16047 누락·깨진링크0. Edge에서 구현표1·물리초안188·논리초안1의 표시를 확인했다. 기존 목업 전수 순회는 변경 범위 밖이므로 중단하고, 최종 HTML의 주요4명세·보기/테마·현재문서 인쇄·JS오류0을 추가 확인했다. ERD 물리 타입·사이트466/18/9장 구조도 통과했다. 제품 DB/동시성 시험과 게이트 승인은 별도다."
       dependencies:
@@ -1069,7 +1069,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 admin G3 승인 반영 및 SLICE-040 공통 구현/필수 검증 완료. SLICE-040 G4 사용자 승인 대기이며 승인 뒤 SLICE-006 사용자 그룹 정의의 실제 화면·현재/HIST 연결을 진행한다. SLICE-305는005·302·완료521이 선행한다."
+  first: "2026-11-14 사용자가 공통 기반 범위로 SLICE-040 G4를 승인했다. 승인 상태를 원격에 푸시하고 SLICE-006 사용자 그룹 정의의 실제 화면·현재/HIST 연결을 구현한 뒤 필요한 범위만 검증해 G4 결과를 제시한다. SLICE-305는005·302·완료521이 선행한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1519,8 +1519,9 @@ slices:
       - TC-04014
     scope: 공통 관리 명령/원 결과·전체 HIST·보존 보호·현재 권한/회수 인계. FEAT-040.implementation_design의 관리 진입 어댑터·단일 요청 원자성을 포함하며 19화면 업무 구현은 각 소유 슬라이스다.
     stage: P4
-    status: in_progress
+    status: done
     started_at: "2026-11-14"
+    approved_at: "2026-11-14"
     depends_on:
       - SLICE-520
       - SLICE-506
@@ -1559,9 +1560,10 @@ slices:
           resolution: 전이 집합을 고정 순서로 보호하고 소비 전체의 검증된 종료에만 해제한다. 상위 관리 HIST 자체의 참조도 보호하며 다이아몬드·보호/파기 양순서 및 미설정 보존 비활성을 검증했다.
       environment_cleanup: 시험 앱 자동 종료와 이번에 시작한 전용 PostgreSQL55420 종료를 확인했다. 기존 개발 DB와 사용자 Redis6379는 변경하지 않았다.
       g4:
-        status: pending_user_approval
-        approved_at: null
-        technical_exit_criteria: '9/9 충족. pending_rechecks 없음, 배정21 TC의 승인된 공통 범위/중요 반례, 품질, 필수 범위/재사용, DB 적용/복구, API 정합, FEAT 태그, Low 누락 보완을 확인했다. 10번째 사용자 결과 수락은 대기한다.'
+        status: approved
+        approved_at: "2026-11-14"
+        user_response: "공통 기반 완료 범위로 SLICE-040 G4 승인할게."
+        technical_exit_criteria: '9/9 충족. pending_rechecks 없음, 배정21 TC의 승인된 공통 범위/중요 반례, 품질, 필수 범위/재사용, DB 적용/복구, API 정합, FEAT 태그, Low 누락 보완을 확인했다. 10번째 사용자 결과 수락은2026-11-14 공통 기반 범위로 명시 승인됐다.'
         unresolved_assumptions: 이번 공통 구현을 막는 미해결 전제 없음. 고객사 실제 보존 기간/소유 화면 연결은 후속 범위이며 미설정 자동 파기는 비활성이다.
         decision_card:
           - '한 저장 단위의 현재값·이력·결과는 함께 성공하거나 함께 취소한다. 이 경계 변경 비용은 높다.'
@@ -1569,6 +1571,7 @@ slices:
           - '사용 중인 과거 구성은 지우지 않고 보존 기간 미설정이면 자동 정리를 하지 않는다. 기간 설정 비용은 낮지만 삭제 후 복구 비용은 높다.'
           - '이번은 공통 기반 완료이며 실제 화면 연결은006부터 진행한다. 지금 연결 책임을 나누는 비용은 낮고19화면 구현 후 재구성 비용은 높다.'
         reverse_question: 이번 공통 기반 완료 범위와 별개로, 이번 단계에서 바로 저장 가능한 관리 화면까지 기대하신 부분이 있는가?
+        approval_note: 공통 기반 범위만 G4 승인했다. 실제19화면/소유 연결·admin 전체 완료·운영 배포 승인은 포함하지 않는다.
         approval_effect: G4 명시 승인 시 SLICE-040을 done으로 바꾸고 다음 SLICE-006 사용자 그룹 정의의 실제 화면·소유 스키마 연결을 진행한다. admin 전체 완료·운영 배포 승인은 아니다.
   - id: SLICE-006
     workstream: admin
@@ -1586,8 +1589,9 @@ slices:
       - TC-0068
       - TC-00610
     scope: 그룹 정의·동일 소속 원장·현재 권한 공개 계약
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-040
     entry_conditions:
@@ -2368,7 +2372,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
-  - { slice: SLICE-040, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "공통 구현의 고유 필수 시험46개 통과/skip0. 실제 DB10개와 적용/rollback/재적용, 단위2·제품기동1·구조/시드33개. 최초 컴파일 및 시험 fixture 배선 보정의 총 수정 반복 수는 집계하지 않아 null로 둔다. Low 누락 RECORDED_DTM을 사전 통지·보완했고 원자성/권한 순서/전이 보호의3가지 실패 경로를 실제 DB에서 차단했다. 실제19화면 연결은 소유 슬라이스에서 검증하며 G4 사용자 승인 대기." }
+  - { slice: SLICE-040, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "공통 구현의 고유 필수 시험46개 통과/skip0. 실제 DB10개와 적용/rollback/재적용, 단위2·제품기동1·구조/시드33개. 최초 컴파일 및 시험 fixture 배선 보정의 총 수정 반복 수는 집계하지 않아 null로 둔다. Low 누락 RECORDED_DTM을 사전 통지·보완했고 원자성/권한 순서/전이 보호의3가지 실패 경로를 실제 DB에서 차단했다. 실제19화면 연결은 소유 슬라이스에서 검증하며2026-11-14 공통 기반 범위의 G4 사용자 승인 완료." }
   - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. 2026-11-14 G4사용자명시승인완료." }
   - { slice: SLICE-307, measured_at: "2026-11-10", fix_rounds: 3, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 4, note: "공통 계약/실제 HTTP·DB 구현의 컴파일·시험 수정3회, 독립 레드팀4건 수정. 최초 RED·수동 변이/PIT 및 Windows 실행환경 실패는 수정 반복에서 제외한다. 통합 검토의 제품 JAR 메시지 자산 누락은 실제 설치 전 수정했고 별도 설치/복구 시험을 통과했다. G4 사용자 확인 대기이며 소유 후속 업무 구현을 완료로 세지 않는다." }
   - { slice: SLICE-519, measured_at: "2026-09-14", fix_rounds: 2, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 3, note: "서버 실행은 활성 프로파일이 없으면 데이터소스 구성 전에 종료하고, Gradle bootRun은 -Pprofile을 필수로 받아 Spring 활성 프로파일로 전달한다. local 기본값은 sample 포함·프런트 생략, 그 밖의 프로파일은 sample 제외·프런트 포함이며 명시 옵션이 이를 덮어쓴다. local에서 sample을 끄면 처리된 설정도 제품 master changelog를 가리킨다. 태스크 그래프 7조합·changelog 2조합, 런타임 가드 단위 테스트, local 기본·sample 제외 전체 백엔드 검사와 실제 local 기본 기동을 통과했다. local 판정과 기동 가드를 반대로 뒤집자 각각 계약 테스트가 실패했고 원복 뒤 통과했다. 프런트 의존성 트리는 정상이나 Gradle npmInstall 정지는 별도 기존 실행환경 문제로 제품 JAR의 프런트 포함 실물 검증만 완료하지 못했다. doc-gen 대상 문서는 생성됐으나 저장소 전역 --check의 기존 934개 생성기 결손은 이번 슬라이스 범위 밖으로 남는다." }
