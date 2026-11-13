@@ -1,4 +1,148 @@
 testcases:
+  - id: TC-00325
+    feature: FEAT-003
+    usecase: UC-007
+    screens: [SCR-003]
+    type: normal
+    title: 카탈로그 편집 영역의 정상 전체 저장
+    actor: ACT-004
+    given: 현재 SAVE 권한과 기대 리비전이 일치하고 소유 입력·참조 검증을 통과한 카탈로그 편집본
+    when: 허용된 편집 영역을 새 원 명령 키와 사유로 저장
+    then: 편집 영역과 소유 전체 HIST·부모 리비전·원 결과를 한 번 반영하고 다른 탭의 현재값과 관측값을 보존한다. 저장 자체로 미검수 구성을 VERIFIED로 올리지 않는다.
+    verification: SLICE-003의 실제 저장·정확 판 재조회 시험. 공통 원자성 시험은 SLICE-040 근거를 재사용한다.
+    status: planned
+  - id: TC-00432
+    feature: FEAT-004
+    usecase: UC-018
+    screens: [SCR-004]
+    type: normal
+    title: 업무 API 소유 구성의 정상 저장
+    actor: ACT-004
+    given: 현재 권한·기대 판과 유효 연결 참조를 갖춘 API 마스터 및 허용 탭 편집본
+    when: 변경 사유와 새 원 키로 저장하고 적용 판을 재조회
+    then: API 소유 마스터/자식과 전체 HIST·결과가 같은 판으로 조회된다. 실제 업무 호출을 실행하지 않으며 도구 소유 자식은 변경하지 않는다.
+    verification: SLICE-004의 실제 API 저장 어댑터와 DB 연결 시험.
+    status: planned
+  - id: TC-0073
+    feature: FEAT-007
+    usecase: UC-026
+    screens: [SCR-003]
+    type: normal
+    title: 카탈로그 그룹·필드 예외의 정상 저장
+    actor: ACT-004
+    given: 현재 편집 권한·유효 그룹 참조와 필드 허용 범위를 만족하는 소유 구성
+    when: 소유 카탈로그의 기대 판과 사유를 붙여 그룹/필드 예외 영역을 저장
+    then: 소유 현재 구성과 전체 HIST에 함께 반영되고 다음 현재 정책 조회에 나타난다. 독립 그룹 매핑 원장이나 중복 리비전을 만들지 않는다.
+    verification: SLICE-007에서 실제 카탈로그 저장/정책 조회 연결을 검증한다.
+    status: planned
+  - id: TC-0091
+    feature: FEAT-009
+    usecase: UC-026
+    screens: [SCR-009]
+    type: normal
+    title: 행 스코프 구성과 파라미터의 정상 저장
+    actor: ACT-004
+    given: 카탈로그 선택과 현재 권한·기대 판이 유효하고 스코프별 파라미터 추출이 최신인 편집본
+    when: 부모의 행 스코프 구성과 소유 파라미터 전체를 저장
+    then: 안정 ID와 본문·파라미터 설명이 유지되고 부모/자식·전체 HIST·원 결과가 원자 반영된다. 서버 예약 신원은 실행 시 서버 공급 규칙으로 남는다.
+    verification: SLICE-009의 실제 저장/재조회 시험. 실행 SQL의 적용 검증은 실행 소유 슬라이스다.
+    status: planned
+  - id: TC-0108
+    feature: FEAT-010
+    usecase: UC-021
+    screens: [SCR-014]
+    type: normal
+    title: 고정 안내 본문의 정상 저장
+    actor: ACT-004
+    given: 고정 안내 코드 하나의 현재 판과 SAVE 권한·유효한 형식/본문
+    when: 기대 판과 사유·원 키를 붙여 본문 저장
+    then: 지정 코드의 형식/원문과 전체 HIST·새 판·원 결과만 반영되고 다른 안내 코드는 유지된다. 재조회 시 원문과 적용 판이 일치한다.
+    verification: SLICE-010의 실제 저장/재조회 시험.
+    status: planned
+  - id: TC-01110
+    feature: FEAT-011
+    usecase: UC-008
+    screens: [SCR-039]
+    type: normal
+    title: 관계 양끝점과 복합 컬럼 쌍의 정상 저장
+    actor: ACT-004
+    given: 동일 데이터소스의 유효한 두 카탈로그와 완전한 컬럼 쌍·현재 SAVE 권한
+    when: 관계 관리측에서 기대 판·사유와 함께 관계 전체를 저장
+    then: 관계 역할·설명·전체 컬럼 쌍을 소유 현재/HIST에 한 번 저장하고 반대편은 같은 관계를 역조회한다. 관계를 양쪽에 복제하지 않는다.
+    verification: SLICE-011에서 실제 소유 저장과 양방향 조회를 검증한다.
+    status: planned
+  - id: TC-01212
+    feature: FEAT-012
+    usecase: UC-026
+    screens: [SCR-009]
+    type: normal
+    title: 기본 필터·필수 조회 제약의 정상 저장
+    actor: ACT-004
+    given: 현재 권한·기대 판과 자료형/컬럼 참조 검증을 만족한 부모별 정책 편집본
+    when: 허용 정책 영역을 사유·원 키와 함께 저장
+    then: 필터와 필수 제약의 자료형/조건·현재 적용 판이 소유 구성 및 전체 HIST에 일치한다. 다음 현재 정책 조회에 반영되고 카탈로그 과거 판을 다시 쓰지 않는다.
+    verification: SLICE-012의 실제 저장/현재 정책 조회 시험.
+    status: planned
+  - id: TC-0139
+    feature: FEAT-013
+    usecase: UC-020
+    screens: [SCR-013]
+    type: normal
+    title: 프롬프트 규칙 변경 집합의 정상 저장
+    actor: ACT-004
+    given: 현재 편집 권한과 기준 판이 유효한 규칙 변경 집합 및 사유
+    when: 소유 저장 단위 전체를 원 키로 저장하고 다시 조회
+    then: 규칙 원문·관리자 설명·사용 여부와 전체 HIST·원 결과가 같은 성공 단위로 반영되고 미변경 규칙은 유지된다. 저장 성공을 실모델 검토 성공으로 표시하지 않는다.
+    verification: SLICE-013의 실제 저장/재조회 시험. 모델 검토 연동은 별도 소유 시험으로 구분한다.
+    status: planned
+  - id: TC-02123
+    feature: FEAT-021
+    usecase: UC-019
+    screens: [SCR-019]
+    type: normal
+    title: 내부 도구 관리 구성의 정상 저장
+    actor: ACT-004
+    given: 실제 등록된 내부 구현 참조와 현재 SAVE 권한·기대 판을 갖춘 도구 편집본
+    when: 허용된 도구 관리값과 소유 구성을 저장
+    then: 도구 소유 현재/자식·전체 HIST·원 결과가 일치하고 API 소유 자식은 변경하지 않는다. 저장 과정에서 도구를 호출하거나 서버 구현 정의를 덮어쓰지 않는다.
+    verification: SLICE-021의 실제 도구 저장과 등록 구현 조회 연결 시험.
+    status: planned
+  - id: TC-0234
+    feature: FEAT-023
+    usecase: UC-009
+    screens: [SCR-012]
+    type: normal
+    title: 예제 SQL 묶음의 정상 전체 저장
+    actor: ACT-004
+    given: 최신 추출/참조 검증과 현재 권한·기대 판이 유효한 하나 이상의 SQL 및 중복 없는 양의 순번
+    when: 상위 예제와 모든 SQL 편집본을 사유·원 키로 함께 저장
+    then: 각 SQL의 안정 ID·줄바꿈·설명·추출 근거가 보존되고 상위/자식·전체 HIST·원 결과가 같은 성공 단위로 조회된다.
+    verification: SLICE-023의 실제 묶음 저장/재조회 시험.
+    status: planned
+  - id: TC-0244
+    feature: FEAT-024
+    usecase: UC-011
+    screens: [SCR-010]
+    type: normal
+    title: 검색 태그와 동의어의 정상 저장
+    actor: ACT-004
+    given: 정규화 중복이 없는 대표어/동의어 편집본과 현재 권한·기대 판
+    when: 태그 소유 전체 구성을 사유·원 키로 저장
+    then: 표시 원문과 정규 검색값·활성 상태를 보존하며 현재값/전체 HIST/원 결과가 일치한다. 연결된 지식 본문·판·매핑은 바뀌지 않는다.
+    verification: SLICE-024의 실제 저장/재조회와 정규 검색 연결 시험.
+    status: planned
+  - id: TC-0421
+    feature: FEAT-042
+    usecase: UC-039
+    screens: [SCR-064]
+    type: normal
+    title: 수정 가능한 시작월 등급 세트의 정상 저장
+    actor: ACT-004
+    given: 아직 잠기지 않은 시작월과 유효 등급 ID·순위·상대 가중치 전체 세트 및 현재 SAVE 권한
+    when: 해당 세트의 기대 판·사유·원 키로 전체 저장
+    then: 등급 전체 구성·전체 HIST·원 결과가 하나의 판으로 반영되고 효력 조회가 그 세트를 반환한다. 확정된 과거 월/이미 배정한 결과를 변경하지 않는다.
+    verification: SLICE-042의 실제 월/등급 세트 저장과 효력 조회 시험.
+    status: planned
   - id: TC-0409
     feature: FEAT-040
     usecase: UC-006
@@ -10,7 +154,7 @@ testcases:
     actor: ACT-004
     given: ENT-019와 ENT-099의 다른 기능/주체가 같은 UUID로 동시에 명령
     when: 명령 해시 공통 잠금에서 모든 활성 원장/종료키를 검사
-    then: 한 소유 효과만 발생하고 다른 입력은409. 한 원장 파기 후 다른 원장의 유효 결과가 가려지는 상태가 생기지 않는다.
+    then: 한 소유 효과만 발생하고 다른 입력은409. 한 원장 파기 후 다른 원장의 유효 결과가 가려지는 상태가 생기지 않는다. 활성 원장 장애는503이며 미발견이 아니다. 미설치는 쓰기 경로도 없음을 확인한 설치 명세로만 허용하고 테이블 없음 예외를 삼켜 우회하지 않는다.
     verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
     status: planned
   - id: TC-04010
