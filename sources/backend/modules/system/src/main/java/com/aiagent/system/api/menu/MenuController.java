@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
  * playbook/excel-download.md 첫째 · screen/menu/requirements.md).
  */
 @RestController
-@RequestMapping("/api/service/system/menu")
+@RequestMapping("/api/system/service/menu")
 public class MenuController {
 
     private final MenuQueryService queries;

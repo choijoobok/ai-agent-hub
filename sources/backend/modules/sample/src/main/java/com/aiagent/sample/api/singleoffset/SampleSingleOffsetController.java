@@ -52,14 +52,14 @@ import org.springframework.web.bind.annotation.RestController;
  * 내려받을 표이므로 <b>프론트가 만든다</b> — 왕복이 0 인 것을 왕복 하나로 만들 이유가 없고,
  * {@code EXPORT} 권한은 메뉴가 선언한다(sys/menu.md).
  *
- * <h2>{@code /api/service/sample} 를 ③과 나눠 쓴다</h2>
+ * <h2>{@code /api/sample/service} 를 ③과 나눠 쓴다</h2>
  *
  * <p>도메인 마디는 <b>애그리거트 이름</b>이고(backend/api.md) 여섯 화면의 애그리거트는 하나다.
  * 갈리는 것은 <b>패키지와 메서드명</b>이며, 인가는 화면 폴더의 {@code endpoints.ts} 가
  * 가른다(playbook/INDEX.md · backend/api.md).
  */
 @RestController
-@RequestMapping("/api/service/sample")
+@RequestMapping("/api/sample/service")
 public class SampleSingleOffsetController {
 
     private final SampleQueryService queries;
@@ -111,7 +111,7 @@ public class SampleSingleOffsetController {
      * {@code listModal} 이 항목을 고르는 팝업의 후보 &mdash; 54 &sect;5.6 &middot; 68 &sect;9.6.
      *
      * <p><b>고객 팝업과 같은 자리</b>이며 갈리는 것은 이름 하나다: {@code /getTagList} 는
-     * &#9316;의 것이라(한 주문의 태그 <b>행들</b>) 같은 {@code /api/service/sample} 아래에서
+     * &#9316;의 것이라(한 주문의 태그 <b>행들</b>) 같은 {@code /api/sample/service} 아래에서
      * 쓸 수 없다.
      *
      * <p><b>이것이 없으면 태그를 더할 수 없다.</b> 레지스트리에 없는 키로 열면 팝업 호스트가

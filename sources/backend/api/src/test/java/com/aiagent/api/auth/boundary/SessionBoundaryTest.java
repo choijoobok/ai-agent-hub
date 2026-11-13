@@ -382,13 +382,13 @@ class SessionBoundaryTest {
             assertThat(prepared.body()).contains("\"success\":true","\"data\"","csrfHeaderName","\"traceId\"");
             assertThat(prepared.body()).doesNotContain(initial.get("AIHUB_ADMIN_SESSION"),initial.get("AIHUB_ADMIN_CSRF"));
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM SPRING_SESSION",Integer.class)).isEqualTo(1);
-            for(String early:List.of("redirect","error","flush")) {
+            for(String early:List.of("redirect","error")) {
                 var premature=send(client,origin,"POST","/api/public/system/auth/login",initial,initial.get("AIHUB_ADMIN_CSRF"),origin,"password=correct&early="+early);
                 assertThat(premature.statusCode()).isEqualTo(503);assertThat(premature.headers().allValues("Set-Cookie")).isEmpty();
                 assertThat(premature.headers().firstValue("Location")).isEmpty();
                 assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM SPRING_SESSION",Integer.class)).isEqualTo(1);
             }
-            var logged=send(client,origin,"POST","/api/public/system/auth/login",initial,initial.get("AIHUB_ADMIN_CSRF"),origin,"password=correct");
+            var logged=send(client,origin,"POST","/api/public/system/auth/login",initial,initial.get("AIHUB_ADMIN_CSRF"),origin,"password=correct&early=flush");
             assertThat(logged.statusCode()).isEqualTo(200);assertThat(logged.body()).isEqualTo("authenticated");
             var authorized=cookies(logged);assertThat(authorized.get("AIHUB_ADMIN_SESSION")).isNotEqualTo(initial.get("AIHUB_ADMIN_SESSION"));
             var denied=send(client,origin,"POST","/api/service/system/item/save",authorized,authorized.get("AIHUB_ADMIN_CSRF"),"https://evil.example");

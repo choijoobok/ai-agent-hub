@@ -18,9 +18,9 @@ class ConfigMigrationContractTest {
     @Test
     @DisplayName("TC-5065 시스템 설정 API는 system 정식 경로 하나만 사용한다")
     void configApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(CONFIG_ADMIN, "/api/service/system/config", "getList", "/getList");
-        assertPost(CONFIG_ADMIN, "/api/service/system/config", "getPrefixes", "/getPrefixes");
-        assertPost(CONFIG_ADMIN, "/api/service/system/config", "save", "/save");
+        assertPost(CONFIG_ADMIN, "/api/system/service/config", "getList", "/getList");
+        assertPost(CONFIG_ADMIN, "/api/system/service/config", "getPrefixes", "/getPrefixes");
+        assertPost(CONFIG_ADMIN, "/api/system/service/config", "save", "/save");
         assertClassMissing("com.aiagent.api.config.ConfigController");
     }
 

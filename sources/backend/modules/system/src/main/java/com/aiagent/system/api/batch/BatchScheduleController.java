@@ -64,7 +64,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 답이 둘이면 안 된다</b>.
  */
 @RestController
-@RequestMapping("/api/service/system/batchSchedule")
+@RequestMapping("/api/system/service/batchSchedule")
 public class BatchScheduleController {
 
     private final BatchScheduleQueryService queries;
@@ -180,8 +180,10 @@ public class BatchScheduleController {
     @PostMapping("/runNow")
     public ApiResponse<BatchRunResponse> runNow(@RequestBody @Valid BatchRunRequest request) {
         List<BatchRunResponse.Item> items = new ArrayList<>(request.targets().size());
-        for (String batchId : request.targets()) {
-            BatchRunner.RunOutcome outcome = runner.runNow(queries.require(batchId));
+        List<BatchRunner.RunOutcome> outcomes = runner.runNow(request.targets());
+        for (int index = 0; index < request.targets().size(); index++) {
+            String batchId = request.targets().get(index);
+            BatchRunner.RunOutcome outcome = outcomes.get(index);
             items.add(new BatchRunResponse.Item(
                     batchId,
                     outcome.started(),

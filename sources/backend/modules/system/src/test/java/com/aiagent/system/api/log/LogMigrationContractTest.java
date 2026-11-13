@@ -44,9 +44,9 @@ class LogMigrationContractTest {
     @Test
     @DisplayName("SLICE-509 로그인·사용 이력 API는 system 정식 경로 하나만 사용한다")
     void logApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(LOGIN_LOG, "/api/service/system/loginLog", "getList", "/getList");
-        assertPost(ACCESS_LOG, "/api/service/system/accessLog", "getList", "/getList");
-        assertPost(ACCESS_LOG, "/api/service/system/accessLog", "getDetail", "/getDetail");
+        assertPost(LOGIN_LOG, "/api/system/service/loginLog", "getList", "/getList");
+        assertPost(ACCESS_LOG, "/api/system/service/accessLog", "getList", "/getList");
+        assertPost(ACCESS_LOG, "/api/system/service/accessLog", "getDetail", "/getDetail");
     }
 
     @Test

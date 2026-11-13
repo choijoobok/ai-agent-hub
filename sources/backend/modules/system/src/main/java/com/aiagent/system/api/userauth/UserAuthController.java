@@ -1,7 +1,6 @@
 // @feat FEAT-502
 package com.aiagent.system.api.userauth;
 
-import com.aiagent.api.authz.AuthzInvalidator;
 import com.aiagent.api.message.RequestLocale;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.system.api.userauth.request.UserAuthSaveRequest;
@@ -16,7 +15,6 @@ import com.aiagent.domain.authz.userauth.UserAuthService;
 import com.aiagent.domain.authz.userauth.UserAuthTreeRow;
 import com.aiagent.domain.authz.userauth.UserPickRow;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.Set;
@@ -58,22 +56,19 @@ import org.springframework.web.bind.annotation.RestController;
  * 만들고(playbook/excel-download.md) {@code EXPORT} 는 {@code SYS_MENU.EXPORT_YN} 이 선언한다(sys/menu.md).
  */
 @RestController
-@RequestMapping("/api/service/system/userAuth")
+@RequestMapping("/api/system/service/userAuth")
 public class UserAuthController {
 
     private final UserAuthQueryService queries;
     private final UserAuthService admin;
-    private final AuthzInvalidator invalidator;
     private final RequestLocale locale;
 
     public UserAuthController(
             UserAuthQueryService queries,
             UserAuthService admin,
-            AuthzInvalidator invalidator,
             RequestLocale locale) {
         this.queries = queries;
         this.admin = admin;
-        this.invalidator = invalidator;
         this.locale = locale;
     }
 
@@ -120,11 +115,9 @@ public class UserAuthController {
     @PostMapping("/save")
     public ApiResponse<Void> save(
             @RequestBody @Valid UserAuthSaveRequest request,
-            Principal principal,
-            HttpSession session) {
+            Principal principal) {
 
         admin.save(request.userId(), request.rows());
-        invalidator.markDirty(Set.of(request.userId()), session, userId(principal));
         return ApiResponse.success(null, TraceId.current());
     }
 

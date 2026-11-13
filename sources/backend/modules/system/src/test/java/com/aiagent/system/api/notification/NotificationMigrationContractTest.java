@@ -43,14 +43,14 @@ class NotificationMigrationContractTest {
     @Test
     @DisplayName("TC-5091·TC-5094·TC-5095·TC-5096·TC-5097 요청과 알림 API는 system 정식 경로만 사용한다")
     void notificationApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(ADMIN_CONTROLLER, "/api/service/system/notiRequest", "getList", "/getList");
-        assertPost(ADMIN_CONTROLLER, "/api/service/system/notiRequest", "updateHandle", "/updateHandle");
-        assertGet(MY_REQUEST_CONTROLLER, "getMyList", "/api/common/system/notiRequest/getMyList");
-        assertPost(MY_REQUEST_CONTROLLER, null, "create", "/api/common/system/notiRequest/save");
-        assertGet(INBOX_CONTROLLER, "getList", "/api/common/system/noti/getList");
-        assertGet(INBOX_CONTROLLER, "getUnreadCount", "/api/common/system/noti/getUnreadCount");
-        assertPost(INBOX_CONTROLLER, null, "markRead", "/api/common/system/noti/saveRead");
-        assertPost(INBOX_CONTROLLER, null, "markAllRead", "/api/common/system/noti/saveAllRead");
+        assertPost(ADMIN_CONTROLLER, "/api/system/service/notiRequest", "getList", "/getList");
+        assertPost(ADMIN_CONTROLLER, "/api/system/service/notiRequest", "updateHandle", "/updateHandle");
+        assertGet(MY_REQUEST_CONTROLLER, "getMyList", "/api/system/common/notiRequest/getMyList");
+        assertPost(MY_REQUEST_CONTROLLER, null, "create", "/api/system/common/notiRequest/save");
+        assertGet(INBOX_CONTROLLER, "getList", "/api/system/common/noti/getList");
+        assertGet(INBOX_CONTROLLER, "getUnreadCount", "/api/system/common/noti/getUnreadCount");
+        assertPost(INBOX_CONTROLLER, null, "markRead", "/api/system/common/noti/saveRead");
+        assertPost(INBOX_CONTROLLER, null, "markAllRead", "/api/system/common/noti/saveAllRead");
     }
 
     @Test

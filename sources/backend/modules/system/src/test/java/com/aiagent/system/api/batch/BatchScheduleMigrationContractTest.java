@@ -39,12 +39,12 @@ class BatchScheduleMigrationContractTest {
     @Test
     @DisplayName("TC-5081·TC-5082 배치 일정 API는 system 정식 경로 하나만 사용한다")
     void batchScheduleApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "getList", "/getList");
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "getBeanList", "/getBeanList");
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "getTimezoneList", "/getTimezoneList");
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "getRecentHistory", "/getRecentHistory");
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "save", "/save");
-        assertPost(CONTROLLER, "/api/service/system/batchSchedule", "runNow", "/runNow");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "getList", "/getList");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "getBeanList", "/getBeanList");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "getTimezoneList", "/getTimezoneList");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "getRecentHistory", "/getRecentHistory");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "save", "/save");
+        assertPost(CONTROLLER, "/api/system/service/batchSchedule", "runNow", "/runNow");
     }
 
     @Test

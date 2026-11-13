@@ -42,42 +42,11 @@ spring:
   #     mail.smtp.auth: true
   #     mail.smtp.starttls.enable: true
 
-  # 세션 스토어 선택 — backend/security.md.
-  #
-  # spring.session.store-type 은 Spring Boot 4 에 없다. 적어도 아무 일이 없고(알 수 없는
-  # 프로퍼티는 오류가 아니다) 스토어는 클래스패스에 있는 자동설정이 정한다 — 둘 다 있으면
-  # Redis 가 이긴다. store-type: jdbc 를 적어 둔 채 Redis 로 붙어 버렸고, 그 사실은
-  # "Unable to connect to Redis" 가 나기 전까지 드러나지 않았다.
-  #
-  # 그래서 선택을 자동설정 제외로 표현한다. 여전히 설정이며 코드 분기가 아니다(backend/session.md).
-  #   jdbc  (기본) : 아래처럼 Redis 세션 자동설정을 뺀다
-  #   redis        : 아래 줄을 JdbcSessionAutoConfiguration 으로 바꾸고
-  #                  **session.data.redis.repository-type 을 indexed 로 함께 둔다** (아래)
-  #   none         : 둘 다 뺀다 — 서블릿 컨테이너 세션으로 떨어진다
+  # 전역 Spring Session 자동 설치를 금지한다. 선택은 app.auth.session.provider 한 곳에서 한다.
   autoconfigure:
     exclude:
       - org.springframework.boot.session.data.redis.autoconfigure.SessionDataRedisAutoConfiguration
-
-  session:
-    timeout: 30m
-    jdbc:
-      table-name: SPRING_SESSION
-      # 읽은 무효화 표식을 늦게 덮어쓰지 않도록 변경한 세션 속성만 저장한다.
-      save-mode: on-set-attribute
-      # DDL 은 Liquibase 가 갖는다. Spring Session 이 따로 만들면 스키마 출처가 둘이 된다.
-      initialize-schema: never
-    # Redis 로 전환할 때 **함께** 켠다 — 주석을 풀지 않으면 조용히 무력해지는 것이 아니라
-    # 기동이 실패한다(SecurityConfig.sessionRegistry, 2026-08-30).
-    #
-    # Spring Session 의 Redis 구현은 둘이고 principal 인덱스를 가진 것은 하나뿐이다.
-    #   RedisSessionRepository         인덱스 없음  ← repository-type 기본값(default)이 이것이다
-    #   RedisIndexedSessionRepository  인덱스 있음  ← indexed
-    #
-    # 인덱스가 없으면 SpringSessionBackedSessionRegistry 를 만들 수 없고, 그러면 동시 접속
-    # 제어(backend/security.md)와 활성 세션 조회(AUTH-10)가 다중화에서 동작하지 않는다.
-    # data:
-    #   redis:
-    #     repository-type: indexed
+      - org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionAutoConfiguration
 
   data:
     redis:
@@ -96,18 +65,11 @@ server:
   # 켜지 않은 채 프록시 뒤에 두면 프록시의 IP 가 남는다. 덜 쓸모 있는 사실이지만
   # 위조된 클라이언트 IP 보다 낫다.
   forward-headers-strategy: none
-  servlet:
-    session:
-      cookie:
-        http-only: true
-        same-site: lax
-        # secure 는 운영 프로파일이 켠다 — 사내 HTTP 배포에서 켜면 쿠키가 아예 붙지 않는다(backend/security.md).
-        secure: false
 
 management:
   health:
     redis:
-      # store-type 이 jdbc 인데 Redis 헬스체크가 기동을 막으면 안 된다(backend/security.md 유의점 2).
+      # 인증 저장소는 선택 provider의 기동 검사로 확인한다. JDBC 배포에 Redis를 요구하지 않는다.
       enabled: false
 
 logging:
@@ -116,6 +78,14 @@ logging:
     level: "%5p [%X{traceId:-}]"
 
 app:
+  auth:
+    session:
+      provider: ${AUTH_SESSION_PROVIDER:jdbc}
+      origin: ${AUTH_ORIGIN}
+      epoch: ${AUTH_SESSION_EPOCH}
+      store-instance: ${AUTH_SESSION_STORE_INSTANCE}
+      local-http: false
+      timeout-minutes: 30
   # SQL 로깅 — backend/logging.md. 기본이 꺼짐이다.
   #
   # 켜면 DataSource 를 P6Spy 로 감싸 **파라미터가 박힌 SQL** 을 찍는다 — 복사해서 DB 툴에

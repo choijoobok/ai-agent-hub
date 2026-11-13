@@ -28,14 +28,14 @@ public class SearchCondController {
         this.conditions = conditions;
     }
 
-    @GetMapping("/api/common/system/searchCond/getList")
+    @GetMapping("/api/system/common/searchCond/getList")
     public ApiResponse<List<SavedSearchCond>> getList(
             @RequestParam String menuCd, Principal principal) {
         return ApiResponse.success(
                 conditions.findMine(userId(principal), menuCd), TraceId.current());
     }
 
-    @PostMapping("/api/common/system/searchCond/save")
+    @PostMapping("/api/system/common/searchCond/save")
     public ApiResponse<List<SavedSearchCond>> save(
             @Valid @RequestBody SearchCondSaveRequest request, Principal principal) {
         String userId = userId(principal);
@@ -44,7 +44,7 @@ public class SearchCondController {
         return ApiResponse.success(conditions.findMine(userId, request.menuCd()), TraceId.current());
     }
 
-    @PostMapping("/api/common/system/searchCond/delete")
+    @PostMapping("/api/system/common/searchCond/delete")
     public ApiResponse<List<SavedSearchCond>> delete(
             @Valid @RequestBody SearchCondDeleteRequest request, Principal principal) {
         String userId = userId(principal);

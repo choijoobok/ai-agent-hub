@@ -108,7 +108,7 @@ public class ExceptionLogRecorder {
                     .httpStat((short) status)
                     .errCd(errorCode.code())
                     .errMsg(message)
-                    .rootCauseStack(status < STACK_FROM ? null : stackOf(cause))
+                    .rootCauseStack(status < STACK_FROM || com.aiagent.api.log.SensitiveRequest.excluded(request) ? null : stackOf(cause))
                     .clientIp(ClientIp.of(request))
                     .traceId(TraceId.current())
                     .creDtm(calendar.now())

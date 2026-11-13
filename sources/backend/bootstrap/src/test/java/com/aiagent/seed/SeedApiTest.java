@@ -48,7 +48,7 @@ class SeedApiTest {
         @DisplayName("모든 행이 업무 API 경로다 — public·common 은 판정 대상이 아니다")
         void onlyServicePaths() {
             assertThat(rowsOf(APIS)).allSatisfy(row ->
-                    assertThat(row.getFirst()).startsWith("/api/service/"));
+                    assertThat(row.getFirst()).matches("/api/[A-Za-z0-9_-]+/service/.+"));
         }
 
         @Test

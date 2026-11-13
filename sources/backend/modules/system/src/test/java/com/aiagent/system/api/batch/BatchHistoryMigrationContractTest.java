@@ -31,9 +31,9 @@ class BatchHistoryMigrationContractTest {
     @Test
     @DisplayName("TC-5085 배치 실행 이력 API는 system 정식 경로 하나만 사용한다")
     void batchHistoryApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(CONTROLLER, "/api/service/system/batchHistory", "getList", "/getList");
-        assertPost(CONTROLLER, "/api/service/system/batchHistory", "getDetail", "/getDetail");
-        assertPost(CONTROLLER, "/api/service/system/batchHistory", "cancel", "/cancel");
+        assertPost(CONTROLLER, "/api/system/service/batchHistory", "getList", "/getList");
+        assertPost(CONTROLLER, "/api/system/service/batchHistory", "getDetail", "/getDetail");
+        assertPost(CONTROLLER, "/api/system/service/batchHistory", "cancel", "/cancel");
     }
 
     @Test

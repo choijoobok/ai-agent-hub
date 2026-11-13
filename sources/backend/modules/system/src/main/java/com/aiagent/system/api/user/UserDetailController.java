@@ -14,7 +14,6 @@ import com.aiagent.domain.user.detail.UserDetailService;
 import com.aiagent.domain.user.detail.UserIdParams;
 import com.aiagent.domain.user.detail.UserIpRow;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,7 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 아니라 세션 스토어라 {@code api} 의 것이며, 도메인이 그것을 알면 backend/packages.md 이 갈린다.
  */
 @RestController
-@RequestMapping("/api/service/system/user")
+@RequestMapping("/api/system/service/user")
 public class UserDetailController {
 
     private final UserDetailQueryService queries;
@@ -102,10 +101,10 @@ public class UserDetailController {
             description = "한 사용자의 살아 있는 세션을 최근 접근이 늦은 것부터 반환한다. 이 요청의 세션에는 표시가 붙는다.")
     @PostMapping("/getSessionList")
     public ApiResponse<PageResponse<UserSessionRow>> getSessionList(
-            @RequestBody @Valid SearchRequest<UserIdParams> request, HttpSession session) {
+            @RequestBody @Valid SearchRequest<UserIdParams> request) {
 
         return ApiResponse.success(
-                PageResponse.all(sessions.list(request.params().userId(), session.getId())),
+                PageResponse.all(sessions.list(request.params().userId())),
                 TraceId.current());
     }
 

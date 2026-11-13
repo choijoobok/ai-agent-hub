@@ -42,9 +42,9 @@ class ErrorLogMigrationContractTest {
     @Test
     @DisplayName("TC-5075 오류·다운로드 이력 API는 system 정식 경로 하나만 사용한다")
     void errorAndDownloadHistoryUseOnlyTheSystemPath() throws Exception {
-        assertPost(ERROR_LOG, "/api/service/system/errorLog", "getList", "/getList");
-        assertPost(ERROR_LOG, "/api/service/system/errorLog", "getDetail", "/getDetail");
-        assertPost(EXCEL_LOG, null, "log", "/api/common/system/excel/saveLog");
+        assertPost(ERROR_LOG, "/api/system/service/errorLog", "getList", "/getList");
+        assertPost(ERROR_LOG, "/api/system/service/errorLog", "getDetail", "/getDetail");
+        assertPost(EXCEL_LOG, null, "log", "/api/system/common/excel/saveLog");
     }
 
     @Test

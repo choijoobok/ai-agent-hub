@@ -2,6 +2,7 @@
 package com.aiagent.system.api.user;
 
 import com.aiagent.api.trace.TraceId;
+import com.aiagent.system.api.auth.LoginService;
 import com.aiagent.system.api.user.request.UserSaveRequest;
 import com.aiagent.system.api.user.request.UserTargetRequest;
 import com.aiagent.core.error.BusinessException;
@@ -57,13 +58,15 @@ import org.springframework.web.bind.annotation.RestController;
  * 해시가 들어가 재조회로 다시 얻을 수 없다.
  */
 @RestController
-@RequestMapping("/api/service/system/user")
+@RequestMapping("/api/system/service/user")
 public class UserController {
+    private final LoginService login;
 
     private final UserQueryService queries;
     private final UserService admin;
 
-    public UserController(UserQueryService queries, UserService admin) {
+    public UserController(LoginService login, UserQueryService queries, UserService admin) {
+        this.login = login;
         this.queries = queries;
         this.admin = admin;
     }
@@ -130,7 +133,9 @@ public class UserController {
     @PostMapping("/savePasswordReset")
     public ApiResponse<List<IssuedPassword>> savePasswordReset(
             @RequestBody @Valid UserTargetRequest request) {
-        return ApiResponse.success(admin.resetPassword(request.targets()), TraceId.current());
+        var issued = admin.resetPassword(request.targets());
+        login.credentialsChanged(request.targets());
+        return ApiResponse.success(issued, TraceId.current());
     }
 
     private static String userId(Principal principal) {

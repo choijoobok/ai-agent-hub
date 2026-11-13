@@ -17,9 +17,9 @@ class UserAuthorizationMigrationContractTest {
     @Test
     @DisplayName("TC-5025 개인 예외 권한 API는 system 정식 경로 하나만 사용한다")
     void personalAuthorizationUsesOnlyTheSystemPath() throws Exception {
-        assertPost(USER_AUTH, "/api/service/system/userAuth", "getList", "/getList");
-        assertPost(USER_AUTH, "/api/service/system/userAuth", "getMenuTree", "/getMenuTree");
-        assertPost(USER_AUTH, "/api/service/system/userAuth", "save", "/save");
+        assertPost(USER_AUTH, "/api/system/service/userAuth", "getList", "/getList");
+        assertPost(USER_AUTH, "/api/system/service/userAuth", "getMenuTree", "/getMenuTree");
+        assertPost(USER_AUTH, "/api/system/service/userAuth", "save", "/save");
         assertClassMissing("com.aiagent.api.userauth.UserAuthController");
     }
 

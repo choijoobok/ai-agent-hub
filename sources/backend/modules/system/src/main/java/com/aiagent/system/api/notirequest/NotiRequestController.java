@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 걸 자리가 없다"</i>).
  */
 @RestController
-@RequestMapping("/api/service/system/notiRequest")
+@RequestMapping("/api/system/service/notiRequest")
 public class NotiRequestController {
 
     private final NotiRequestQueryService queries;

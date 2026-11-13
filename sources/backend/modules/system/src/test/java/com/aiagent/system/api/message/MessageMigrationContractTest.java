@@ -20,9 +20,9 @@ class MessageMigrationContractTest {
     @Test
     @DisplayName("TC-5055 메시지 API는 system 정식 경로 하나만 사용한다")
     void messageApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(MESSAGE_ADMIN, "/api/service/system/message", "getList", "/getList");
-        assertPost(MESSAGE_ADMIN, "/api/service/system/message", "save", "/save");
-        assertGet(MESSAGE_PUBLIC, "getBundle", "/api/public/system/message/getBundle");
+        assertPost(MESSAGE_ADMIN, "/api/system/service/message", "getList", "/getList");
+        assertPost(MESSAGE_ADMIN, "/api/system/service/message", "save", "/save");
+        assertGet(MESSAGE_PUBLIC, "getBundle", "/api/system/public/message/getBundle");
         assertClassMissing("com.aiagent.api.message.MessageAdminController");
         assertClassMissing("com.aiagent.api.message.MessageController");
     }

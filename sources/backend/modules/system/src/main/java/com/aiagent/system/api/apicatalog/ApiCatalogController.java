@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code SYS_MENU_API} 를 만든다 — <b>목록의 첫 화면에서 자기 이름을 볼 수 있다</b>.
  */
 @RestController
-@RequestMapping("/api/service/system/apiCatalog")
+@RequestMapping("/api/system/service/apiCatalog")
 public class ApiCatalogController {
 
     private final ApiCatalogQueryService queries;

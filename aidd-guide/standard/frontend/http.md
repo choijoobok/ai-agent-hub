@@ -5,7 +5,7 @@ category: standard/frontend
 type: operation
 class: policy
 created: 2026-05-04
-updated: 2026-09-12
+updated: 2026-11-14
 status: active
 sources: ["sources/frontend/src/shared/api/", "sources/frontend/eslint.config.js", "aidd-guide/standard/frontend/packages.md"]
 tier: 2
@@ -25,14 +25,14 @@ tags: [frontend, http, axios, endpoints, request-id]
 ```ts
 // features/user/api/endpoints.ts 또는 modules/system/public/auth/api/endpoints.ts
 export const USER_ENDPOINTS = {
-  getList: '/service/user/getList',
-  save:    '/service/user/save',
+  getList: '/system/service/user/getList',
+  save:    '/system/service/user/save',
 } as const;
 ```
 
-- **`baseURL` 이 `/api` 라 선언은 계층 마디부터 시작한다** — `/service/user/getList`.
+- **`baseURL` 이 `/api` 라 선언은 모듈 마디부터 시작한다** — `/system/service/user/getList`.
 - **URL 문자열 리터럴은 ESLint 가 금지한다.** 금지 규칙이 `/api/` 와
-  `/public|/common|/service` 를 **둘 다** 잡아야 한다 — **앞의 것만 두면 게이트가 조용히
+  `/{모듈}/{public|common|service}` 를 **둘 다** 잡아야 한다 — **앞의 것만 두면 게이트가 조용히
   빈다.**
 - 화면은 **그 상수만** 쓴다.
 
@@ -84,7 +84,7 @@ import { post } from '@/shared/api/request';                    // ❌ ESLint
 |---|---|
 | baseURL | `/api` (동일 오리진) |
 | 인증 | 세션 쿠키 자동 — `withCredentials: true` |
-| CSRF | `XSRF-TOKEN` 쿠키 → `X-XSRF-TOKEN` 헤더 (axios 기본) |
+| CSRF | `AIHUB_ADMIN_CSRF` 쿠키 → `X-AIHUB-ADMIN-CSRF` 헤더. 로그인/복구 전 정확 getCsrf로 준비 |
 | **request-id** | UUID 를 **헤더 `X-Request-Id` + 쿼리 `_rid` 양쪽**에 |
 | **menu-code** | 활성 탭의 메뉴 코드를 `X-Menu-Code` 로. **메뉴 문맥 없는 호출은 생략** |
 | `Accept-Language` | 프론트가 고른 언어 |
@@ -111,10 +111,13 @@ import { post } from '@/shared/api/request';                    // ❌ ESLint
 - **401 에서 로그아웃하지 않는 것이 규칙이다.** 재인증이 불가능하거나 사용자가 포기하면
   그때 전역 로그아웃한다 — 작성 중이던 입력이 사라지면 같은 일을 두 번 하게 된다.
 
+로그인/암호 회전 뒤 새 쿠키의 getMe로 첫 사용을 확인한 뒤 화면을 연다.
+암호 변경 API의 정확한503 `PASSWORD_CHANGED_REAUTH_REQUIRED`는 입력·ADMIN 상태를 지우고
+새 암호 재로그인으로 전환한다. 일반503에는 적용하지 않으며 원 POST를 자동 재전송하지 않는다.
+
 ## 6. 새 API 를 부를 때
 
-1. 컨트롤러 경로를 `/api/service/{도메인}/{동작}`으로 짓는다. 모듈 제품은
-   `/api/{모듈}/service/{도메인}/{동작}`, sample은 `/api/sample/service/{동작}`의 도메인 생략 예외를 쓴다. 기존 소스의 계층 우선 경로는 CR-038 이행 대상이다.
+1. 컨트롤러 경로는 `/api/{모듈}/service/{도메인}/{동작}`이다. sample은 `/api/sample/service/{동작}` 예외다.
 2. `endpoints.ts` 에 상수를 더한다.
 3. `{도메인}Api.ts` 에 함수를 더한다 (그리드 선언은 예외).
 4. **`./gradlew generateApiSeed`** — 잊으면 **403** 이다.

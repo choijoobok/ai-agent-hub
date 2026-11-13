@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p><b>같은 URL 을 두 컨트롤러가 매핑하면 기동이 죽는다.</b> 그것이 여기 {@code getOrderList}
  * 가 없는 이유이며 &mdash; 화면마다 패키지를 가르는 것은 <b>인가 경계</b>를 위한 것이지
  * (68 &sect;10.2) URL 을 가르기 위한 것이 아니다. 여섯 화면의 애그리거트는 하나라
- * {@code /api/service/sample} 을 나눠 쓴다(72 &sect;2.2).
+ * {@code /api/sample/service} 을 나눠 쓴다(72 &sect;2.2).
  *
  * <h2>&#9316;가 {@code SMPL_ORDER_TAG} 의 <b>둘째 소비자</b>다</h2>
  *
@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 테이블"</i> 이 두 화면을 나란히 놓아야 이해되는 결정이며, 그것이 이 탭의 존재 이유다.
  */
 @RestController
-@RequestMapping("/api/service/sample")
+@RequestMapping("/api/sample/service")
 public class SampleMdTabsController {
 
     private final SampleQueryService queries;

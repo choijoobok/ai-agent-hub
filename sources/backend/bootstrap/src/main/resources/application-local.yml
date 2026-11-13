@@ -38,6 +38,12 @@ spring:
 
 # 파라미터가 박힌 SQL 을 콘솔에 낸다 — backend/logging.md. 로컬에서 켜는 것이 기본이다.
 app:
+  auth:
+    session:
+      origin: ${AUTH_ORIGIN:http://localhost:3000}
+      epoch: ${AUTH_SESSION_EPOCH:00000000-0000-0000-0000-000000000520}
+      store-instance: ${AUTH_SESSION_STORE_INSTANCE:local-jdbc-v2}
+      local-http: true
   logging:
     sql:
       enabled: true

@@ -91,7 +91,7 @@ public final class ModuleApiCatalog {
         for(Handler handler:observed)if(handler==null||handler.identity()==null||handler.identity().isBlank()||registrations.putIfAbsent(handler.method()+" "+handler.template(),handler)!=null)throw new IllegalArgumentException("관측 handler 식별 또는 등록이 중복됐다");
         for(Operation op:exact.values()){
             Handler handler=registrations.get(op.method()+" "+op.path());String expected=expectedByOperation.get(op.id());
-            if(expected==null||expected.isBlank()||handler==null||!handler.identity().equals(expected))throw new IllegalArgumentException("정확 API의 실제 handler/method/template이 다르다");
+            if(expected==null||expected.isBlank()||handler==null||!handler.identity().equals(expected))throw new IllegalArgumentException("정확 API의 실제 handler/method/template이 다르다: " + op.id() + " " + op.method() + " " + op.path() + " 관측=" + handler);
         }
     }
 }

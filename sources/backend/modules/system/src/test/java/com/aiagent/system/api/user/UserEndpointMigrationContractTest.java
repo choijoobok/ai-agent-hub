@@ -21,12 +21,12 @@ class UserEndpointMigrationContractTest {
     @Test
     @DisplayName("TC-5015 사용자 관리 API는 system 정식 경로 하나만 사용한다")
     void userManagementUsesOnlyTheSystemPath() throws Exception {
-        assertPost(USER, "/api/service/system/user", "getList", "/getList");
-        assertPost(USER, "/api/service/system/user", "save", "/save");
-        assertPost(DETAIL, "/api/service/system/user", "getIpList", "/getIpList");
-        assertPost(DETAIL, "/api/service/system/user", "saveIp", "/saveIp");
-        assertPost(DETAIL, "/api/service/system/user", "getSessionList", "/getSessionList");
-        assertPost(DETAIL, "/api/service/system/user", "killSession", "/killSession");
+        assertPost(USER, "/api/system/service/user", "getList", "/getList");
+        assertPost(USER, "/api/system/service/user", "save", "/save");
+        assertPost(DETAIL, "/api/system/service/user", "getIpList", "/getIpList");
+        assertPost(DETAIL, "/api/system/service/user", "saveIp", "/saveIp");
+        assertPost(DETAIL, "/api/system/service/user", "getSessionList", "/getSessionList");
+        assertPost(DETAIL, "/api/system/service/user", "killSession", "/killSession");
         assertClassMissing("com.aiagent.api.user.UserController");
         assertClassMissing("com.aiagent.api.user.UserDetailController");
     }
@@ -34,11 +34,11 @@ class UserEndpointMigrationContractTest {
     @Test
     @DisplayName("TC-5015 내 프로필 API와 DTO는 system public 경로에만 존재한다")
     void profileUsesOnlyTheSystemPublicPath() throws Exception {
-        assertGet(PROFILE, "/api/common/system/user", "getMyProfile", "/getMyProfile");
-        assertPost(PROFILE, "/api/common/system/user", "saveMyProfile", "/saveMyProfile");
-        assertGet(PROFILE, "/api/common/system/user", "getMyLoginHistory", "/getMyLoginHistory");
-        assertGet(PROFILE, "/api/common/system/user", "getMyRoles", "/getMyRoles");
-        assertPost(PREFERENCE, "/api/common/system/user", "saveLocale", "/saveLocale");
+        assertGet(PROFILE, "/api/system/common/user", "getMyProfile", "/getMyProfile");
+        assertPost(PROFILE, "/api/system/common/user", "saveMyProfile", "/saveMyProfile");
+        assertGet(PROFILE, "/api/system/common/user", "getMyLoginHistory", "/getMyLoginHistory");
+        assertGet(PROFILE, "/api/system/common/user", "getMyRoles", "/getMyRoles");
+        assertPost(PREFERENCE, "/api/system/common/user", "saveLocale", "/saveLocale");
 
         assertClassPresent("com.aiagent.system.api.user.request.ProfileRequest");
         assertClassPresent("com.aiagent.system.api.user.request.LocaleRequest");

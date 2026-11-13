@@ -26,13 +26,13 @@ tags: [backend, filter, interceptor, aop, order, async, virtual-thread, dedup]
   ↓
 [RequestCachingFilter]      ContentCachingRequestWrapper — body 재독 가능
   ↓
-Spring Security 필터 체인    세션 복원 · CSRF
+Spring Security 필터 체인    stateless 헤더 · 인증 포트 외 WAS 세션 금지
   ↓
 [RequestDedupInterceptor]   ← 예정. 자리는 Security 다음, 인가 앞 (§6)
   ↓
-[UserActionLogInterceptor]  ← 인가보다 앞에 등록한다 (§2)
+[administratorRequestContext]  인증 경계 종료 뒤 사용 이력 한 번 기록
   ↓
-[AuthorizationInterceptor]  계정 상태 재검사 + 메뉴×액션 판정
+[SessionV2Filter]           현재 계정·메뉴×액션 보호 · CSRF · 커밋 뒤 세션 발행
   ↓
 Controller
   ↓
@@ -83,10 +83,10 @@ afterCompletion             SYS_LO_ACCESS — 전 요청 1행
 |---|---|---|
 | 추적 ID(MDC) | `RequestIdMdcFilter` | **최우선** |
 | 요청 body 캐싱 | `RequestCachingFilter` | 추적 ID 다음 |
-| 인증 | Spring Security 필터 체인 | |
+| 인증 | `SessionV2Filter` + `AdminAuthorityGuard` | 현재 계정·권한과 업무가 같은 DB 트랜잭션 |
 | **중복 요청 방어** | `RequestDedupInterceptor` — **아직 없다**(§6) | Security 다음, 인가 앞 |
-| **사용 이력** | `UserActionLogInterceptor.afterCompletion` | **등록은 인가보다 앞**, 실행은 응답 완료 후 |
-| **인가** | `AuthorizationInterceptor.preHandle` | 사용 이력 다음 |
+| **사용 이력** | 바깥 `administratorRequestContext` 필터가 기록기 호출 | 인증 필터 종료 뒤401/403 포함 |
+| **인가** | `AdminAuthorityGuard` | `AuthorizationInterceptor`는 현재 권한 버전 응답만 연결 |
 | 에러 로그 | `@RestControllerAdvice` + 비동기 저장 | 예외 발생 시 |
 | 개인정보 접근 이력 | PII 응답 어드바이스 | 복호화 시점 |
 

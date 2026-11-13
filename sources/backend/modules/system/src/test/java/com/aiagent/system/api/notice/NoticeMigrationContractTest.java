@@ -33,11 +33,11 @@ class NoticeMigrationContractTest {
     @Test
     @DisplayName("TC-5092·TC-5093 공지 API는 system 정식 경로만 사용한다")
     void noticeApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(ADMIN_CONTROLLER, "/api/service/system/notice", "getList", "/getList");
-        assertPost(ADMIN_CONTROLLER, "/api/service/system/notice", "save", "/save");
-        assertGet(FEED_CONTROLLER, "getList", "/api/common/system/notice/getList");
-        assertGet(FEED_CONTROLLER, "getOne", "/api/common/system/notice/getOne");
-        assertGet(FEED_CONTROLLER, "getPopup", "/api/common/system/notice/getPopup");
+        assertPost(ADMIN_CONTROLLER, "/api/system/service/notice", "getList", "/getList");
+        assertPost(ADMIN_CONTROLLER, "/api/system/service/notice", "save", "/save");
+        assertGet(FEED_CONTROLLER, "getList", "/api/system/common/notice/getList");
+        assertGet(FEED_CONTROLLER, "getOne", "/api/system/common/notice/getOne");
+        assertGet(FEED_CONTROLLER, "getPopup", "/api/system/common/notice/getPopup");
     }
 
     @Test

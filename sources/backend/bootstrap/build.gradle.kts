@@ -58,6 +58,8 @@ tasks.processResources {
 }
 
 dependencies {
+    testImplementation("org.springframework.data:spring-data-redis")
+    testImplementation("org.springframework.data:spring-data-jpa")
     implementation(project(":backend:api"))
     implementation(project(":backend:modules:system"))
     if (includeSample) {
@@ -135,8 +137,19 @@ dependencies {
 // 소스셋을 새로 만들지 않는다. changelog 와 시드 CSV 가 이 모듈의 리소스이므로 test 셋이
 // 이미 그것을 보고 있고, 셋을 가르면 같은 리소스를 두 번 배선하게 된다.
 tasks.test {
-    useJUnitPlatform { excludeTags("portability") }
+    useJUnitPlatform { excludeTags("portability", "systemAuthLive") }
     systemProperty("includeSample", includeSample)
+}
+
+tasks.register<Test>("systemAuthTest") {
+    group = "verification"
+    description = "전용 PostgreSQL에서 실제 관리자 인증·두 노드 권한·초기 설치를 검증한다"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform { includeTags("systemAuthLive") }
+    systemProperty("includeSample", includeSample)
+    systemProperty("systemAuth.profile", if (isLocalProfile) "local" else "system-auth-test")
+    outputs.upToDateWhen { false }
 }
 
 if (isTemplateDeployment) {
@@ -746,7 +759,7 @@ abstract class ApiSeedTask : DefaultTask() {
                         if (!simple.endsWith("Mapping")) return@forEach
                         pathsOf(annotation).forEach { suffix ->
                             val url = join(base, suffix)
-                            if (!url.startsWith(SERVICE_PREFIX)) return@forEach
+                            if (!SERVICE_PATH.matches(url)) return@forEach
                             val existing = rows.put(url, rowOf(url, method))
                             if (existing != null) {
                                 throw GradleException("업무 API 경로가 겹친다 — $url")
@@ -927,10 +940,10 @@ abstract class ApiSeedTask : DefaultTask() {
     )
 
     private companion object {
-        const val SERVICE_PREFIX = "/api/service/"
+        val SERVICE_PATH = Regex("""/api/[A-Za-z0-9_-]+/service/.+""")
         val READ_PREFIXES = listOf("get", "search", "find", "retrieve")
         val SAVE_PREFIXES = listOf("save", "insert", "update", "delete")
-        val ENDPOINT_URL = Regex("""'(/service/[^']+)'""")
+        val ENDPOINT_URL = Regex("""'(/[A-Za-z0-9_-]+/service/[^']+)'""")
         /*
           마디를 하나로 못 박지 않는다. playbook/INDEX.md 가 화면마다 폴더를 요구하므로 샘플의
           여섯은 `modules/sample/features/mdvertical`처럼 모듈과 기능 마디를 모두 가지며,

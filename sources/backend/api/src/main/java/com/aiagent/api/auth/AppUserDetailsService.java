@@ -37,7 +37,7 @@ public class AppUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, noRollbackFor = UsernameNotFoundException.class)
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         return userAccountService
                 .find(userId)

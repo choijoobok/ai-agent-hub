@@ -2,7 +2,6 @@
 // @feat FEAT-502
 package com.aiagent.system.api.user;
 
-import com.aiagent.api.authz.AuthzInvalidator;
 import com.aiagent.api.message.RequestLocale;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.system.api.user.request.UserRoleSaveRequest;
@@ -20,7 +19,6 @@ import com.aiagent.domain.user.detail.UserGrantRow;
 import com.aiagent.domain.user.detail.UserIdParams;
 import com.aiagent.domain.user.detail.UserRoleRow;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.Set;
@@ -31,22 +29,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** 사용자 관리 화면의 역할·개인 예외 조회·유효 권한 API — FEAT-502. */
 @RestController
-@RequestMapping("/api/service/system/user")
+@RequestMapping("/api/system/service/user")
 public class UserAuthorizationController {
 
     private final UserDetailQueryService queries;
     private final UserDetailService detail;
-    private final AuthzInvalidator invalidator;
     private final RequestLocale locale;
 
     public UserAuthorizationController(
             UserDetailQueryService queries,
             UserDetailService detail,
-            AuthzInvalidator invalidator,
             RequestLocale locale) {
         this.queries = queries;
         this.detail = detail;
-        this.invalidator = invalidator;
         this.locale = locale;
     }
 
@@ -65,10 +60,8 @@ public class UserAuthorizationController {
     @PostMapping("/saveRole")
     public ApiResponse<Void> saveRole(
             @RequestBody @Valid UserRoleSaveRequest request,
-            Principal principal,
-            HttpSession session) {
+            Principal principal) {
         Set<String> changed = detail.saveRoles(request.userId(), request.rows());
-        invalidator.markDirty(changed, session, userId(principal));
         return ApiResponse.success(null, TraceId.current());
     }
 

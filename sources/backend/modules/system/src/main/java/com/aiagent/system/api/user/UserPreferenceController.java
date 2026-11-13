@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 둔 것과 같은 이유다).
  */
 @RestController
-@RequestMapping("/api/common/system/user")
+@RequestMapping("/api/system/common/user")
 public class UserPreferenceController {
 
     private final UserPreferenceService preferences;

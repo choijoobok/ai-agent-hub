@@ -38,6 +38,16 @@ public final class SessionAdmissionsV2 {
         if(request.capability()!=Capability.PREPARE_CSRF)throw new IllegalArgumentException("정확 CSRF 준비 요청이 아니다");
         return new Proof(request,expires,Kind.ANONYMOUS,null,null);
     }
+    /** 소유자가 자격 변경을 검증한 같은 DB 시도에만 결합하는 회수 증거. */
+    public static final class CredentialChange {
+        private final Proof proof;
+        private final java.util.List<com.aiagent.core.security.PrincipalRef> principals;
+        private CredentialChange(Proof proof, java.util.List<com.aiagent.core.security.PrincipalRef> principals) {
+            this.proof = proof; this.principals = java.util.List.copyOf(principals);
+        }
+        public boolean consume(SessionExchange request, Instant now) { return proof.consume(request, now); }
+        public java.util.List<com.aiagent.core.security.PrincipalRef> principals() { return principals; }
+    }
     public static final class Producer {
         private final AuthDomain domain;
         private final String name;
@@ -53,6 +63,14 @@ public final class SessionAdmissionsV2 {
         }
         public Proof rotation(SessionExchange request,SessionV2.Ref expected,Identity identity,Instant expires){
             validate(request,Objects.requireNonNull(expected),Objects.requireNonNull(identity),Capability.PASSWORD_CHANGE,Capability.RESET);return new Proof(request,expires,Kind.ROTATION,expected,identity);
+        }
+        public CredentialChange credentialsChanged(SessionExchange request,
+                java.util.List<com.aiagent.core.security.PrincipalRef> principals, Instant expires) {
+            if (!request.producedBy(this) || request.domain() != domain
+                    || request.capability() != Capability.RECOVERY && request.capability() != Capability.RESET
+                    || principals.isEmpty() || principals.stream().anyMatch(p -> p.domain() != domain))
+                throw new IllegalArgumentException("자격 변경 생산자·동작·영역이 일치하지 않는다");
+            return new CredentialChange(new Proof(request, expires, Kind.ROTATION, null, null), principals);
         }
         @Override public String toString(){return "CredentialProducer["+domain+","+name+"]";}
     }

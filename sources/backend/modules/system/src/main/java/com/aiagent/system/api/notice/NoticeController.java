@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 로 쪼갠 것이 여기서 경로의 갈림으로 나타난다.
  */
 @RestController
-@RequestMapping("/api/service/system/notice")
+@RequestMapping("/api/system/service/notice")
 public class NoticeController {
 
     private final NoticeQueryService queries;

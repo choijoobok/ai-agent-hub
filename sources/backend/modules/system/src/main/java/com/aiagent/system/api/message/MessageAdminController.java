@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code SAVE}. 선언에 또 적지 않는다: 같은 사실이 두 곳에 표현되면 시드와 어긋난다.
  */
 @RestController
-@RequestMapping("/api/service/system/message")
+@RequestMapping("/api/system/service/message")
 public class MessageAdminController {
 
     private final MessageQueryService queries;

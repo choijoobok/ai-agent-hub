@@ -29,6 +29,7 @@ public final class DeferredAuthResponse extends ContentCachingResponseWrapper {
     @Override public void sendRedirect(String location,int status,boolean clearBuffer) {throw early();}
     @Override public void sendError(int status) {throw early();}
     @Override public void sendError(int status,String message) {throw early();}
-    @Override public void flushBuffer() {throw early();}
+    // MVC ResponseEntity도 flush를 호출한다. 실제 전송은 경계가 copyBodyToResponse할 때만 한다.
+    @Override public void flushBuffer() {}
     private IllegalStateException early() {return new IllegalStateException("인증 명령은 커밋 전에 응답을 확정할 수 없다");}
 }

@@ -48,7 +48,7 @@ public class SystemInfoController {
         this.cacheVersions = cacheVersions;
     }
 
-    @GetMapping("/api/common/system/getSystemInfo")
+    @GetMapping("/api/system/common/system/getSystemInfo")
     public ApiResponse<SystemInfoResponse> getSystemInfo() {
         Optional<BuildProperties> build = Optional.ofNullable(buildProperties.getIfAvailable());
 

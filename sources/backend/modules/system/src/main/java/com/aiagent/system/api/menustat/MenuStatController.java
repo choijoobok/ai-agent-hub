@@ -1,7 +1,7 @@
 // @feat FEAT-510
 package com.aiagent.system.api.menustat;
 
-import com.aiagent.api.authz.AuthzSession;
+import com.aiagent.system.api.auth.AdminRequestContext;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.core.error.CommonErrorCode;
@@ -12,7 +12,6 @@ import com.aiagent.domain.menustat.FrequentMenus;
 import com.aiagent.domain.menustat.service.MenuStatService;
 import com.aiagent.system.api.menustat.request.MenuSelectRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +29,7 @@ public class MenuStatController {
         this.stats = stats;
     }
 
-    @PostMapping("/api/common/system/menu/saveSelect")
+    @PostMapping("/api/system/common/menu/saveSelect")
     public ApiResponse<Void> select(
             @Valid @RequestBody MenuSelectRequest request,
             HttpServletRequest http,
@@ -41,18 +40,13 @@ public class MenuStatController {
         return ApiResponse.success(null, TraceId.current());
     }
 
-    @GetMapping("/api/common/system/menu/getFrequent")
+    @GetMapping("/api/system/common/menu/getFrequent")
     public ApiResponse<FrequentMenus> frequent(Principal principal) {
         return ApiResponse.success(stats.findMine(userId(principal)), TraceId.current());
     }
 
     private static EffectiveAuthority authority(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        EffectiveAuthority authority = session == null ? null : AuthzSession.read(session);
-        if (authority == null) {
-            throw new BusinessException(CommonErrorCode.UNAUTHENTICATED);
-        }
-        return authority;
+        return AdminRequestContext.authority();
     }
 
     private static String userId(Principal principal) {

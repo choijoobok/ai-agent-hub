@@ -1,7 +1,6 @@
 // @feat FEAT-502
 package com.aiagent.system.api.role;
 
-import com.aiagent.api.authz.AuthzInvalidator;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.core.error.CommonErrorCode;
@@ -13,7 +12,6 @@ import com.aiagent.system.domain.role.RoleQueryService;
 import com.aiagent.system.domain.role.RoleRow;
 import com.aiagent.system.domain.role.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.Set;
@@ -24,20 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** 역할 관리 API — SCR-507. */
 @RestController
-@RequestMapping("/api/service/system/role")
+@RequestMapping("/api/system/service/role")
 public class RoleController {
 
     private final RoleQueryService queries;
     private final RoleService admin;
-    private final AuthzInvalidator invalidator;
 
     public RoleController(
             RoleQueryService queries,
-            RoleService admin,
-            AuthzInvalidator invalidator) {
+            RoleService admin) {
         this.queries = queries;
         this.admin = admin;
-        this.invalidator = invalidator;
     }
 
     @Operation(
@@ -55,10 +50,8 @@ public class RoleController {
     @PostMapping("/save")
     public ApiResponse<Void> save(
             @RequestBody @Valid RoleSaveRequest request,
-            Principal principal,
-            HttpSession session) {
+            Principal principal) {
         Set<String> affected = admin.save(request.rows());
-        invalidator.markDirty(affected, session, userId(principal));
         return ApiResponse.success(null, TraceId.current());
     }
 

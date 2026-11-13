@@ -39,12 +39,12 @@ import org.springframework.web.bind.annotation.RestController;
  * 아무것도 남지 않는다. 이 컨트롤러에 {@code multipart} 가 하나도 없는 것이 그 결정의
  * 실물이다.
  *
- * <p>URL 은 여섯 화면이 {@code /api/service/sample} 하나를 나눠 쓴다(72 &sect;2.2) &mdash;
+ * <p>URL 은 여섯 화면이 {@code /api/sample/service} 하나를 나눠 쓴다(72 &sect;2.2) &mdash;
  * 애그리거트가 하나라서다. 패키지가 갈리는 것은 <b>인가 경계</b> 때문이며(68 &sect;10.2)
  * 그 둘은 다른 축이다.
  */
 @RestController
-@RequestMapping("/api/service/sample")
+@RequestMapping("/api/sample/service")
 public class SampleExcelController {
 
     private final SampleQueryService queries;

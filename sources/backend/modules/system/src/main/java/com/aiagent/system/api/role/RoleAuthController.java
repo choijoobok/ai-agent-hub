@@ -1,7 +1,6 @@
 // @feat FEAT-502
 package com.aiagent.system.api.role;
 
-import com.aiagent.api.authz.AuthzInvalidator;
 import com.aiagent.api.message.RequestLocale;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.core.error.BusinessException;
@@ -18,7 +17,6 @@ import com.aiagent.system.domain.role.RoleIdParams;
 import com.aiagent.system.domain.role.RolePickRow;
 import com.aiagent.system.domain.role.RoleQueryService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.Set;
@@ -29,22 +27,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** 역할 권한 API — SCR-508. */
 @RestController
-@RequestMapping("/api/service/system/roleAuth")
+@RequestMapping("/api/system/service/roleAuth")
 public class RoleAuthController {
 
     private final RoleQueryService queries;
     private final RoleAuthService admin;
-    private final AuthzInvalidator invalidator;
     private final RequestLocale locale;
 
     public RoleAuthController(
             RoleQueryService queries,
             RoleAuthService admin,
-            AuthzInvalidator invalidator,
             RequestLocale locale) {
         this.queries = queries;
         this.admin = admin;
-        this.invalidator = invalidator;
         this.locale = locale;
     }
 
@@ -73,10 +68,8 @@ public class RoleAuthController {
     @PostMapping("/save")
     public ApiResponse<Void> save(
             @RequestBody @Valid RoleAuthSaveRequest request,
-            Principal principal,
-            HttpSession session) {
+            Principal principal) {
         Set<String> affected = admin.save(request.roleId(), request.grants());
-        invalidator.markDirty(affected, session, userId(principal));
         return ApiResponse.success(null, TraceId.current());
     }
 

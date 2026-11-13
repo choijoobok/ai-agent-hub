@@ -71,6 +71,7 @@ public class RequestPayloadSerializer {
      *     <i>"무엇을 불렀나"</i> 에 답한다
      */
     public String serialize(HttpServletRequest request, HttpLogProps props, int maxBytes) {
+        if (SensitiveRequest.excluded(request)) return null;
         ObjectNode root = json.createObjectNode();
         root.put("method", request.getMethod());
 
@@ -81,6 +82,7 @@ public class RequestPayloadSerializer {
 
         ObjectNode headers = root.putObject("headers");
         for (String name : Collections.list(request.getHeaderNames())) {
+            if (SensitiveRequest.secretHeader(name)) continue;
             headers.put(name, maskedHeader(name, props) ? MASKED : request.getHeader(name));
         }
 

@@ -36,6 +36,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    public static final String HANDLED_FAILURE = GlobalExceptionHandler.class.getName() + ".handledFailure";
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -82,7 +83,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request, DataIntegrityViolationException e) {
         ErrorCode code = CommonErrorCode.CONFLICT;
         // WARN 이다 — 정상 흐름은 아니지만 고장도 아니라, 잦아지면 보고 싶은 종류다.
-        log.warn("무결성 제약 위반 — {}", e.getMostSpecificCause().getMessage());
+        if (com.aiagent.api.log.SensitiveRequest.excluded(request)) log.warn("인증 요청 무결성 제약 위반");
+        else log.warn("무결성 제약 위반 — {}", e.getMostSpecificCause().getMessage());
         return envelope(request, code.type().status(), code, List.of(), e);
     }
 
@@ -140,7 +142,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMalformedBody(
             HttpServletRequest request, HttpMessageNotReadableException e) {
         ErrorCode code = CommonErrorCode.MALFORMED_BODY;
-        log.debug("본문을 읽지 못했다 — {}", e.getMessage());
+        log.debug("본문을 읽지 못했다 type={}", e.getClass().getSimpleName());
         return envelope(request, code.type().status(), code, List.of(), e);
     }
 
@@ -154,7 +156,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(HttpServletRequest request, Exception e) {
         ErrorCode code = CommonErrorCode.INTERNAL;
         // traceId 가 로그와 응답 양쪽에 있어야 사용자가 들고 온 값으로 이 줄을 찾을 수 있다.
-        log.error("처리하지 못한 예외 traceId={}", TraceId.current(), e);
+        if (com.aiagent.api.log.SensitiveRequest.excluded(request))
+            log.error("인증 요청 처리 실패 traceId={} type={}", TraceId.current(), e.getClass().getSimpleName());
+        else log.error("처리하지 못한 예외 traceId={}", TraceId.current(), e);
         return envelope(request, code.type().status(), code, List.of(), e);
     }
 
@@ -185,6 +189,7 @@ public class GlobalExceptionHandler {
             List<BusinessException.FieldError> fields,
             List<BusinessException.RowError> rows,
             Throwable cause) {
+        request.setAttribute(HANDLED_FAILURE, Boolean.TRUE);
         String message = errorMessages.of(code);
         exceptionLogs.record(request, status, code, message, cause);
         return ResponseEntity.status(status)

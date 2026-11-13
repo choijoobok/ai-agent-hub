@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 버튼은 {@code <DataGrid>} 가 그린다.
  */
 @RestController
-@RequestMapping("/api/service/system/code")
+@RequestMapping("/api/system/service/code")
 public class CodeAdminController {
 
     private final CodeQueryService queries;

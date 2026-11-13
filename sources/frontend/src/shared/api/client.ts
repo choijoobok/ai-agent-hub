@@ -41,7 +41,11 @@ apiClient.interceptors.request.use(async (config) => {
       AUTH_ENDPOINTS.verifyResetCode, AUTH_ENDPOINTS.saveResetPassword].some((url) => url === config.url);
     // 만료된 세션의 브라우저 쿠키가 남아 있어도 로그인/복구를 다시 시작할 수 있다.
     if (publicCredentialCommand || !adminCsrf()) {
-      csrfPreparation ??= apiClient.get(AUTH_ENDPOINTS.getCsrf).finally(() => { csrfPreparation = null; });
+      csrfPreparation ??= apiClient.get(AUTH_ENDPOINTS.getCsrf).catch((error: unknown) => {
+        // 불가 계정의 이전 쿠키를 서버가 회수한 뒤 새 익명 문맥을 준비한다. 원 명령은 아직 보내지 않았다.
+        if (axios.isAxiosError(error) && error.response?.status === 401) return apiClient.get(AUTH_ENDPOINTS.getCsrf);
+        throw error;
+      }).finally(() => { csrfPreparation = null; });
       await csrfPreparation;
     }
     const csrf = adminCsrf();

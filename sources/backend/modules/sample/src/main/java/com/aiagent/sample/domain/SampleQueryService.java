@@ -334,7 +334,7 @@ public class SampleQueryService {
      * {@code listModal} 이 항목을 고르는 팝업의 후보 &mdash; 54 &sect;5.6 &middot; 68 &sect;9.6.
      *
      * <p><b>이름이 &#9316;의 {@code getTagList} 보다 길다.</b> 그 짧은 이름은 이미
-     * <i>한 주문의 태그 행들</i> 이고(같은 {@code /api/service/sample} 를 나눠 쓴다),
+     * <i>한 주문의 태그 행들</i> 이고(같은 {@code /api/sample/service} 를 나눠 쓴다),
      * 여기서 내는 것은 <b>주문을 가로지르는 후보</b>다 &mdash; 같은 이름을 둘이 쓰면 기동이
      * 매핑 충돌로 죽고, 비슷한 이름을 쓰면 다음 사람이 <i>어느 쪽이 내 것인가</i> 를
      * 응답을 까 보고 안다.

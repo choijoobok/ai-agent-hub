@@ -3,8 +3,6 @@ package com.aiagent.system.api.auth;
 
 import com.aiagent.api.auth.AuthErrorCode;
 import com.aiagent.api.auth.LoginContexts;
-import com.aiagent.api.auth.SessionKeys;
-import com.aiagent.api.authz.AuthzSession;
 import com.aiagent.api.authz.AuthzVersionHeader;
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.core.error.ErrorCode;
@@ -30,8 +28,17 @@ import com.aiagent.system.api.auth.response.LoginResponse;
 import com.aiagent.system.api.auth.response.LoginUserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import java.time.Instant;
+import com.aiagent.core.security.AuthDomain;
+import com.aiagent.core.security.PrincipalRef;
+import com.aiagent.core.security.SessionPersistencePort.Identity;
+import com.aiagent.core.security.SessionPersistencePort.AuthLevel;
+import com.aiagent.core.security.v2.SessionAdmissionsV2;
+import com.aiagent.core.security.v2.SessionV2;
+import com.aiagent.api.auth.v2.SessionRuntime;
+import com.aiagent.support.config.props.ConcurrentSessionProps;
+import org.springframework.core.env.Environment;
 import java.util.Map;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,29 +48,15 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.session.SessionAuthenticationException;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-/**
- * 로그인 · 로그아웃 조립 — backend/security.md 의 흐름 그대로다.
- *
- * <p><b>체인 #2~#5 를 직접 구현하지 않는다.</b> {@code AccountStatusUserDetailsChecker} 가
- * 4개 플래그로 자동 검사하며, 여기서는 <b>어떤 예외가 어떤 이력 코드인가</b>만 옮긴다
- * (backend/security.md). 직접 검사하면 플래그와 검사가 두 곳에 생겨 언젠가 어긋난다.
- *
- * <p><b>#5 만 예외다.</b> 비밀번호 만료는 차단이 아니라 <b>유도</b>이므로
- * {@link CredentialsExpiredException} 을 잡아 제한 세션으로 전환한다. 그 예외가 던져졌다는
- * 것은 <b>비밀번호는 맞았다</b>는 뜻이다 — 자격 검사는 사전 검사와 비밀번호 검사 뒤에 온다.
- */
+
 @Service
 public class LoginService {
 
-    /** 예외 → 이력 코드. 표를 코드로 옮긴 것이며 분기문으로 흩지 않는다. */
+
     private static final Map<Class<? extends RuntimeException>, LoginResultCode> EXCEPTION_TO_RESULT =
             Map.of(
                     UsernameNotFoundException.class, LoginResultCode.FAIL_NO_USER,
@@ -72,7 +65,7 @@ public class LoginService {
                     AccountExpiredException.class, LoginResultCode.FAIL_EXPIRED,
                     LockedException.class, LoginResultCode.FAIL_LOCKED);
 
-    /** 이력 코드 → 화면에 나갈 코드·문구. {@code FAIL_NO_USER}·{@code FAIL_PWD} 가 같은 칸이다. */
+
     private static final Map<LoginResultCode, AuthErrorCode> RESULT_TO_ERROR = Map.of(
             LoginResultCode.FAIL_NO_USER, AuthErrorCode.LOGIN_FAILED,
             LoginResultCode.FAIL_PWD, AuthErrorCode.LOGIN_FAILED,
@@ -92,8 +85,8 @@ public class LoginService {
     private final CacheVersionService cacheVersionService;
     private final LoginHistoryService loginHistoryService;
     private final List<LoginPostCheck> postChecks;
-    private final SessionAuthenticationStrategy sessionStrategy;
-    private final SecurityContextRepository securityContextRepository;
+    private final SessionAdmissionsV2.Producer producer;
+    private final int timeoutSeconds;
     private final ConfigLookup configs;
     private final BusinessCalendar calendar;
 
@@ -105,8 +98,8 @@ public class LoginService {
             CacheVersionService cacheVersionService,
             LoginHistoryService loginHistoryService,
             List<LoginPostCheck> postChecks,
-            SessionAuthenticationStrategy sessionStrategy,
-            SecurityContextRepository securityContextRepository,
+            SessionAdmissionsV2.Producer producer,
+            Environment environment,
             ConfigLookup configs,
             BusinessCalendar calendar) {
         this.authenticationManager = authenticationManager;
@@ -116,10 +109,17 @@ public class LoginService {
         this.cacheVersionService = cacheVersionService;
         this.loginHistoryService = loginHistoryService;
         this.postChecks = postChecks;
-        this.sessionStrategy = sessionStrategy;
-        this.securityContextRepository = securityContextRepository;
+        this.producer = producer;
+        this.timeoutSeconds = environment.getProperty("app.auth.session.timeout-minutes", Integer.class, 30) * 60;
         this.configs = configs;
         this.calendar = calendar;
+    }
+
+    public record Attempt(LoginResponse response, ErrorCode rejection) {}
+    /** 거부도 정상 결과로 반환한다. 필터는 횟수/잠금 커밋 뒤 버퍼의 HTTP401을 내보낸다. */
+    public Attempt attempt(LoginRequest form, HttpServletRequest request, HttpServletResponse response) {
+        try { return new Attempt(login(form, request, response), null); }
+        catch (BusinessException rejected) { return new Attempt(null, rejected.errorCode()); }
     }
 
     public LoginResponse login(
@@ -175,20 +175,16 @@ public class LoginService {
         }
 
         EffectiveAuthority authority = candidate.authority();
-
-        // 세션 수립이 성공 기록보다 앞이다 — 동시 접속 제어가 여기서 거부할 수 있으므로
-        // (prevent-login: true) 순서가 뒤바뀌면 실패한 로그인이 실패 횟수를 초기화한다.
         try {
-            establishSession(authentication, mustChangePassword, authority, request, response);
-        } catch (SessionAuthenticationException e) {
+            establishSession(user, mustChangePassword, authority, response);
+        } catch (SessionV2.Failure e) {
+            if (e.outcome() != SessionV2.Outcome.INVALID_SESSION) throw e;
             throw fail(form.loginId(), LoginResultCode.FAIL_CONCURRENT, context);
         }
 
         userAccountService.recordLoginSuccess(form.loginId());
         loginHistoryService.record(form.loginId(), LoginResultCode.SUCCESS, context);
 
-        // 세션은 방금 establishSession 이 만들었다 — 여기서 없으면 그것이 실패한 것이다.
-        HttpSession session = request.getSession(false);
 
         return LoginResponse.of(
                 new LoginUserResponse(user.getUserId(), user.getUserNm(), user.getLocaleCd()),
@@ -196,7 +192,7 @@ public class LoginService {
                 authority,
                 menuTreeService.build(authority),
                 cacheVersionService.all(),
-                session == null ? 0 : session.getMaxInactiveInterval(),
+                timeoutSeconds,
                 configs.get(UiExcelProps.class).maxRows(),
                 configs.get(UiExcelProps.class).maxUploadRows(),
                 configs.get(SearchRangeProps.class).defaultDays(),
@@ -204,12 +200,7 @@ public class LoginService {
                 dateFormat());
     }
 
-    /**
-     * 날짜 표시 형식 셋 — sys/code.md · frontend/grid.md.
-     *
-     * <p>{@code AuthController#dateFormat} 과 같은 세 줄이다. 부품으로 빼지 않는 근거는
-     * 그쪽에 적어 두었다.
-     */
+
     private LoginResponse.DateFormatResponse dateFormat() {
         UiDateFormatProps format = configs.get(UiDateFormatProps.class);
         return new LoginResponse.DateFormatResponse(
@@ -220,10 +211,7 @@ public class LoginService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication == null ? null : authentication.getName();
 
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+        AdminRequestContext.scope().logout();
         SecurityContextHolder.clearContext();
 
         if (userId != null) {
@@ -233,40 +221,48 @@ public class LoginService {
 
     // ── 내부 ────────────────────────────────────────────────────────────
 
-    /**
-     * 세션 고정 공격 방어. <b>SecurityContext 를 저장하기 전에</b> 세션 ID 를 바꾼다 —
-     * 순서가 뒤바뀌면 인증된 컨텍스트가 공격자가 아는 옛 ID 에 붙는다.
-     *
-     * <p><b>동시 접속 제어(backend/security.md)가 이 한 줄 안에 있다.</b> 주입된 전략은 합성물이며
-     * ({@code SecurityConfig}) 세션 ID 교체 앞에 {@code ConcurrentSessionControl} 이 붙어 있다 —
-     * 그래서 {@code prevent-login: true} 에서 이 호출이 던지고, 아래의 세션 조작은 일어나지
-     * 않는다. <b>전략을 직접 나열하지 않는 것이 요점</b>이다: 설정으로 켜고 끄는 것이
-     * 조립(설정)의 일이지 이 흐름의 분기가 아니다.
-     */
-    private void establishSession(
-            Authentication authentication,
-            boolean mustChangePassword,
-            EffectiveAuthority authority,
-            HttpServletRequest request,
-            HttpServletResponse response) {
 
-        sessionStrategy.onAuthentication(authentication, request, response);
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
-        securityContextRepository.saveContext(context, request, response);
-
-        HttpSession session = request.getSession();
-        session.setAttribute(SessionKeys.PASSWORD_CHANGE_REQUIRED, mustChangePassword);
-
-        // 유효 권한을 세션에 담는다 — 이후 매 요청의 판정이 이 값 하나를 본다(backend/security.md).
-        // 세션 ID 를 바꾼 뒤에 담아야 한다: 순서가 뒤바뀌면 옛 세션에 담기고 새 세션은 빈다.
-        AuthzSession.initialize(session, authority);
-
-        // 로그인 응답은 /api/public 이라 인가 인터셉터를 지나지 않는다 — 여기서 붙이지 않으면
-        // 프론트가 비교 기준값 없이 셸을 그린다.
+    private void establishSession(SysUser user, boolean mustChangePassword,
+            EffectiveAuthority authority, HttpServletResponse response) {
+        var scope = AdminRequestContext.scope();
+        var identity = identity(user, mustChangePassword);
+        var proof = producer.login(scope.exchange(), scope.current().map(SessionV2.Snapshot::ref).orElse(null),
+                identity, calendar.now().plusSeconds(60));
+        scope.publish(proof, slotPolicy());
         AuthzVersionHeader.stamp(response, authority);
+    }
+
+    public void rotatePassword(SysUser user) {
+        var scope = AdminRequestContext.scope();
+        var current = scope.current().orElseThrow(() -> new SessionV2.Failure(SessionV2.Outcome.INVALID_SESSION));
+        var proof = producer.rotation(scope.exchange(), current.ref(), identity(user, false), calendar.now().plusSeconds(60));
+        scope.publish(proof, slotPolicy());
+    }
+
+    public void credentialsChanged(List<String> userIds) {
+        if (userIds.isEmpty()) return;
+        var scope = AdminRequestContext.scope();
+        scope.credentialsChanged(producer.credentialsChanged(scope.exchange(), userIds.stream()
+                .map(id -> new PrincipalRef(AuthDomain.ADMIN, id)).toList(), calendar.now().plusSeconds(60)));
+    }
+
+    public int timeoutSeconds() { return timeoutSeconds; }
+
+    private SessionRuntime.SlotPolicy slotPolicy() {
+        var props = configs.get(ConcurrentSessionProps.class);
+        return new SessionRuntime.SlotPolicy(props.enabled(), props.maxSessions(), props.preventLogin());
+    }
+
+    private Identity identity(SysUser user, boolean restricted) {
+        // 원장 시각은 microseconds이다. 같은 clock tick의 암호 변경 시각을 잘라 과거로 만들지 않는다.
+        Instant authenticatedAt = calendar.now().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        if (user.getPwdChgDtm() != null && authenticatedAt.isBefore(user.getPwdChgDtm())) {
+            authenticatedAt = user.getPwdChgDtm().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+            if (authenticatedAt.isBefore(user.getPwdChgDtm())) authenticatedAt = authenticatedAt.plusNanos(1_000);
+        }
+        return new Identity(new PrincipalRef(AuthDomain.ADMIN, user.getUserId()),
+                restricted ? AuthLevel.PASSWORD_CHANGE_REQUIRED : AuthLevel.AUTHENTICATED,
+                "LOCAL", null, authenticatedAt, user.getUserNm(), user.getLocaleCd());
     }
 
     private Authentication restrictedAuthentication(String userId) {

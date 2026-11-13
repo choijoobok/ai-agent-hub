@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 줄 수 없다</b>. {@code AccessLogController} 와 같은 모양이다.
  *
  * <p><b>경로가 목업에 이미 있었다</b> — {@code api-catalog.html} 이
- * {@code /api/service/system/errorLog/getList} · {@code /getDetail} 을 적어 두었고 그대로 맞는다.
+ * {@code /api/system/service/errorLog/getList} · {@code /getDetail} 을 적어 두었고 그대로 맞는다.
  * 다만 그 목업의 설명이 <i>레벨로 조회</i> 라고 한 것은 <b>상태</b>다(screen/admin/system/log/error/requirements.md) — 로그 레벨은
  * 애플리케이션 로그 파일의 어휘이고(28), 이 테이블에는 그 컬럼이 없다.
  *
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 같은 종류이며 고장이 아니다.
  */
 @RestController
-@RequestMapping("/api/service/system/errorLog")
+@RequestMapping("/api/system/service/errorLog")
 public class ErrorLogController {
 
     private final ErrorLogQueryService queries;

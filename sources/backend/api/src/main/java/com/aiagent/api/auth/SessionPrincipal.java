@@ -1,68 +1,29 @@
+// @feat FEAT-501
 package com.aiagent.api.auth;
 
+import com.aiagent.api.auth.v2.SessionRuntime;
+import com.aiagent.api.auth.v2.SessionV2Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.function.UnaryOperator;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
-/**
- * 세션에 담긴 인증 주체를 <b>다시 쓰는</b> 유일한 자리.
- *
- * <p><b>주체는 로그인 시점의 사진이다.</b> 그 뒤에 바뀐 사실은 다시 넣어 주지 않으면
- * 세션이 끝날 때까지 옛 값이다 — 지금 그 대상은 <b>언어</b>({@code RequestLocale} 이 요청마다
- * DB 를 치지 않고 주체를 읽는다 — backend/packages.md)와 <b>이름</b>({@code auth/me} 가 주체에서
- * 읽는다 — frontend/tabs.md) 둘이다.
- *
- * <p><b>{@code SecurityContextHolder} 만 바꾸면 이 요청에서만 산다.</b> 홀더는 요청 스레드의
- * 것이고 저장은 리포지터리가 한다 — 세션에 쓰지 않으면 <b>다음 요청이 옛 주체를 되살린다.</b>
- *
- * <p><b>권한(체인 #2~#5)은 여기서 다시 계산하지 않는다.</b> 계정 상태의 사진은 인가
- * 인터셉터가 자기 주기로 갱신하며(backend/security.md), 이 자리가 그것까지 하면 <b>같은 판정이 두
- * 곳</b>에 생긴다.
- */
+/** 화면 표시용 이름·언어 스냅샷만 같은 요청의 v2 저장 계획에 반영한다. */
 @Component
 public class SessionPrincipal {
-
-    private final SecurityContextRepository repository = new HttpSessionSecurityContextRepository();
-
-    /** 언어를 갈아 끼운다 — frontend/tabs.md. */
-    public void changeLocale(
-            String localeCd, HttpServletRequest request, HttpServletResponse response) {
-        replace(details -> details.withLocale(localeCd), request, response);
+    public void changeLocale(String locale, HttpServletRequest request, HttpServletResponse response) {
+        var scope = scope(request);
+        var identity = scope.current().orElseThrow().identity();
+        scope.updateSnapshot(identity.displayName(), locale, Set.of());
     }
-
-    /** 이름을 갈아 끼운다 — USER-05 · frontend/tabs.md. 헤더가 읽는 값이 여기서 나온다. */
-    public void changeUserNm(
-            String userNm, HttpServletRequest request, HttpServletResponse response) {
-        replace(details -> details.withUserNm(userNm), request, response);
+    public void changeUserNm(String name, HttpServletRequest request, HttpServletResponse response) {
+        var scope = scope(request);
+        var identity = scope.current().orElseThrow().identity();
+        scope.updateSnapshot(name, identity.locale(), Set.of());
     }
-
-    /**
-     * 주체가 우리 타입이 아니면 아무 일도 하지 않는다 — 그런 세션은 이 API 에 닿을 수
-     * 없지만, 조용히 넘기는 편이 500 보다 낫다.
-     */
-    private void replace(
-            UnaryOperator<AppUserDetails> change,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        Authentication current = SecurityContextHolder.getContext().getAuthentication();
-        if (current == null || !(current.getPrincipal() instanceof AppUserDetails details)) {
-            return;
-        }
-
-        Authentication updated = UsernamePasswordAuthenticationToken.authenticated(
-                change.apply(details), current.getCredentials(), current.getAuthorities());
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(updated);
-        SecurityContextHolder.setContext(context);
-        repository.saveContext(context, request, response);
+    private SessionRuntime.Scope scope(HttpServletRequest request) {
+        if (!(request.getAttribute(SessionV2Filter.SCOPE) instanceof SessionRuntime.Scope scope))
+            throw new IllegalStateException("공통 인증 경계를 거쳐야 한다");
+        return scope;
     }
 }

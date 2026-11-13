@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * (backend/api.md — 접두가 액션을 정한다).
  *
  * <p><b>{@code EXPORT} 에도 경로가 없다.</b> 엑셀은 있지만(sys/menu.md 의 액션 열이 {@code R E}
- * 다) 프론트 생성이며(playbook/excel-download.md 첫째) 다운로드 이력은 {@code POST /api/common/system/excel/saveLog} 가
+ * 다) 프론트 생성이며(playbook/excel-download.md 첫째) 다운로드 이력은 {@code POST /api/system/common/excel/saveLog} 가
  * 남긴다.
  *
  * <p><b>세션 언어를 받지 않는다</b> — 사용 이력과 갈리는 자리다. 저쪽은 메뉴명이
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 코드인데 그것은 <b>공통코드라 프론트 캐시가 붙인다</b>(sys/code.md).
  */
 @RestController
-@RequestMapping("/api/service/system/loginLog")
+@RequestMapping("/api/system/service/loginLog")
 public class LoginLogController {
 
     private final LoginLogQueryService queries;

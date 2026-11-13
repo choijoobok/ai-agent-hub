@@ -27,6 +27,28 @@ class SessionRuntimeTest {
         assertThatThrownBy(()->runtime.execute(change,()->{jdbc.update("UPDATE CREDENTIAL_FIXTURE SET PWD='forbidden'");change.publish(producer.rotation(change.exchange(),existing.ref,wrong,ledger.now().plusSeconds(60)),new SessionRuntime.SlotPolicy(false,1,false));return null;})).isInstanceOfSatisfying(Failure.class,failure->assertThat(failure.outcome()).isEqualTo(SessionV2.Outcome.INVALID_SESSION));
         assertThat(jdbc.queryForObject("SELECT PWD FROM CREDENTIAL_FIXTURE",String.class)).isEqualTo("before");assertThat(scope(Capability.READ,existing.cookie).current()).isPresent();assertThatThrownBy(()->change.emitCookies((d,c,t)->fail("주체변경쿠키"))).isInstanceOf(IllegalStateException.class);
     }
+    @Test @DisplayName("TC-5018 자격 복구는 검증된 주체의 기존 ACTIVE를 같은 암호 트랜잭션에서 회수한다")
+    void credentialRecoveryRevokesPriorSessionsAtomically() {
+        var old=login(anonymous(),AuthLevel.AUTHENTICATED,new SessionRuntime.SlotPolicy(false,1,false));
+        var entry=anonymous();
+        var operation=new ModuleApiCatalog.Operation("reset","POST","/api/system/public/auth/saveResetPassword",ModuleApiCatalog.Domain.ADMIN,Set.of(AuthLevel.values()),null,true,Capability.RECOVERY,null,null,true);
+        var reset=runtime.open(new SessionExchange(AuthDomain.ADMIN,"reset",Capability.RECOVERY,producer),operation,entry.cookie);
+        runtime.execute(reset,()->{jdbc.update("UPDATE CREDENTIAL_FIXTURE SET PWD='after'");reset.credentialsChanged(producer.credentialsChanged(reset.exchange(),List.of(new PrincipalRef(AuthDomain.ADMIN,"owner")),ledger.now().plusSeconds(60)));return null;});
+        runtime.finish(reset);
+        assertThatThrownBy(()->scope(Capability.READ,old.cookie)).isInstanceOf(Failure.class);
+        assertThat(jdbc.queryForObject("SELECT PWD FROM CREDENTIAL_FIXTURE",String.class)).isEqualTo("after");
+        assertThatCode(()->scope(Capability.READ,entry.cookie)).doesNotThrowAnyException();
+    }
+    @Test @DisplayName("TC-5018 자격 복구 rollback은 암호와 이전 접속을 함께 보존한다")
+    void credentialRecoveryRollbackKeepsPriorSession() {
+        var old=login(anonymous(),AuthLevel.AUTHENTICATED,new SessionRuntime.SlotPolicy(false,1,false));
+        var entry=anonymous();
+        var operation=new ModuleApiCatalog.Operation("reset","POST","/api/system/public/auth/saveResetPassword",ModuleApiCatalog.Domain.ADMIN,Set.of(AuthLevel.values()),null,true,Capability.RECOVERY,null,null,true);
+        var reset=runtime.open(new SessionExchange(AuthDomain.ADMIN,"reset",Capability.RECOVERY,producer),operation,entry.cookie);
+        assertThatThrownBy(()->runtime.execute(reset,()->{jdbc.update("UPDATE CREDENTIAL_FIXTURE SET PWD='after'");reset.credentialsChanged(producer.credentialsChanged(reset.exchange(),List.of(new PrincipalRef(AuthDomain.ADMIN,"owner")),ledger.now().plusSeconds(60)));throw new IllegalStateException("시험 롤백");})).isInstanceOf(IllegalStateException.class);
+        assertThat(scope(Capability.READ,old.cookie).current()).isPresent();
+        assertThat(jdbc.queryForObject("SELECT PWD FROM CREDENTIAL_FIXTURE",String.class)).isEqualTo("before");
+    }
     private DriverManagerDataSource source;
     private JdbcTemplate jdbc;
     private DataSourceTransactionManager manager;

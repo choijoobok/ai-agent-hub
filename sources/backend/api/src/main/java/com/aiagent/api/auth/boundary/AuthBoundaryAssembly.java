@@ -25,7 +25,7 @@ public final class AuthBoundaryAssembly {
         private final int status;
         public Rejected(int status) {
             super("인증 또는 현재 권한 판정을 거부했다");
-            if (status!=401 && status!=403 && status!=503) throw new IllegalArgumentException("인증 오류 상태가 올바르지 않다");
+            if (status!=400 && status!=401 && status!=403 && status!=503) throw new IllegalArgumentException("인증 오류 상태가 올바르지 않다");
             this.status=status;
         }
         public int status() { return status; }

@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 삭제가 한 요청이며, 쪼개면 화면의 저장 버튼 하나가 두 번 나간다.
  */
 @RestController
-@RequestMapping("/api/service/system/config")
+@RequestMapping("/api/system/service/config")
 public class ConfigController {
 
     private final ConfigQueryService queries;

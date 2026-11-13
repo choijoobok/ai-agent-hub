@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </table>
  */
 @RestController
-@RequestMapping("/api/service/sample")
+@RequestMapping("/api/sample/service")
 public class SampleSingleCursorController {
 
     private final SampleQueryService queries;

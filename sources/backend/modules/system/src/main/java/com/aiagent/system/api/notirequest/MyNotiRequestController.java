@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <i>내 요청</i> — 알림 모달의 셋째 탭(screen/_standalone/README.md · NOTI-06 사용자 측).
  *
  * <p><b>{@link NotiRequestController} 와 방향이 반대다.</b> 저쪽은
- * {@code /api/service/system/notiRequest/**} 이고 {@code (NOTI_REQUEST, SAVE)} 권한을 요구하지만,
+ * {@code /api/system/service/notiRequest/**} 이고 {@code (NOTI_REQUEST, SAVE)} 권한을 요구하지만,
  * 여기는 {@code common} 계층이라 <b>권한이 없는 사람도 부른다</b> — 실제로 <b>권한이
  * 없어서</b> 요청을 내는 것이 이 기능의 첫 용도다(권한 신청).
  *
@@ -42,7 +42,7 @@ public class MyNotiRequestController {
      * (screen/admin/system/notice/requirements.md) — 저쪽은 오래 기다린 것을 먼저 처리해야 하고, 여기는 <b>방금 낸 것이
      * 어떻게 됐는지</b> 가 물음이다.
      */
-    @GetMapping("/api/common/system/notiRequest/getMyList")
+    @GetMapping("/api/system/common/notiRequest/getMyList")
     public ApiResponse<MyRequests> getMyList(Principal principal) {
         return ApiResponse.success(requests.findMine(userId(principal)), TraceId.current());
     }
@@ -54,7 +54,7 @@ public class MyNotiRequestController {
      * 마지막 방어가 아니다 — 더블클릭 한 번이 여벌을 만들고, 그 여벌은 관리자가 하나씩
      * 반려해야 하며 반려마다 알림이 나간다(screen/admin/system/notice/requirements.md).
      */
-    @PostMapping("/api/common/system/notiRequest/save")
+    @PostMapping("/api/system/common/notiRequest/save")
     public ApiResponse<MyRequests> create(
             @Valid @RequestBody MyNotiRequestCreateRequest request, Principal principal) {
 

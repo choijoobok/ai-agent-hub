@@ -47,17 +47,17 @@ class UserStateMigrationContractTest {
     @Test
     @DisplayName("TC-5101·TC-5104 사용자 상태 API는 system 공통 경로 하나만 사용한다")
     void userStateApisUseOnlyTheSystemPath() throws Exception {
-        assertGet(FAVORITE, "getList", "/api/common/system/favorite/getList");
-        assertPost(FAVORITE, "add", "/api/common/system/favorite/save");
-        assertPost(FAVORITE, "remove", "/api/common/system/favorite/delete");
-        assertGet(GRID_PREF, "getOne", "/api/common/system/gridPref/getOne");
-        assertPost(GRID_PREF, "save", "/api/common/system/gridPref/save");
-        assertPost(GRID_PREF, "reset", "/api/common/system/gridPref/delete");
-        assertGet(SEARCH_COND, "getList", "/api/common/system/searchCond/getList");
-        assertPost(SEARCH_COND, "save", "/api/common/system/searchCond/save");
-        assertPost(SEARCH_COND, "delete", "/api/common/system/searchCond/delete");
-        assertPost(MENU_STAT, "select", "/api/common/system/menu/saveSelect");
-        assertGet(MENU_STAT, "frequent", "/api/common/system/menu/getFrequent");
+        assertGet(FAVORITE, "getList", "/api/system/common/favorite/getList");
+        assertPost(FAVORITE, "add", "/api/system/common/favorite/save");
+        assertPost(FAVORITE, "remove", "/api/system/common/favorite/delete");
+        assertGet(GRID_PREF, "getOne", "/api/system/common/gridPref/getOne");
+        assertPost(GRID_PREF, "save", "/api/system/common/gridPref/save");
+        assertPost(GRID_PREF, "reset", "/api/system/common/gridPref/delete");
+        assertGet(SEARCH_COND, "getList", "/api/system/common/searchCond/getList");
+        assertPost(SEARCH_COND, "save", "/api/system/common/searchCond/save");
+        assertPost(SEARCH_COND, "delete", "/api/system/common/searchCond/delete");
+        assertPost(MENU_STAT, "select", "/api/system/common/menu/saveSelect");
+        assertGet(MENU_STAT, "frequent", "/api/system/common/menu/getFrequent");
     }
 
     @Test

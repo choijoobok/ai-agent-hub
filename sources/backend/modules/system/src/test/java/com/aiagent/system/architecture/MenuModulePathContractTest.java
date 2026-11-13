@@ -45,8 +45,8 @@ class MenuModulePathContractTest {
     @Test
     @DisplayName("TC-5035 메뉴·카탈로그 API는 system 접두어만 노출한다")
     void menuAndCatalogExposeOnlySystemEndpoints() throws NoSuchMethodException {
-        assertThat(requestPath(MenuController.class)).isEqualTo("/api/service/system/menu");
-        assertThat(requestPath(ApiCatalogController.class)).isEqualTo("/api/service/system/apiCatalog");
+        assertThat(requestPath(MenuController.class)).isEqualTo("/api/system/service/menu");
+        assertThat(requestPath(ApiCatalogController.class)).isEqualTo("/api/system/service/apiCatalog");
 
         assertThat(postPath(MenuController.class.getMethod("getTree"))).isEqualTo("/getTree");
         assertThat(postPath(MenuController.class.getMethod("saveNode", com.aiagent.system.api.menu.request.MenuNodeRequest.class)))

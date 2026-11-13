@@ -27,7 +27,7 @@ public class GridPrefController {
         this.preferences = preferences;
     }
 
-    @GetMapping("/api/common/system/gridPref/getOne")
+    @GetMapping("/api/system/common/gridPref/getOne")
     public ApiResponse<GridPref> getOne(
             @RequestParam String menuCd,
             @RequestParam String gridId,
@@ -37,7 +37,7 @@ public class GridPrefController {
                 preferences.find(userId(principal), menuCd, gridId, signature), TraceId.current());
     }
 
-    @PostMapping("/api/common/system/gridPref/save")
+    @PostMapping("/api/system/common/gridPref/save")
     public ApiResponse<Void> save(
             @Valid @RequestBody GridPrefSaveRequest request, Principal principal) {
         preferences.save(
@@ -49,7 +49,7 @@ public class GridPrefController {
         return ApiResponse.success(null, TraceId.current());
     }
 
-    @PostMapping("/api/common/system/gridPref/delete")
+    @PostMapping("/api/system/common/gridPref/delete")
     public ApiResponse<Void> reset(
             @Valid @RequestBody GridPrefResetRequest request, Principal principal) {
         preferences.reset(userId(principal), request.menuCd(), request.gridId());

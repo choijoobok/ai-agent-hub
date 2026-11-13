@@ -130,10 +130,11 @@ L·R·S(점유 유지·갱신 주기·스위퍼 주기)는 **실행 제한·운�
 v2 공통 설치는 같은 artifact에서 `app.auth.session.provider=jdbc|redis`를 읽는다(기본 `jdbc`).
 `app.auth.session.epoch`와 `app.auth.session.store-instance`는 필수이며 서버의 정확 Origin도
 `app.auth.session.origin`으로 지정한다. HTTP는 명시적 `local-http=true`인 개발 환경만 허용한다.
-활성 영역은 기본 ADMIN이며 Portal은 `app.auth.session.domains.portal.enabled=true`로 별도 연다.
+현재 제품은 ADMIN만 설치한다. Portal 활성화는 소유 구현 전 기동 오류로 거부한다.
 영역별 `domains.<admin|portal>.epoch/store-instance`는 global 값을 덮어쓸 수 있다.
 각 노드는 DB 설정판과 불일치하면 기동/수락을 거부하며 기동 자체가 epoch를 바꾸지 않는다.
-실제 제품 설치는 SLICE-520이고, 공통 조립의 구현/실환경 검증과 구별한다.
+실제 ADMIN 설치는 SLICE-520이며 공통 조립만의 시험과 제품 HTTP 시험을 구별한다.
+빈 원장의 최초 ADMIN 설정판만 자동 초기화하며 기존 설정판을 덮어쓰지 않는다.
 
 운영 도구는 `sources/`의 `./gradlew.bat :backend:api:authSessionStore`다.
 연결은 `AUTH_SESSION_JDBC`, `AUTH_SESSION_USER`, `AUTH_SESSION_PASSWORD` 환경변수만 받는다.

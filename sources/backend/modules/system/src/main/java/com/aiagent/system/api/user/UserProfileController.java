@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 소속시킬 수 없고, 매핑하려 들면 <b>메뉴를 전부 나열하게 된다</b> — 그것이 업무 API 가
  * 아니라는 판별 신호다. 그래서 {@code SYS_API} 시드 대상이 아니다.
  *
- * <p><b>비밀번호 변경만 여기 없다.</b> 그것은 {@code /api/common/system/auth/changePassword} 이며
+ * <p><b>비밀번호 변경만 여기 없다.</b> 그것은 {@code /api/system/common/auth/changePassword} 이며
  * <b>제한 세션에서도 열려 있어야 하는 유일한 업무 경로</b>다(체인 #5 는 차단이 아니라
  * 유도다 — backend/security.md). 그 화이트리스트는 인가 인터셉터가 갖고 있고 경로 문자열로 비교하므로,
  * 편의로 이 컨트롤러에 옮겨 두면 <b>비밀번호가 만료된 사용자가 막다른 세션에 갇힌다</b>.
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 만 예외로 첫 응답에 실린다: <b>규칙을 모른 채 거절당하면 맞출 수 없다.</b>
  */
 @RestController
-@RequestMapping("/api/common/system/user")
+@RequestMapping("/api/system/common/user")
 public class UserProfileController {
 
     private final UserProfileService profiles;

@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ExcelLogController {
 
-    @PostMapping("/api/common/system/excel/saveLog")
+    @PostMapping("/api/system/common/excel/saveLog")
     public ApiResponse<Void> log(@Valid @RequestBody ExcelLogRequest request) {
         /*
           <b>{@code request} 를 쓰지 않는 것이 맞다.</b> 값은 인터셉터가 body 에서 읽어

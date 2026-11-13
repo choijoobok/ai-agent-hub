@@ -18,13 +18,13 @@ class CodeMigrationContractTest {
     @Test
     @DisplayName("TC-5045 공통코드 API는 system 정식 경로 하나만 사용한다")
     void codeApisUseOnlyTheSystemPath() throws Exception {
-        assertPost(CODE_ADMIN, "/api/service/system/code", "getGroupList", "/getGroupList");
-        assertPost(CODE_ADMIN, "/api/service/system/code", "saveGroup", "/saveGroup");
-        assertPost(CODE_ADMIN, "/api/service/system/code", "getList", "/getList");
-        assertPost(CODE_ADMIN, "/api/service/system/code", "save", "/save");
-        assertPost(CODE_ADMIN, "/api/service/system/code", "getRefDefList", "/getRefDefList");
-        assertPost(CODE_ADMIN, "/api/service/system/code", "saveRefDef", "/saveRefDef");
-        assertPost(CODE_COMMON, null, "getList", "/api/common/system/code/getList");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "getGroupList", "/getGroupList");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "saveGroup", "/saveGroup");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "getList", "/getList");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "save", "/save");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "getRefDefList", "/getRefDefList");
+        assertPost(CODE_ADMIN, "/api/system/service/code", "saveRefDef", "/saveRefDef");
+        assertPost(CODE_COMMON, null, "getList", "/api/system/common/code/getList");
         assertClassMissing("com.aiagent.api.code.CodeAdminController");
         assertClassMissing("com.aiagent.api.code.CodeController");
     }

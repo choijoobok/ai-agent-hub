@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p><b>{@code EXPORT} 에도 경로가 없다.</b> 엑셀은 있지만(sys/menu.md 의 액션 열이 {@code R E} 다)
  * 프론트 생성이며(playbook/excel-download.md 첫째) 서버가 낼 것이 없다. 다운로드 이력은
- * 구 API 모듈의 엑셀 기록기가 받는 {@code POST /api/common/system/excel/saveLog} 로 남으며, 그 행은
+ * 구 API 모듈의 엑셀 기록기가 받는 {@code POST /api/system/common/excel/saveLog} 로 남으며, 그 행은
  * <b>이 화면이 조회하는 바로 그 테이블</b>에 들어간다 — LOG-08 이 그것으로 충족된다.
  *
  * <p><b>이 컨트롤러의 호출이 자기 테이블에 남는다.</b> 조회하면 그 조회가
@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 이 템플릿에서 <b>열람 감사에 가장 가까운 것</b>이다(screen/admin/system/log/access/requirements.md · sys/logs.md).
  */
 @RestController
-@RequestMapping("/api/service/system/accessLog")
+@RequestMapping("/api/system/service/accessLog")
 public class AccessLogController {
 
     private final AccessLogQueryService queries;

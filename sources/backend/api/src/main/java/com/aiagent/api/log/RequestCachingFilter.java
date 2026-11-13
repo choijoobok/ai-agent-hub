@@ -52,7 +52,7 @@ public class RequestCachingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         RequestCacheProps props = configs.get(RequestCacheProps.class);
-        if (!props.enabled() || !shouldCache(request)) {
+        if (!props.enabled() || SensitiveRequest.excluded(request) || !shouldCache(request)) {
             chain.doFilter(request, response);
             return;
         }

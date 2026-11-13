@@ -26,12 +26,12 @@ public class FavoriteController {
         this.favorites = favorites;
     }
 
-    @GetMapping("/api/common/system/favorite/getList")
+    @GetMapping("/api/system/common/favorite/getList")
     public ApiResponse<List<FavoriteMenu>> getList(Principal principal) {
         return ApiResponse.success(favorites.findMine(userId(principal)), TraceId.current());
     }
 
-    @PostMapping("/api/common/system/favorite/save")
+    @PostMapping("/api/system/common/favorite/save")
     public ApiResponse<List<FavoriteMenu>> add(
             @Valid @RequestBody FavoriteMenuRequest request, Principal principal) {
         String userId = userId(principal);
@@ -39,7 +39,7 @@ public class FavoriteController {
         return ApiResponse.success(favorites.findMine(userId), TraceId.current());
     }
 
-    @PostMapping("/api/common/system/favorite/delete")
+    @PostMapping("/api/system/common/favorite/delete")
     public ApiResponse<List<FavoriteMenu>> remove(
             @Valid @RequestBody FavoriteMenuRequest request, Principal principal) {
         String userId = userId(principal);

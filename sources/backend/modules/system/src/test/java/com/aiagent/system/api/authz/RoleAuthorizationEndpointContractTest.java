@@ -19,34 +19,34 @@ class RoleAuthorizationEndpointContractTest {
     @Test
     @DisplayName("TC-5021 유효 권한 조회는 system 정식 경로 하나만 사용한다")
     void effectiveAuthorityUsesTheSystemPath() throws Exception {
-        assertPost(USER_AUTHZ, "/api/service/system/user", "getEffectiveAuthList", "/getEffectiveAuthList");
+        assertPost(USER_AUTHZ, "/api/system/service/user", "getEffectiveAuthList", "/getEffectiveAuthList");
         assertClassMissing("com.aiagent.api.user.UserDetailController");
     }
 
     @Test
     @DisplayName("TC-5023 역할 권한 회수 API는 system 경계에서 세션 무효화를 시작한다")
     void roleAuthoritySaveUsesTheSystemPath() throws Exception {
-        assertPost(ROLE_AUTH, "/api/service/system/roleAuth", "save", "/save");
+        assertPost(ROLE_AUTH, "/api/system/service/roleAuth", "save", "/save");
         assertClassMissing("com.aiagent.api.role.RoleAuthController");
     }
 
     @Test
     @DisplayName("TC-5024 사용자 역할 API는 역할명과 무관한 system 계약을 사용한다")
     void userRoleEndpointsUseTheSystemPath() throws Exception {
-        assertPost(USER_AUTHZ, "/api/service/system/user", "getRoleList", "/getRoleList");
-        assertPost(USER_AUTHZ, "/api/service/system/user", "saveRole", "/saveRole");
-        assertPost(USER_AUTHZ, "/api/service/system/user", "getRoleCandidates", "/getRoleCandidates");
+        assertPost(USER_AUTHZ, "/api/system/service/user", "getRoleList", "/getRoleList");
+        assertPost(USER_AUTHZ, "/api/system/service/user", "saveRole", "/saveRole");
+        assertPost(USER_AUTHZ, "/api/system/service/user", "getRoleCandidates", "/getRoleCandidates");
         assertClassMissing("com.aiagent.api.user.UserDetailController");
     }
 
     @Test
     @DisplayName("TC-5026 역할과 역할 권한 API는 system 경계에만 등록된다")
     void roleEndpointsUseTheSystemBoundary() throws Exception {
-        assertPost(ROLE, "/api/service/system/role", "getList", "/getList");
-        assertPost(ROLE, "/api/service/system/role", "save", "/save");
-        assertPost(ROLE_AUTH, "/api/service/system/roleAuth", "getList", "/getList");
-        assertPost(ROLE_AUTH, "/api/service/system/roleAuth", "getMenuTree", "/getMenuTree");
-        assertPost(ROLE_AUTH, "/api/service/system/roleAuth", "getAffectedUsers", "/getAffectedUsers");
+        assertPost(ROLE, "/api/system/service/role", "getList", "/getList");
+        assertPost(ROLE, "/api/system/service/role", "save", "/save");
+        assertPost(ROLE_AUTH, "/api/system/service/roleAuth", "getList", "/getList");
+        assertPost(ROLE_AUTH, "/api/system/service/roleAuth", "getMenuTree", "/getMenuTree");
+        assertPost(ROLE_AUTH, "/api/system/service/roleAuth", "getAffectedUsers", "/getAffectedUsers");
         assertClassMissing("com.aiagent.api.role.RoleController");
     }
 

@@ -62,14 +62,31 @@ public final class SessionV2Filter extends OncePerRequestFilter {
                 request.setAttribute(SCOPE,scope);var identity=scope.current().map(Snapshot::identity).orElse(null);var context=new SecurityContextImpl();
                 if(identity!=null){var auth=UsernamePasswordAuthenticationToken.authenticated(identity.principal().subjectId(),null,List.of());auth.setDetails(identity);context.setAuthentication(auth);}SecurityContextHolder.setContext(context);
                 final HttpServletRequest secured=request;
-                runtime.execute(scope,()->{try{if(operation.capability()==Capability.PREPARE_CSRF){active.prepareCsrf();responses.csrf(buffered,"X-AIHUB-"+domain+"-CSRF");}else chain.doFilter(secured,buffered);return null;}catch(IOException|ServletException failure){throw new DispatchFailure(failure);}});
+                runtime.execute(scope,()->{try{if(operation.capability()==Capability.PREPARE_CSRF){active.prepareCsrf();responses.csrf(buffered,"X-AIHUB-"+domain+"-CSRF");}else chain.doFilter(secured,buffered);
+                    if(Boolean.TRUE.equals(secured.getAttribute(com.aiagent.api.error.GlobalExceptionHandler.HANDLED_FAILURE)))throw new HandledFailure();
+                    return null;}catch(IOException|ServletException failure){throw new DispatchFailure(failure);}});
                 if(runtime.finish(scope)==Outcome.DELIVERABLE)scope.emitCookies((realm,session,csrf)->buffered.writeCookies(()->{
                     buffered.addHeader("Set-Cookie",cookie("AIHUB_"+realm+"_SESSION",session,true));buffered.addHeader("Set-Cookie",cookie("AIHUB_"+realm+"_CSRF",csrf,false));
                 }));
             }
-        }catch(Failure failure){if(scope!=null)scope.exchange().close();if(failure.outcome()==Outcome.REAUTH_REQUIRED)responses.passwordReauthentication(response);else responses.denied(response,failure.outcome()==Outcome.INVALID_SESSION?401:503);return;}
-        catch(AuthBoundaryAssembly.Rejected rejected){if(scope!=null)scope.exchange().close();responses.denied(response,rejected.status());return;}
-        catch(Exception failure){if(scope!=null)scope.exchange().close();responses.denied(response,503);return;}
+        }catch(HandledFailure failure){if(scope!=null)scope.exchange().close();buffered.copyBodyToResponse();return;}
+        catch(Failure failure){if(scope!=null)scope.exchange().close();if(failure.outcome()==Outcome.REAUTH_REQUIRED)responses.passwordReauthentication(response);else responses.denied(response,failure.outcome()==Outcome.INVALID_SESSION?401:503);return;}
+        catch(SessionAuthority.Unusable unusable){
+            boolean invalidated=scope!=null&&scope.invalidated();
+            responses.denied(response,401,()->{if(invalidated) {
+                response.addHeader("Set-Cookie",cookie("AIHUB_"+operation.domain()+"_SESSION","",true));
+                response.addHeader("Set-Cookie",cookie("AIHUB_"+operation.domain()+"_CSRF","",false));
+            }});return;
+        }
+        catch(AuthBoundaryAssembly.Rejected rejected){if(scope!=null)scope.exchange().close();responses.denied(response,rejected.status(),()->{
+            if(rejected.status()==403&&original.getAttribute(com.aiagent.api.authz.AuthzVersionHeader.NAME) instanceof String version)
+                response.setHeader(com.aiagent.api.authz.AuthzVersionHeader.NAME,version);
+            });return;}
+        catch(Exception failure){
+            Throwable cause=failure;while(cause.getCause()!=null&&cause.getCause()!=cause)cause=cause.getCause();
+            org.slf4j.LoggerFactory.getLogger(SessionV2Filter.class).warn("인증 경계 처리 실패 type={} at={}",cause.getClass().getName(),java.util.Arrays.stream(cause.getStackTrace()).limit(5).toList());
+            if(scope!=null)scope.exchange().close();responses.denied(response,503);return;
+        }
         // 응답 전달 실패는 이미 확정된 DB업무/발급을 다시 실행하거나 보상하지 않는다.
         buffered.copyBodyToResponse();
     }
@@ -91,6 +108,7 @@ public final class SessionV2Filter extends OncePerRequestFilter {
         @Override public AsyncContext getAsyncContext(){throw new IllegalStateException("인증 경계는 동기 요청만 허용한다");}
     };}
     private static final class DispatchFailure extends RuntimeException {DispatchFailure(Exception cause){super("보호 요청 처리 실패",cause);}}
+    private static final class HandledFailure extends RuntimeException {HandledFailure(){super("업무 오류 응답을 보존하고 요청을 롤백한다");}}
     private static final class ReplayRequest extends HttpServletRequestWrapper {
         private final byte[] body;
         ReplayRequest(HttpServletRequest request)throws IOException{super(request);body=request.getInputStream().readNBytes(1_048_577);if(body.length>1_048_576)throw new IllegalArgumentException("조회 준비 요청 본문이 너무 크다");}

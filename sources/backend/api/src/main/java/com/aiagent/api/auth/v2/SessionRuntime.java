@@ -88,7 +88,20 @@ public final class SessionRuntime implements SessionInspectionPort {
                 }finally{scope.protectedNow=false;}
             });if(calls[0]!=1)throw new IllegalStateException("소유 보호 callback이 실행되지 않았다");
             @SuppressWarnings("unchecked") T value=(T)result[0];return value;
-        });}catch(RuntimeException failure){scope.request.close();throw failure;}
+        });}catch(SessionAuthority.Unusable failure){scope.request.close();invalidateUnusable(scope);throw failure;}
+        catch(RuntimeException failure){scope.request.close();throw failure;}
+    }
+    private void invalidateUnusable(Scope scope) {
+        if(scope.grant==null)return;
+        transactions.required(()->{
+            var context=new SessionAuthority.Context(scope.request.domain(),null,null,null,scope.operation.id(),null,true,scope.request.capability(),scope.request.traceId());
+            authority.protect(context,true,()->{
+                checkSettings(scope.request.domain(),true);
+                ledger.find(scope.grant.ref(),true).filter(grant->grant.cookieHash().equals(hash(scope.request.domain(),scope.cookie))).ifPresent(grant->{
+                    revoke(grant);scope.invalidated=true;
+                });
+            });return null;
+        });
     }
     private void lockRequests(Scope scope){
         if(scope.publicRead)return;checkSettings(scope.request.domain(),true);Set<Ref> refs=new HashSet<>();
@@ -171,7 +184,8 @@ public final class SessionRuntime implements SessionInspectionPort {
     public final class Scope implements SessionInspectionPort.Authorized {
         private final SessionExchange request;private final ModuleApiCatalog.Operation operation;private final String cookie;
         private Grant grant;private Stored loaded;private Payload publication,delta;private CookieIssue issue;private Inspection inspection;
-        private boolean executed,protectedNow,finished,flush,publicRead,logout,managementRevocation;private int cleanupFailures;
+        private boolean executed,protectedNow,finished,flush,publicRead,logout,managementRevocation,invalidated;private int cleanupFailures;
+        public boolean invalidated(){return invalidated;}
         private final List<Stored> cleanup=new ArrayList<>();
         private Scope(SessionExchange request,ModuleApiCatalog.Operation operation,String cookie){this.request=request;this.operation=operation;this.cookie=cookie;}
         public SessionExchange exchange(){return request;}
@@ -185,6 +199,21 @@ public final class SessionRuntime implements SessionInspectionPort {
             if(grant==null)publish(SessionAdmissionsV2.anonymous(request,ledger.now().plusSeconds(60)),new SlotPolicy(false,1,false));else{request.mutation();issue=new CookieIssue(request,cookie,loaded.payload().csrf());}
         }
         public void publish(SessionAdmissionsV2.Proof proof,SlotPolicy policy){SessionRuntime.this.publish(this,proof,policy);}
+        public void credentialsChanged(SessionAdmissionsV2.CredentialChange proof) {
+            requireProtected(this);
+            if (!operation.exclusive() || !proof.consume(request, ledger.now())) throw new Failure(Outcome.INVALID_SESSION);
+            var targets = proof.principals().stream().distinct().flatMap(p -> ledger.principal(p, false).stream())
+                    .sorted(Comparator.comparingLong(g -> g.ref().grantId())).toList();
+            for (Grant candidate : targets) {
+                var target = ledger.find(candidate.ref(), true).orElse(null);
+                if (target == null || target.status() == Status.REVOKED) continue;
+                SessionRuntime.this.revoke(target);
+                if (grant != null && target.ref().equals(grant.ref())) {
+                    logout = true; cleanup.add(loaded); issue = CookieIssue.expiration(request);
+                }
+            }
+            if (request.state() == SessionExchange.State.OPEN) request.mutation();
+        }
         public void logout(){requireProtected(this);if(request.capability()!=Capability.LOGOUT||grant==null)throw new Failure(Outcome.INVALID_SESSION);request.mutation();SessionRuntime.this.revoke(grant);cleanup.add(loaded);logout=true;issue=CookieIssue.expiration(request);}
         public void emitCookies(CookieSink sink){if(issue==null)throw new IllegalStateException("발급 증거가 없다");issue.emit(request,sink);}
         private Inspection inspection(Plan plan){requireProtected(this);if(inspection==null||plan!=inspection||request.domain()!=AuthDomain.ADMIN||operation.requiredAction()==null)throw new Failure(Outcome.INVALID_SESSION);return inspection;}

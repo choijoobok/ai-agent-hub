@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code endpoints.ts} 를 읽어 {@code SYS_MENU_API} 를 만들므로(backend/api.md), 한 자리에 둘을
  * 두면 <b>두 화면의 엔드포인트가 서로에게 매핑</b>된다(playbook/INDEX.md).
  *
- * <p><b>그런데 URL 은 여섯이 {@code /api/service/sample} 하나를 나눠 쓴다.</b> backend/api.md 의
+ * <p><b>그런데 URL 은 여섯이 {@code /api/sample/service} 하나를 나눠 쓴다.</b> backend/api.md 의
  * 도메인 마디는 <b>애그리거트 이름</b>이고 여섯 화면의 애그리거트는 하나다 — 화면마다
  * 마디를 가르면 같은 {@code getOrderList} 가 URL 을 여섯 벌 갖는다. 클래스 이름이
  * {@code SampleController} 가 아닌 것도 여기서 온다: 패키지가 갈려도 <b>스프링 빈 이름은
@@ -60,13 +60,13 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <h2>다운로드 이력이 <b>저절로 남는다</b></h2>
  *
- * <p>playbook/excel-download.md 가 프론트 생성에만 {@code POST /api/common/system/excel/saveLog} 를 둔 이유가 여기서
+ * <p>playbook/excel-download.md 가 프론트 생성에만 {@code POST /api/system/common/excel/saveLog} 를 둔 이유가 여기서
  * 보인다: 이 경로는 <b>요청이 도착하는 것 자체가 기록</b>이다(사용 이력 인터셉터가 모든
  * {@code /api/**} 를 남긴다). 프론트가 이력을 또 부르면 <b>한 번 내려받은 것이 두 행</b>이
  * 된다.
  */
 @RestController
-@RequestMapping("/api/service/sample")
+@RequestMapping("/api/sample/service")
 public class SampleMdVerticalController {
 
     private final SampleQueryService queries;

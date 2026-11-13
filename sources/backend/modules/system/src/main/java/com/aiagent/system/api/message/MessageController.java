@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 언어({@code LOCALE_CD})는 로그인해야 알 수 있다 — 순환이며, 그것을 끊는 것이 이 호출이다.
  * 정적 폴백 문구로 로그인 화면을 먼저 그리는 대안은 <b>문구의 원본을 둘로 만든다</b>.
  *
- * <p>정식 경로는 {@code /api/public/system/message/getBundle} 하나다. 로그인 전에도 쓰므로
+ * <p>정식 경로는 {@code /api/system/public/message/getBundle} 하나다. 로그인 전에도 쓰므로
  * 공개 계층을 유지하되 system 모듈의 소유권을 경로에 드러낸다.
  */
 @RestController
@@ -43,7 +43,7 @@ public class MessageController {
      * @param lang 프론트가 정한 언어(의 2순위 규칙). 없으면 {@code Accept-Language}
      * @param v 클라이언트가 들고 있는 번들의 버전. 같으면 본문 없이 끝낸다(sys/code.md)
      */
-    @GetMapping("/api/public/system/message/getBundle")
+    @GetMapping("/api/system/public/message/getBundle")
     public ApiResponse<MessageBundleResponse> getBundle(
             @RequestParam(required = false) String lang, @RequestParam(required = false) Long v) {
 

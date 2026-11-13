@@ -113,7 +113,7 @@ class BatchPostgresTest {
         assertThat(queue.tasks).hasSize(2);
     }
 
-    @Test void missingScheduleIsRejectedBeforeAnyAdmissionAndDbFailureRollsBackAllTargets() {
+    @Test @org.junit.jupiter.api.DisplayName("TC-5089 다중 접수 DB 실패는 모든 RUNNING과 큐를 롤백한다") void missingScheduleIsRejectedBeforeAnyAdmissionAndDbFailureRollsBackAllTargets() {
         assertThatThrownBy(() -> runner.runNow(List.of("A", "MISSING"))).isInstanceOf(BusinessException.class);
         assertThat(count("SYS_BATCH_HISTORY")).isZero();
         assertThat(queue.tasks).isEmpty();

@@ -5,7 +5,7 @@ category: standard/backend
 type: operation
 class: policy
 created: 2026-05-04
-updated: 2026-11-11
+updated: 2026-11-14
 status: active
 sources: ["sources/backend/bootstrap/src/main/resources/application.yml", "aidd-guide/standard/backend/security.md"]
 tier: 2
@@ -21,7 +21,10 @@ tags: [backend, session, spring-session, redis, jdbc]
 
 WAS 메모리 세션은 사용하지 않는다. JDBC 기본·Redis 선택은 같은 제품 artifact의 명시 기동 설정으로 정한다. 선택한 저장소 장애 때 다른 저장소로 자동 폴백하지 않는다. 라이브러리 존재만으로 provider를 선택하지 않고 자동 기본 세션 필터와 영역 조립의 중복도 기동 검사한다.
 
-현재 공통 v1/JDBC 조립은 SLICE-307에서 검증했지만 실제 system 소비 전환은 후속이다. Redis/JDBC 설정 교체의 v2 저장/발급 상세는 integration 영향 G3에서 동결했고 실제 구현/소비 검증은 남아 있다. CR-038 API 경로 전환은 이 저장/회수 프로토콜을 바꾸지 않으며 별도 경로 영향 검토를 따른다. 프로젝트의 설정 키·DB 원장·상태/기한·전환 절차는 `documents/spec/50-api/020-auth-store-contracts.yaml`이 정본이며, 아직 제품 설정만으로 v2 Redis가 동작한다고 주장하지 않는다.
+공통 v2 조립을 실제 ADMIN 제품이 소비한다. 저장소 설정·DB 수락 원장·기한·전환 절차는
+`documents/spec/50-api/020-auth-store-contracts.yaml`, 제품 설치는
+`AdminSessionConfiguration`, 실행/검증 근거는 `project.state.yaml`을 따른다. Portal은
+소유 구현 전 비활성이며 ADMIN 로그인이 Portal의 접근 권한을 만들지 않는다.
 
 ## 2. 기술 조립과 원자성
 
@@ -29,27 +32,15 @@ WAS 메모리 세션은 사용하지 않는다. JDBC 기본·Redis 선택은 같
 
 JDBC는 업무/원장/세션을 같은 DB REQUIRED의 한 물리 커밋에 참여시킨다. Redis는 DB 확정 뒤 잠금 밖에서 payload를 발행하고 현재 PENDING 세대를 다시 검사해 ACTIVE를 확정한 뒤 쿠키를 발급한다. DB 확정 뒤 발행 실패는 새 자격 재로그인으로 복구하며 원 명령을 자동 재실행하지 않는다. 종료된 admission을 후처리에서 재사용하지 않는다.
 
-## 3. 세션에 담는 것 — 계산 **결과**만
+## 3. 세션에 담는 것
 
-| 담는다 | 담지 않는다 |
-|---|---|
-| principal (사용자ID · 로그인ID **최소 필드**) | 계산 **입력** — 역할 목록 · 개인 예외 · 유효기간 |
-| **유효 권한 계산 결과** | **메뉴 트리** — 로그인 후 프론트 메모리로 1회 |
-| 표시/언어 스냅샷 | 권한 허용 근거로 재사용할 과거 계정 상태 |
+v2 payload는 영역·주체·인증 수준·발급 세대/epoch·CSRF 비밀과 표시명/언어를 갖는다.
+원장에는 현재 수락 상태와 시각만 두며 암호·쿠키·CSRF 원문을 복제하지 않는다.
+역할/개인권한과 과거 유효 권한 스냅샷은 현재 허용 근거로 쓰지 않는다.
 
-- **`serialVersionUID` 를 고정한다.** 무중단 배포 시 역직렬화 실패를 막는다.
-- **유효 권한이 세션에 있는 이유**는 [caching.md](./caching.md) §1 — 매 요청 필요하지만
-  **낡으면 보안 결함**이라 TTL 캐시로 둘 수 없다.
-- 계산 입력을 담지 않는 이유: 담으면 **같은 사실이 두 곳**에 생기고, 관리자가 역할을
-  회수했을 때 **무엇을 지워야 하는지가 갈린다.**
-- 권한 결과와 **계산 전에 관측한 무효화 표식**을 한 속성에 담는다. 변경마다 고유 표식을
-  쓰고, 재계산은 표식을 삭제하지 않는다. 두 표식이 다르거나 업무일자가 바뀌면 재계산한다.
-  로그인 후 첫 보호 요청도 세션 색인 등록 전 회수를 확인하기 위해 재계산한다.
-- Spring Session은 **`ON_SET_ATTRIBUTE`**로 저장한다. `ON_GET_ATTRIBUTE`·`ALWAYS`는
-  낡은 요청이 읽은 표식까지 덮어쓸 수 있으므로 사용하지 않는다. JDBC 설정은
-  `spring.session.jdbc.save-mode: on-set-attribute`로 명시한다. Redis 전환 시에도 같은 저장 모드를 유지한다.
-- 권한 속성의 직렬화 형식을 바꿀 때는 노드를 일괄 전환하고 기존 세션을 종료해 재로그인한다.
-  구 코드가 새 형식을 읽지 못하면 혼합 운영하지 않으며 롤백할 때도 세션을 종료한다.
+기본 Spring Session 자동 필터와 WAS HttpSession 접근은 금지한다. 기존 JDBC 부모/속성
+테이블은 명시 v2 adapter만 사용하며, 낡은 요청의 갱신은 삭제된 행을 INSERT로 되살리지 않는다.
+관리 화면의 sessionId는 인증에 쓸 수 없는 관리 참조다. 원 쿠키·물리 세션키를 응답하지 않는다.
 
 ## 4. 세션 중 재검사 — 현재 소유 guard가 한다
 

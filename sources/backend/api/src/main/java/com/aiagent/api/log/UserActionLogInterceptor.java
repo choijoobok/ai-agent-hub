@@ -72,12 +72,12 @@ public class UserActionLogInterceptor implements HandlerInterceptor {
     public void afterCompletion(
             HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
-        if (ApiLayer.of(RequestFacts.path(request)) == null) {
+        if (ApiLayer.of(RequestFacts.path(request)) == null || RequestFacts.path(request).startsWith("/api/portal/")) {
             return;
         }
         try {
             accessLogs.record(SysAccessLog.builder()
-                    .userId(RequestFacts.userId())
+                    .userId(request.getAttribute("admin.audit.userId") instanceof String userId ? userId : RequestFacts.userId())
                     .menuCd(RequestFacts.menuCd(request))
                     .requestUri(RequestFacts.path(request))
                     .httpStat((short) response.getStatus())
@@ -106,7 +106,7 @@ public class UserActionLogInterceptor implements HandlerInterceptor {
      */
     private String parameters(HttpServletRequest request) {
         RequestCacheProps cache = configs.get(RequestCacheProps.class);
-        if (!cache.enabled()) {
+        if (!cache.enabled() || request.getAttribute(com.aiagent.api.auth.v2.SessionV2Filter.SCOPE) == null) {
             return null;
         }
         return serializer.serialize(request, configs.get(HttpLogProps.class), cache.maxBytes());

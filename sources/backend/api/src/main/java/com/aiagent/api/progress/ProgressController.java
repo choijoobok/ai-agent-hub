@@ -44,7 +44,7 @@ public class ProgressController {
         this.auditor = auditor;
     }
 
-    @GetMapping("/api/common/progress/{jobId}")
+    @GetMapping("/api/system/common/progress/getProgress/{jobId}")
     public ApiResponse<JobProgressView> getProgress(@PathVariable String jobId) {
         String userId = auditor.getCurrentAuditor()
                 .orElseThrow(() -> new BusinessException(CommonErrorCode.UNAUTHENTICATED));

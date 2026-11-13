@@ -43,7 +43,7 @@ public class NoticeFeedController {
      * @param includeExpired {@code NI-04} 의 <i>"지난 공지 포함"</i> 체크박스. 기본은
      * 꺼져 있고, 켜도 <b>내린 공지는 오지 않는다</b>(screen/admin/system/notice/requirements.md)
      */
-    @GetMapping("/api/common/system/notice/getList")
+    @GetMapping("/api/system/common/notice/getList")
     public ApiResponse<List<NoticeBrief>> getList(
             @RequestParam(defaultValue = "false") boolean includeExpired) {
 
@@ -56,7 +56,7 @@ public class NoticeFeedController {
      * <p>목록이 본문을 싣지 않으므로(NoticeBrief) 상세를 열 때 한 번 더 묻는다. 왕복이
      * 하나 느는 대신 <b>안 볼 것을 안 싣는다</b>.
      */
-    @GetMapping("/api/common/system/notice/getOne")
+    @GetMapping("/api/system/common/notice/getOne")
     public ApiResponse<NoticeDetail> getOne(
             @RequestParam Long noticeId,
             @RequestParam(defaultValue = "false") boolean includeExpired) {
@@ -74,7 +74,7 @@ public class NoticeFeedController {
      * <p><b>비어 있는 것이 정상</b>이다: 팝업 대상이 없는 날이 대부분이며 그때
      * {@code notice} 가 {@code null} 이다.
      */
-    @GetMapping("/api/common/system/notice/getPopup")
+    @GetMapping("/api/system/common/notice/getPopup")
     public ApiResponse<NoticePopup> getPopup() {
         return ApiResponse.success(notices.findPopup(), TraceId.current());
     }

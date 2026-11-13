@@ -75,7 +75,7 @@ class ApiOperationSummaryTest {
                         continue;
                     }
                     String url = join(base, firstPath(Optional.of(annotation)));
-                    if (url.startsWith(SERVICE_PREFIX)) {
+                    if (url.matches("/api/[A-Za-z0-9_-]+/service/.+")) {
                         visitor.visit(method, url);
                     }
                 }

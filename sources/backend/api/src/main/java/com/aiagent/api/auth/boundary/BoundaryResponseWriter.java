@@ -25,7 +25,11 @@ public final class BoundaryResponseWriter {
         mapper.writeValue(response.getWriter(),ApiResponse.success(Map.of("csrfHeaderName",headerName),TraceId.current()));
     }
     public void denied(HttpServletResponse response, int status) throws IOException {
+        denied(response,status,()->{});
+    }
+    public void denied(HttpServletResponse response, int status, Runnable headers) throws IOException {
         response.reset();response.setHeader(TraceId.HEADER,TraceId.current());
+        headers.run();
         errors.write(response,status==503?BoundaryErrorCode.UNAVAILABLE:status==401?CommonErrorCode.UNAUTHENTICATED:status==400?CommonErrorCode.VALIDATION:CommonErrorCode.FORBIDDEN);
     }
     public void passwordReauthentication(HttpServletResponse response)throws IOException {

@@ -41,7 +41,7 @@ public class NotiInboxController {
      * <p><b>여는 것만으로 읽음이 되지 않는다</b>(frontend/tabs.md) — {@code GET} 이고 서비스가
      * {@code readOnly} 다. 훑어만 봐도 배지가 사라지면 놓친 알림을 찾을 수 없다.
      */
-    @GetMapping("/api/common/system/noti/getList")
+    @GetMapping("/api/system/common/noti/getList")
     public ApiResponse<MyNotifications> getList(Principal principal) {
         return ApiResponse.success(notifications.findMine(userId(principal)), TraceId.current());
     }
@@ -52,13 +52,13 @@ public class NotiInboxController {
      * <p>모달을 열지 않은 채로도 벨이 숫자를 보여야 한다. 목록을 통째로 받아 세지 않는
      * 이유는 <b>상한이 있기 때문</b>이다 — 목록은 잘려도 배지는 전건이다.
      */
-    @GetMapping("/api/common/system/noti/getUnreadCount")
+    @GetMapping("/api/system/common/noti/getUnreadCount")
     public ApiResponse<Long> getUnreadCount(Principal principal) {
         return ApiResponse.success(notifications.countUnread(userId(principal)), TraceId.current());
     }
 
     /** 이 항목을 읽었다 — <b>그 항목만</b>이다(frontend/tabs.md). */
-    @PostMapping("/api/common/system/noti/saveRead")
+    @PostMapping("/api/system/common/noti/saveRead")
     public ApiResponse<MyNotifications> markRead(
             @Valid @RequestBody NotiReadRequest request, Principal principal) {
 
@@ -73,7 +73,7 @@ public class NotiInboxController {
      * <p>본문이 없다. 대상은 언제나 <i>내 안 읽은 것 전부</i> 이며, 고를 것이 있으면
      * 그것은 목록에서 하나씩 여는 일이다.
      */
-    @PostMapping("/api/common/system/noti/saveAllRead")
+    @PostMapping("/api/system/common/noti/saveAllRead")
     public ApiResponse<MyNotifications> markAllRead(Principal principal) {
         String userId = userId(principal);
         notifications.markAllRead(userId);

@@ -1,5 +1,5 @@
 // @feat FEAT-501
-import type { AxiosAdapter } from 'axios';
+import { AxiosError, type AxiosAdapter } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from './client';
 
@@ -44,6 +44,22 @@ describe('TC-50115 ADMIN CSRF 소비', () => {
     await apiClient.post('/system/public/auth/login', {});
     expect(adapter.mock.calls.map(([config]) => config.url)).toEqual(['/system/public/auth/getCsrf', '/system/public/auth/login']);
     expect(adapter.mock.calls[1][0].headers.get('X-AIHUB-ADMIN-CSRF')).toBe('prepared-token');
+  });
+
+  it('불가 계정 문맥의 401 뒤 준비 GET만 한 번 다시 실행하고 POST는 한 번 보낸다', async () => {
+    adapter.mockImplementationOnce((config) => Promise.reject(new AxiosError('expired', undefined, config, undefined,
+      { config, status: 401, statusText: 'Unauthorized', headers: {}, data: {} })));
+    await apiClient.post('/system/public/auth/login', {});
+    expect(adapter.mock.calls.map(([config]) => config.url)).toEqual([
+      '/system/public/auth/getCsrf', '/system/public/auth/getCsrf', '/system/public/auth/login',
+    ]);
+  });
+
+  it('준비 503은 재시도하지 않고 원 POST도 보내지 않는다', async () => {
+    adapter.mockImplementationOnce((config) => Promise.reject(new AxiosError('unavailable', undefined, config, undefined,
+      { config, status: 503, statusText: 'Unavailable', headers: {}, data: {} })));
+    await expect(apiClient.post('/system/public/auth/login', {})).rejects.toMatchObject({ response: { status: 503 } });
+    expect(adapter).toHaveBeenCalledOnce();
   });
 
 });
