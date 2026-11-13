@@ -16,6 +16,72 @@
  * 서버 번들이 닿지 않을 때 쓰는 정적 문구는 `src/locales` 의 것이며 이 목록에 없다.
  */
 export const MSG = {
+  // @feat FEAT-006
+  /** 사용자 그룹 */
+  GROUP_TITLE: 'group.title',
+  /** 그룹 식별자 */
+  GROUP_ID: 'group.id',
+  /** 그룹명 */
+  GROUP_NAME: 'group.name',
+  /** 설명 */
+  GROUP_DESCRIPTION: 'group.description',
+  /** 사용 상태 */
+  GROUP_STATE: 'group.state',
+  /** 사용 중 */
+  GROUP_USED: 'group.used',
+  /** 미사용 */
+  GROUP_UNUSED: 'group.unused',
+  /** 확인 불가 */
+  GROUP_UNKNOWN: 'group.unknown',
+  /** 사용자 */
+  GROUP_MEMBERS: 'group.members',
+  /** 지식 */
+  GROUP_KNOWLEDGE: 'group.knowledge',
+  /** 스키마 카탈로그 */
+  GROUP_CATALOG: 'group.catalog',
+  /** API */
+  GROUP_API: 'group.api',
+  /** 커스텀 도구 */
+  GROUP_TOOL: 'group.tool',
+  /** 원 소유 기능 연결 전입니다. 소속 편집과 자산 조회는 해당 기능 연결 후 제공됩니다. */
+  GROUP_NOT_CONNECTED: 'group.not_connected',
+  /** 원천을 확인할 수 없습니다. 빈 목록으로 판단하지 말고 다시 조회해 주세요. */
+  GROUP_UNAVAILABLE: 'group.unavailable',
+  /** 원 소유 정보의 조회 권한이 없습니다. */
+  GROUP_FORBIDDEN: 'group.forbidden',
+  /** 그룹을 선택하세요. 신규 그룹은 먼저 저장하세요. */
+  GROUP_SELECT: 'group.select',
+  /** 변경 사유 */
+  GROUP_REASON: 'group.reason',
+  /** 변경 사유를 입력하세요. */
+  GROUP_REASON_REQUIRED: 'group.reason_required',
+  /** 원 명령의 결과가 미확정입니다. 내용을 유지하고 저장을 다시 눌러 결과를 확인하세요. */
+  GROUP_PENDING: 'group.pending',
+  /** 미확정 원 명령이 있습니다. 원래 입력으로 복구한 뒤 결과를 확인하세요. */
+  GROUP_PENDING_CHANGED: 'group.pending_changed',
+  /** 모든 소유자의 참조 없음이 확인돼야 삭제할 수 있습니다. */
+  GROUP_DELETE_UNKNOWN: 'group.delete_unknown',
+  /** 매핑 활성 여부 */
+  GROUP_MAPPING: 'group.mapping',
+  /** 사용자 아이디 */
+  GROUP_LOGIN: 'group.login',
+  /** 활성화 여부 */
+  GROUP_ACTIVE: 'group.active',
+  /** 메모 */
+  GROUP_MEMO: 'group.memo',
+  /** 자산 식별자 */
+  GROUP_ASSET_ID: 'group.asset_id',
+  /** 자산명 */
+  GROUP_ASSET_NAME: 'group.asset_name',
+  /** 대상 시스템명 */
+  GROUP_SYSTEM: 'group.system',
+  /** 데이터소스명 */
+  GROUP_DATASOURCE: 'group.datasource',
+  /** 테이블명 */
+  GROUP_TABLE: 'group.table',
+  /** 테이블 설명 */
+  GROUP_TABLE_DESC: 'group.table_desc',
+
   // ── 공통 ────────────────────────────────────────────────────
   /** 모달·확인 대화의 취소 버튼. */
   COMMON_CANCEL: 'common.cancel',

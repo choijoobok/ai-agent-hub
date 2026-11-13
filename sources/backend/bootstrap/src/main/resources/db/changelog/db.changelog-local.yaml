@@ -6,5 +6,8 @@ databaseChangeLog:
       file: db/changelog/modules/system/db.changelog-system.yaml
       relativeToChangelogFile: false
   - include:
+      file: db/changelog/modules/admin/db.changelog-admin.yaml
+      relativeToChangelogFile: false
+  - include:
       file: db/changelog/modules/sample/db.changelog-sample.yaml
       relativeToChangelogFile: false

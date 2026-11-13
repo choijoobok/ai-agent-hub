@@ -329,8 +329,18 @@ feature_contracts:
       history_contract: ENT-251와 FEAT-301.portal_identity_ports. 관리 reset은 기존 관리 리비전/HIST/명령과 같은 트랜잭션, 본인 변경은 인증정보/암호이력/자격세대와 비밀 없는 보안 사건의 원자 단위다.
     external_change_port: FEAT-305의 SourceChangeOrigin을 검증한 두 비활성화 전용 명령만 수락한다. HTTP ADMIN 저장 권한 우회용 범용 포트가 아니다. 현재 원천+subject/기대 Portal 판과 정책/달력/월 보호를 재검사하고 현재값·리비전·전체 HIST를 호출자 REQUIRED 트랜잭션에 기록한다. 외부 원천 사건은 ENT-099 ADMIN 명령 결과를 만들지 않으며 ENT-257이 원 결과/처리자를 소유한다. HIST_ACTOR_ID/비관리자 MOD_ID는 null, 정확 source receipt와 HIST 역참조가 같은 commit에 필수다. 기존 ADMIN UI 저장은 실제 ADMIN 처리자 필수다.
   FEAT-006:
-    design_status: draft
-    implementation: planned
+    design_status: approved
+    implementation: partial
+    delivery_boundary:
+      decision: CR-040
+      sources: sources/backend/modules/admin/src/main/java/com/aiagent/admin/group/
+      slice_006: 그룹 정의 현재값·전체 HIST·독립 행 저장·목록/상세 화면·원 소유 연결 포트를 구현한다.
+      deferred_membership: "@defer SLICE-005 — ENT-103/203 실원장·Portal 부모 리비전·마지막 소속 보호·사용자 선택과 편집을 연결하고 TC-0061~0066/0069의 소속 절을 검증한다."
+      deferred_assets: "@defer SLICE-002/003/004/011/020 — 원 자산 전체 HIST·실제 역조회·권한 소비를 연결해 TC-0067/0068/00610을 검증한다."
+      connection_contract: 각 소유자는 membership/knowledge/catalog/api/tool/datasource 중 하나로 등록한다. 조회는 현재 ADMIN 열람 범위를 적용하고 READY/NOT_CONNECTED/UNAVAILABLE/FORBIDDEN과 행을 구별한다. 미연결에는 행을 반환하지 않는다. 참조 검사는 표시 권한과 무관하게 비활성을 포함한 전체 참조를 조사하며 미상일 때 삭제를 차단한다.
+      lock_contract: 소속/자산 매핑 생성·변경도 같은 REQUIRED 트랜잭션에서 phase3 USER_GROUP 안정 ID 잠금을 정렬 취득한 뒤 현재 그룹 존재를 재확인한다. 삭제와 링크 생성 사이의 빈틈을 허용하지 않는다.
+      commands: scope definition은 groupNm/description 두 값만 수락한다. remove는 scope definition과 빈 values를 사용한다. 행마다 독립 commandKey/expectedRevision/reason이며 미확정 재시도는 원 본문·키를 유지한다.
+      use_state: 현재 참조가 확인되면 USED, 모든 소유자가 참조 없음을 확인하면 UNUSED, 누락·권한 제한·장애는 UNKNOWN이다. UNKNOWN을 OFF로 렌더링하거나 상태 필터에서 UNUSED에 포함하지 않는다.
     reqs:
       - REQ-103
       - REQ-601
@@ -344,7 +354,7 @@ feature_contracts:
     reference_guard: REQ-605의 삭제/사용중지 규칙을 현재 참조 전체에 적용한다. 활성/비활성 소속·데이터소스/카탈로그/API/도구/지식 링크를 조사하며 조회 실패를 참조 없음으로 취급하지 않는다. 삭제 허용 여부와 정리 순서는 해당 소유 요구를 따른다.
     projection: 그룹 화면의 자산 탭은 각 자산 소유 링크의 활성값·표시를 읽기 전용으로 투영한다. 자산 변경 시 그룹 원장/HIST를 중복 저장하지 않고 다음 조회에서 최신값을 읽는다.
     physical_contract:
-      implementation: planned
+      implementation: implemented
       screens:
         SCR-006:
           root: ENT-102

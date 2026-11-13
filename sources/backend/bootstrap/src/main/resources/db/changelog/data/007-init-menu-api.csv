@@ -23,6 +23,13 @@ CONFIG_MGMT,/api/system/service/config/getPrefixes
 CONFIG_MGMT,/api/system/service/config/save
 ERROR_LOG,/api/system/service/errorLog/getDetail
 ERROR_LOG,/api/system/service/errorLog/getList
+HUB_USER_GROUP,/api/admin/service/managementCommand/getResult
+HUB_USER_GROUP,/api/admin/service/userGroup/getAssets
+HUB_USER_GROUP,/api/admin/service/userGroup/getList
+HUB_USER_GROUP,/api/admin/service/userGroup/getMembers
+HUB_USER_GROUP,/api/admin/service/userGroup/getOne
+HUB_USER_GROUP,/api/admin/service/userGroup/remove
+HUB_USER_GROUP,/api/admin/service/userGroup/save
 LOGIN_LOG,/api/system/service/loginLog/getList
 MENU_TREE,/api/system/service/menu/deleteNode
 MENU_TREE,/api/system/service/menu/getAccessibleUsers

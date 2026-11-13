@@ -8,3 +8,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/003-command-api-messages.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/004-user-group.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/005-user-group-menu.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/006-user-group-navigation.sql
+      relativeToChangelogFile: false

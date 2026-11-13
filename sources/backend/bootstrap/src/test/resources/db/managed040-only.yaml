@@ -1,0 +1,9 @@
+# @feat FEAT-040
+# 공통 기반 롤백은 업무 소유자의 후속 메뉴/테이블을 포함하지 않는다.
+databaseChangeLog:
+  - include:
+      file: db/changelog/modules/admin/001-managed-storage.sql
+  - include:
+      file: db/changelog/modules/admin/002-command-recorded-time.sql
+  - include:
+      file: db/changelog/modules/admin/003-command-api-messages.sql

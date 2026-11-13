@@ -40,7 +40,7 @@ feature_contracts:
       units: 단일 그리드는 기존 행별 부분 성공을 유지한다. 마스터/탭·시작월 등급 전체 세트·최초 월 기준과 단가 고정은 각 전체 단위다. 하나의 저장 단위에서 HIST/자식 하나라도 실패하면 그 단위 전부 롤백한다.
       current_source: 현재 SessionV2Filter/SessionRuntime.execute는 HTTP 요청 전체를 하나의 물리 트랜잭션과 ADMIN 보호 경계로 감싼다. RowTx.oneTxPerRow 자체는 트랜잭션을 만들지 않으므로 이 경계 안에서 독립 행 커밋을 보장하지 않는다. 관리 저장은 아래 implementation_design.request_unit을 따른다. CustomLock을 이미 시작한 트랜잭션 안에 중첩하지 않는다.
     implementation_design:
-      status: admin G3 승인·SLICE-040 공통 구현 완료/G4 대기. 기존 인증의 수락·회수·같은 물리 트랜잭션 보장을 유지하고 관리 소비 어댑터를 연결했다. 소유 화면 제품 연결 완료를 뜻하지 않는다.
+      status: 공통 기반 구현 상태는 project.state.yaml의 SLICE-040을 따른다. 기존 인증의 수락·회수·같은 물리 트랜잭션 보장을 유지하고 관리 소비 어댑터를 연결했다. 소유 화면 제품 연결 완료를 뜻하지 않는다.
       responsibilities:
         coordinator: 공통 관리 저장 서비스가 명령 식별/현재 권한 보호 참여·기대 판·실행 순서·원자성·원 결과 재생을 조정한다. 임의 테이블명/자산 종류를 받는 범용 HTTP 저장 API는 만들지 않는다.
         owner: 소유 업무 서비스는 허용 입력·업무 검증·부모/참조 잠금·현재값/자식 적용·동형 전체 이력 복사·정확 판 조회 어댑터를 제공한다. 관리 영역 밖 값, 비밀, 관측값을 공통 서비스에 넘기지 않는다.

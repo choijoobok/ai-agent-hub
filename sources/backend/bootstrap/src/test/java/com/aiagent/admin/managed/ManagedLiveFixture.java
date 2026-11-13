@@ -42,12 +42,13 @@ final class ManagedLiveFixture implements AutoCloseable {
     private final int port;
     private final List<Browser> administrators;
     private final AtomicInteger round=new AtomicInteger();
-    ManagedLiveFixture() throws Exception {
+    ManagedLiveFixture(Class<?>... extra) throws Exception {
         url=System.getenv("MANAGED_TEST_JDBC"); user=System.getenv("MANAGED_TEST_USER"); password=System.getenv().getOrDefault("MANAGED_TEST_PASSWORD","");
         if(url==null||!url.matches("jdbc:postgresql://127[.]0[.]0[.]1:[0-9]+/managed040_[A-Za-z0-9_]+"))throw new IllegalStateException("전용 localhost managed040_ 시험 DB가 필요하다");
         String schema="managed040_"+UUID.randomUUID().toString().replace("-","");
         new JdbcTemplate(new DriverManagerDataSource(url,user,password)).execute("CREATE SCHEMA "+schema);
-        app=new SpringApplication(AiAgentApplication.class,ManagedLiveConfiguration.class).run("--spring.profiles.active=system-auth-test,managed-test",
+        var sources=new ArrayList<Class<?>>(List.of(AiAgentApplication.class,ManagedLiveConfiguration.class));sources.addAll(List.of(extra));
+        app=new SpringApplication(sources.toArray(Class<?>[]::new)).run("--spring.profiles.active=system-auth-test,managed-test",
                 "--server.port=0","--spring.datasource.url="+url+"?currentSchema="+schema,"--spring.datasource.username="+user,"--spring.datasource.password="+password,
                 "--app.auth.session.origin="+ORIGIN,"--app.auth.session.local-http=true","--app.auth.session.provider=jdbc",
                 "--app.auth.session.epoch="+UUID.randomUUID(),"--app.auth.session.store-instance=managed040-test","--app.admin.history.retention-days=1",
@@ -67,6 +68,17 @@ final class ManagedLiveFixture implements AutoCloseable {
         administrators=List.of(login("admin"),login("admin"));
     }
     public void close(){app.close();}
+    JdbcTemplate database(){return jdbc;}
+    <T> T bean(Class<T> type){return app.getBean(type);}
+    JsonNode groupCall(String action,Object body,int status) throws Exception {
+        return data(administrators.getFirst().call("POST","/api/admin/service/userGroup/"+action,body),status);
+    }
+    void groupReaderCannotSave(ManagedCommand command) throws Exception {
+        jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','HUB_USER_GROUP','READ') ON CONFLICT DO NOTHING");
+        var reader=login("reader040");
+        data(reader.call("POST","/api/admin/service/userGroup/getOne",Map.of("targetId",command.targetId())),200);
+        data(reader.call("POST","/api/admin/service/userGroup/save",command),403);
+    }
     final class Browser {
         final Map<String,String> cookies=new HashMap<>();
         HttpResponse<String> call(String method,String path,Object body) throws Exception {
@@ -285,7 +297,7 @@ final class ManagedLiveFixture implements AutoCloseable {
         try(var connection=DriverManager.getConnection(url+"?currentSchema="+schema,user,password)) {
             connection.createStatement().execute("CREATE TABLE SYS_SEQUENCE(SEQ_NAME varchar(255) PRIMARY KEY,NEXT_VAL bigint NOT NULL)");
             connection.createStatement().execute("CREATE TABLE SYS_API(API_URL varchar PRIMARY KEY,API_NM varchar NOT NULL,API_DESC varchar NOT NULL,ACTION_CD varchar NOT NULL); CREATE TABLE SYS_MESSAGE_KEY(MSG_KEY varchar PRIMARY KEY,USE_SCOPE varchar,MSG_DESC varchar); CREATE TABLE SYS_MESSAGE(MSG_KEY varchar,LANG_CD varchar,MSG_VAL varchar,PRIMARY KEY(MSG_KEY,LANG_CD)); CREATE TABLE SYS_CACHE_VERSION(CACHE_NAME varchar PRIMARY KEY,VERSION bigint,MOD_DTM timestamptz)");
-            try(var migration=new Liquibase("db/changelog/modules/admin/db.changelog-admin.yaml",new ClassLoaderResourceAccessor(),new JdbcConnection(connection))) {
+            try(var migration=new Liquibase("db/managed040-only.yaml",new ClassLoaderResourceAccessor(),new JdbcConnection(connection))) {
                 migration.update(new Contexts());
                 try(var rows=connection.createStatement().executeQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='"+schema+"' AND table_name LIKE 'ai_admin_%'")){rows.next();assertThat(rows.getInt(1)).isEqualTo(3);}
                 migration.rollback(3,"");

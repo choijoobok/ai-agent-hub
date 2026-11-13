@@ -73,8 +73,8 @@ menus:
   - code: USER
     parent: SYSTEM
   - code: USER_MGMT
-      parent: USER
-      url: /admin/system/user
+    parent: USER
+    url: /admin/system/user
     export: true
   - code: USER_AUTH_MGMT
     parent: USER
@@ -186,4 +186,12 @@ menus:
   - code: SMPL_EXCEL
     parent: SMPL_ROOT
     url: /sample/excel
+    export: true
+
+  - code: HUB
+  - code: HUB_FOUNDATION
+    parent: HUB
+  - code: HUB_USER_GROUP
+    parent: HUB_FOUNDATION
+    url: /admin/hub/user-group
     export: true

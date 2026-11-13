@@ -1,0 +1,13 @@
+--liquibase formatted sql
+-- @feat FEAT-006
+--changeset codex:admin-006-user-group-navigation
+-- 기존 대시보드(1)·시스템(2) 다음으로 신규 Hub 메뉴를 둔다. 운영자가 정한 비기본 순서는 보존한다.
+UPDATE SYS_MENU SET SORT_NO=3 WHERE MENU_CD='HUB' AND SORT_NO=0;
+UPDATE SYS_MESSAGE SET MSG_VAL='AI Agent Hub 관리' WHERE MSG_KEY='menu.HUB' AND LANG_CD='ko';
+UPDATE SYS_MESSAGE SET MSG_VAL='AI Agent Hub management' WHERE MSG_KEY='menu.HUB' AND LANG_CD='en';
+UPDATE SYS_MESSAGE_KEY SET MSG_DESC='AI Agent Hub 관리' WHERE MSG_KEY='menu.HUB';
+UPDATE SYS_CACHE_VERSION SET VERSION=VERSION+1,MOD_DTM=CURRENT_TIMESTAMP WHERE CACHE_NAME IN ('message','authz');
+--rollback UPDATE SYS_MENU SET SORT_NO=0 WHERE MENU_CD='HUB' AND SORT_NO=3;
+--rollback UPDATE SYS_MESSAGE SET MSG_VAL='Hub 관리' WHERE MSG_KEY='menu.HUB' AND LANG_CD IN ('ko','en');
+--rollback UPDATE SYS_MESSAGE_KEY SET MSG_DESC='Hub 관리' WHERE MSG_KEY='menu.HUB';
+--rollback UPDATE SYS_CACHE_VERSION SET VERSION=VERSION+1,MOD_DTM=CURRENT_TIMESTAMP WHERE CACHE_NAME IN ('message','authz');

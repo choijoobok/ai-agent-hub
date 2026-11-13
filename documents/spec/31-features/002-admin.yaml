@@ -562,8 +562,11 @@ features:
       - REQ-605
     traces_to:
       - AUTHZ-001
+    implementation: partial
+    delivery: FEAT-006.delivery_boundary; CR-040 정의·화면·연결 포트와 소유 실연결 검증을 분리한다.
     pending:
-      - '@defer P3 access_policy physical_and_contracts — ENT-018과 FEAT-001.shared_write_contract.reference_guard의 소비 요구를 받아 그룹 안정 식별 타입/FK·삭제 보호·그룹 과거 표시 및 그룹/자산 매핑의 공통 잠금 참여를 확정한다. FEAT-007·008·303의 후보/현재 정책 계약과 대조하고 access_policy 물리 설계 검토 및 admin G3 전에 재검토한다'
+      - "@defer SLICE-005 — Portal 소속 실원장·편집·사용자 선택 연결"
+      - "@defer SLICE-002/003/004/011/020 — 각 자산 역조회와 현재 권한 소비 연결"
     screens: []
     entities:
       - ENT-102

@@ -191,17 +191,19 @@ apis:
     contract: FEAT-005.credential_commands. 원장/HIST/로그/재생 응답에 비밀번호를 넣지 않는다.
   - id: API-105
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#getList
     method: POST
     path: /api/admin/service/userGroup/getList
     action: READ
     summary: SCR-006 getList
-    request: QueryPage
-    response: ApiResponse<Page<요약 DTO>>
+    request: SearchRequest<Void>; conditions=groupNm/groupId/description/regDtm/modDtm, sorts=groupNm/groupId/regDtm/modDtm, page={page,size}; 기본 groupNm,groupId
+    response: ApiResponse<PageResponse<UserGroupQueryService.Row>>; BIGINT 십진 문자열, useState=USED/UNUSED/UNKNOWN
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
   - id: API-106
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#getOne
     method: POST
     path: /api/admin/service/userGroup/getOne
     action: READ
@@ -211,33 +213,36 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
   - id: API-107
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#getMembers
     method: POST
     path: /api/admin/service/userGroup/getMembers
     action: READ
     summary: SCR-006 getMembers
-    request: targetId 및 소유 범위; 전체 기준 리비전 반환
-    response: ApiResponse<SCR-006 상세/읽기 투영 DTO와 기준 리비전>
+    request: targetId
+    response: ApiResponse<Projection>; state=READY/NOT_CONNECTED/UNAVAILABLE/FORBIDDEN, rows; CR-040 소속 실연결은005
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
   - id: API-108
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#getAssets
     method: POST
     path: /api/admin/service/userGroup/getAssets
     action: READ
     summary: SCR-006 getAssets
-    request: targetId 및 소유 범위; 전체 기준 리비전 반환
-    response: ApiResponse<SCR-006 상세/읽기 투영 DTO와 기준 리비전>
+    request: targetId, scope=knowledge/catalog/api/tool
+    response: ApiResponse<Projection>; CR-040 원 소유 연결 전에는 NOT_CONNECTED와 빈 rows
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006
   - id: API-109
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#remove
     method: POST
     path: /api/admin/service/userGroup/remove
     action: SAVE
     summary: SCR-006 remove
-    request: targetId+expectedRevision+commandKey+reason
-    response: ApiResponse<ManagedResult 및 생성 clientKey→ID 매핑>
+    request: ManagedCommand; targetId+expectedRevision+commandKey+reason+scope=definition+values={}
+    response: ApiResponse<ManagedResult>
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
   - id: API-110
     feature: FEAT-024

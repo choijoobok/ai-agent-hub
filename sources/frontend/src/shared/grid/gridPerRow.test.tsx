@@ -246,4 +246,15 @@ describe('건별 처리의 결과 — backend/row-transaction.md', () => {
     await waitFor(() => expect(screen.getByText(SAVED)).toBeTruthy());
     expect(screen.queryAllByText(TITLE)).toHaveLength(0);
   });
+
+  it('TC-00611 소유 전송은 공통 전송을 중복 호출하지 않고 실패 행을 유지한다', async () => {
+    const submit = vi.fn().mockResolvedValue(report(1, [0]));
+    render(<Harness api={{ save: { url: '/service/x/save', submit, confirm: false, reloadAfter: false, perRow: { after: 'keepFailed' } } }} saves />);
+    await saveOneEdit();
+    await waitFor(() => expect(screen.getByText('총 1건 · 성공 0건 · 실패 1건')).toBeTruthy());
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(post).not.toHaveBeenCalled();
+    expect(controller?.rows).toHaveLength(1);
+    expect(controller?.rows[0].data.ordNo).toBe('B2');
+  });
 });

@@ -66,6 +66,8 @@ export interface ExcelExtraItem {
  * <b>알 필요가 없다</b>(playbook/excel-download.md).
  */
 export interface ExcelSpec {
+  /** @feat FEAT-006 — 현재 조회 페이지로 내보내기를 제한한다. */
+  pageOnly?: boolean;
   /**
    * <i>현재 페이지</i> 를 서버가 만든다.
    *

@@ -75,7 +75,7 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
                     values.put("HIST_ACTOR_ID",stamp.actor()); values.put("HIST_SOURCE_CD","ADMIN");
                     values.put("HISTORY_COMMAND_KEY",stamp.commandKey()); values.put("RESULT_REVISION",Long.parseLong(stamp.revision()));
                     values.put("BEFORE_HISTORY_NO",previous.isEmpty()?null:previous.getFirst()); values.put("HIST_REASON",stamp.reason());
-                    values.put("HIST_SUMMARY",null); values.put("SCHEMA_VERSION",1);
+                    values.put("HIST_SUMMARY",stamp.action()); values.put("SCHEMA_VERSION",1);
                 }
                 jdbc.update("INSERT INTO "+table.name()+"_HIST ("+String.join(",",values.keySet())+") VALUES ("+String.join(",",Collections.nCopies(values.size(),"?"))+")",values.values().toArray());
             }

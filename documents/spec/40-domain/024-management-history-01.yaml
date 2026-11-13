@@ -508,7 +508,7 @@ entities:
   - id: ENT-202
     name: AI 데이터 접근 사용자 그룹 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_USER_GROUP_HIST
     features:
@@ -520,7 +520,11 @@ entities:
       - REQ-601
     term: TRM-045
     domain: Portal 이용
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/004-user-group.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/group/
     attributes:
       - name: 그룹 안정 식별자
         physical_name: GROUP_ID
@@ -715,7 +719,7 @@ entities:
         - name: IX_USER_GROUP_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_USER_GROUP_HIST_LOOKUP ON AI_ADMIN_USER_GROUP_HIST (GROUP_ID, HISTORY_NO)
+          definition: (GROUP_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-102

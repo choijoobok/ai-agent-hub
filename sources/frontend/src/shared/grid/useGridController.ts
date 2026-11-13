@@ -873,7 +873,7 @@ export function useGridController<T>(options: GridControllerOptions<T>): GridCon
     inFlight.current = true;
     setLoading(true);
     try {
-      const result = await post(saveApi.url, payload);
+      const result = await (saveApi.submit ? saveApi.submit(payload) : post(saveApi.url, payload));
       // ⑤ 성공 모달 — 확인이 다음 단계(재조회)를 트리거한다(frontend/grid.md).
       //    <b>건별 저장은 실패가 있으면 결과 표가 그 자리를 대신한다</b>(row-transaction.md).
       const perRow = saveApi.perRow;

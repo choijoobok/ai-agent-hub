@@ -83,7 +83,8 @@ apis:
     contract: "FEAT-005. 비밀번호·외부 원문 토큰은 이 DTO로 받지 않는다. 자체 자격정보 명령/등록 인증은 별도 소유 P3 계약으로 분리한다. 기존 부모의 미변경 영역은 잠근 현재값을 유지하고 전체 HIST는 함께 저장한다."
   - id: API-085
     feature: FEAT-006
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java#save
     method: POST
     path: /api/admin/service/userGroup/save
     action: SAVE

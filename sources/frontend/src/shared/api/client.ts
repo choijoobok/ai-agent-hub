@@ -34,7 +34,7 @@ function adminCsrf(): string | undefined {
 
 apiClient.interceptors.request.use(async (config) => {
   // ADMIN 소유 명령만 준비한다. Portal 쿠키/헤더나 원 POST의 자동 재전송은 사용하지 않는다.
-  const adminCommand = /^\/(system|sample)\//.test(config.url ?? '')
+  const adminCommand = /^\/(system|sample|admin)\//.test(config.url ?? '')
     && !['get', 'head', 'options'].includes(config.method?.toLowerCase() ?? 'get');
   if (adminCommand) {
     const publicCredentialCommand = [AUTH_ENDPOINTS.login, AUTH_ENDPOINTS.sendResetCode,

@@ -211,8 +211,12 @@ screens:
     menu_parent: "HUB_FOUNDATION"
     target_doc: "documents/screen/admin/hub/user-group/requirements.md"
     screen_role: "management"
-    design_status: "screen_draft"
-    menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
+    design_status: "approved"
+    implementation: partial
+    sources:
+      - sources/frontend/src/modules/admin/features/usergroup/
+    delivery_boundary: FEAT-006.delivery_boundary; 그룹 정의 화면 구현, 소속 편집/자산 원천 연결은 후속
+    menu_contract: "menu-tree.yaml·screenRegistry·SYS_MENU_API에 HUB_USER_GROUP 연결. READ/SAVE/EXPORT는 현재 메뉴 권한을 따른다."
     history_policy:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."

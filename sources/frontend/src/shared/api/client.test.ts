@@ -62,4 +62,14 @@ describe('TC-50115 ADMIN CSRF 소비', () => {
     expect(adapter).toHaveBeenCalledOnce();
   });
 
+  it('TC-00611 admin 그룹 저장과 원 결과 조회도 현재 ADMIN CSRF를 보낸다', async () => {
+    for (const url of ['/admin/service/userGroup/save', '/admin/service/managementCommand/getResult']) {
+      document.cookie = 'AIHUB_ADMIN_CSRF=; Max-Age=0; Path=/';
+      adapter.mockClear();
+      await apiClient.post(url, {});
+      expect(adapter.mock.calls.map(([config]) => config.url)).toEqual(['/system/public/auth/getCsrf', url]);
+      expect(adapter.mock.calls[1][0].headers.get('X-AIHUB-ADMIN-CSRF')).toBe('prepared-token');
+    }
+  });
+
 });

@@ -89,7 +89,7 @@ export function ExcelButton<T>(props: Props<T>) {
 
   const items: MenuProps['items'] = [
     { key: 'page', label: label(MSG.GRID_EXCEL_PAGE) },
-    { key: 'all', label: label(MSG.GRID_EXCEL_ALL) },
+    ...(spec?.pageOnly ? [] : [{ key: 'all', label: label(MSG.GRID_EXCEL_ALL) }]),
     // 화면 고유 항목은 <b>구분선 아래</b>다 — 섞이면 어느 것이 이 화면만의 것인지 모른다.
     ...(extras.length > 0 ? [{ type: 'divider' as const }] : []),
     ...extras.map((item) => ({ key: item.key, label: label(item.label) })),

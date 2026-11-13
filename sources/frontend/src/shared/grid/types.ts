@@ -507,6 +507,8 @@ export interface PerRowSpec {
 
 export interface SaveApi<T> {
   url: string;
+  /** @feat FEAT-006 — 소유 API가 독립 명령을 차례로 보내는 전송. 권한은 url 선언으로 유지한다. */
+  submit?: (payload: unknown) => Promise<unknown>;
   /** <b>기본 `true`</b> — 건수를 알리고 묻는다(frontend/grid.md). */
   confirm?: boolean;
   /** <b>기본 `true`</b> — 서버가 채운 값이 화면에 없다(frontend/grid.md). */
