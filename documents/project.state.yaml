@@ -18,7 +18,7 @@ current:
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-521          # 다음 작업: 역할 기반 인앱 알림, 구현 착수 전
+  slice: SLICE-521          # 역할 기반 인앱 알림 구현 완료, G4 사용자 승인 대기
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -1027,7 +1027,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-520 G4 사용자 명시 승인으로 완료 처리했다. 구현/검증 근거는 8f5dad49·1e8438dc·66aec300과 해당 슬라이스 기록을 재사용한다. 다음은 기존 system G3의 CR-034 승인 범위인 SLICE-521 역할 기반 인앱 알림이며 현재는 내용 안내·구현 착수 전이다. CR-039 실제 개발 DB 재구축의 대상 확인/실행 승인은 별도다. 이후 검증은 current.verification_policy를 따른다."
+  first: "2026-11-14 SLICE-520 G4 완료를 보존하고 SLICE-521 역할 기반 인앱 알림을 cd846b82에 구현했다. 변경 영향의 필수 시험과 검사를 마쳐 현재521 G4 사용자 승인 대기다. 실제 외부 인사 수신 REST API·Portal 상태 변경·멱등 수신/ENT-266 연결은 SLICE-305 소유이며 신규 입사는 현재 승인 범위에 없다. CR-039 실제 개발 DB 재구축의 대상 확인/실행 승인은 별도다. 이후 검증은 current.verification_policy를 따른다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1624,13 +1624,51 @@ slices:
       - TC-50910
       - TC-50911
     scope: CR-034 역할 기반 외부 사건 수신자/정확 인앱 저장 공개 포트·PORTAL_CHANGE 종류·기존 만료예고/알림함 회귀
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
+    started_at: '2026-11-14'
     change: CR-034
     depends_on:
       - SLICE-520
     entry_conditions:
       - system 소유 G3에 CR-034 계약 확장을 명시 승인한 뒤 구현한다. 구체 고객 역할 코드/새 화면은 선행 조건이 아니다.
+    implementation_review:
+      reviewed_at: '2026-11-14'
+      source_commit: cd846b82
+      implemented: '지정된 기존 역할의 현재 유효 관리자·READ 권한 합집합과 정확 알림 ID 반환. ADMIN_AUTHORITY_V1 보호를 기존 관리자 명령과 공유하고 호출자와 같은 REQUIRED에서 저장/참조 인계를 수행한다. NoRecipients/Unavailable 구분, 부분 저장 전체 rollback, snapshot의 보호 구간 밖·독립 트랜잭션·다른 사건 재사용 차단. PORTAL_CHANGE와 퇴직/조직 이동의 안전 문구·영한 메시지 SQL/rollback 추가.'
+      source_refs:
+        - sources/backend/domain/src/main/java/com/aiagent/domain/notification/source/SourceNotificationService.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/notification/source/SourceNotification.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/notification/NotificationSender.java
+        - sources/backend/domain/src/main/java/com/aiagent/domain/authz/service/AdminAuthorityProtection.java
+        - sources/backend/bootstrap/src/test/java/com/aiagent/system/notification/SourceNotificationLiveTest.java
+        - sources/frontend/src/modules/system/public/notification/NotificationModal.test.tsx
+      verification:
+        test_first: '공개 계약을 사용하는 실제 DB 시험부터 작성해 미구현 타입/포트 컴파일 실패를 확인한 뒤 구현했다. 시험 요청 설정 문맥과 조회 가능 메뉴 fixture를 수정하고 같은 영향 시험만 재실행했다.'
+        actual_database: ':backend:bootstrap:sourceNotificationTest 7개·실패0·skip0. 격리 PostgreSQL16 127.0.0.1:55420/system521_local의 매 실행 무작위 schema에 제품 Liquibase/JPA/공개 포트를 사용했다. 두 사건 문구, 역할 중복/기간/비활성 계정/조회권한, 정확ID, 동일 문자열 Portal 대상 비제외, 권한 회수 경합, 조회 장애와 호출자 rollback, 다수 부분 실패·참조 실패, 독립 트랜잭션/보호 밖 snapshot 거부를 확인했다.'
+        regression: '관리자 보호 공통화의 AuthorizationInterceptorTest 18개·실패0·skip0. NotificationModal.test.tsx 13개 통과(새 종류 표시·읽음·상세 이동 권한 포함). 실제 DB에서 기존4종/새종류 조회·본인 읽음·AUTHZ 최근 발송 분리·90일 파기 조건을 확인했다. frontend typecheck·변경3파일 ESLint 통과.'
+        migration: '008-source-notification-message.sql의 제품 초기 적용과 SQL rollback/재적용 확인. 기존 메시지 보존, 새4키·영한8값 복구 확인. generateMessageSeed/checkMessageSeed 1278개 일치. 새 테이블/HTTP endpoint는 없다.'
+        static: '품질 중복률2.83%·예외삼킴0·미태깅0. domain-schema ENT238/테이블38/컬럼329/changelog14 일치. 변경 API 문서만 재생성 후 doc-gen check 누락ID/스칼라/깨진링크0. trace 오류0·후속경고72. git diff --check 통과.'
+        reuse: 'SLICE-520/308의 비영향 인증·JDBC/Redis 설치·암호·배치/전체 화면 검증은 해당 완료 근거를 재사용했다. 전체 backend/frontend 회귀·Redis·브라우저 전수/변이 시험은 실행하지 않았다. 기존 화면 구조·HTTP 계약은 그대로다.'
+        limits: '실제 인사/그룹웨어 원천 검증·수신 REST API·Portal 변경·사건 멱등성·ENT-266은 SLICE-305 범위로 미실행. 참조 실패는 실제 같은 DB의 시험 참조 테이블로 경계만 검증했으며 ENT-266 제품 검증으로 세지 않는다. 고객 역할 코드 연결·실제 상세 화면 READ 재인가는 연동 운영 검수 범위다.'
+      redteam:
+        - failure: '권한 회수와 경합하거나 조회 장애를0명으로 숨기면 비인가 수신자에게 보내거나 통지를 유실한다.'
+          resolution: '기존 관리자 보호와 동일 잠금을 commit까지 유지하고 현재 계정/역할/READ를 조회한다. 실제 회수 경합·조회 실패/정상0명·전체 rollback 시험 통과.'
+        - failure: '알림만 독립 확정하거나 일부 참조 저장이 실패하면 처리되지 않은 사건 알림과 고아 참조가 남는다.'
+          resolution: '같은 REQUIRED에서 정확ID 반환·참조 기록을 묶고 다른 트랜잭션의 snapshot 저장을 거부한다. 부분 알림 저장 및 호출자 참조 실패의 전체 rollback 시험 통과.'
+        - failure: '사건 재전송 때 포트를 무조건 다시 호출하면 중복 알림이 생기고, 새 종류를 AUTHZ로 저장하면 기존 만료 예고를 막는다.'
+          resolution: 'PORTAL_CHANGE를 별도로 저장해 실제 AUTHZ 조회·기존 알림함 회귀를 확인했다. 원 사건의 STORED/PENDING 판단과 수신 집합 확정은 SLICE-305 호출자 소유로 계약/가이드에 명시했다. 이번 포트만으로 사건 멱등성 완료를 주장하지 않는다.'
+      user_expectation: '사용자 질의에 현재 사건은 퇴직/조직 이동이며 신규 입사와 외부 수신 REST API 자체는 이번 범위가 아님을 설명했다. 새 화면 없이 기존 내 알림함을 확장한다.'
+      environment_cleanup: '시험 앱 자동 종료·격리 PostgreSQL55420 종료 확인. 기존 개발 DB와 사용자 Redis6379는 변경하지 않았다.'
+      g4:
+        status: pending_user_review
+        technical_exit_criteria: '9/9 충족: pending_rechecks 없음, 배정TC4종과 중요 반례 검증, 품질, 필수 범위 선정/재사용, DB적용/복구, 공개계약 일치, FEAT 태그, 새 spec 오류 없음. 사용자 승인 항목은 별도 대기.'
+        decision_card:
+          - '지정된 역할의 현재 유효 관리자만 받으며 역할이 중복되어도1회 수신한다. 배포 역할 설정 변경 비용은 낮다.'
+          - '알림과 사건 참조는 함께 저장/취소한다. 이 확정 단위를 바꾸는 비용은 높다.'
+          - '퇴직·조직 이동을 기존 알림함에 안전한 문구로 표시한다. 문구 변경 비용은 낮다.'
+          - '정상 수신자0명은 호출자가 통지 미완료로 보존한다. 실제 REST 수신/재전송 연결은305에서 검증한다.'
+        note: 'G4 승인 전이므로 done/approved_at을 기록하지 않는다. system 전체 완료·실제 외부 연동 운영 수락·개발 DB 재구축 실행 승인은 포함하지 않는다.'
   - id: SLICE-230
     workstream: agent
     features:
