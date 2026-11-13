@@ -18,7 +18,7 @@ current:
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-040          # 다음 구현 대상: 공통 저장·이력 기반, admin G3 준비/착수 전
+  slice: SLICE-040          # 다음 구현 대상: 공통 저장·이력 기반, admin G3 자체검증 후 사용자 승인 대기
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -462,11 +462,11 @@ workstreams:
     deferred_until: null
     design_plan:
       agreed_at: "2026-10-28"
-      updated_at: "2026-11-09"
+      updated_at: "2026-11-14"
       status: in_progress
       source: "documents/spec/31-features/001-delivery-strategy.yaml의 delivery_strategy.staged_delivery"
       purpose: "세 영역 19원화면·필수 공통 기능을 먼저 상세 설계·승인·구현하고, agent·디버그 검증 뒤 후행 admin/실제 Portal을 개발한다. 감사·이력·품질의 현재 목업은 agent 설계 입력에서 제외한다."
-      active_step: area_design
+      active_step: gate_review
       active_area: foundation_contracts
       sequence: [scope_confirmation, area_design, integration_review, gate_review, build_and_user_test]
       status_rule: "verified는 명시된 계획 작업의 검증 완료이며 사용자 G3 승인을 뜻하지 않는다. 소유 작업흐름과 화면 승인은 별도로 기록한다."
@@ -475,14 +475,17 @@ workstreams:
           status: verified
           done: "2026-11-09 사용자가 선행19화면→agent/디버그→후행 admin/Portal 순서를 확정했다. 기능/화면/공통 처리·의존 계약을 정본에 연결했고 제품 구현·G3 승인은 아직이다."
         area_design:
-          status: in_progress
+          status: verified
           exit: "선행 기능의 UC·정상/예외·현재 권한·논리/물리 데이터·저장/동시성·API·시퀀스·TC를 완성한다. 원 화면 검토 결과를 사용하고 바뀐 화면 요건/목업만 다시 사용자 검토한다."
+          done: "2026-11-14 선행24기능·19화면·125API·연결28UC를 대조했다. 저장 단위/권한 진입·이력 공유 참조를 보완하고 정상/예외가 혼재했던 12기능의 정상 저장 합격 기준을 분리했다. 기존 물리/목업 검토 근거는 재사용하며 제품 구현은 시작하지 않았다."
         integration_review:
-          status: in_progress
+          status: verified
           exit: "정본 cross_module_dependencies의 생산자/소비자·버전·실패·대역/실환경 검증 경계를 확정한다. system/admin/integration의 영향 G2 재검증과 각 소유 G3는 별도 청구하며 대역 성공을 실연동 완료로 세지 않는다."
+          done: "system/integration G3·308/520/521 완료 근거와 신규 관리 저장 진입을 대조했다. 공통 인증의 기존 보호 계약 안에서 명령 키 선행 보호와 요청별 원자 저장을 연결한다. 미설치 소유 원장과 장애를 구별하고 agent/Portal/배포 연결의 후속 실연결 시험을 각 소유 슬라이스에 남겼다."
         gate_review:
-          status: not_started
+          status: in_progress
           exit: "admin 선행 범위의 추적성·문서·물리 계약·레드팀과 슬라이스/테스트 소유 검증 후 사용자에게 admin G3만 청구한다. 공유 REQ/UC는 선행 생산 계약 부분만 승인 카드에 명시하고 후행 소비/화면 흐름을 동결하지 않는다. 미완성 후행 화면을 승인 완료로 표시하지 않는다."
+          done: "기술 자체검증과 레드팀 보완을 마쳤다. 사용자 G3 승인 전이며 workstreams.admin.gates.P3_design.self_check를 근거로 승인 요청한다."
         build_and_user_test:
           status: not_started
           exit: "소유 G3 승인 뒤 슬라이스별 실제 저장/권한/경합·서버 계약·사용자 테스트를 수행한다. 실모델/agent 실행 의존 항목은 소유 구현 후 연결 검증할 때만 완료한다."
@@ -495,41 +498,42 @@ workstreams:
         integration_assets:
           name: "연동 자산·카탈로그"
           features: [FEAT-001, FEAT-002, FEAT-003, FEAT-004, FEAT-011, FEAT-021]
-          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: in_progress, verification: in_progress }
+          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
           evidence: "연동6화면의 기존 논리 모델을 물리 열·키·제약과 전체 HIST로 전개했다. 도구 소유 자식·그룹/응답정책·설정 재등장 내부 연결ID·일괄 정리 결과를 보완했다. 소유 API/상호 참조는 검토 초안이며 G3/구현은 별도다."
         knowledge:
           name: "업무 지식·안내"
           features: [FEAT-010, FEAT-013, FEAT-014, FEAT-023, FEAT-024]
-          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: in_progress, verification: in_progress }
+          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
         access_policy:
           name: "이용자·접근/조회 정책"
           features: [FEAT-005, FEAT-006, FEAT-007, FEAT-008, FEAT-009, FEAT-012]
-          progress: { inventory: verified, specification_and_logical: in_progress, physical_and_contracts: in_progress, verification: in_progress }
-          detail_design: "Portal 계정/그룹/소속/대상 신원·등급·분리 자격정보와 필드별 접근 정책의 물리 초안을 전개했다. 그룹 사용 상태는 역조회, 마지막 소속 회수는 명시 이용자 비활성화와 원자 처리한다. 인증 수락/세션과 권한회수 경계의 system/integration 영향 G2/G3는 남아 있다."
+          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
+          detail_design: "Portal 계정/그룹/소속/대상 신원·등급·분리 자격정보와 필드별 접근 정책의 물리 설계를 전개했다. 그룹 사용 상태는 역조회, 마지막 소속 회수는 명시 이용자 비활성화와 원자 처리한다. system/integration 인증 G3 및308/520/521 승인 근거와 경계를 대조했으며 Portal 현재 정책과 실제 관리 저장 연결은 각 소유 슬라이스에서 구현·검증한다."
         foundation_contracts:
           name: "모델·쿼터·공통 저장·설정 소비"
           features: [FEAT-015, FEAT-016, FEAT-017, FEAT-020, FEAT-040, FEAT-042, FEAT-045]
-          progress: { inventory: verified, specification_and_logical: in_progress, physical_and_contracts: in_progress, verification: in_progress }
+          progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
           detail_design: "2026-11-09 사용자3정책A를 ADR-043~045에 반영하고 태그정규화A를 REQ-607에 기록했다. 선행19화면의 물리 현재/자식·76개HIST·원장/작업기록과 API DTO/입력경계·내부 소비 계약을 spec에 전개했다. 19화면 저장 단위는 FEAT-040.screen_matrix와 각 소유 physical_contract가 연결한다. 제품 DB/Liquibase 적용은 없다."
-          remaining: "물리/API 검토안의 사용자 검토, 인증 수락·세션·권한회수 경계의 영향 G2 재검증과 소유 G3, 이후 슬라이스별 실제 DB/동시성/MSG·시드 시험. agent 계량/턴 모델과 감사·이력·품질 새 목업은 요구 기반 후속 설계다."
+          remaining: "admin 선행 범위 G3 사용자 승인 후 SLICE-040 공통 구현·대표 실제 DB 시험, 이어 SLICE-006 등 소유 화면/스키마·MSG/시드 연결 검증. agent 계량/턴 모델과 감사·이력·품질 새 목업은 후속 소유 설계다. 보존 기간 미설정이면 자동 파기는 비활성이다."
+          latest_review: "2026-11-14 FEAT-040.implementation_design과 TC-04013/04014에 권한 보호 전 명령 키 잠금·단일 원자 요청·독립 행 요청 결과 집계를 구체화했다. 전체 이력 보호 집합의 공유 하위 판 해제 조건과 미설치 명령 원장 등록을 보완했다. 실제 코드/DB 변경 없이 설계 검사만 수행했다."
           verification_note: "2026-11-09 물리 설계 독립 검토의 전역 명령키/월 파기 후 재실행/NULL 분모, 도구 소유 혼입, 서버 추출값/자식 재귀속, 전체 프롬프트 검토/고정 안내 계약을 보완했다. 엄격 YAML239개·19화면 소유 매핑·188개 admin 물리표의 FK/키/타입·76개 전체HIST 동형 검사 통과. 생성기 계약 시험9개 통과. 하네스/lint·추적성 오류0/후속경고86·활성 Liquibase36표 일치, 생성387개 ID1343/장문16047 누락·깨진링크0. Edge에서 구현표1·물리초안188·논리초안1의 표시를 확인했다. 기존 목업 전수 순회는 변경 범위 밖이므로 중단하고, 최종 HTML의 주요4명세·보기/테마·현재문서 인쇄·JS오류0을 추가 확인했다. ERD 물리 타입·사이트466/18/9장 구조도 통과했다. 제품 DB/동시성 시험과 게이트 승인은 별도다."
       dependencies:
         - refs: [FEAT-301, FEAT-501, ARCH-050, REQ-616]
           owners: [system, integration]
-          status: identified
-          resume_when: "관리자/Portal 별도 인증·세션과 안정 주체/현재 권한 계약을 대조한다. system 기존 설정·이력 범위는 확장하지 않는다."
+          status: verified
+          resume_when: "system/integration G3 및308/520/521 완료 근거로 현재 인증/주체/권한 계약을 대조했다. 신규 관리 진입 어댑터와 같은 물리 트랜잭션 연결은040 실제 DB 시험으로 검증한다. system 기존 설정·이력 범위는 확장하지 않는다."
         - refs: [FEAT-006, FEAT-007, FEAT-008, FEAT-014, FEAT-040, REQ-601]
           owners: [admin]
-          status: identified
-          resume_when: "그룹/자산 전체 참조와 동시 변경·기대 리비전·직접 저장/HIST/원 명령 결과의 원자성·보존/늦은 재수신 계약을 admin G3 전에 확정한다. 후행 이력 UI를 대기 조건으로 두지 않는다."
+          status: verified
+          resume_when: "FEAT-040 공통 계약·소유 physical_contract·ADR-044 및 정상/예외 TC를 대조했다. 전체 참조/기대 판·원자성·보존/늦은 재수신 계약을 구현할 준비가 됐으며 후행 이력 UI는 대기 조건이 아니다."
         - refs: [ARCH-028, ARCH-030, FEAT-302, FEAT-303, FEAT-304]
           owners: [integration]
-          status: identified
-          resume_when: "정본 cross_module_dependencies의 연결/설정·현재 권한·모델/임베딩 생산/소비 계약을 먼저 검토한다. 실제 구현은 integration 소유 G3 이후다."
+          status: verified
+          resume_when: "integration G3의 연결/설정·현재 권한·모델/임베딩 생산/소비 계약을 재사용한다. SLICE-302 등 실제 구현과 admin 소비 연결은 소유 의존 순서에서 별도 검증한다."
         - refs: [FEAT-203, FEAT-205, FEAT-211, FEAT-221, FEAT-041]
           owners: [agent, integration]
-          status: identified
-          resume_when: "자산 검증·관리자 검토/실모델 호출·카탈로그 수집·쿼터/오류 접수 계약을 admin G3 전 대조하고 agent 착수 첫 연결 시험에 배치한다. agent 전체 완료를 선행 설계의 대기 조건으로 두지 않는다."
+          status: verified
+          resume_when: "정본 생산/소비 계약과 대역/실환경 경계를 대조했다. agent 첫 연결 시험에서 자산 검증·모델 검토·계량/쿼터·오류 접수를 검증하며 admin G3를 agent 구현 완료로 해석하지 않는다."
       resume:
         last_completed: "2026-11-10 ADR-046의 세 A와 CR-033을 정본·소유 작업흐름·개발 계획에 반영했다. FEAT-301 인증/권한 수락·세션/CSRF·관리 회수 직렬화·LOCAL/외부 신원 공개 포트, API-301~306, ENT-251 암호 이력과 수락 시험을 상세화했다. admin G3 진단 7건(비기능 시험 연결6·비저장 모델1)을 보완해 오류0/경고1이다. 실제 제품 구현/실행 검증과 소유 게이트 승인은 별도다."
         next_action: "admin 영향 G2 승인 완료. system·integration 인증/권한 상세 설계 및 각 영향 G2·G3를 이어간다. admin G3는 호출/계량·변경 사건 소비 계약과 19화면 최종 검토 후 별도 청구한다."
@@ -622,7 +626,45 @@ workstreams:
             - 승인
             - 보류(사유)
             - 특정 항목 재작업
-      P3_design:       { status: in_progress, approved_at: null, note: "2026-11-09 선행 19화면·필수 공통 처리로 범위를 조정했다. 후행은 admin-operations, 비메뉴 오류 접수는 agent 작업흐름에서 설계한다. G1/G2 기존 승인 근거는 유지하고 G3·제품 구현은 아직 미승인이다." }
+      P3_design:
+        status: in_progress
+        approved_at: null
+        note: "2026-11-14 RM-P1 admin 선행19화면·필수 공통 처리의 기술 자체검증 11/11 후 사용자 승인 대기. G3 승인 전이므로 SLICE-040 소스 구현은 시작하지 않았다. 공유 REQ/UC의 admin 생산 부분만 대상이며 후행 admin-operations·agent/Portal 화면과 소비 구현은 제외한다."
+        self_check:
+          checked_at: "2026-11-14"
+          status: passed
+          scope_ref: documents/spec/31-features/001-delivery-strategy.yaml#delivery_strategy.staged_delivery.admin_first
+          criteria:
+            - { item: "FR 실현", result: pass, evidence: "10-requirements·31-features 및 trace --all --workstream admin; 미실현 오류0" }
+            - { item: "기능 역추적", result: pass, evidence: "31-features 선행24기능의 REQ/UC 연결; 고아 오류0" }
+            - { item: "UC 기본/대안/예외", result: pass, evidence: "30-usecases 연결28UC에 세 흐름 존재; 공유 UC 후행 소비는 승인 범위 제외" }
+            - { item: "데이터 키/필수/이력/삭제", result: pass, evidence: "40-domain 연결190ENT의 설계; ENT-035는 명시 nonpersistent. 기존188물리표/76HIST 검토 재사용, 변경 ENT-099/100 정책 대조 및 domain-schema 통과" }
+            - { item: "API 기능/입출력/오류", result: pass, evidence: "50-api 선행125API의 소유/입출력·공통 오류와 FEAT-040/소유 계약 연결; 신규 관리 진입 설계 반영" }
+            - { item: "화면 액션/권한/검증", result: pass, evidence: "60-screens·screen/admin/hub의 기존19화면 검토 재사용. FEAT-040.screen_matrix와 소유 physical_contract 대조, 레이아웃 변경 없음" }
+            - { item: "핵심 시퀀스", result: pass, evidence: "30-usecases UC-006/007/008/015/016/042; UC-006 명령 키→권한 보호→저장 순서 보완" }
+            - { item: "정상/예외 TC", result: pass, evidence: "70-testcases 선행24기능 각각 정상/예외 보유; 혼재12기능 정상 저장 기준 분리, TC-04013/04014 추가. 계획이며 제품 실행 결과 아님" }
+            - { item: "추적성", result: pass, evidence: "trace --all --workstream admin --short 오류0; 미착수 TC 코드 부재만 경고" }
+            - { item: "가정/결정/재검증", result: pass, evidence: "ASSUMPTIONS 미확인0·proposed ADR0·pending_rechecks0" }
+            - { item: "의존 순서", result: pass, evidence: "slices 의존 순환/미발견0;040 선행520/506/507 done, 이후006/042 등 소유 순서. 추가 정상 TC를 각 소유 슬라이스에 연결" }
+          verification_policy: "소스 변경 없음. 변경 spec/상태의 파싱·추적성·domain-schema·생성 누락/링크·diff 검사를 수행하고 기존 비영향 화면/물리 검토를 재사용한다. 제품 테스트·전체 빌드·Redis 전환·브라우저 전수 순회는 실행하지 않는다."
+          verification_result: "추적성 오류0·미착수 TC262건 코드 부재 경고1. domain-schema ENT238/활성38표·329컬럼·14changelog 일치. doc-gen --check 생성413문서·ID1618/장문17681 누락0·깨진 링크0. 제품 시험 실행 없음."
+          redteam:
+            - risk: "인증이 먼저 권한 잠금을 잡고 저장이 뒤에서 명령 키를 잠그면 저장/회수 경합이 정해진 순서를 깨뜨린다."
+              resolution: "수정 — FEAT-040.implementation_design.admission이 같은 물리 트랜잭션에서 명령 키를 먼저 보호하고 기존 AdminAuthorityGuard에 위임한다. TC-04013에서 실제 인증 진입/회수 양순서를 검증한다."
+            - risk: "독립 행을 현재 요청 트랜잭션 안에서 분리했다고 착각하면 한 실패가 전부 롤백되거나 중첩 잠금 교착이 생긴다."
+              resolution: "수정 — 독립 행만 단일 원 명령 요청으로 순차 전송해 결과를 모으고 명시 복합 저장은 전체 한 요청을 유지한다. TC-04014로 부분 성공·권한 회수·응답 유실·전체 롤백을 구분한다."
+            - risk: "공유 하위 이력을 대표 부모의 종료만 보고 해제하면 다른 경로의 실행/조사 근거가 파기된다."
+              resolution: "수정 — ENT-100은 소비 기록/목적 전체의 보호 집합으로 해제하며 대표 부모는 설명 경로다. TC-0404에 공유 하위 판과 전체 종료 조건을 추가했다."
+          boundary: "고객사 보존 기간 미설정이면 자동 파기 비활성. 19화면 실제 구현/실모델·외부 인사 수신은 후속 소유 검증이며 공통 fixture 통과로 완료 처리하지 않는다."
+          expectation_risk: "공통 저장 기반 완성을 19화면 구현 완료 또는 후행 이력 조회 UI 완성으로 오해하지 않도록040/소비 슬라이스의 검증 책임을 분리했다."
+          deferral_cost: "저장 단위·정확 판·권한 보호 순서를 구현 뒤 바꾸면 각 소유 API와 이미 쌓인 이력/명령 원장을 함께 이행해야 하므로 비용이 높다."
+          decision_card:
+            - "저장과 전체 변경 이력은 함께 성공하거나 함께 취소한다. 나중에 변경하면 데이터 이행 비용이 높다."
+            - "서로 독립된 행은 성공한 행을 유지하고, 부모·자식 묶음은 전부 함께 저장한다. 저장 단위 변경 비용은 중간이다."
+            - "응답이 끊겨도 같은 저장을 두 번 적용하지 않고 원 결과를 확인한다. 원장 규칙 변경 비용은 높다."
+            - "현재 쓰거나 실행/조사에서 참조한 이력은 보존하고, 보존 기간이 정해지기 전 자동 삭제하지 않는다. 파기 후 복구 비용은 높다."
+          reverse_question: "독립된 여러 행을 저장할 때 한 행만 충돌하면 다른 정상 행의 저장은 유지하는 기존 부분 성공 규칙이 기대와 같은지 확인한다. 부모/자식 전체 저장은 예외다."
+          approval_effect: "명시 승인 시 선행19화면·24기능의 admin 설계를 동결하고 SLICE-040부터 구현한다. 후행 UI/다른 작업흐름 G3·개발 DB 재구축 승인은 포함하지 않는다."
       P4_build:        { status: not_started, approved_at: null, note: "" }
       P5_verify:       { status: not_started, approved_at: null, note: "" }
   admin-operations:
@@ -1027,7 +1069,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-521 G4 사용자 명시 승인으로 완료 처리했다. 다음은 합의된 admin 선행19화면·필수 공통 처리의 상세 설계 대조/남은 검토와 admin G3 승인 준비다. 첫 구현 대상은 SLICE-040 공통 관리 명령·저장/전체 이력·보존 보호이며 admin G3는 아직 in_progress다. SLICE-305 외부 인사 수신은 SLICE-005 Portal 원장과 SLICE-302 배포 연결 기반이 추가로 필요하다. SLICE-302는 integration G3/520 완료 근거를 갖춘 별도 선행 기반으로 첫 소비에 맞춰 구현한다. 실제 개발 DB 재구축 실행 승인은 별도이며 이후 검증은 current.verification_policy를 따른다."
+  first: "2026-11-14 admin 선행19화면·필수 공통 처리 G3 기술 자체검증 11/11을 마치고 사용자 승인을 기다린다. 승인 뒤 SLICE-040 공통 명령·저장/전체 이력·보존 보호와 기존 인증 연결을 구현하고 SLICE-006 첫 실제 소비로 이어간다.040의 대표 DB 시험과 각 화면의 실제 스키마/호출부 시험을 구분하며 최소 영향 시험만 수행한다. SLICE-305 외부 인사 수신은005·302·완료521이 선행한다. 실제 개발 DB 재구축 실행 승인은 별도다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1081,7 +1123,7 @@ counters:
   ENT: 238    # 2026-11-11 CR-035/036 변경 상세 반영
   API: 239    # CR-038 현재 시스템 정보/진행률 미등록2건 추적 보완
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
-  TC: 442    # CR-038 경로 카탈로그/실제 전환 계획 시험2건 추가
+  TC: 456    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
   CR: 38    # CR-039 초기 개발 DB 재기준선 반영
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
@@ -1473,7 +1515,9 @@ slices:
       - TC-04010
       - TC-04011
       - TC-04012
-    scope: 공통 관리 명령/원 결과·전체 HIST·보존 보호·현재 권한/회수 인계
+      - TC-04013
+      - TC-04014
+    scope: 공통 관리 명령/원 결과·전체 HIST·보존 보호·현재 권한/회수 인계. FEAT-040.implementation_design의 관리 진입 어댑터·단일 요청 원자성을 포함하며 19화면 업무 구현은 각 소유 슬라이스다.
     stage: P3
     status: todo
     depends_on:
@@ -1482,7 +1526,7 @@ slices:
       - SLICE-507
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
-    verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    verification: 변경 범위의 현재 권한/원자성/재수신·전이 참조/파기 및 인증 진입 순서를 실제 DB와 대표 부모/자식 fixture로 검증한다. TC-0408/04011/04012/04014의 실제 화면·소유 스키마 연결은 각 소비 슬라이스에서 별도 검증한다. 필요 없는 전체 인증/Redis/프론트 시험을 반복하지 않으며 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
   - id: SLICE-006
     workstream: admin
     features:
@@ -1511,6 +1555,7 @@ slices:
     features:
       - FEAT-042
     testcases:
+      - TC-0421
       - TC-0172
       - TC-0173
       - TC-04510
@@ -1980,6 +2025,7 @@ slices:
     features:
       - FEAT-003
     testcases:
+      - TC-00325
       - TC-00214
       - TC-00215
       - TC-00319
@@ -2021,6 +2067,7 @@ slices:
     features:
       - FEAT-007
     testcases:
+      - TC-0073
       - TC-0071
       - TC-0072
     scope: 카탈로그 그룹 매핑
@@ -2037,6 +2084,7 @@ slices:
     features:
       - FEAT-011
     testcases:
+      - TC-01110
       - TC-0111
       - TC-0112
       - TC-0113
@@ -2058,6 +2106,7 @@ slices:
     features:
       - FEAT-004
     testcases:
+      - TC-00432
       - TC-00423
       - TC-00424
       - TC-00425
@@ -2098,6 +2147,7 @@ slices:
     features:
       - FEAT-021
     testcases:
+      - TC-02123
       - TC-02120
       - TC-02121
       - TC-02122
@@ -2115,6 +2165,7 @@ slices:
     features:
       - FEAT-009
     testcases:
+      - TC-0091
       - TC-0124
       - TC-0125
     scope: 행 스코프·파라미터·조건 주입 설정
@@ -2131,6 +2182,7 @@ slices:
     features:
       - FEAT-012
     testcases:
+      - TC-01212
       - TC-0121
       - TC-0122
       - TC-0123
@@ -2153,6 +2205,7 @@ slices:
     features:
       - FEAT-010
     testcases:
+      - TC-0108
       - TC-0101
       - TC-0102
       - TC-0103
@@ -2173,6 +2226,7 @@ slices:
     features:
       - FEAT-013
     testcases:
+      - TC-0139
       - TC-0131
       - TC-0132
       - TC-0133
@@ -2194,6 +2248,7 @@ slices:
     features:
       - FEAT-024
     testcases:
+      - TC-0244
       - TC-0243
     scope: 태그·동의어 정규화와 직접 연결
     stage: P3
@@ -2208,6 +2263,7 @@ slices:
     features:
       - FEAT-023
     testcases:
+      - TC-0234
       - TC-0115
       - TC-0231
     scope: 인증 예제 SQL과 공개 카탈로그 참조
