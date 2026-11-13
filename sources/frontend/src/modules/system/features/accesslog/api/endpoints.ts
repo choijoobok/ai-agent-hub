@@ -11,15 +11,15 @@
  * **어느 역할에도 줄 수 없다**.
  *
  * <p><b>`exportExcel` 이 없다.</b> 엑셀은 있지만(LOG-08) **프론트 생성**이다(playbook/excel-download.md 첫째).
- * 다운로드 이력은 `POST /api/common/system/excel/saveLog` 가 남기므로 여기 새로 만들 것이 없다.
+ * 다운로드 이력은 `POST /api/system/common/excel/saveLog` 가 남기므로 여기 새로 만들 것이 없다.
  */
 export const ACCESS_LOG_ENDPOINTS = {
-  getList: '/service/system/accessLog/getList',
+  getList: '/system/service/accessLog/getList',
   /**
    * **전문 한 칸을 따로 가져온다** — 목록이 `nclob` 을 싣지 못하기 때문이다(screen/admin/system/log/access/requirements.md).
    *
    * <p>screen/admin/system/user/requirements.md 가 편집 폼을 없애며 `getDetail` 을 없앤 것과 정반대다. 여기서는
    * **컬럼 하나가 목록에 들어올 수 없어서** 돌아왔다.
    */
-  getDetail: '/service/system/accessLog/getDetail',
+  getDetail: '/system/service/accessLog/getDetail',
 } as const;

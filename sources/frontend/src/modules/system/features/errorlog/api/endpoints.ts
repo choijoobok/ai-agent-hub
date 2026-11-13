@@ -17,7 +17,7 @@
  * <p><b>`exportExcel` 이 없다.</b> 엑셀은 있지만(LOG-08) **프론트 생성**이다(playbook/excel-download.md 첫째).
  */
 export const ERROR_LOG_ENDPOINTS = {
-  getList: '/service/system/errorLog/getList',
+  getList: '/system/service/errorLog/getList',
   /**
    * **탭 둘을 한 번에 가져온다** — 스택(자기 테이블)과 요청 전문(사용 이력에서
    * `TRACE_ID` 로). screen/admin/system/log/error/requirements.md.
@@ -25,5 +25,5 @@ export const ERROR_LOG_ENDPOINTS = {
    * <p>탭마다 부르지 않는 이유가 여기 있다: 스택을 보다가 전문을 보는 것이 진단의 기본
    * 동선이고, 왕복이 둘이면 **두 번째가 실패했을 때 절반만 열린 모달**이 된다.
    */
-  getDetail: '/service/system/errorLog/getDetail',
+  getDetail: '/system/service/errorLog/getDetail',
 } as const;

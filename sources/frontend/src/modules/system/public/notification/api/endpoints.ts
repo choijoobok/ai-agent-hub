@@ -8,21 +8,21 @@
  * 줄은 인가 시드를 건드리지 않는다.
  */
 export const NOTIFICATION_ENDPOINTS = {
-  getSystemInfo: '/common/system/getSystemInfo',
+  getSystemInfo: '/system/common/system/getSystemInfo',
 
   // ── 내 알림 탭 (frontend/tabs.md) ─────────────────────────────
   //
   // 목록 조회는 읽음을 만들지 않는다 — 훑어만 봐도 배지가 사라지면 놓친 알림을 찾을 수
   // 없다. 읽음이 되는 경로는 아래 둘뿐이다.
-  getNotiList: '/common/system/noti/getList',
-  getUnreadCount: '/common/system/noti/getUnreadCount',
-  saveNotiRead: '/common/system/noti/saveRead',
-  saveAllNotiRead: '/common/system/noti/saveAllRead',
+  getNotiList: '/system/common/noti/getList',
+  getUnreadCount: '/system/common/noti/getUnreadCount',
+  saveNotiRead: '/system/common/noti/saveRead',
+  saveAllNotiRead: '/system/common/noti/saveAllRead',
 
   // ── 내 요청 탭 (NOTI-06 사용자 측) ──────────────────────────
   //
   // 처리는 여기 없다 — `NOTI_REQUEST` 메뉴의 일이고 권한이 필요하다(sys/menu.md).
   // **모달에는 권한을 걸 자리가 없다**(NI-13).
-  getMyRequests: '/common/system/notiRequest/getMyList',
-  saveRequest: '/common/system/notiRequest/save',
+  getMyRequests: '/system/common/notiRequest/getMyList',
+  saveRequest: '/system/common/notiRequest/save',
 } as const;

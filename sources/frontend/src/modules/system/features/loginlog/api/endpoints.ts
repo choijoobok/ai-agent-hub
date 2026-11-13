@@ -14,8 +14,8 @@
  * 것이라 인가의 문제이며, screen/admin/system/log/login/requirements.md 이 문서 하나에 화면 셋을 둔 것과는 층이 다르다.
  *
  * <p><b>`exportExcel` 이 없는 것도 같다.</b> 엑셀은 있지만(LOG-08) 프론트 생성이며
- * (playbook/excel-download.md 첫째) 다운로드 이력은 `POST /api/common/system/excel/saveLog` 가 남긴다.
+ * (playbook/excel-download.md 첫째) 다운로드 이력은 `POST /api/system/common/excel/saveLog` 가 남긴다.
  */
 export const LOGIN_LOG_ENDPOINTS = {
-  getList: '/service/system/loginLog/getList',
+  getList: '/system/service/loginLog/getList',
 } as const;

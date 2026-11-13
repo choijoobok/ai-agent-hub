@@ -105,11 +105,11 @@ export default tseslint.config(
             "'/api/...' 리터럴은 endpoints.ts 에만 둔다. 화면은 그 상수만 쓴다 — frontend/packages.md.",
         },
         {
-          // axios baseURL 이 '/api' 라서 실제 선언은 계층 마디부터 시작한다. 위 규칙만
+          // axios baseURL 이 '/api' 라서 실제 선언은 모듈/계층 마디부터 시작한다. 위 규칙만
           // 두면 '/common/auth/me' 를 화면에 직접 써도 통과한다 — 게이트가 조용히 비게 된다.
-          selector: String.raw`Literal[value=/^\/(public|common|service)\//]`,
+          selector: String.raw`Literal[value=/^\/[^/]+\/(public|common|service)\//]`,
           message:
-            "계층 경로('/public|/common|/service') 리터럴은 endpoints.ts 에만 둔다 — frontend/packages.md.",
+            "모듈/계층 API 경로 리터럴은 endpoints.ts 에만 둔다 — frontend/packages.md.",
         },
 
         // 화면 문구를 소스에 박지 않는다 - sys/code.md · sys/message.md.

@@ -6,7 +6,7 @@
  * 않는다**: *"나는 이 그리드를 이렇게 본다"* 는 **사람의 속성**이다(backend/security.md).
  */
 export const GRID_PREF_ENDPOINTS = {
-  getOne: '/common/system/gridPref/getOne',
-  save: '/common/system/gridPref/save',
-  delete: '/common/system/gridPref/delete',
+  getOne: '/system/common/gridPref/getOne',
+  save: '/system/common/gridPref/save',
+  delete: '/system/common/gridPref/delete',
 } as const;

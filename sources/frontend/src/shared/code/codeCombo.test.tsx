@@ -80,7 +80,7 @@ describe('공통코드 콤보', () => {
       mount();
 
       await waitFor(() =>
-        expect(post).toHaveBeenCalledWith('/common/system/code/getList', { grpCds: ['ORD_STATUS'] }));
+        expect(post).toHaveBeenCalledWith('/system/common/code/getList', { grpCds: ['ORD_STATUS'] }));
 
       fireEvent.mouseDown(screen.getByRole('combobox'));
 
@@ -157,7 +157,7 @@ describe('공통코드 콤보', () => {
       render(<Harness rows={[{ id: 'a', status: 'PAID' }]} />);
 
       await waitFor(() =>
-        expect(post).toHaveBeenCalledWith('/common/system/code/getList', { grpCds: ['ORD_STATUS'] }));
+        expect(post).toHaveBeenCalledWith('/system/common/code/getList', { grpCds: ['ORD_STATUS'] }));
 
       await waitFor(() => expect(screen.queryByText('결제완료')).not.toBeNull(), { timeout: 5000 });
     });
@@ -179,7 +179,7 @@ describe('공통코드 콤보', () => {
       render(<CodeSelect grpCd="ORD_STATUS" style={{ width: 200 }} />);
 
       await waitFor(() =>
-        expect(post).toHaveBeenCalledWith('/common/system/code/getList', { grpCds: ['ORD_STATUS'] }));
+        expect(post).toHaveBeenCalledWith('/system/common/code/getList', { grpCds: ['ORD_STATUS'] }));
 
       fireEvent.mouseDown(screen.getByRole('combobox'));
 
@@ -227,7 +227,7 @@ describe('공통코드 콤보', () => {
 
     // 순서는 <b>어느 컴포넌트가 먼저 붙었나</b>이지 규약이 아니다 — 담긴 것만 본다.
     const [url, body] = post.mock.calls[0] as [string, { grpCds: string[] }];
-    expect(url).toBe('/common/system/code/getList');
+    expect(url).toBe('/system/common/code/getList');
     expect([...body.grpCds].sort()).toEqual(['ORD_STATUS', 'ORD_TYPE']);
   });
 });

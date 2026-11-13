@@ -10,7 +10,7 @@
  * 화면 하나의 것이 아니라 **모든 마스터 그리드 화면의 것**이라 소속시킬 도메인이 없다.
  */
 export const SEARCH_COND_ENDPOINTS = {
-  getList: '/common/system/searchCond/getList',
-  save: '/common/system/searchCond/save',
-  delete: '/common/system/searchCond/delete',
+  getList: '/system/common/searchCond/getList',
+  save: '/system/common/searchCond/save',
+  delete: '/system/common/searchCond/delete',
 } as const;

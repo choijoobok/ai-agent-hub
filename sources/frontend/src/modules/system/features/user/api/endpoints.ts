@@ -21,15 +21,15 @@
  */
 export const USER_ENDPOINTS = {
   /** 목록 — **곧 상세다**(screen/admin/system/user/requirements.md). `getDetail` 이 없는 이유가 그것이다. */
-  getList: '/service/system/user/getList',
+  getList: '/system/service/user/getList',
   /** 셀 편집 일괄 저장. **신규 행의 임시 비밀번호를 돌려준다**(screen/admin/system/user/requirements.md). */
-  save: '/service/system/user/save',
+  save: '/system/service/user/save',
   /** `unlock` 이 아니다 — 접두가 액션을 정하고 이것은 저장이다(screen/admin/system/user/requirements.md). */
-  saveUnlock: '/service/system/user/saveUnlock',
+  saveUnlock: '/system/service/user/saveUnlock',
   /** 메일이 안 되는 환경을 위한 관리자 경로 — 정상 경로는 본인 재설정이다(sys/user-role.md). */
-  saveDormantRelease: '/service/system/user/saveDormantRelease',
+  saveDormantRelease: '/system/service/user/saveDormantRelease',
   /** AUTH-07. **잠금을 풀지 않는다** — 무한 반복을 막는다(screen/_standalone/README.md). */
-  savePasswordReset: '/service/system/user/savePasswordReset',
+  savePasswordReset: '/system/service/user/savePasswordReset',
 
   // ── 디테일 탭 다섯 (screen/admin/system/user/requirements.md) ────────────────────────────────────
   //
@@ -42,9 +42,9 @@ export const USER_ENDPOINTS = {
   // `saveUnlock` 과 갈린다: 저것은 `LOCK_YN` 을 쓰므로 `unlock` 이면 안 됐다.
 
   /** 탭 1 — 보유 역할(USER-03). **기간으로 거르지 않는다** — 만료된 부여가 곧 답이다. */
-  getRoleList: '/service/system/user/getRoleList',
+  getRoleList: '/system/service/user/getRoleList',
   /** 〃 저장. 그 사람의 세션에 권한 재계산을 예약한다(backend/security.md). */
-  saveRole: '/service/system/user/saveRole',
+  saveRole: '/system/service/user/saveRole',
   /**
    * 부여 콤보와 마스터 조회조건의 후보 — **이 화면이 자기 경로를 갖는다**.
    *
@@ -52,7 +52,7 @@ export const USER_ENDPOINTS = {
    * (backend/api.md — 매핑이 경로를 따라간다), 그러면 사용자 관리만 가진 사람이 역할을 부여할
    * 수 없다.
    */
-  getRoleCandidates: '/service/system/user/getRoleCandidates',
+  getRoleCandidates: '/system/service/user/getRoleCandidates',
 
   /**
    * 탭 2 — 개인 예외 조회(AUTHZ-07). **`USER_AUTH_MGMT` 와 경로를 공유하지 않는다**(screen/admin/system/user/requirements.md).
@@ -63,18 +63,18 @@ export const USER_ENDPOINTS = {
    * <p>**`save` 가 없다.** 사용자 관리 권한이 있다고 예외 권한 부여 권한이 따라오면 안 되며,
    * 시드 생성기가 `SAVE` 를 만들 수 없으므로 **어느 역할에도 줄 수 없다**.
    */
-  getUserMenuAuth: '/service/system/user/getUserMenuAuth',
+  getUserMenuAuth: '/system/service/user/getUserMenuAuth',
 
   /** 탭 3 — 접속 허용 IP(AUTH-08). **꺼진 행도 온다** — 화면이 다시 켜는 곳이다. */
-  getIpList: '/service/system/user/getIpList',
+  getIpList: '/system/service/user/getIpList',
   /** 〃 저장. **세션을 건드리지 않는다** — 인가가 아니라 인증의 검사다(sys/user-role.md). */
-  saveIp: '/service/system/user/saveIp',
+  saveIp: '/system/service/user/saveIp',
 
   /** 탭 4 — 활성 세션(AUTH-10). 원천이 DB 가 아니라 **세션 스토어**다(screen/admin/system/user/requirements.md). */
-  getSessionList: '/service/system/user/getSessionList',
+  getSessionList: '/system/service/user/getSessionList',
   /** 〃 강제 종료 — **이 화면의 유일한 `EXECUTE`** 다(sys/menu.md 의 `X`). */
-  killSession: '/service/system/user/killSession',
+  killSession: '/system/service/user/killSession',
 
   /** 탭 5 — 유효 권한(screen/admin/system/user/requirements.md). **읽기만 한다** — 관리자 세션을 바꾸지 않는다(backend/security.md). */
-  getEffectiveAuthList: '/service/system/user/getEffectiveAuthList',
+  getEffectiveAuthList: '/system/service/user/getEffectiveAuthList',
 } as const;

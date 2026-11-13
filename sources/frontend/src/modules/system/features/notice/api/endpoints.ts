@@ -20,7 +20,7 @@
  * 여기는 <b>본문이 `nclob` 이라 엑셀 셀 상한에서 잘린다</b>(frontend/grid.md).
  */
 export const NOTICE_ENDPOINTS = {
-  getList: '/service/system/notice/getList',
+  getList: '/system/service/notice/getList',
   /** 추가 · 수정 · <b>물리 삭제</b>가 한 트랜잭션이다(screen/admin/system/notice/requirements.md). */
-  save: '/service/system/notice/save',
+  save: '/system/service/notice/save',
 } as const;

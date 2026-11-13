@@ -11,22 +11,23 @@
  * <p>`public`·`common` 은 인가 판정을 받지 않으므로 시드 대상이 아니다(screen/_standalone/README.md).
  */
 export const AUTH_ENDPOINTS = {
-  login: '/public/system/auth/login',
-  getMe: '/common/system/auth/getMe',
-  heartbeat: '/common/system/auth/heartbeat',
-  logout: '/common/system/auth/logout',
+  getCsrf: '/system/public/auth/getCsrf',
+  login: '/system/public/auth/login',
+  getMe: '/system/common/auth/getMe',
+  heartbeat: '/system/common/auth/heartbeat',
+  logout: '/system/common/auth/logout',
 
   /*
     분실 비밀번호 재설정 — AUTH-07 · documents/screen/_standalone/system/login/requirements.md §7.
 
     **셋을 `reset` 으로 묶은 것이 결정이다.** 한 묶음임이 경로만 봐도 보이고, 이미 있는
-    `/service/system/user/savePasswordReset`(관리자 임시 비밀번호 발급)과 이름이 겹치지 않는다 —
+    `/system/service/user/savePasswordReset`(관리자 임시 비밀번호 발급)과 이름이 겹치지 않는다 —
     둘은 다른 일이며 겹치면 로그에서 구분되지 않는다.
 
     **정책만 GET 이다** — `common`·`public` 의 조회는 GET, 나머지는 POST(backend/api.md).
   */
-  getPasswordPolicy: '/public/system/auth/getPasswordPolicy',
-  sendResetCode: '/public/system/auth/sendResetCode',
-  verifyResetCode: '/public/system/auth/verifyResetCode',
-  saveResetPassword: '/public/system/auth/saveResetPassword',
+  getPasswordPolicy: '/system/public/auth/getPasswordPolicy',
+  sendResetCode: '/system/public/auth/sendResetCode',
+  verifyResetCode: '/system/public/auth/verifyResetCode',
+  saveResetPassword: '/system/public/auth/saveResetPassword',
 } as const;

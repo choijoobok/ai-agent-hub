@@ -22,12 +22,12 @@
  * 화면에 없는 권한이 역할에 붙는다(sys/menu.md).
  */
 export const SAMPLE_TABS_ENDPOINTS = {
-  getOrderList: '/service/sample/getOrderList',
-  getItemList: '/service/sample/getItemList',
-  saveOrders: '/service/sample/saveOrders',
-  saveItems: '/service/sample/saveItems',
+  getOrderList: '/sample/service/getOrderList',
+  getItemList: '/sample/service/getItemList',
+  saveOrders: '/sample/service/saveOrders',
+  saveItems: '/sample/service/saveItems',
   /** ⑤가 여는 첫 경로 — `SMPL_ORDER_TAG` 를 행으로 읽는다. */
-  getTagList: '/service/sample/getTagList',
+  getTagList: '/sample/service/getTagList',
   /** ①의 전량 교체와 **갈래가 다른** 저장이다 — 행마다 `rowState` 를 싣는다. */
-  saveTags: '/service/sample/saveTags',
+  saveTags: '/sample/service/saveTags',
 } as const;

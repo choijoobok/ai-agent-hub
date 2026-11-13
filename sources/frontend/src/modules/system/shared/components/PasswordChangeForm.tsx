@@ -3,6 +3,9 @@ import { useRef, useState, type ReactNode } from 'react';
 import { App, Button, Flex, Form, Input, Typography } from 'antd';
 import { label } from '@/shared/i18n/label';
 import { MSG } from '@/shared/i18n/messageKeys';
+import { ApiError } from '@/shared/api';
+import { fetchMe } from '@/modules/system/public/auth/api/authApi';
+import { useSessionCleanup } from '@/modules/system/public/auth/session';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { changePassword } from '@/modules/system/public/profile/api/profileApi';
 import type { PasswordRuleSpec } from '@/modules/system/public/auth/api/authApi';
@@ -14,14 +17,15 @@ interface Props {
   secondaryAction?: ReactNode;
 }
 
-/** 프로필과 강제 변경 화면이 공유한다. 서버 성공 뒤에만 제한 세션을 해제한다. */
+/** 프로필과 강제 변경 화면이 공유한다. 변경 뒤 새 쿠키의 getMe로 현재 제한 상태를 확인한다. */
 export function PasswordChangeForm({ ruleHints, rules = [], secondaryAction }: Props) {
   const { message } = App.useApp();
   const [form] = Form.useForm<{ currentPwd: string; newPwd: string; confirmPwd: string }>();
   const [saving, setSaving] = useState(false);
   const submitting = useRef(false);
   const loginId = useAuthStore((state) => state.user?.userId ?? '');
-  const clearPasswordChange = useAuthStore((state) => state.clearPasswordChange);
+  const signIn = useAuthStore((state) => state.signIn);
+  const cleanup = useSessionCleanup();
   const newPwd = Form.useWatch('newPwd', form) ?? '';
   const states = evaluateRules(rules, newPwd, { loginId });
   const required = { required: true, message: label(MSG.PROFILE_PWD_REQUIRED) };
@@ -33,9 +37,14 @@ export function PasswordChangeForm({ ruleHints, rules = [], secondaryAction }: P
     try {
       await changePassword(values.currentPwd, values.newPwd);
       form.resetFields();
-      clearPasswordChange();
+      signIn(await fetchMe());
       message.success(label(MSG.PROFILE_PWD_DONE));
     } catch (error) {
+      if (error instanceof ApiError && error.status === 503 && error.code === 'PASSWORD_CHANGED_REAUTH_REQUIRED') {
+        form.resetFields();
+        await cleanup({ callServer: false });
+        return;
+      }
       message.error(error instanceof Error ? error.message : String(error));
     } finally {
       submitting.current = false;

@@ -18,14 +18,14 @@
  * 다운로드가 서버 POI 인 것과 갈린다.
  */
 export const CODE_ENDPOINTS = {
-  getGroupList: '/service/system/code/getGroupList',
-  saveGroup: '/service/system/code/saveGroup',
-  getList: '/service/system/code/getList',
-  save: '/service/system/code/save',
+  getGroupList: '/system/service/code/getGroupList',
+  saveGroup: '/system/service/code/saveGroup',
+  getList: '/system/service/code/getList',
+  save: '/system/service/code/save',
   /**
    * **두 자리에서 부른다**(screen/admin/system/code/requirements.md) — 정의 모달의 조회와, 하단 조회에 **함께** 나가는 쪽.
    * 같은 응답을 쓰므로 정의가 바뀌면 컬럼 집합과 모달 목록이 같은 순간에 같아진다.
    */
-  getRefDefList: '/service/system/code/getRefDefList',
-  saveRefDef: '/service/system/code/saveRefDef',
+  getRefDefList: '/system/service/code/getRefDefList',
+  saveRefDef: '/system/service/code/saveRefDef',
 } as const;

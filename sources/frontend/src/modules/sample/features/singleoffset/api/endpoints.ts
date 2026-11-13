@@ -19,19 +19,19 @@
  * 화면이 그리지도 않는 `nclob` 셋을 페이지마다 나른다.
  */
 export const SAMPLE_OFFSET_ENDPOINTS = {
-  getOrderOffsetList: '/service/sample/getOrderOffsetList',
+  getOrderOffsetList: '/sample/service/getOrderOffsetList',
   /** 참조 팝업의 후보 — 팝업의 조회는 **부르는 화면의 것**이다(playbook/INDEX.md). */
-  getCustomerList: '/service/sample/getCustomerList',
+  getCustomerList: '/sample/service/getCustomerList',
   /**
    * `listModal` 이 항목을 고르는 팝업의 후보 — frontend/grid.md · playbook/INDEX.md.
    *
    * <p>**이름이 긴 이유가 있다.** `/getTagList` 는 ⑤의 것이고(한 주문의 태그 **행들**)
    * 같은 `/api/service/sample` 를 나눠 쓰므로, 짧은 이름을 쓰면 기동이 매핑 충돌로 죽는다.
    */
-  getTagCandidateList: '/service/sample/getTagCandidateList',
-  saveOffsetOrders: '/service/sample/saveOffsetOrders',
+  getTagCandidateList: '/sample/service/getTagCandidateList',
+  saveOffsetOrders: '/sample/service/saveOffsetOrders',
   /** 확정 — `target:'selected'`, **프로그레스 없음**. 응답이 곧 끝이다. */
-  confirmOrders: '/service/sample/confirmOrders',
+  confirmOrders: '/sample/service/confirmOrders',
   /** 일괄 재계산 — `target:'all'`, **`params` 모달 + 진행률**. 응답은 `jobId` 다. */
-  recalculateOrders: '/service/sample/recalculateOrders',
+  recalculateOrders: '/sample/service/recalculateOrders',
 } as const;

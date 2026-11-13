@@ -1,4 +1,6 @@
+// @feat FEAT-501
 import axios, { AxiosError, type AxiosResponse } from 'axios';
+import { AUTH_ENDPOINTS } from '@/modules/system/public/auth/api/endpoints';
 import { newRequestId } from '@/shared/api/requestId';
 import { emitResponseSignal } from '@/shared/api/responseSignals';
 import type { ApiEnvelope } from '@/shared/api/types';
@@ -23,7 +25,28 @@ export function setActiveMenuCode(menuCd: string | null): void {
   activeMenuCode = menuCd;
 }
 
-apiClient.interceptors.request.use((config) => {
+let csrfPreparation: Promise<unknown> | null = null;
+
+function adminCsrf(): string | undefined {
+  const entry = document.cookie.split('; ').find((value) => value.startsWith('AIHUB_ADMIN_CSRF='));
+  return entry ? decodeURIComponent(entry.slice('AIHUB_ADMIN_CSRF='.length)) : undefined;
+}
+
+apiClient.interceptors.request.use(async (config) => {
+  // ADMIN 소유 명령만 준비한다. Portal 쿠키/헤더나 원 POST의 자동 재전송은 사용하지 않는다.
+  const adminCommand = /^\/(system|sample)\//.test(config.url ?? '')
+    && !['get', 'head', 'options'].includes(config.method?.toLowerCase() ?? 'get');
+  if (adminCommand) {
+    const publicCredentialCommand = [AUTH_ENDPOINTS.login, AUTH_ENDPOINTS.sendResetCode,
+      AUTH_ENDPOINTS.verifyResetCode, AUTH_ENDPOINTS.saveResetPassword].some((url) => url === config.url);
+    // 만료된 세션의 브라우저 쿠키가 남아 있어도 로그인/복구를 다시 시작할 수 있다.
+    if (publicCredentialCommand || !adminCsrf()) {
+      csrfPreparation ??= apiClient.get(AUTH_ENDPOINTS.getCsrf).finally(() => { csrfPreparation = null; });
+      await csrfPreparation;
+    }
+    const csrf = adminCsrf();
+    if (csrf) config.headers.set('X-AIHUB-ADMIN-CSRF', csrf);
+  }
   // 헤더와 쿼리 양쪽에 싣는다 — 이중 채널이 규약이다(29).
   const rid = newRequestId();
   config.headers.set('X-Request-Id', rid);

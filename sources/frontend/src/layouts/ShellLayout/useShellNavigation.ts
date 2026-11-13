@@ -151,7 +151,7 @@ export function useShellNavigation(): ShellNavigation {
       return;
     }
 
-    if (location.pathname !== '/admin/system/dashboard' && location.pathname !== '/') {
+    if (location.pathname !== '/admin/system/dashboard' && location.pathname !== '/admin') {
       // 없는 메뉴이거나 권한이 없다 — 프론트는 둘을 구분하지 않는다(frontend/packages.md).
       // 조용히 대시보드로 보내면 사용자는 자기가 잘못 눌렀다고 생각한다.
       message.warning(label(MSG.SCREEN_DENIED));

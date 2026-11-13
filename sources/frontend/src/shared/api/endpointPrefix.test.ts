@@ -1,3 +1,6 @@
+// @feat FEAT-501
+import { NOTIFICATION_ENDPOINTS } from '@/modules/system/public/notification/api/endpoints';
+import { PROGRESS_ENDPOINTS } from '@/shared/progress/api/endpoints';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -41,6 +44,15 @@ describe('엔드포인트 선언 — baseURL 을 두 번 적지 않는다', () =
     }
 
     expect(offenders).toEqual([]);
+  });
+
+  it('모든 실제 선언은 모듈 우선이며 플랫폼 기술 조회도 목표 경로를 쓴다', () => {
+    const offenders = Object.entries(files).flatMap(([path, source]) =>
+      [...code(source).matchAll(/['"`](\/(?:public|common|service)\/[^'"`]*)['"`]/g)]
+        .map(([, url]) => `${path} → ${url}`));
+    expect(offenders).toEqual([]);
+    expect(NOTIFICATION_ENDPOINTS.getSystemInfo).toBe('/system/common/system/getSystemInfo');
+    expect(PROGRESS_ENDPOINTS.getOne('job/1')).toBe('/system/common/progress/getProgress/job%2F1');
   });
 
   /*

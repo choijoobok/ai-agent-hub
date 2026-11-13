@@ -19,10 +19,10 @@
  * **부르는 화면의 것**이다(playbook/INDEX.md).
  */
 export const SAMPLE_HORZ_ENDPOINTS = {
-  getOrderList: '/service/sample/getOrderList',
-  getItemList: '/service/sample/getItemList',
-  saveOrders: '/service/sample/saveOrders',
-  saveItems: '/service/sample/saveItems',
+  getOrderList: '/sample/service/getOrderList',
+  getItemList: '/sample/service/getItemList',
+  saveOrders: '/sample/service/saveOrders',
+  saveItems: '/sample/service/saveItems',
   /** 참조 팝업의 후보 — 왼쪽 마스터의 고객 칸이 연다. */
-  getCustomerList: '/service/sample/getCustomerList',
+  getCustomerList: '/sample/service/getCustomerList',
 } as const;

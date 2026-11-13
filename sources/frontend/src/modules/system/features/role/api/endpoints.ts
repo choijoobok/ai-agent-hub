@@ -15,8 +15,8 @@
  * `ROLE_AUTH_MGMT` 에 이어 **`EXPORT` 가 없는 두 번째 화면**이다(screen/admin/system/role/requirements.md).
  */
 export const ROLE_ENDPOINTS = {
-  getList: '/service/system/role/getList',
-  save: '/service/system/role/save',
+  getList: '/system/service/role/getList',
+  save: '/system/service/role/save',
   /** 하단 pane — **screen/admin/system/role/requirements.md 과 같은 것**이다(screen/admin/system/role/requirements.md). */
-  getAffectedUsers: '/service/system/roleAuth/getAffectedUsers',
+  getAffectedUsers: '/system/service/roleAuth/getAffectedUsers',
 } as const;

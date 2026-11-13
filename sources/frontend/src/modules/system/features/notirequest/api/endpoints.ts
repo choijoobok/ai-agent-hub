@@ -18,7 +18,7 @@
  * `/api/common/**` 이다(sys/menu.md).
  */
 export const NOTI_REQUEST_ENDPOINTS = {
-  getList: '/service/system/notiRequest/getList',
+  getList: '/system/service/notiRequest/getList',
   /** 처리 · 반려 — `reqStatCd` 가 가른다(screen/admin/system/noti-request/requirements.md). */
-  updateHandle: '/service/system/notiRequest/updateHandle',
+  updateHandle: '/system/service/notiRequest/updateHandle',
 } as const;

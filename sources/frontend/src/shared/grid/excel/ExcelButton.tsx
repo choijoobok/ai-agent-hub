@@ -32,7 +32,7 @@ import type { ExcelServer, ExcelSpec } from '@/shared/grid/excel/types';
  *
  * <h2>다운로드 이력을 <b>서버 경로에서는 부르지 않는다</b></h2>
  *
- * <p>{@code POST /api/common/system/excel/saveLog} 는 <i>호출이 없는 경로</i>의 구멍을 메우는 것이다
+ * <p>{@code POST /api/system/common/excel/saveLog} 는 <i>호출이 없는 경로</i>의 구멍을 메우는 것이다
  * (playbook/excel-download.md). 서버 생성은 <b>요청이 도착하는 것 자체가 기록</b>이므로(사용 이력 인터셉터가
  * 모든 {@code /api/**} 를 남긴다) 여기서 또 부르면 <b>한 번 내려받은 것이 두 행</b>이 되고,
  * <i>몇 번 내려받았나</i> 가 두 배로 세진다.

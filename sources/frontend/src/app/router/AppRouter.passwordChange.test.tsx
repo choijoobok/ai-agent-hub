@@ -1,5 +1,7 @@
 // @feat FEAT-501
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from 'antd';
+import { ApiError } from '@/shared/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRouter } from './AppRouter';
@@ -30,7 +32,7 @@ describe('TC-5016 초기 비밀번호 강제 변경', () => {
     });
   });
 
-  const show = () => render(<App><AppRouter /></App>);
+  const show = () => render(<QueryClientProvider client={new QueryClient()}><App><AppRouter /></App></QueryClientProvider>);
   async function fill(next = 'NewPassw0rd!') {
     fireEvent.change(await screen.findByLabelText('profile.pwd.current'), { target: { value: 'admin' } });
     fireEvent.change(screen.getByLabelText('profile.pwd.new'), { target: { value: next } });
@@ -46,8 +48,9 @@ describe('TC-5016 초기 비밀번호 강제 변경', () => {
     show();
     await fill();
     await waitFor(() => expect(changePassword).toHaveBeenCalledWith('admin', 'NewPassw0rd!'));
-    expect(window.location.pathname).toBe('/password/change');
+    expect(window.location.pathname).toBe('/admin/password/change');
     expect(screen.queryByText('메인 화면')).toBeNull();
+    vi.mocked(fetchMe).mockResolvedValue({ user: { userId: 'admin', userNm: '관리자', localeCd: 'ko' }, mustChangePassword: false, menus: [], permissions: [], menuTree: [], cacheVersions: {}, expiresInSeconds: 900 });
     complete();
     await screen.findByText('메인 화면');
     expect(useAuthStore.getState().mustChangePassword).toBe(false);
@@ -78,4 +81,22 @@ describe('TC-5016 초기 비밀번호 강제 변경', () => {
     await waitFor(() => expect(useAuthStore.getState().user).toBeNull());
     expect(screen.queryByText('메인 화면')).toBeNull();
   });
+  it.each([503, 500])('정확한 암호 확정 503만 ADMIN을 정리한다: %s', async (status) => {
+    vi.mocked(changePassword).mockRejectedValue(new ApiError({ code: 'PASSWORD_CHANGED_REAUTH_REQUIRED', status, message: '재로그인' }));
+    show();
+    await fill();
+    await waitFor(() => expect(changePassword).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(useAuthStore.getState().user === null).toBe(status === 503));
+    if (status === 503) expect(window.location.pathname).toBe('/admin/login');
+    else expect(useAuthStore.getState().mustChangePassword).toBe(true);
+  });
+
+  it.each(['/', '/portal/login', '/portal/chat', '/internal/chat-test', '/login', '/password/change', '/sample/unknown', '/admin/unknown', '/administrator'])('다른 영역과 구주소는 관리자 부팅과 셸을 열지 않는다: %s', (path) => {
+    window.history.replaceState({}, '', path);
+    show();
+    expect(fetchMe).not.toHaveBeenCalled();
+    expect(screen.queryByText('메인 화면')).toBeNull();
+    expect(window.location.pathname).toBe(path);
+  });
+
 });

@@ -140,7 +140,7 @@ export function ShellLayout() {
     // 그 뒤의 브라우저 창은 같은 결정을 무엇을 잃는지도 못 밝힌 채 다시 시킨다.
     const go = () => {
       allowNextUnload();
-      window.location.replace('/');
+      window.location.replace('/admin');
     };
 
     if (dirty.length === 0) {

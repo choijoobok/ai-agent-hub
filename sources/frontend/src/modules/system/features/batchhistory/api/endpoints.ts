@@ -20,19 +20,19 @@
  * 이 메뉴를 이미 켜 두었다.
  */
 export const BATCH_HISTORY_ENDPOINTS = {
-  getList: '/service/system/batchHistory/getList',
+  getList: '/system/service/batchHistory/getList',
   /**
    * <b>탭 둘을 한 번에 가져온다</b> — 결과 상세(`RSLT_DTL_MSG`)와 오류(`ERR_MSG`). screen/admin/system/batch/history/requirements.md.
    *
    * <p>탭마다 부르지 않는 이유는 screen/admin/system/log/access/requirements.md 와 같다 — <b>두 번째가 실패했을 때 절반만 열린
    * 모달</b>이 된다. 여기는 둘이 <b>같은 행의 두 컬럼</b>이라 조인조차 없다.
    */
-  getDetail: '/service/system/batchHistory/getDetail',
+  getDetail: '/system/service/batchHistory/getDetail',
   /**
    * 중단 요청(BATCH-05) — <b>요청까지가 화면의 책임</b>이다(screen/admin/system/batch/history/requirements.md).
    *
    * <p>협조적 중단이라 즉시 멈추지 않을 수 있고, 그래서 확인 문구가 *"중단합니다"* 가
    * 아니다 — 말하지 않으면 안 멈췄을 때 화면이 거짓말한 것이 된다.
    */
-  cancel: '/service/system/batchHistory/cancel',
+  cancel: '/system/service/batchHistory/cancel',
 } as const;

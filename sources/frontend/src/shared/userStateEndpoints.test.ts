@@ -10,23 +10,23 @@ import { DASHBOARD_TAB } from '@/shared/stores/tabStore';
 describe('TC-5101 공통 사용자 상태의 system 정식 API 경로', () => {
   it('즐겨찾기·그리드·저장 조회조건은 구 common 경로를 남기지 않는다', () => {
     expect(FAVORITE_ENDPOINTS).toEqual({
-      getList: '/common/system/favorite/getList',
-      save: '/common/system/favorite/save',
-      delete: '/common/system/favorite/delete',
+      getList: '/system/common/favorite/getList',
+      save: '/system/common/favorite/save',
+      delete: '/system/common/favorite/delete',
     });
     expect(GRID_PREF_ENDPOINTS).toEqual({
-      getOne: '/common/system/gridPref/getOne',
-      save: '/common/system/gridPref/save',
-      delete: '/common/system/gridPref/delete',
+      getOne: '/system/common/gridPref/getOne',
+      save: '/system/common/gridPref/save',
+      delete: '/system/common/gridPref/delete',
     });
     expect(SEARCH_COND_ENDPOINTS).toEqual({
-      getList: '/common/system/searchCond/getList',
-      save: '/common/system/searchCond/save',
-      delete: '/common/system/searchCond/delete',
+      getList: '/system/common/searchCond/getList',
+      save: '/system/common/searchCond/save',
+      delete: '/system/common/searchCond/delete',
     });
     expect(MENU_STAT_ENDPOINTS).toEqual({
-      saveSelect: '/common/system/menu/saveSelect',
-      getFrequent: '/common/system/menu/getFrequent',
+      saveSelect: '/system/common/menu/saveSelect',
+      getFrequent: '/system/common/menu/getFrequent',
     });
   });
 

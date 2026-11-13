@@ -70,7 +70,7 @@ describe('codeStore', () => {
     await settle();
 
     expect(post).toHaveBeenCalledTimes(1);
-    expect(post).toHaveBeenCalledWith('/common/system/code/getList', { grpCds: ['A', 'B', 'C'] });
+    expect(post).toHaveBeenCalledWith('/system/common/code/getList', { grpCds: ['A', 'B', 'C'] });
   });
 
   it('이미 들고 있는 그룹은 다시 묻지 않는다', async () => {

@@ -16,5 +16,5 @@
  * 엔드포인트가 정한다(backend/api.md).
  */
 export const SAMPLE_CURSOR_ENDPOINTS = {
-  getOrderCursorList: '/service/sample/getOrderCursorList',
+  getOrderCursorList: '/sample/service/getOrderCursorList',
 } as const;

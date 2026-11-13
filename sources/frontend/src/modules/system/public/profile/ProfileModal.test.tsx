@@ -1,4 +1,5 @@
 // @feat FEAT-501
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from 'antd';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -59,9 +60,9 @@ describe('프로필 모달', () => {
 
   const show = () =>
     render(
-      <App>
+      <QueryClientProvider client={new QueryClient()}><App>
         <ProfileModal open onClose={vi.fn()} />
-      </App>,
+      </App></QueryClientProvider>,
     );
 
   /** antd 의 탭 제목은 메시지 키 그대로 나온다 — 번들이 없는 테스트에서는 그것이 이름이다. */

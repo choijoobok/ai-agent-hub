@@ -91,12 +91,12 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
     없다</b>.
   */
   it('전체를 서버로 돌려도 항목 이름은 그대로다', async () => {
-    draw({ all: { url: '/service/sample/orderExcel', body: () => ({ ordNo: 'A-1' }) } });
+    draw({ all: { url: '/sample/service/orderExcel', body: () => ({ ordNo: 'A-1' }) } });
 
     await click('전체');
 
     await waitFor(() =>
-      expect(postDownload).toHaveBeenCalledWith('/service/sample/orderExcel', { ordNo: 'A-1' }));
+      expect(postDownload).toHaveBeenCalledWith('/sample/service/orderExcel', { ordNo: 'A-1' }));
     expect(downloadExcel).not.toHaveBeenCalled();
   });
 
@@ -106,7 +106,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
     유출 조사에서 유일한 단서가 될 수 있고, 그때 건수가 배로 보인다.
   */
   it('서버 경로는 프론트 이력을 부르지 않는다 — 요청 자체가 기록이다', async () => {
-    draw({ all: { url: '/service/sample/orderExcel' } });
+    draw({ all: { url: '/sample/service/orderExcel' } });
 
     await click('전체');
 
@@ -116,7 +116,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
   });
 
   it('서버가 지은 이름이 이긴다 — 그리드 제목은 그 파일의 내용이 아니다', async () => {
-    draw({ all: { url: '/service/sample/orderExcel' } });
+    draw({ all: { url: '/sample/service/orderExcel' } });
 
     await click('전체');
 
@@ -125,7 +125,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
 
   it('서버가 이름을 말하지 않으면 우리 규칙으로 떨어진다', async () => {
     postDownload.mockResolvedValue({ blob: new Blob(['x']), fileName: null });
-    draw({ all: { url: '/service/sample/orderExcel' } });
+    draw({ all: { url: '/sample/service/orderExcel' } });
 
     await click('전체');
 
@@ -136,7 +136,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
   describe('화면 고유 항목 — extra', () => {
     const spec: ExcelSpec = {
       extra: [
-        { key: 'joined', label: 'smpl.excel.joined', server: { url: '/service/sample/joinedExcel' } },
+        { key: 'joined', label: 'smpl.excel.joined', server: { url: '/sample/service/joinedExcel' } },
       ],
     };
 
@@ -146,7 +146,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
       await click('주문+상품 합본');
 
       await waitFor(() =>
-        expect(postDownload).toHaveBeenCalledWith('/service/sample/joinedExcel', undefined));
+        expect(postDownload).toHaveBeenCalledWith('/sample/service/joinedExcel', undefined));
     });
 
     /*
@@ -159,7 +159,7 @@ describe('② 엑셀 다운로드 — 세 갈래', () => {
           key: 'joined',
           label: 'smpl.excel.joined',
           actionCd: 'EXECUTE',
-          server: { url: '/service/sample/joinedExcel' },
+          server: { url: '/sample/service/joinedExcel' },
         }],
       }, ['SMPL:EXPORT']);
 

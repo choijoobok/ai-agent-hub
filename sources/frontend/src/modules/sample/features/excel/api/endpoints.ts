@@ -24,6 +24,6 @@
  * **대상**이 다른 자리라 경로가 갈린다.
  */
 export const SAMPLE_EXCEL_ENDPOINTS = {
-  getFlatItemList: '/service/sample/getFlatItemList',
-  saveFlatItems: '/service/sample/saveFlatItems',
+  getFlatItemList: '/sample/service/getFlatItemList',
+  saveFlatItems: '/sample/service/saveFlatItems',
 } as const;

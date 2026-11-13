@@ -17,29 +17,29 @@
  * `PARAM_JSON` 중괄호가 셀에 들어간 파일은 읽기도 어렵다.
  */
 export const BATCH_SCHEDULE_ENDPOINTS = {
-  getList: '/service/system/batchSchedule/getList',
-  save: '/service/system/batchSchedule/save',
+  getList: '/system/service/batchSchedule/getList',
+  save: '/system/service/batchSchedule/save',
   /**
    * `BEAN_ID` 셀렉트의 후보 — <b>스프링 컨텍스트가 원본</b>이다(screen/admin/system/batch/schedule/requirements.md).
    *
    * <p>시드가 아니다. 시드로 두면 배포마다 구현과 목록이 어긋날 수 있고, 어긋나면 화면이
    * <i>고를 수 있는데 실행되지 않는</i> 빈을 보여준다.
    */
-  getBeanList: '/service/system/batchSchedule/getBeanList',
+  getBeanList: '/system/service/batchSchedule/getBeanList',
   /**
    * `TIMEZONE` 셀렉트의 후보 — <b>tzdb 가 원본</b>이다(screen/admin/system/batch/schedule/requirements.md §4-1).
    *
    * <p>후보를 좁히지 않는다 — 자주 쓰는 것만 골라 두면 <b>고객사가 바뀔 때마다 소스를
    * 고쳐야</b> 한다. 맨 앞이 업무 시간대이고 나머지는 오름차순이다.
    */
-  getTimezoneList: '/service/system/batchSchedule/getTimezoneList',
+  getTimezoneList: '/system/service/batchSchedule/getTimezoneList',
   /** 하단 pane — 이 배치의 최근 실행 이력(screen/admin/system/batch/schedule/requirements.md). 페이징이 없다. */
-  getRecentHistory: '/service/system/batchSchedule/getRecentHistory',
+  getRecentHistory: '/system/service/batchSchedule/getRecentHistory',
   /**
    * 즉시 실행 — 액션은 <b>`EXECUTE`</b> 다(경로 접두가 정한다 — backend/api.md).
    *
    * <p>`SYS_SCHEDULE_BATCH` 를 <b>읽기만</b> 하고 쓰는 것은 이력이다 — screen/admin/system/user/requirements.md 의
    * 기준(*"우리 테이블의 컬럼을 쓰는가"*)으로 봐도 저장이 아니다(screen/admin/system/batch/schedule/requirements.md).
    */
-  runNow: '/service/system/batchSchedule/runNow',
+  runNow: '/system/service/batchSchedule/runNow',
 } as const;

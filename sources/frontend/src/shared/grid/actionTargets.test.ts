@@ -34,7 +34,7 @@ describe('실행의 대상 — 고른 뒤에 거른다(frontend/grid.md)', () =>
   const action = {
     key: 'recalcItems',
     label: 'x',
-    url: '/service/sample/recalcItems',
+    url: '/sample/service/recalcItems',
     eligible: (candidate: GridRow<Order>) => candidate.data.stat === 'RCV',
   } as ActionApi<Order>;
 

@@ -17,6 +17,6 @@
  * 있는데 아무 데도 닿지 않는 버튼이 생긴다.
  */
 export const MESSAGE_ADMIN_ENDPOINTS = {
-  getList: '/service/system/message/getList',
-  save: '/service/system/message/save',
+  getList: '/system/service/message/getList',
+  save: '/system/service/message/save',
 } as const;

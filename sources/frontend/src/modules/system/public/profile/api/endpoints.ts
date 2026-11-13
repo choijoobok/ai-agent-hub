@@ -11,9 +11,9 @@
  * `user/` 로 옮기면 비밀번호가 만료된 사용자가 아무것도 못 하는 세션에 갇힌다.
  */
 export const PROFILE_ENDPOINTS = {
-  getMyProfile: '/common/system/user/getMyProfile',
-  saveMyProfile: '/common/system/user/saveMyProfile',
-  getMyLoginHistory: '/common/system/user/getMyLoginHistory',
-  getMyRoles: '/common/system/user/getMyRoles',
-  changePassword: '/common/system/auth/changePassword',
+  getMyProfile: '/system/common/user/getMyProfile',
+  saveMyProfile: '/system/common/user/saveMyProfile',
+  getMyLoginHistory: '/system/common/user/getMyLoginHistory',
+  getMyRoles: '/system/common/user/getMyRoles',
+  changePassword: '/system/common/auth/changePassword',
 } as const;

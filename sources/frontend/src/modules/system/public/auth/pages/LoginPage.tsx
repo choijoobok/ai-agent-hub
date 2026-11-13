@@ -83,7 +83,7 @@ export function LoginPage() {
       // 하지 않으므로, 로그인할 때마다 코드를 다시 받지 않는다.
       useCodeStore.getState().syncWithSession(session.cacheVersions?.code);
       // react-router 7 의 navigate 는 Promise 를 돌려준다. 기다릴 것이 없으므로 void 로 뗀다.
-      void navigate('/', { replace: true });
+      void navigate('/admin', { replace: true });
     } catch (caught) {
       setError(caught instanceof ApiError ? caught : null);
       // 입력값은 유지하고 비밀번호만 비운다 — screen/_standalone/README.md.

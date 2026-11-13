@@ -5,6 +5,6 @@
  * 모든 메뉴에 해당하므로 특정 메뉴에 소속시킬 수 없다(backend/security.md).
  */
 export const MENU_STAT_ENDPOINTS = {
-  saveSelect: '/common/system/menu/saveSelect',
-  getFrequent: '/common/system/menu/getFrequent',
+  saveSelect: '/system/common/menu/saveSelect',
+  getFrequent: '/system/common/menu/getFrequent',
 } as const;

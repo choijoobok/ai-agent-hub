@@ -14,8 +14,8 @@
  * (UX-14) — 쪼개면 저장 버튼 하나가 두 번 나가고, 둘 중 하나만 실패하는 상태가 생긴다.
  */
 export const CONFIG_ENDPOINTS = {
-  getList: '/service/system/config/getList',
+  getList: '/system/service/config/getList',
   /** 조회조건의 접두사 콤보가 부른다 — 목록 응답에 실리지 않는다(screen/config/requirements.md). */
-  getPrefixes: '/service/system/config/getPrefixes',
-  save: '/service/system/config/save',
+  getPrefixes: '/system/service/config/getPrefixes',
+  save: '/system/service/config/save',
 } as const;

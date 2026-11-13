@@ -11,5 +11,5 @@
  * 작업 자체는 멀쩡히 끝나므로 아무도 그것을 고장으로 읽지 않는다.
  */
 export const PROGRESS_ENDPOINTS = {
-  getOne: (jobId: string) => `/common/progress/${encodeURIComponent(jobId)}`,
+  getOne: (jobId: string) => `/system/common/progress/getProgress/${encodeURIComponent(jobId)}`,
 } as const;

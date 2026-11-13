@@ -1,13 +1,18 @@
 // @feat FEAT-501
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from 'antd';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PasswordTab } from '@/modules/system/public/profile/tabs/PasswordTab';
 import { changePassword } from '@/modules/system/public/profile/api/profileApi';
 import type { MyProfile } from '@/modules/system/public/profile/types';
+import { ApiError } from '@/shared/api';
+import { fetchMe } from '@/modules/system/public/auth/api/authApi';
 import { useAuthStore } from '@/shared/stores/authStore';
 
 vi.mock('@/modules/system/public/profile/api/profileApi', () => ({ changePassword: vi.fn() }));
+
+vi.mock('@/modules/system/public/auth/api/authApi', () => ({ fetchMe: vi.fn() }));
 
 const submit = vi.mocked(changePassword);
 
@@ -38,14 +43,15 @@ describe('비밀번호 변경 탭', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    useAuthStore.setState({ mustChangePassword: true });
+    useAuthStore.setState({ user: { userId: 'kim', userNm: '김철수', localeCd: 'ko' }, mustChangePassword: true });
+    vi.mocked(fetchMe).mockResolvedValue({ user: { userId: 'kim', userNm: '김철수', localeCd: 'ko' }, mustChangePassword: false, menus: [], permissions: [], menuTree: [], cacheVersions: {}, expiresInSeconds: 900 });
   });
 
   const show = (profile: MyProfile = BASE) =>
     render(
-      <App>
+      <QueryClientProvider client={new QueryClient()}><App>
         <PasswordTab profile={profile} />
-      </App>,
+      </App></QueryClientProvider>,
     );
 
   const fill = (current: string, next: string, confirm: string) => {
@@ -110,4 +116,24 @@ describe('비밀번호 변경 탭', () => {
 
     expect(screen.queryByText('profile.pwd.expired')).not.toBeNull();
   });
+  it.each([['PASSWORD_CHANGED_REAUTH_REQUIRED', true], ['OTHER_FAILURE', false]])('암호 확정 오류와 일반503을 구별하며 재전송하지 않는다: %s', async (code, cleared) => {
+    submit.mockRejectedValue(new ApiError({ code, status: 503, message: '저장 실패' }));
+    show();
+    fill('OldPassw0rd!', 'NewPassw0rd!', 'NewPassw0rd!');
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(useAuthStore.getState().user === null).toBe(cleared));
+    expect(fetchMe).not.toHaveBeenCalled();
+    const inputs = screen.getAllByLabelText<HTMLInputElement>(/profile\.pwd\./);
+    expect(inputs[0].value).toBe(cleared ? '' : 'OldPassw0rd!');
+  });
+
+  it('저장이 성공해도 getMe가 제한 상태를 확인하면 화면이 제한을 풀지 않는다', async () => {
+    submit.mockResolvedValue(undefined);
+    vi.mocked(fetchMe).mockResolvedValue({ user: { userId: 'kim', userNm: '김철수', localeCd: 'ko' }, mustChangePassword: true, menus: [], permissions: [], menuTree: [], cacheVersions: {}, expiresInSeconds: 900 });
+    show();
+    fill('OldPassw0rd!', 'NewPassw0rd!', 'NewPassw0rd!');
+    await waitFor(() => expect(fetchMe).toHaveBeenCalledOnce());
+    expect(useAuthStore.getState().mustChangePassword).toBe(true);
+  });
+
 });

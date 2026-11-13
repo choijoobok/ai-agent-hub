@@ -12,8 +12,10 @@ export interface HeartbeatResult {
   expiresInSeconds: number;
 }
 
-export function login(form: LoginForm): Promise<AuthSession> {
-  return post<AuthSession>(AUTH_ENDPOINTS.login, form);
+export async function login(form: LoginForm): Promise<AuthSession> {
+  await post<AuthSession>(AUTH_ENDPOINTS.login, form);
+  // 발급 응답만으로 셸을 열지 않는다. 새 쿠키의 현재 상태/첫 사용을 서버에서 확인한다.
+  return fetchMe();
 }
 
 /** 새로고침 시 세션 복원. 세션이 없으면 401 이며 그것이 정상 응답이다. */

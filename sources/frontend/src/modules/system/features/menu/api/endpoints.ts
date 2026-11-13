@@ -16,15 +16,15 @@
  * **프론트 생성**이다(frontend/grid.md · playbook/excel-download.md 첫째 · screen/admin/system/menu/requirements.md) — 서버가 낼 것이 없다.
  */
 export const MENU_ENDPOINTS = {
-  getTree: '/service/system/menu/getTree',
+  getTree: '/system/service/menu/getTree',
   /** 신규 노드 — 모달이 받는 칸은 `MENU_CD` 하나다(screen/admin/system/menu/requirements.md). */
-  saveNode: '/service/system/menu/saveNode',
+  saveNode: '/system/service/menu/saveNode',
   /** 속성 — **셀 하나에 요청 하나**다(screen/admin/system/menu/requirements.md). */
-  save: '/service/system/menu/save',
+  save: '/system/service/menu/save',
   /** 위치 — 드래그 결과의 **형제 목록**이다(sys/menu.md). */
-  saveTree: '/service/system/menu/saveTree',
-  deleteNode: '/service/system/menu/deleteNode',
-  getApiList: '/service/system/menu/getApiList',
-  getAccessibleUsers: '/service/system/menu/getAccessibleUsers',
-  getRoleList: '/service/system/menu/getRoleList',
+  saveTree: '/system/service/menu/saveTree',
+  deleteNode: '/system/service/menu/deleteNode',
+  getApiList: '/system/service/menu/getApiList',
+  getAccessibleUsers: '/system/service/menu/getAccessibleUsers',
+  getRoleList: '/system/service/menu/getRoleList',
 } as const;

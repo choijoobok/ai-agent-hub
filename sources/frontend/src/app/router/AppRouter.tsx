@@ -1,5 +1,6 @@
+// @feat FEAT-501
 import { useEffect } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Button, Result, Spin } from 'antd';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { BlankLayout } from '@/layouts/BlankLayout';
@@ -11,6 +12,8 @@ import { useSessionSignals } from '@/modules/system/public/auth/useSessionSignal
 import { fetchMe } from '@/modules/system/public/auth/api/authApi';
 import { useMessageStore } from '@/shared/i18n/messageStore';
 import { useCodeStore } from '@/shared/code/codeStore';
+import { screenFor } from '@/shared/routes/screenRegistry';
+import { SAMPLE_SCREENS } from '@/shared/routes/sampleScreens';
 import { staticText } from '@/locales/staticText';
 
 /**
@@ -25,6 +28,20 @@ import { staticText } from '@/locales/staticText';
  * 때문이다(frontend/packages.md) — F5 마다 `/auth/me` 한 번이 그 결정의 대가다.
  */
 export function AppRouter() {
+  return <BrowserRouter><EntryRouter /></BrowserRouter>;
+}
+
+/** ADMIN 복원/신호보다 먼저 소유 영역을 고른다. 미구현 영역은 닫힌 슬롯이다. */
+function EntryRouter() {
+  const { pathname } = useLocation();
+  const admin = pathname === '/admin' || pathname === '/admin/login'
+    || pathname === '/admin/password/change'
+    || (pathname.startsWith('/admin/') && screenFor(pathname) !== null);
+  const sample = Object.hasOwn(SAMPLE_SCREENS, pathname);
+  return admin || sample ? <AdminRouter /> : <Result status="404" />;
+}
+
+function AdminRouter() {
   const restored = useAuthStore((state) => state.restored);
   const user = useAuthStore((state) => state.user);
   const mustChangePassword = useAuthStore((state) => state.mustChangePassword);
@@ -52,34 +69,32 @@ export function AppRouter() {
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <RequireAnonymous>
-                <BlankLayout>
-                  <LoginPage />
-                </BlankLayout>
-              </RequireAnonymous>
-            }
-          />
-          <Route
-            path="/password/change"
-            element={
-              <RequireAuth>{mustChangePassword ? (
-                <BlankLayout><PasswordChangePage /></BlankLayout>
-              ) : <Navigate to="/admin/system/dashboard" replace />}</RequireAuth>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <RequireAuth>{mustChangePassword ? <Navigate to="/password/change" replace /> : <ShellLayout />}</RequireAuth>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route
+          path="/admin/login"
+          element={
+            <RequireAnonymous>
+              <BlankLayout>
+                <LoginPage />
+              </BlankLayout>
+            </RequireAnonymous>
+          }
+        />
+        <Route
+          path="/admin/password/change"
+          element={
+            <RequireAuth>{mustChangePassword ? (
+              <BlankLayout><PasswordChangePage /></BlankLayout>
+            ) : <Navigate to="/admin/system/dashboard" replace />}</RequireAuth>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <RequireAuth>{mustChangePassword ? <Navigate to="/admin/password/change" replace /> : <ShellLayout />}</RequireAuth>
+          }
+        />
+      </Routes>
 
       {reauth && user ? (
         <ReauthModal
@@ -95,12 +110,13 @@ export function AppRouter() {
 /** 세션이 있으면 셸로 보낸다 — 로그인 화면에 다시 들어올 이유가 없다(screen/_standalone/README.md). */
 function RequireAnonymous({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
-  return user ? <Navigate to="/admin/system/dashboard" replace /> : <>{children}</>;
+  const mustChangePassword = useAuthStore((state) => state.mustChangePassword);
+  return user ? <Navigate to={mustChangePassword ? '/admin/password/change' : '/admin'} replace /> : <>{children}</>;
 }
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  return user ? <>{children}</> : <Navigate to="/admin/login" replace />;
 }
 
 /**

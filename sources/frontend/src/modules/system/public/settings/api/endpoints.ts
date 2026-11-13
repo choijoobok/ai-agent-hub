@@ -10,5 +10,5 @@
  * 기기·화면의 속성이라 서버가 볼 이유가 없다(sys/user-role.md).
  */
 export const SETTINGS_ENDPOINTS = {
-  saveLocale: '/common/system/user/saveLocale',
+  saveLocale: '/system/common/user/saveLocale',
 } as const;

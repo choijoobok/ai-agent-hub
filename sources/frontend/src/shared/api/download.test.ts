@@ -38,7 +38,7 @@ describe('파일 받기', () => {
       headers: { 'content-disposition': "attachment; filename*=UTF-8''%EC%A3%BC%EB%AC%B8.xlsx" },
     });
 
-    const file = await postDownload('/service/sample/excel');
+    const file = await postDownload('/sample/service/excel');
 
     expect(file.fileName).toBe('주문.xlsx');
   });

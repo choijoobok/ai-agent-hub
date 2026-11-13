@@ -13,12 +13,12 @@
  * 아니라 <b>주문 × 품목 합본</b>을 내리므로 프론트가 만들 수 없다 — 그 표는 화면에 없다.
  */
 export const SAMPLE_VERT_ENDPOINTS = {
-  getOrderList: '/service/sample/getOrderList',
-  getItemList: '/service/sample/getItemList',
-  saveOrders: '/service/sample/saveOrders',
-  saveItems: '/service/sample/saveItems',
+  getOrderList: '/sample/service/getOrderList',
+  getItemList: '/sample/service/getItemList',
+  saveOrders: '/sample/service/saveOrders',
+  saveItems: '/sample/service/saveItems',
   /** 출고 지시 — <b>프로그레스가 없다</b>(playbook/INDEX.md). 상태 하나를 바꾸는 일이라 즉시 끝난다. */
-  shipOrders: '/service/sample/shipOrders',
+  shipOrders: '/sample/service/shipOrders',
   /**
    * 품목 금액 재계산 — <b>프로그레스가 있다</b>(backend/crosscutting.md · playbook/INDEX.md). <b>행×디테일</b>이다.
    *
@@ -26,11 +26,11 @@ export const SAMPLE_VERT_ENDPOINTS = {
    * 하나는 즉시 끝나고 하나는 <b>고른 주문마다 딸린 품목 전건</b>을 돈다 — 주문 하나가
    * 수천 건일 수 있어 창이 소제목으로 <i>지금 어느 주문</i>을 말한다.
    */
-  recalcItems: '/service/sample/recalcItems',
+  recalcItems: '/sample/service/recalcItems',
   /** ②의 <i>현재 페이지</i> — 이름은 그대로 두고 경로만 서버다(playbook/excel-download.md). */
-  exportOrderPage: '/service/sample/exportOrderPage',
+  exportOrderPage: '/sample/service/exportOrderPage',
   /** ②의 <i>전체</i> — 상한 판정도 서버가 한다. */
-  exportOrderAll: '/service/sample/exportOrderAll',
+  exportOrderAll: '/sample/service/exportOrderAll',
   /** ②의 세 번째 항목 — 조회로는 낼 수 없는 표다. */
-  exportOrderNoItem: '/service/sample/exportOrderNoItem',
+  exportOrderNoItem: '/sample/service/exportOrderNoItem',
 } as const;

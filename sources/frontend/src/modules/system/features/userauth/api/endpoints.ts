@@ -21,9 +21,9 @@
  */
 export const USER_AUTH_ENDPOINTS = {
   /** 좌 — 고르기만 하는 목록이다. **못 쓰는 계정도 나온다**(screen/admin/system/user-auth/requirements.md). */
-  getList: '/service/system/userAuth/getList',
+  getList: '/system/service/userAuth/getList',
   /** 우 + 하 — 메뉴 계층 전건 · 개인 예외(기간·사유) · 역할 경유. **페이징도 조건도 없다**. */
-  getMenuTree: '/service/system/userAuth/getMenuTree',
+  getMenuTree: '/system/service/userAuth/getMenuTree',
   /** **저장 대상은 예외 목록이다** — 트리는 그 투영이다(screen/admin/system/user-auth/requirements.md). */
-  save: '/service/system/userAuth/save',
+  save: '/system/service/userAuth/save',
 } as const;

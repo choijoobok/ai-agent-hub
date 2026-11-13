@@ -31,7 +31,7 @@ describe('엑셀 다운로드 이력', () => {
   it('갈래 · 행 수 · 컬럼 키를 보낸다 — menuCd 는 헤더의 것이라 담지 않는다', () => {
     recordDownload('ALL', 42, ['userId', 'userNm']);
 
-    expect(post).toHaveBeenCalledWith('/common/system/excel/saveLog', {
+    expect(post).toHaveBeenCalledWith('/system/common/excel/saveLog', {
       scope: 'ALL',
       rowCount: 42,
       columnKeys: ['userId', 'userNm'],
