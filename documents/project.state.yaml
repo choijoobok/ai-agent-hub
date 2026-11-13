@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: system        # SLICE-520 G4 승인 완료, 다음은 역할 기반 인앱 알림
+  workstream: admin         # SLICE-521 G4 승인 완료, admin 선행 범위 G3 준비
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-521          # 역할 기반 인앱 알림 구현 완료, G4 사용자 승인 대기
+  slice: SLICE-040          # 다음 구현 대상: 공통 저장·이력 기반, admin G3 준비/착수 전
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -1027,7 +1027,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-520 G4 완료를 보존하고 SLICE-521 역할 기반 인앱 알림을 cd846b82에 구현했다. 변경 영향의 필수 시험과 검사를 마쳐 현재521 G4 사용자 승인 대기다. 실제 외부 인사 수신 REST API·Portal 상태 변경·멱등 수신/ENT-266 연결은 SLICE-305 소유이며 신규 입사는 현재 승인 범위에 없다. CR-039 실제 개발 DB 재구축의 대상 확인/실행 승인은 별도다. 이후 검증은 current.verification_policy를 따른다."
+  first: "2026-11-14 SLICE-521 G4 사용자 명시 승인으로 완료 처리했다. 다음은 합의된 admin 선행19화면·필수 공통 처리의 상세 설계 대조/남은 검토와 admin G3 승인 준비다. 첫 구현 대상은 SLICE-040 공통 관리 명령·저장/전체 이력·보존 보호이며 admin G3는 아직 in_progress다. SLICE-305 외부 인사 수신은 SLICE-005 Portal 원장과 SLICE-302 배포 연결 기반이 추가로 필요하다. SLICE-302는 integration G3/520 완료 근거를 갖춘 별도 선행 기반으로 첫 소비에 맞춰 구현한다. 실제 개발 DB 재구축 실행 승인은 별도이며 이후 검증은 current.verification_policy를 따른다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1625,8 +1625,9 @@ slices:
       - TC-50911
     scope: CR-034 역할 기반 외부 사건 수신자/정확 인앱 저장 공개 포트·PORTAL_CHANGE 종류·기존 만료예고/알림함 회귀
     stage: P4
-    status: in_progress
+    status: done
     started_at: '2026-11-14'
+    approved_at: '2026-11-14'
     change: CR-034
     depends_on:
       - SLICE-520
@@ -1661,14 +1662,16 @@ slices:
       user_expectation: '사용자 질의에 현재 사건은 퇴직/조직 이동이며 신규 입사와 외부 수신 REST API 자체는 이번 범위가 아님을 설명했다. 새 화면 없이 기존 내 알림함을 확장한다.'
       environment_cleanup: '시험 앱 자동 종료·격리 PostgreSQL55420 종료 확인. 기존 개발 DB와 사용자 Redis6379는 변경하지 않았다.'
       g4:
-        status: pending_user_review
-        technical_exit_criteria: '9/9 충족: pending_rechecks 없음, 배정TC4종과 중요 반례 검증, 품질, 필수 범위 선정/재사용, DB적용/복구, 공개계약 일치, FEAT 태그, 새 spec 오류 없음. 사용자 승인 항목은 별도 대기.'
+        status: approved
+        approved_at: '2026-11-14'
+        user_response: '좋아. SLICE-521 G4 승인할게. 상태에 반영하고 다음 작업이 뭔지 알려줘.'
+        technical_exit_criteria: '9/9 충족: pending_rechecks 없음, 배정TC4종과 중요 반례 검증, 품질, 필수 범위 선정/재사용, DB적용/복구, 공개계약 일치, FEAT 태그, 새 spec 오류 없음. 2026-11-14 사용자 G4 명시 승인 완료.'
         decision_card:
           - '지정된 역할의 현재 유효 관리자만 받으며 역할이 중복되어도1회 수신한다. 배포 역할 설정 변경 비용은 낮다.'
           - '알림과 사건 참조는 함께 저장/취소한다. 이 확정 단위를 바꾸는 비용은 높다.'
           - '퇴직·조직 이동을 기존 알림함에 안전한 문구로 표시한다. 문구 변경 비용은 낮다.'
           - '정상 수신자0명은 호출자가 통지 미완료로 보존한다. 실제 REST 수신/재전송 연결은305에서 검증한다.'
-        note: 'G4 승인 전이므로 done/approved_at을 기록하지 않는다. system 전체 완료·실제 외부 연동 운영 수락·개발 DB 재구축 실행 승인은 포함하지 않는다.'
+        note: '2026-11-14 사용자 명시 승인으로 SLICE-521만 완료 처리했다. system 전체 완료·실제 외부 연동 운영 수락·개발 DB 재구축 실행 승인은 포함하지 않는다. admin G3와 후속 슬라이스 승인은 별도다.'
   - id: SLICE-230
     workstream: agent
     features:
