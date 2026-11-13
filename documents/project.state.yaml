@@ -18,7 +18,7 @@ current:
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-040          # admin G3 승인 후 공통 저장·이력 기반 구현 중
+  slice: SLICE-040          # 공통 저장·이력 기반 구현 완료, G4 사용자 승인 대기
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -514,7 +514,7 @@ workstreams:
           features: [FEAT-015, FEAT-016, FEAT-017, FEAT-020, FEAT-040, FEAT-042, FEAT-045]
           progress: { inventory: verified, specification_and_logical: verified, physical_and_contracts: verified, verification: verified }
           detail_design: "2026-11-09 사용자3정책A를 ADR-043~045에 반영하고 태그정규화A를 REQ-607에 기록했다. 선행19화면의 물리 현재/자식·76개HIST·원장/작업기록과 API DTO/입력경계·내부 소비 계약을 spec에 전개했다. 19화면 저장 단위는 FEAT-040.screen_matrix와 각 소유 physical_contract가 연결한다. 제품 DB/Liquibase 적용은 없다."
-          remaining: "admin 선행 범위 G3 사용자 승인 후 SLICE-040 공통 구현·대표 실제 DB 시험, 이어 SLICE-006 등 소유 화면/스키마·MSG/시드 연결 검증. agent 계량/턴 모델과 감사·이력·품질 새 목업은 후속 소유 설계다. 보존 기간 미설정이면 자동 파기는 비활성이다."
+          remaining: "admin G3 승인·SLICE-040 공통 구현/실제 DB 검증 완료, G4 사용자 승인 뒤 SLICE-006 등 소유 화면/스키마·MSG/시드 연결 검증. agent 계량/턴 모델과 감사·이력·품질 새 목업은 후속 소유 설계다. 보존 기간 미설정이면 자동 파기는 비활성이다."
           latest_review: "2026-11-14 FEAT-040.implementation_design과 TC-04013/04014에 권한 보호 전 명령 키 잠금·단일 원자 요청·독립 행 요청 결과 집계를 구체화했다. 전체 이력 보호 집합의 공유 하위 판 해제 조건과 미설치 명령 원장 등록을 보완했다. 실제 코드/DB 변경 없이 설계 검사만 수행했다."
           verification_note: "2026-11-09 물리 설계 독립 검토의 전역 명령키/월 파기 후 재실행/NULL 분모, 도구 소유 혼입, 서버 추출값/자식 재귀속, 전체 프롬프트 검토/고정 안내 계약을 보완했다. 엄격 YAML239개·19화면 소유 매핑·188개 admin 물리표의 FK/키/타입·76개 전체HIST 동형 검사 통과. 생성기 계약 시험9개 통과. 하네스/lint·추적성 오류0/후속경고86·활성 Liquibase36표 일치, 생성387개 ID1343/장문16047 누락·깨진링크0. Edge에서 구현표1·물리초안188·논리초안1의 표시를 확인했다. 기존 목업 전수 순회는 변경 범위 밖이므로 중단하고, 최종 HTML의 주요4명세·보기/테마·현재문서 인쇄·JS오류0을 추가 확인했다. ERD 물리 타입·사이트466/18/9장 구조도 통과했다. 제품 DB/동시성 시험과 게이트 승인은 별도다."
       dependencies:
@@ -1069,7 +1069,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 사용자 admin G3 승인 반영. SLICE-040 공통 명령·저장/전체 이력·보존 보호와 기존 인증 연결을 구현하고 최소 영향 시험 후 G4 승인을 요청한다. 다음 실제 소비는 SLICE-006이며 소유 스키마/화면 연결을 별도 검증한다. SLICE-305는005·302·완료521이 선행한다."
+  first: "2026-11-14 admin G3 승인 반영 및 SLICE-040 공통 구현/필수 검증 완료. SLICE-040 G4 사용자 승인 대기이며 승인 뒤 SLICE-006 사용자 그룹 정의의 실제 화면·현재/HIST 연결을 진행한다. SLICE-305는005·302·완료521이 선행한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1520,6 +1520,7 @@ slices:
     scope: 공통 관리 명령/원 결과·전체 HIST·보존 보호·현재 권한/회수 인계. FEAT-040.implementation_design의 관리 진입 어댑터·단일 요청 원자성을 포함하며 19화면 업무 구현은 각 소유 슬라이스다.
     stage: P4
     status: in_progress
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-520
       - SLICE-506
@@ -1527,6 +1528,48 @@ slices:
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 변경 범위의 현재 권한/원자성/재수신·전이 참조/파기 및 인증 진입 순서를 실제 DB와 대표 부모/자식 fixture로 검증한다. TC-0408/04011/04012/04014의 실제 화면·소유 스키마 연결은 각 소비 슬라이스에서 별도 검증한다. 필요 없는 전체 인증/Redis/프론트 시험을 반복하지 않으며 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: c412e27d
+      implemented: 공통 관리 명령·원 결과 조회 API-082·동형 전체 HIST 어댑터·전이 참조 보호/파기 기반과 ENT-099/100/113을 구현했다. 현재값·전체 이력·리비전·결과는 동일 인증 트랜잭션에 참여한다. 원 키 잠금이 ADMIN 보호보다 선행하며 현재 원 기능 권한과 요청/스레드/물리 트랜잭션 증거를 검사한다. 독립 행의 부분 성공은 각 소유 화면에서 단일 요청을 순차 호출하는 승인 설계를 유지한다.
+      source_refs:
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/managed/ManagedCommandService.java
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/managed/ManagedAdmission.java
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/managed/ManagedHistoryService.java
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/managed/ManagedRetentionService.java
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/management/ManagementCommandController.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+        - sources/backend/bootstrap/src/test/java/com/aiagent/admin/managed/ManagedStorageLiveTest.java
+      verification:
+        test_first: ManagedCommand/Digest 공개 입력 계약부터 작성해 미구현 컴파일 실패를 확인했다. 이후 실제 DB 통합·소유 어댑터 fixture·인증 진입 실패 경로를 구현하고 관련 실패만 수정했다. 시험용 동시 세션 수를4로 지정해 두 ADMIN 세션의 실제 명령 키 경합을 확인했으며 제품 기본값은 변경하지 않았다.
+        unit: ':backend:modules:admin:test 2개 통과/skip0. 큰 정수 십진 ID·원 키/영역·사유 입력과 정규 지문/주체 구분.'
+        actual_database: ':backend:bootstrap:managedStorageTest 10개 통과/실패0/skip0. 전용 PostgreSQL16 127.0.0.1:55420/managed040_slice의 매회 고유 schema에서 실제 제품 인증·HTTP·공통 서비스와 부모/자식 fixture를 검증했다. 전체 동형 이력·원 REG/MOD·이력 및 결과 기록 실패 전체 rollback·동시 동일키와 다른 입력/원장/주체·원장 장애·동시 기준본 충돌·독립 행 부분 성공·NO_CHANGE·삭제 직전 구성·전이/다이아몬드 보호·보호/파기 및 참조생성/삭제 양순서·권한 회수 양순서·직접/다른 물리 트랜잭션/종료된 증거 거부를 포함한다.'
+        migration: admin changeset3개 실제 적용→전체 rollback→재적용 통과. SYS_SEQUENCE 번호 예약 rollback 비재사용, 미설정 보존 비활성, NO_CHANGE 결과 보존 종료 후 현재값/HIST 유지 확인. 회수 선행 요청은효과0, 저장 선행은1회 성공 뒤 재요청401을 검증했다.
+        wiring: ':backend:bootstrap:systemAuthTest --tests *bootstrapAndSeedCollections 1개 통과. 제품 프로파일 실제 빈 DB 기동에서 설치 API103개와 시드/SQL 집합 일치. LayerDependency/ServiceConvention/TimeSource/ApiOperationSummary 및 SeedApi/SeedMessage/SeedChangelogInclude 합계33개 통과. 시드 실패2개는 include 경로 및 기존521 검사용 번역 누락을 고친 뒤 관련12개만 재실행했다. 총 고유 시험46개 통과.'
+        static: 품질 중복2.77%·삼킴0·미태깅0, 추적성 오류0/후속 경고72, domain-schema ENT238/활성 테이블41/컬럼355/changelog18 일치. harness·meta lint·diff/UTF-8 LF 검사 통과. doc-gen ID1618개·장문17706개 누락0/깨진 링크0. HTML design492/user18/operations9장 구조·자산 오류0.
+        reuse: 사용자 최소 시험 지시에 따라 비영향 인증/Redis/암호/배치/전체 프론트 결과는 기존 근거를 재사용했다. 전체 backend check·브라우저·전체 인증/Redis 반복 시험은 하지 않았다. 같은 코드의 구조/단위 통과 결과는 재사용하고 변경/실패한 시험만 다시 실행했다.
+        limits: 실제19화면·76개 소유 HIST·Portal/agent 소비·인사 수신/쿼터/임베딩 업무는 미구현 범위다. TC-0408/04011/04012/04014는 승인된 공통 연결 경계만 검증했으며 실제 소유 규칙은 해당 슬라이스에서 검증한다. 이번에는 저장 화면 사용자 시험을 완료했다고 간주하지 않는다.
+      spec_omission: NO_CHANGE 결과는 반영 시각/HIST가 없어 보존 기간 시작 근거가 누락돼 있었다. slice 스킬의 Low 누락 보완 규칙으로 사전 통지 후 ENT-099.RECORDED_DTM과 증분002를 추가했다. 보존 정책·원자성·무변경의 이력/리비전 비증가 의미는 유지한다. 요구/설계 변경 CR 대상은 없었다.
+      redteam:
+        - failure: 이력이나 원 결과를 별도 확정하면 저장 실패 뒤 일부 현재값·이력 또는 성공 기록이 남는다.
+          resolution: 같은 물리 트랜잭션/DB로 강제하고 실제 HIST 및 결과 원장 실패의 전체 rollback과 독립 행 부분 성공을 검증했다.
+        - failure: 원 명령 키 대기 전에 권한 보호를 잡거나 과거 권한/진입 증거를 재사용하면 회수가 지연되고 비인가 변경이 반영된다.
+          resolution: 원 키 잠금→현재 ADMIN 보호 순서를 적용했다. 실제 잠금 대기를 관측해 회수 선행 거부/저장 선행1회 성공, 현재 READ+SAVE·원 주체·직접/다른 트랜잭션/종료 증거 거부를 검증했다.
+        - failure: 보호 집합의 한 가지를 해제하거나 파기 경합을 놓치면 실행/보관 기록이 참조하는 정확한 과거 구성이 사라진다.
+          resolution: 전이 집합을 고정 순서로 보호하고 소비 전체의 검증된 종료에만 해제한다. 상위 관리 HIST 자체의 참조도 보호하며 다이아몬드·보호/파기 양순서 및 미설정 보존 비활성을 검증했다.
+      environment_cleanup: 시험 앱 자동 종료와 이번에 시작한 전용 PostgreSQL55420 종료를 확인했다. 기존 개발 DB와 사용자 Redis6379는 변경하지 않았다.
+      g4:
+        status: pending_user_approval
+        approved_at: null
+        technical_exit_criteria: '9/9 충족. pending_rechecks 없음, 배정21 TC의 승인된 공통 범위/중요 반례, 품질, 필수 범위/재사용, DB 적용/복구, API 정합, FEAT 태그, Low 누락 보완을 확인했다. 10번째 사용자 결과 수락은 대기한다.'
+        unresolved_assumptions: 이번 공통 구현을 막는 미해결 전제 없음. 고객사 실제 보존 기간/소유 화면 연결은 후속 범위이며 미설정 자동 파기는 비활성이다.
+        decision_card:
+          - '한 저장 단위의 현재값·이력·결과는 함께 성공하거나 함께 취소한다. 이 경계 변경 비용은 높다.'
+          - '독립 행은 성공한 행을 유지하고 실패한 행만 수정한다. 화면 호출부 변경 비용은 중간이다.'
+          - '사용 중인 과거 구성은 지우지 않고 보존 기간 미설정이면 자동 정리를 하지 않는다. 기간 설정 비용은 낮지만 삭제 후 복구 비용은 높다.'
+          - '이번은 공통 기반 완료이며 실제 화면 연결은006부터 진행한다. 지금 연결 책임을 나누는 비용은 낮고19화면 구현 후 재구성 비용은 높다.'
+        reverse_question: 이번 공통 기반 완료 범위와 별개로, 이번 단계에서 바로 저장 가능한 관리 화면까지 기대하신 부분이 있는가?
+        approval_effect: G4 명시 승인 시 SLICE-040을 done으로 바꾸고 다음 SLICE-006 사용자 그룹 정의의 실제 화면·소유 스키마 연결을 진행한다. admin 전체 완료·운영 배포 승인은 아니다.
   - id: SLICE-006
     workstream: admin
     features:
@@ -2325,6 +2368,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-040, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "공통 구현의 고유 필수 시험46개 통과/skip0. 실제 DB10개와 적용/rollback/재적용, 단위2·제품기동1·구조/시드33개. 최초 컴파일 및 시험 fixture 배선 보정의 총 수정 반복 수는 집계하지 않아 null로 둔다. Low 누락 RECORDED_DTM을 사전 통지·보완했고 원자성/권한 순서/전이 보호의3가지 실패 경로를 실제 DB에서 차단했다. 실제19화면 연결은 소유 슬라이스에서 검증하며 G4 사용자 승인 대기." }
   - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. 2026-11-14 G4사용자명시승인완료." }
   - { slice: SLICE-307, measured_at: "2026-11-10", fix_rounds: 3, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 4, note: "공통 계약/실제 HTTP·DB 구현의 컴파일·시험 수정3회, 독립 레드팀4건 수정. 최초 RED·수동 변이/PIT 및 Windows 실행환경 실패는 수정 반복에서 제외한다. 통합 검토의 제품 JAR 메시지 자산 누락은 실제 설치 전 수정했고 별도 설치/복구 시험을 통과했다. G4 사용자 확인 대기이며 소유 후속 업무 구현을 완료로 세지 않는다." }
   - { slice: SLICE-519, measured_at: "2026-09-14", fix_rounds: 2, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 3, note: "서버 실행은 활성 프로파일이 없으면 데이터소스 구성 전에 종료하고, Gradle bootRun은 -Pprofile을 필수로 받아 Spring 활성 프로파일로 전달한다. local 기본값은 sample 포함·프런트 생략, 그 밖의 프로파일은 sample 제외·프런트 포함이며 명시 옵션이 이를 덮어쓴다. local에서 sample을 끄면 처리된 설정도 제품 master changelog를 가리킨다. 태스크 그래프 7조합·changelog 2조합, 런타임 가드 단위 테스트, local 기본·sample 제외 전체 백엔드 검사와 실제 local 기본 기동을 통과했다. local 판정과 기동 가드를 반대로 뒤집자 각각 계약 테스트가 실패했고 원복 뒤 통과했다. 프런트 의존성 트리는 정상이나 Gradle npmInstall 정지는 별도 기존 실행환경 문제로 제품 JAR의 프런트 포함 실물 검증만 완료하지 못했다. doc-gen 대상 문서는 생성됐으나 저장소 전역 --check의 기존 934개 생성기 결손은 이번 슬라이스 범위 밖으로 남는다." }
