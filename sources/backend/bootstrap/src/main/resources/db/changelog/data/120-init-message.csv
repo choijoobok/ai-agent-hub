@@ -1,0 +1,9 @@
+MSG_KEY,LANG_CD,MSG_VAL
+noti.type.PORTAL_CHANGE,ko,Portal 이용 상태 변경
+noti.type.PORTAL_CHANGE,en,Portal access change
+noti.portal.retired,ko,퇴직에 따른 Portal 이용 상태 변경
+noti.portal.retired,en,Portal access changed after retirement
+noti.portal.orgMoved,ko,조직 이동에 따른 Portal 이용 상태 변경
+noti.portal.orgMoved,en,Portal access changed after an organizational move
+noti.portal.content,ko,외부 인사 변경이 반영되었습니다. 상세 화면에서 현재 상태를 확인해 주세요.
+noti.portal.content,en,An external personnel change was applied. Open the details to review the current state.
