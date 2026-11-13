@@ -89,6 +89,26 @@ JDBC URL은 `jdbc:postgresql://127.0.0.1:<port>/auth520<고유이름>` 형식만
 기존 개발·운영 DB를 연결하지 않는다. DB 설정이 없거나 형식이 다르면 시험을 생략하지 않고 준비 오류로 실패한다.
 시험은 HTTP 서버·클라이언트를 종료하며, DB 클러스터를 직접 기동했다면 실행자가 같은 전용 클러스터를 종료한다.
 
+### 외부 사건의 관리자 알림 공개 포트와 필수 시험
+
+SLICE-521은 검증된 퇴직(`RETIRED`)·조직 이동(`ORG_MOVED`) 사건을 기존 관리자 알림함에
+`PORTAL_CHANGE` 종류로 저장한다. 외부 수신 REST API·Portal 상태 변경·재수신 결과/ENT-266은 SLICE-305 소유다.
+호출 계약의 정본은 `documents/spec/50-api/001-feature-contracts.yaml`의
+`FEAT-509.external_change_notification`이며, HTTP 클라이언트가 수신자 목록이나 검증된 origin을 직접 제출하는 API는 없다.
+
+요청 또는 `ConfigLookup.inNewSnapshot` 작업 안에서 `SourceNotificationService.withCurrentSourceNotificationRecipients`
+를 **calendar/Portal 업무 읽기·쓰기·잠금보다 먼저** 호출한다. 배포 설정에서 만든 `RecipientPolicyRef`와 검증된
+`VerifiedSourceNotificationOrigin`을 넘기고, callback 안에서 `NotificationSender.storeSourceChangeNotification`의
+정확 저장 ID를 호출자 참조에 기록한다. 모두 같은 AI DB REQUIRED 트랜잭션이어야 한다.
+`NoRecipients`는 정상0명, `Unavailable`은 전체 rollback 및503 대상이다. `Stored`는 바깥 commit 뒤에만 확정된다.
+수신자 snapshot을 보관하거나 다른 트랜잭션/스레드에서 다시 쓰면 거부한다. 알림 본문에는 원천 인사 정보가 없다.
+
+필수 실제 DB 시험은 `sources/`에서 `./gradlew.bat :backend:bootstrap:sourceNotificationTest -PskipFrontend`로 실행한다.
+`SOURCE_NOTI_TEST_JDBC=jdbc:postgresql://127.0.0.1:<port>/system521_<전용이름>`, `SOURCE_NOTI_TEST_USER`,
+`SOURCE_NOTI_TEST_PASSWORD`를 설정한다. 매 실행 새 schema에 제품 Liquibase를 적용하며 일반 `test`에는 포함하지 않는다.
+외부 인사 연동·실제 ENT-266을 검증했다고 해석하지 않는다. 시험 DB/서버를 직접 시작했다면 종료도 실행자가 맡는다.
+화면 확인은 기존 알림 모달의 **내 알림 → 항목 상세 → 읽음/이동**을 사용한다.
+
 ### 공통 JDBC/Redis v2 실제 시험
 
 `sources/`에서 `./gradlew.bat :backend:api:authV2LiveTest -PskipFrontend`를 별도로 실행한다.

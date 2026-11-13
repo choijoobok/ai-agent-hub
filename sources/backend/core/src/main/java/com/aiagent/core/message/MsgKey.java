@@ -22,6 +22,13 @@ package com.aiagent.core.message;
  */
 public final class MsgKey {
 
+    /** 외부 퇴직 사건의 관리자 알림 제목. */
+    public static final String NOTI_PORTAL_RETIRED = "noti.portal.retired";
+    /** 외부 조직 이동 사건의 관리자 알림 제목. */
+    public static final String NOTI_PORTAL_ORG_MOVED = "noti.portal.orgMoved";
+    /** 개인정보를 담지 않는 외부 사건 알림 본문. */
+    public static final String NOTI_PORTAL_CONTENT = "noti.portal.content";
+
     // ── 공통 실패 — CommonErrorCode ─────────────────────────────────
 
     /** 요청 값 검증 실패. 필드별 오류가 함께 나간다(backend/api.md). */

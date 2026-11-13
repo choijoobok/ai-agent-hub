@@ -640,9 +640,13 @@ message.search.useScope,FRONT,조회조건 — 사용처.
 message.untranslated,FRONT,번역이 하나라도 비었을 때 붙는 배지(MASTER-06).
 message.validate.duplicate,FRONT,같은 키가 이 화면 안에 둘 있을 때 — 클라이언트가 판정할 수 있다.
 message.validate.noValue,NONE,신규 키에 값이 하나도 없을 때 — 화면이 막는다(63 §3.2).
+noti.portal.content,BACK,개인정보를 담지 않는 외부 사건 알림 본문.
+noti.portal.orgMoved,BACK,외부 조직 이동 사건의 관리자 알림 제목.
+noti.portal.retired,BACK,외부 퇴직 사건의 관리자 알림 제목.
 noti.type.AUTH,FRONT,비밀번호 만료 예고 — AUTH-05.
 noti.type.AUTHZ,FRONT,권한 만료 예정 — AUTHZ-08.
 noti.type.BATCH,FRONT,배치 실패 — BATCH-06.
+noti.type.PORTAL_CHANGE,FRONT,외부 퇴직·조직 이동 사건 알림 — CR-034.
 noti.type.REQUEST,FRONT,요청 처리 결과 — screen/admin/system/notice/requirements.md.
 notiReq.stat.DONE,FRONT,
 notiReq.stat.RECEIVED,FRONT,

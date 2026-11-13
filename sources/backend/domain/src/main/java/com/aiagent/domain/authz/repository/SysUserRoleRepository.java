@@ -9,6 +9,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface SysUserRoleRepository extends JpaRepository<SysUserRole, SysUserRoleId> {
 
+    /** @feat FEAT-509 지정된 활성 역할과 현재 유효 부여의 합집합. 관리자 전체 발송이 아니다. */
+    @Query("""
+            select distinct ur.userId from SysUserRole ur, SysRole r
+            where ur.roleId = r.roleId and r.roleId in :roles and r.useYn = true
+              and (ur.validFromDt is null or ur.validFromDt <= :today)
+              and (ur.validToDt is null or ur.validToDt >= :today)
+            order by ur.userId
+            """)
+    List<String> findCurrentRecipientIds(@Param("roles") List<String> roles, @Param("today") java.time.LocalDate today);
+
     /**
      * 역방향 조회 — 역할 권한이나 역할 {@code USE_YN} 이 바뀌면 <b>보유자 전원</b>의 세션에
      * {@code authzDirty} 를 세워야 한다(backend/security.md).

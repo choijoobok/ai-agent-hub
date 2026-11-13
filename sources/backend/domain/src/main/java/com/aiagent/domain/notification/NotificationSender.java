@@ -1,7 +1,11 @@
+// @feat FEAT-509
 package com.aiagent.domain.notification;
 
 import com.aiagent.domain.notification.entity.SysNotiInbox;
 import com.aiagent.domain.notification.repository.SysNotiInboxRepository;
+import com.aiagent.domain.notification.source.SourceNotification.*;
+import com.aiagent.domain.message.service.MessageService;
+import com.aiagent.core.message.MsgKey;
 import java.time.Clock;
 import java.util.List;
 import org.slf4j.Logger;
@@ -14,9 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <h2>왜 서비스 하나를 두는가</h2>
  *
- * <p>생산자가 넷이다(screen/admin/system/notice/requirements.md) — 요청 처리 · 비밀번호 만료 예고(AUTH-05) · 권한
- * 만료 예정(AUTHZ-08) · 배치 실패(BATCH-06). 각자 {@code SYS_NOTI_INBOX} 에 직접 쓰면
- * {@link NotiType} 선택과 제목 형식이 <b>넷으로 갈린다</b>.
+ * <p>기존 요청 처리·비밀번호/권한 만료 예고·배치 실패와 CR-034 외부 사건이 같은 저장 진입을 쓴다.
+ * 각자 {@code SYS_NOTI_INBOX} 에 직접 쓰면 {@link NotiType} 선택과 저장 형식이 갈린다.
  *
  * <p>그리고 <b>외부 채널이 붙을 때 고칠 자리가 한 곳</b>이어야 한다. screen/README.md 가
  * <i>"인터페이스만 스텁으로 두면 첫 사용자가 시그니처를 정한다"</i> 고 경계한 것의
@@ -44,10 +47,31 @@ public class NotificationSender {
 
     private final SysNotiInboxRepository inboxes;
     private final Clock clock;
+    private final MessageService messages;
 
-    public NotificationSender(SysNotiInboxRepository inboxes, Clock clock) {
+    public NotificationSender(SysNotiInboxRepository inboxes, Clock clock, MessageService messages) {
         this.inboxes = inboxes;
         this.clock = clock;
+        this.messages = messages;
+    }
+
+    /** 검증된 현재 수신자만 같은 REQUIRED에 저장한다. 정확 ID를 flush한 뒤 호출자가 참조를 기록한다. */
+    @Transactional
+    public Stored storeSourceChangeNotification(VerifiedSourceNotificationOrigin origin, RecipientSnapshot snapshot) {
+        snapshot.consume(origin);
+        String titleKey = origin.kind() == ChangeKind.RETIRED
+                ? MsgKey.NOTI_PORTAL_RETIRED : MsgKey.NOTI_PORTAL_ORG_MOVED;
+        var rows = snapshot.sortedDistinctAdminIds().stream().map(id -> SysNotiInbox.builder()
+                .userId(id).notiTypeCd(NotiType.PORTAL_CHANGE)
+                .title(messages.text(titleKey, snapshot.language(id)))
+                .content(messages.text(MsgKey.NOTI_PORTAL_CONTENT, snapshot.language(id)))
+                .linkMenuCd(origin.safeTargetRef().menuCd()).linkParam(origin.safeTargetRef().targetRef())
+                .creDtm(clock.instant()).build()).toList();
+        var stored = inboxes.saveAllAndFlush(rows);
+        if (stored.size() != snapshot.sortedDistinctAdminIds().size())
+            throw new IllegalStateException("알림 저장 결과가 수신자 수와 다르다");
+        return new Stored(stored.stream().map(row -> new StoredNotification(row.getUserId(), row.getNotiId())).toList(),
+                snapshot.policyVersion());
     }
 
     /**

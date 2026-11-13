@@ -137,8 +137,17 @@ dependencies {
 // 소스셋을 새로 만들지 않는다. changelog 와 시드 CSV 가 이 모듈의 리소스이므로 test 셋이
 // 이미 그것을 보고 있고, 셋을 가르면 같은 리소스를 두 번 배선하게 된다.
 tasks.test {
-    useJUnitPlatform { excludeTags("portability", "systemAuthLive") }
+    useJUnitPlatform { excludeTags("portability", "systemAuthLive", "sourceNotificationLive") }
     systemProperty("includeSample", includeSample)
+}
+
+tasks.register<Test>("sourceNotificationTest") {
+    group = "verification"
+    description = "전용 PostgreSQL에서 역할 수신자·동일 트랜잭션 알림 저장을 검증한다"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform { includeTags("sourceNotificationLive") }
+    outputs.upToDateWhen { false }
 }
 
 tasks.register<Test>("systemAuthTest") {

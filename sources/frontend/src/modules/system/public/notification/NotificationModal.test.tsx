@@ -125,6 +125,16 @@ describe('알림 모달', () => {
   /** antd 의 활성 탭. 셸의 탭바와 구별하려 모달 안에서 찾는다. */
   const activeTab = () => document.querySelector('.ant-modal .ant-tabs-tab-active')?.textContent;
 
+  it('TC-50911 PORTAL_CHANGE도 기존 알림함에서 표시·읽음 처리하고 권한 없는 상세 이동은 막는다', async () => {
+    const row: MyNotiRow = { ...UNREAD, notiTypeCd: 'PORTAL_CHANGE', title: '조직 이동에 따른 Portal 이용 상태 변경' };
+    loadMine.mockResolvedValue({ rows: [row], unreadCount: 1, totalCount: 1 });
+    show({ canOpenMenu: false });
+    await openMineTab();
+    fireEvent.click(await screen.findByText(row.title));
+    expect(readOne).toHaveBeenCalledWith(row.notiId);
+    expect((await screen.findByRole('button', { name: 'notification.mine.goto' })).hasAttribute('disabled')).toBe(true);
+  });
+
   it('탭 셋이 방향 순서로 있다 — 관리자→전체, 시스템→나, 나→관리자', () => {
     show();
 

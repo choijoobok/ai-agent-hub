@@ -21,3 +21,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/system/007-auth-session-v2-message.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/system/008-source-notification-message.sql
+      relativeToChangelogFile: false

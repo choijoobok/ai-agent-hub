@@ -8,6 +8,7 @@ import com.aiagent.core.security.v2.SessionAuthority;
 import com.aiagent.domain.authz.EffectiveAuthority;
 import com.aiagent.domain.authz.service.ApiAuthorityRegistry;
 import com.aiagent.domain.authz.service.EffectiveAuthorityService;
+import com.aiagent.domain.authz.service.AdminAuthorityProtection;
 import com.aiagent.domain.user.service.UserAccountService;
 import com.aiagent.support.config.ConfigLookup;
 import com.aiagent.support.config.props.AuthLoginProps;
@@ -15,16 +16,13 @@ import com.aiagent.support.time.BusinessCalendar;
 import com.aiagent.system.domain.auth.AllowedIpService;
 import jakarta.persistence.EntityManager;
 import javax.sql.DataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** 현재 계정·권한 판정과 업무 쓰기를 같은 PostgreSQL 보호 트랜잭션으로 묶는다. */
 @Component
 public class AdminAuthorityGuard implements SessionAuthority {
-    private static final Object MODE = new Object();
-    private final JdbcTemplate jdbc;
+    private final AdminAuthorityProtection protection;
     private final EntityManager entities;
     private final UserAccountService users;
     private final EffectiveAuthorityService authorities;
@@ -37,7 +35,7 @@ public class AdminAuthorityGuard implements SessionAuthority {
     public AdminAuthorityGuard(DataSource source, EntityManager entities, UserAccountService users,
             EffectiveAuthorityService authorities, ApiAuthorityRegistry registry, AllowedIpService ips,
             ConfigLookup configs, BusinessCalendar calendar, AdminApiCatalog catalog) {
-        this.jdbc = new JdbcTemplate(source); this.entities = entities; this.users = users;
+        this.protection = new AdminAuthorityProtection(source, entities); this.entities = entities; this.users = users;
         this.authorities = authorities; this.registry = registry; this.ips = ips;
         this.configs = configs; this.calendar = calendar; this.catalog = catalog;
     }
@@ -46,7 +44,7 @@ public class AdminAuthorityGuard implements SessionAuthority {
         if (context.domain() != AuthDomain.ADMIN || !TransactionSynchronizationManager.isActualTransactionActive()
                 || TransactionSynchronizationManager.isCurrentTransactionReadOnly())
             throw new IllegalStateException("관리자 보호는 쓰기 가능한 같은 REQUIRED 트랜잭션이어야 한다");
-        boolean firstProtection = acquire(exclusive);
+        boolean firstProtection = protection.acquire(exclusive);
         EffectiveAuthority authority = null;
         if (context.principal() != null) {
             if (context.principal().domain() != AuthDomain.ADMIN) throw new Rejected(401);
@@ -70,21 +68,4 @@ public class AdminAuthorityGuard implements SessionAuthority {
         AdminRequestContext.withAuthority(authority, command);
     }
 
-    private boolean acquire(boolean exclusive) {
-        Object held = TransactionSynchronizationManager.getResource(MODE);
-        if (held != null) {
-            if (exclusive && Boolean.FALSE.equals(held)) throw new IllegalStateException("공유 보호를 배타 보호로 승격할 수 없다");
-            return false;
-        }
-        jdbc.execute("SELECT " + (exclusive ? "pg_advisory_xact_lock" : "pg_advisory_xact_lock_shared") + "(1095321685,1)");
-        TransactionSynchronizationManager.bindResource(MODE, exclusive);
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override public void suspend() { TransactionSynchronizationManager.unbindResourceIfPossible(MODE); }
-            @Override public void resume() { TransactionSynchronizationManager.bindResource(MODE, exclusive); }
-            @Override public void afterCompletion(int status) { TransactionSynchronizationManager.unbindResourceIfPossible(MODE); }
-        });
-        // 잠금 대기 전에 읽힌 1차 캐시가 현재 권한 판정을 대체하지 않는다.
-        entities.clear();
-        return true;
-    }
 }

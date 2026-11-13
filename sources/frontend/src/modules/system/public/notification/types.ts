@@ -20,8 +20,8 @@ export interface SystemInfo {
   cacheVersions: Record<string, number>;
 }
 
-/** 알림의 생산자 — screen/admin/system/notice/requirements.md 의 넷과 1:1 이다. */
-export type NotiType = 'REQUEST' | 'AUTH' | 'AUTHZ' | 'BATCH';
+/** 기존 생산자 네 종류와 외부 퇴직·조직 이동 사건(CR-034). */
+export type NotiType = 'REQUEST' | 'AUTH' | 'AUTHZ' | 'BATCH' | 'PORTAL_CHANGE';
 
 /** 요청 유형 — sys/notification.md. 공통코드가 아니다(screen/admin/system/notice/requirements.md). */
 export type ReqType = 'ROLE_GRANT' | 'UNLOCK' | 'ETC';

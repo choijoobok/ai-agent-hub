@@ -454,6 +454,8 @@ export const MSG = {
   NOTI_TYPE_AUTHZ: 'noti.type.AUTHZ',
   /** 배치 실패 — BATCH-06. */
   NOTI_TYPE_BATCH: 'noti.type.BATCH',
+  /** 외부 퇴직·조직 이동 사건 알림 — CR-034. */
+  NOTI_TYPE_PORTAL_CHANGE: 'noti.type.PORTAL_CHANGE',
 
   // ── 내 요청 탭 (NOTI-06 사용자 측 · screen/_standalone/README.md) ──────────────────
   //
