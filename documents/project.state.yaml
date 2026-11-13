@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: integration   # system 영향 G3 승인 뒤 공통 v2/경로 구현
+  workstream: system        # SLICE-308 G4 승인 뒤 관리자 실제 소비 전환
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-308          # 공통 저장소 선택·신규 경로 capability 구현/G4 준비
+  slice: SLICE-520          # 관리자 인증·화면·API 경로 실제 전환
   blocked_by: []
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
   template_maintenance: false
@@ -935,7 +935,7 @@ workstreams:
       P4_build:
         status: in_progress
         approved_at: null
-        note: SLICE-307 G4 승인 완료를 보존한다. SLICE-308 JDBC/Redis 공통 구현·중요 위험 검증을 마치고 G4 사용자 확인을 기다린다. 사용자 승인 최소 검증 정책을 이번부터 적용한다. system 소비520·역할알림521과 Portal301/306은 후속이다.
+        note: SLICE-307 G4 승인 완료를 보존한다. 2026-11-14 SLICE-308 JDBC/Redis 공통 구현·중요 위험 검증의 G4 사용자 명시 승인을 반영했다. 사용자 승인 최소 검증 정책을 이번부터 적용한다. system 소비520·역할알림521과 Portal301/306은 후속이다.
       P5_verify:
         status: not_started
         approved_at: null
@@ -1026,7 +1026,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "integration CR-036 저장 v2·CR-038 경로 G3 승인 반영. system CR-035~039 페이지/API·권한/시드·개발 DB 재기준선 영향 G3 명시 승인 반영→308 독립 capability/양 provider G4→520 실제 전환/초기SQL·빈DB검증→521. 구체 DB 삭제는 대상 확인/실행 승인 후다. 기존307/501/504 완료와 배치/역할 알림 승인 범위를 보존한다."
+  first: "2026-11-14 SLICE-308 G4 승인 반영 완료. SLICE-520 구현과 중요 실제 HTTP/JDBC/Redis/배치 검증을 8f5dad49·1e8438dc·66aec300에 반영했다. 다음은520 사용자 화면 확인·G4 및 CR-039 실제 개발 DB 대상 확인/실행 승인이다. 승인 뒤521을 진행한다. 기존307/501/504 완료를 보존하며 추가 전수 검증은 반복하지 않는다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1056,7 +1056,7 @@ open_questions:
 # ── 인지 부채 ──────────────────────────────────────────────────────
 # 사용자가 이해하지 못한 채 승인하는 것을 감지한다.
 cognitive_debt:
-  silent_approvals: 0
+  silent_approvals: 1
   # ↑ G0(2026-09-05)에서 1 이었다 — 역질문 둘에 답하지 않고 승인했기 때문이다.
   #   **같은 날 사용자가 셋 다 답해 0 으로 돌아왔다.** 부채가 갚아진 것이므로 지운다.
   #   답은 각자의 자리에 있다: 성공 기준은 charter 의 measurement_first,
@@ -1086,7 +1086,7 @@ counters:
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
-  SLICE: 55    # 2026-11-11 CR-035/036 변경 상세 반영
+  SLICE: 57    # 2026-11-14 실제 등록 슬라이스 수 재집계
   DEF: 0
 
 counter_note: >-
@@ -1299,7 +1299,8 @@ slices:
     testcases: [TC-30121, TC-30122, TC-30123, TC-30124, TC-30125, TC-30126, TC-30127, TC-30128, TC-30129]
     scope: CR-036 provider 독립 v2 공개 조립·DB 설정판/수락 원장·JDBC/Redis 설정 선택·커밋후 publication/회수·관리참조/전환epoch. 실제 ADMIN/Portal 업무 원장은 소비 슬라이스다.
     stage: P4
-    status: in_progress
+    status: done
+    approved_at: '2026-11-14'
     depends_on: [SLICE-307]
     change: CR-036/038
     entry_conditions:
@@ -1345,9 +1346,10 @@ slices:
           treatment: 정확handler/method/path·source검증·문맥/본문격리·rawWAS차단·관리대상/회전주체고정을 적용했다. 공개level·progress소유·익명/타주체 회전 실패와 효과0을 검증하고 독립검토 잔여P1/P2 0을 확인했다.
       uncovered_boundaries: 실제system 화면/API/권한·시드활성화520과 역할알림521, Portal 자격/계정·물리세션301/306은 후속이다. Windows 실Redis 프로토콜 검증이며 Linux운영배포 수락은 아니다. DB/payload 복구는 논리snapshot 재주입이며 운영백업 도구의 물리복구 완료를 주장하지 않는다.
       g4:
-        status: ready_for_approval
-        approved_at: null
-        readiness: RM-P1 integration SLICE-308 기술조건9/9와 실행근거를 준비했다. 사용자 확인1항목은 대기하며 done/다음520 착수로 자동 전환하지 않는다.
+        status: approved
+        approved_at: '2026-11-14'
+        user_response: 사용자가 SLICE-308 공통 인증 G4를 명시 승인하고 상태 반영 및 SLICE-520 진행을 요청했다.
+        readiness: RM-P1 integration SLICE-308 기술조건9/9와 기존 실행근거에 대한 사용자 확인을 완료했다. SLICE-308만 완료로 전환하며 system 실제 소비520·Portal 및 실제 DB 삭제 승인은 포함하지 않는다.
         pending_rechecks: 0
         checks:
           - 통합후재시험0 — pending_rechecks
@@ -1393,8 +1395,9 @@ slices:
       - TC-50116
       - TC-50117
     scope: CR-028/033 관리자 전용 진입/CSRF/API-601·현재 계정/권한 회수 보호·본인 암호/세션 회전·독립 감사/로그 및 수동 배치 보호 접수/인계·종결 이력 경합 회귀. CR-035/036 v2 소비와 CR-037 관리자 /admin 경로/구주소 호환 제거와 CR-038 공통 분류기/시드·system/sample 실제 API·DB 키 연결 단일 전환과 CR-039 초기SQL 재작성/빈DB검증 포함
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
+    started_at: '2026-11-14'
     depends_on:
       - SLICE-501
       - SLICE-504
@@ -1406,8 +1409,37 @@ slices:
       - 기존 SLICE-501/504의 완료 계약을 보존한다. 새 구현 전 현재 로그인/암호·사용자/역할/IP/활성 세션을 CR-028/033과 대조하고 새 인증 소비 전환은 이 슬라이스에만 구현한다. 기존 완료 슬라이스의 G4를 다시 청구하지 않는다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
     change: CR-033/035/036/037/038/039
+    implementation_review:
+      reviewed_at: '2026-11-14'
+      implemented: 관리자 /admin 로그인·암호 변경·셸 및 module-first API 전환, 정확102개 handler/local sample포함122개 검증, v2 JDBC/Redis 설치와 현재 계정·권한 보호, 암호 회전/복구·관리 참조 회수, 인증 비밀 수집 제외, 다중 배치 원자 접수·커밋 후 큐·실행별 lease/이력 행 잠금.
+      source_refs:
+        - sources/backend/modules/system/src/main/java/com/aiagent/system/api/auth/AdminSessionConfiguration.java
+        - sources/backend/modules/system/src/main/java/com/aiagent/system/api/auth/AdminAuthorityGuard.java
+        - sources/backend/modules/system/src/main/resources/administrator-apis.txt
+        - sources/backend/bootstrap/src/test/java/com/aiagent/system/auth/SystemAuthLiveTest.java
+        - sources/backend/domain/src/test/java/com/aiagent/domain/batch/BatchPostgresTest.java
+        - sources/frontend/src/shared/api/client.test.ts
+      verification:
+        backend: 'gradlew check -PskipFrontend 통과. 최종 XML 단위758개·실패0·skip0. 마지막 응답 헤더/비밀로그 보완 뒤 api:test도 통과. product에서 의도적으로 제외되는 local 전용 checkSeeds는 별도로 생성 시드와 실제DB 집합을 비교했다.'
+        actual_http: '격리 PostgreSQL16 127.0.0.1:55420/system520_local의 매 실행 새 schema. JDBC product9개 및 local/sample포함8개 통과, Redis6379 local/sample제외 최종10개 통과. Redis 전용 사례는 JDBC에서 적용하지 않아 JDBC 숫자를 Redis 장애 근거로 세지 않는다.'
+        important_counterexamples: '비밀번호 오입력400/구쿠키401·SQL 실패 시 암호/이력/세션 롤백·Redis DB확정 뒤 발행 실패503와 새 암호 복구·발행 대기 중 권한 회수 완료 및 활성화 거부·비활성 세대 영구 회수·역할 회수403의 새 권한버전·관리 참조 위조/소유·첫사용 기한·진행률 소유·복구 메일의 잠금 밖 발송·다중 배치 접수 뒤 회수와 새 접수/중단 차단을 실제 HTTP/DB로 확인했다.'
+        batch: '독립 작업트리의 단위57개·실제PG14개·실패0·skip0. platform/003-batch-lease.sql 적용/롤백/재적용, 커밋 전 실행과 잠금 후 stale 조회 반례 RED→GREEN. 통합 후 실제 HTTP 배치 접수/종결도 통과.'
+        frontend: '독립 작업트리 관련135개 및 마지막 인증54개 통과 근거 재사용. root CSRF401 준비 GET 1회 재시도/503 중단6개, ESLint·typecheck·제품 Vite build 통과. 원 인증 POST 자동 재전송0. 기존 큰 청크 경고는 유지한다.'
+        quality: '최종 중복률2.84%·예외삼킴0·미태깅0, git diff --check 통과.'
+        common_recheck: 'SLICE-308 완료 상태를 유지한다. 변경된 공통 응답 버퍼/오류 전달·CredentialChange·불가 계정의 조건부 세대 회수는 api 전체 회귀와 실제 두 provider 소비로 재검증했다. 비영향 발급 순서/슬롯·commit 불명 프로토콜은308의 기존 근거를 재사용하며 실제제품 새 시험으로 과장하지 않는다.'
+        documents: 'domain-schema ENT238·활성테이블38·컬럼329·changelog13 일치. doc-gen413개/69653줄·누락ID/스칼라/깨진링크0. trace 오류0·후속경고72, harness/lint 통과. 오프라인 HTML design492/user18/operations9장 구조·자산 검사 통과.'
+      redteam_resolution:
+        - '업무 예외가 바깥 rollback-only 또는 MVC flush로503이 됨 → 버퍼 flush 지연·명시 rollback 후 기존 오류 응답 보존, 실제 암호/복구 오류400 확인.'
+        - '불가 계정이 재활성화되면 구쿠키가 부활함 → 같은 domain/epoch/grant/generation/cookie만 별도 확정 회수. 현재 자격은 원장 세대로 판정하여 노드 벽시각 비교를 제거했다.'
+        - '권한 회수403에서 버전 헤더가 응답 reset 뒤 유실됨 → 응답 직렬화 전에 현재 버전을 반영, 실제 역할 회수로 확인.'
+      verification_policy: '2026-11-14 사용자가 검증 시간 과다를 지적했다. 필요한 인증·권한·원자성·Redis 장애 시험을 재사용하며 추가 전수/변이·새 UI 실기동 검증을 중단한다. 선택적 전체 문서 Chromium 검사는 중단해 완료 근거로 세지 않는다.'
+      environment_cleanup: '시험 앱과 전용 PostgreSQL 종료. 사용자 Redis 서버는 유지하고 FLUSHALL/다른 namespace 접근 없이 무작위 시험 epoch만 사용했다. 실제 개발 aiagent DB는 변경/삭제하지 않았다.'
+      g4:
+        status: pending_user_review
+        note: '308 G4만 사용자 승인 완료. 520 G4·사용자 화면 확인은 자동 승인하지 않는다. 실제 개발 DB 재구축은 CR-039의 대상 확인과 명시 실행 승인이 별도이며 시험 DB 성공으로 대체하지 않는다. 데이터 보존 이관/구 바이너리 rollback은 제공 전 별도 실증 대상이다.'
     partial_implementation:
       recorded_at: '2026-11-11'
+      source_audit: '2026-11-14 checkout 9c599c82에서 아래 BatchHistoryLock·systemAuthTest 구현/시험을 찾지 못했다. 과거 기록으로만 보존하고 이번 SLICE-520의 현재 검증 근거로 재사용하지 않는다. 현재 구현/검증은 별도로 기록한다.'
       completed_boundary: BatchHistoryLock의 같은 HIST_ID 쓰기 잠금+잠금후 refresh·중복ID 정리. 실제PG/JPA TC5087 4개 PASS/skip0, 기존중단단위8개 PASS, 잠금/refresh/중복 반전3/3 탐지·byte복원·전용PG종료.
       red_boundary: 실제품 HTTP API601/unknown2개·commit전큐/rollback2개·동일노드 이전실행 release가 새lease삭제1개를 RED로 재현했다. 해당제품구현은미완료이며 가짜시험/skip으로 덮지 않는다.
       baseline_check: root 전체 backend check 753개/실패0/skip0. systemAuth/portability는별도태스크이며 기본check에포함되지않는다. checkSeeds는skipFrontend로미실행. 품질중복2.98%·예외삼킴0·미태깅0.
@@ -2192,7 +2224,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
-  - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. G4사용자확인대기." }
+  - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. 2026-11-14 G4사용자명시승인완료." }
   - { slice: SLICE-307, measured_at: "2026-11-10", fix_rounds: 3, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 4, note: "공통 계약/실제 HTTP·DB 구현의 컴파일·시험 수정3회, 독립 레드팀4건 수정. 최초 RED·수동 변이/PIT 및 Windows 실행환경 실패는 수정 반복에서 제외한다. 통합 검토의 제품 JAR 메시지 자산 누락은 실제 설치 전 수정했고 별도 설치/복구 시험을 통과했다. G4 사용자 확인 대기이며 소유 후속 업무 구현을 완료로 세지 않는다." }
   - { slice: SLICE-519, measured_at: "2026-09-14", fix_rounds: 2, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 3, note: "서버 실행은 활성 프로파일이 없으면 데이터소스 구성 전에 종료하고, Gradle bootRun은 -Pprofile을 필수로 받아 Spring 활성 프로파일로 전달한다. local 기본값은 sample 포함·프런트 생략, 그 밖의 프로파일은 sample 제외·프런트 포함이며 명시 옵션이 이를 덮어쓴다. local에서 sample을 끄면 처리된 설정도 제품 master changelog를 가리킨다. 태스크 그래프 7조합·changelog 2조합, 런타임 가드 단위 테스트, local 기본·sample 제외 전체 백엔드 검사와 실제 local 기본 기동을 통과했다. local 판정과 기동 가드를 반대로 뒤집자 각각 계약 테스트가 실패했고 원복 뒤 통과했다. 프런트 의존성 트리는 정상이나 Gradle npmInstall 정지는 별도 기존 실행환경 문제로 제품 JAR의 프런트 포함 실물 검증만 완료하지 못했다. doc-gen 대상 문서는 생성됐으나 저장소 전역 --check의 기존 934개 생성기 결손은 이번 슬라이스 범위 밖으로 남는다." }
   - { slice: SLICE-518, measured_at: "2026-09-13", fix_rounds: 2, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 3, note: "백엔드 컨트롤러·DTO·도메인·소유 테스트를 backend:modules:sample과 com.aiagent.sample로, 프런트 여섯 화면·API·규칙을 modules/sample로 이행하고 구 api/sample·domain/sample·features/sample을 제거했다. 외부 /sample/**·/api/service/sample/**와 SMPL_* 메뉴·시드·제거 절차는 유지했다. API 요약 계약 테스트와 시드 생성기의 스캔 범위를 api·system·sample 모듈로 보정하고, api에는 HTTP·Security·요청 경계 공통물만 남겼다. 백엔드·프런트 경계를 각각 구 경로로 뒤집자 구조 테스트가 실패했고 원복 뒤 통과했다. 전체 백엔드, 프런트 88파일·688테스트, 시드, quality·trace·doc 생성·harness·meta 검사를 통과했으며 SampleRules PIT는 변이 3개를 모두 제거했다. 서비스 전체를 넓게 잡은 탐색 PIT는 기존 미시험 조립 메서드까지 포함해 29%였고 이번 구조 이동의 통과 근거로 사용하지 않았다." }
