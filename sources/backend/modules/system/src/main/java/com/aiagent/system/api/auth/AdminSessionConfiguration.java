@@ -37,7 +37,8 @@ public class AdminSessionConfiguration {
     @Bean public SessionV2Assembly administratorSessions(Environment environment, DataSource source,
             PlatformTransactionManager manager, AdminAuthorityGuard guard, AdminApiCatalog catalog,
             SessionAdmissionsV2.Producer producer, ObjectProvider<RedisConnectionFactory> redis,
-            ObjectMapper mapper, ApiErrorWriter errors, jakarta.persistence.EntityManagerFactory entityManagerFactory) {
+            ObjectMapper mapper, ApiErrorWriter errors, jakarta.persistence.EntityManagerFactory entityManagerFactory,
+            @Qualifier("administratorAuthorityDecorator") ObjectProvider<java.util.function.UnaryOperator<com.aiagent.core.security.v2.SessionAuthority>> decorators) {
         // EntityManagerFactory는 Liquibase가 완료된 뒤 초기화된다. 선택 판은 첫 빈 설치 때만 만든다.
         var configuration = SessionV2Assembly.Configuration.from(environment);
         if (!configuration.domains().keySet().equals(Set.of(AuthDomain.ADMIN)))
@@ -63,7 +64,7 @@ public class AdminSessionConfiguration {
         };
         return SessionV2Assembly.create(configuration, source, manager,
                 configuration.provider() == Provider.REDIS ? redis.getObject() : null,
-                new SessionRuntime.AuthorityBinding(source, manager, guard), catalog.catalog(), Map.of(AuthDomain.ADMIN, producer),
+                new SessionRuntime.AuthorityBinding(source, manager, decorators.getIfAvailable(java.util.function.UnaryOperator::identity).apply(guard)), catalog.catalog(), Map.of(AuthDomain.ADMIN, producer),
                 new BoundaryResponseWriter(mapper, errors), Map.of("API-517", inspect, "API-518", inspect));
     }
 

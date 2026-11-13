@@ -2,6 +2,8 @@
 package com.aiagent.system.api.auth;
 
 import com.aiagent.api.auth.v2.ModuleApiCatalog;
+import com.aiagent.api.auth.v2.InstalledAdminRoutes;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.aiagent.core.security.RequestPersistenceState.Capability;
 import com.aiagent.core.security.SessionPersistencePort.AuthLevel;
 import com.aiagent.domain.progress.JobProgressStore;
@@ -23,7 +25,9 @@ public final class AdminApiCatalog {
     private final Map<String, Entry> entries;
     private final ModuleApiCatalog catalog;
 
-    public AdminApiCatalog(Environment environment, JobProgressStore progress) throws java.io.IOException {
+    public AdminApiCatalog(Environment environment, JobProgressStore progress) throws java.io.IOException { this(environment,progress,List.of()); }
+    @Autowired
+    public AdminApiCatalog(Environment environment, JobProgressStore progress,List<InstalledAdminRoutes> installed) throws java.io.IOException {
         boolean local = Arrays.asList(environment.getActiveProfiles()).contains("local");
         boolean sample = ClassUtils.isPresent("com.aiagent.sample.api.excel.SampleExcelController", getClass().getClassLoader());
         if (sample && !local) throw new IllegalStateException("sample은 local 프로파일에서만 활성화할 수 있다");
@@ -37,6 +41,10 @@ public final class AdminApiCatalog {
                 if (entry.id().startsWith("SAMPLE-") && !sample) continue;
                 if (values.put(entry.id(), entry) != null) throw new IllegalStateException("관리자 API ID가 중복됐다");
             }
+        }
+        for(var contribution:installed)for(var route:contribution.routes()) {
+            var entry=new Entry(route.id(),route.method(),route.path(),route.handler(),route.action());
+            if(values.putIfAbsent(entry.id(),entry)!=null)throw new IllegalStateException("소유 관리자 API ID가 중복됐다");
         }
         entries = Map.copyOf(values);
         catalog = new ModuleApiCatalog(values.values().stream().map(e -> operation(e, progress)).toList(), local);

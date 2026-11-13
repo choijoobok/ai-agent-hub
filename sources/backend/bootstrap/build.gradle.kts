@@ -62,6 +62,7 @@ dependencies {
     testImplementation("org.springframework.data:spring-data-jpa")
     implementation(project(":backend:api"))
     implementation(project(":backend:modules:system"))
+    implementation(project(":backend:modules:admin"))
     if (includeSample) {
         implementation(project(":backend:modules:sample"))
     }
@@ -137,8 +138,16 @@ dependencies {
 // 소스셋을 새로 만들지 않는다. changelog 와 시드 CSV 가 이 모듈의 리소스이므로 test 셋이
 // 이미 그것을 보고 있고, 셋을 가르면 같은 리소스를 두 번 배선하게 된다.
 tasks.test {
-    useJUnitPlatform { excludeTags("portability", "systemAuthLive", "sourceNotificationLive") }
+    useJUnitPlatform { excludeTags("portability", "systemAuthLive", "sourceNotificationLive", "managedStorageLive") }
     systemProperty("includeSample", includeSample)
+}
+
+// @feat FEAT-040 — 변경된 공통 저장/인증 연결만 실제 PostgreSQL에서 검증한다.
+tasks.register<Test>("managedStorageTest") {
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform { includeTags("managedStorageLive") }
+    outputs.upToDateWhen { false }
 }
 
 tasks.register<Test>("sourceNotificationTest") {
@@ -972,6 +981,7 @@ fun Project.apiSeedTask(name: String, verify: Boolean) =
         val controllerProjects = buildList {
             add(":backend:api")
             add(":backend:modules:system")
+            add(":backend:modules:admin")
             if (includeSample) {
                 add(":backend:modules:sample")
             }

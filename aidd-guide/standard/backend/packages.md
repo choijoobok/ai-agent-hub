@@ -5,17 +5,15 @@ category: standard/backend
 type: operation
 class: policy
 created: 2026-05-04
-updated: 2026-09-13
+updated: 2026-11-14
 status: active
 sources: ["sources/backend/", "sources/backend/core/src/main/java/com/aiagent/core/security/"]
 tier: 2
 tags: [backend, module, package, naming, transaction]
 ---
-
 # 백엔드 구조 — 모듈 · 패키지 · 이름 · 트랜잭션
 
 > 새 기능의 모듈·패키지·이름을 정하고 의존 방향을 지킨다.
-
 ## 1. 모듈과 소유권
 
 ```
@@ -25,6 +23,7 @@ sources/backend/
 ├── domain/           이행 전 공통 업무 도메인 — 엔티티·리포지터리·서비스
 ├── api/              HTTP·Security·필터·예외·세션 경계
 ├── modules/system/   system 업무 API·DTO·도메인
+├── modules/admin/    관리 저장·전체 이력·결과 확인 공통 기반
 ├── modules/sample/   통째로 제거 가능한 참조 구현 API·DTO·도메인
 └── bootstrap/        조립 루트 — main · application.yml · Liquibase · 프론트 임베드
 ```
@@ -36,8 +35,9 @@ sources/backend/
 | `domain` | `core` · `support` |
 | `api` | `core` · `support` · `domain` |
 | `modules/system` | `api` |
+| `modules/admin` | `api` |
 | `modules/sample` | `api` |
-| `bootstrap` | `api` · `modules/system` (+ **local 변형일 때만** `modules/sample`) |
+| `bootstrap` | `api` · `modules/system` · `modules/admin` (+ **local 변형일 때만** `modules/sample`) |
 
 이 표는 **현재 Gradle 직접 의존**이다. `api`가 이행 전 `domain`을 공개하므로 system·sample도 그 타입을 간접 가시성으로 쓸 수 있다. 새 모듈이 다른 제품 모듈 내부를 참조하는 것은 금지하며,
 `LayerDependencyTest`와 `SampleIsolationTest`가 역방향·샘플 누출을 막는다.

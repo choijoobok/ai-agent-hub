@@ -1,7 +1,7 @@
 feature_contracts:
   FEAT-040:
-    design_status: draft
-    implementation: planned
+    design_status: approved
+    implementation: implemented
     reqs:
       - REQ-601
     usecases:
@@ -9,7 +9,7 @@ feature_contracts:
       - UC-002
       - UC-003
       - UC-006
-    scope: delivery_strategy.staged_delivery.admin_first의 19화면에 적용하는 상세 계약이다. 현재 소스 구현/물리 스키마 완성/G3 승인을 뜻하지 않는다. 원 화면의 입력 항목·저장 버튼 범위를 바꾸지 않는다.
+    scope: delivery_strategy.staged_delivery.admin_first의 19화면에 적용하는 상세 계약이다. 2026-11-14 admin G3 승인 후 공통 서비스·ENT-099/100/113·API-082를 구현했다. 각 소유 화면/현재·HIST 연결은 후속 소유 슬라이스에서 검증한다. 원 화면의 입력 항목·저장 버튼 범위를 바꾸지 않는다.
     rules_from:
       - REQ-601.direct_management
       - REQ-601.management_storage
@@ -24,6 +24,7 @@ feature_contracts:
     command_identity:
       base: FEAT-001.shared_write_contract.identity/input_digest/preflight/result의 지문·주체·동일 키 의미를 공통으로 재사용한다. 기존 ENT-019/028/036은 각 소유 결과 저장 어댑터이며 같은 명령을 ENT-099에 이중 저장하지 않는다. 나머지 관리 저장은 ENT-099를 사용한다.
       uniqueness: 명령 UUID는 전체 관리 저장 어댑터에서 전역 유일하다. 해시별 공통 기술 잠금 아래 ENT-113 종결표와 ENT-019/028/036/099 및 외부 수신 ENT-257 활성 원장 전부의 소유/입력 지문을 조회한다. 다른 기능/주체/입력의 재사용은409이며 성공효과를 만들지 않는다. 같은 원장에 이중 기록하지 않는다. 원장 일부 조회 실패는503이며 미발견이 아니다.
+      result_retention_clock: ENT-099.RECORDED_DTM은 NO_CHANGE를 포함한 결과 기록 시각이다. 보존 기간 계산에만 사용하고 NO_CHANGE의 APPLIED_DTM/HISTORY_NO는 null을 유지한다.
       late_replay: ADR-044·REQ-601.command_retention. 전체 성공 원장 보존 중은 원 결과 재생, 파기 후 최소 키 해시 종결 기록이 있으면 COMMAND_EXPIRED로 거부한다. 키 보호 조회 실패는 미발견이 아니며 새 적용을 차단한다.
       installation: 소유 결과 어댑터는 설치 명세에 명시 등록한다. 설치한 기능의 원장은 전부 조회하며 하나라도 장애이면503이다. 아직 미구현인 ENT-019/028/036/257을 없는 테이블 예외로 무시하지 않는다. 미설치는 해당 쓰기 경로도 등록되지 않았음을 기동 시 대조한 경우에만 허용한다. 새 소유 기능을 설치할 때 명령 검사 어댑터와 정확 경로 등록을 함께 추가한다.
     transaction:
@@ -39,7 +40,7 @@ feature_contracts:
       units: 단일 그리드는 기존 행별 부분 성공을 유지한다. 마스터/탭·시작월 등급 전체 세트·최초 월 기준과 단가 고정은 각 전체 단위다. 하나의 저장 단위에서 HIST/자식 하나라도 실패하면 그 단위 전부 롤백한다.
       current_source: 현재 SessionV2Filter/SessionRuntime.execute는 HTTP 요청 전체를 하나의 물리 트랜잭션과 ADMIN 보호 경계로 감싼다. RowTx.oneTxPerRow 자체는 트랜잭션을 만들지 않으므로 이 경계 안에서 독립 행 커밋을 보장하지 않는다. 관리 저장은 아래 implementation_design.request_unit을 따른다. CustomLock을 이미 시작한 트랜잭션 안에 중첩하지 않는다.
     implementation_design:
-      status: admin G3 검토안. 기존 인증의 수락·회수·같은 물리 트랜잭션 보장은 유지하며 새 관리 소비 어댑터를 연결한다. 제품 구현 완료를 뜻하지 않는다.
+      status: admin G3 승인·SLICE-040 공통 구현 완료/G4 대기. 기존 인증의 수락·회수·같은 물리 트랜잭션 보장을 유지하고 관리 소비 어댑터를 연결했다. 소유 화면 제품 연결 완료를 뜻하지 않는다.
       responsibilities:
         coordinator: 공통 관리 저장 서비스가 명령 식별/현재 권한 보호 참여·기대 판·실행 순서·원자성·원 결과 재생을 조정한다. 임의 테이블명/자산 종류를 받는 범용 HTTP 저장 API는 만들지 않는다.
         owner: 소유 업무 서비스는 허용 입력·업무 검증·부모/참조 잠금·현재값/자식 적용·동형 전체 이력 복사·정확 판 조회 어댑터를 제공한다. 관리 영역 밖 값, 비밀, 관측값을 공통 서비스에 넘기지 않는다.

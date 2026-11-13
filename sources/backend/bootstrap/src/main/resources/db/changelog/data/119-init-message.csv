@@ -1,0 +1,17 @@
+MSG_KEY,LANG_CD,MSG_VAL
+err.managed.validation,ko,관리 저장 입력이 올바르지 않습니다.
+err.managed.validation,en,Invalid management command.
+err.managed.forbidden,ko,현재 관리 변경 권한이 없습니다.
+err.managed.forbidden,en,Current management permission is required.
+err.managed.revisionConflict,ko,기준 정보가 변경되었습니다. 다시 조회해 주세요.
+err.managed.revisionConflict,en,The base revision changed. Reload the data.
+err.managed.referenceConflict,ko,현재 참조 때문에 변경할 수 없습니다.
+err.managed.referenceConflict,en,A current reference prevents this change.
+err.managed.commandConflict,ko,다른 저장 의도에 사용한 명령 키입니다.
+err.managed.commandConflict,en,The command key belongs to a different request.
+err.managed.commandExpired,ko,보존 기간이 종료된 명령입니다.
+err.managed.commandExpired,en,The command retention period has ended.
+err.managed.historyUnavailable,ko,정확한 과거 구성을 확인할 수 없습니다.
+err.managed.historyUnavailable,en,The exact historical configuration is unavailable.
+err.managed.unavailable,ko,관리 저장 원천을 확인할 수 없습니다. 원 명령으로 결과를 확인해 주세요.
+err.managed.unavailable,en,Management storage is unavailable. Check the original command result.

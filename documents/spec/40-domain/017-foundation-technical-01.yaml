@@ -3,7 +3,13 @@ entities:
   - id: ENT-113
     name: 파기 완료 명령의 최소 키 보호
     module: admin
-    implementation: planned
+    implementation: implemented
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/001-managed-storage.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/002-command-recorded-time.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/managed/
     design_stage: physical
     table: AI_ADMIN_COMMAND_GUARD
     features:
@@ -47,8 +53,7 @@ entities:
     rules:
       - ADR-044. 다른 컬럼·주체·대상·입력/결과·감사 시각을 추가하지 않는다. 설치 수명 동안 보존하며 모든 원장 어댑터가 재수신 전에 확인한다.
       - FEAT-305는 외부 안정 namespace+sourceEpoch+eventId의 event/v1 해시도 같은 최소 구조로 보존한다. 서버 UUID 해시와 도메인을 구분하며 source subject/본문지문/시각을 추가하지 않는다.
-    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 공통 Liquibase와 실제 DB 적용/롤백을 검증했다.
     history_storage:
       mode: not_management_history
       reason: 기술/불변 업무 기록 또는 비밀 저장 단위

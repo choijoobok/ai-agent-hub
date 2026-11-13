@@ -52,7 +52,8 @@ apis:
     contract: "FEAT-017.read. 후행 사용자별/월별 통계 화면의 전체 조회 기능을 승인/구현하는 API가 아니다. 내부 agent 소비는 같은 소유 조회 계약에 검증된 PORTAL 주체로 연결한다."
   - id: API-082
     feature: FEAT-040
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/management/ManagementCommandController.java#getResult
     method: POST
     path: /api/admin/service/managementCommand/getResult
     action: READ

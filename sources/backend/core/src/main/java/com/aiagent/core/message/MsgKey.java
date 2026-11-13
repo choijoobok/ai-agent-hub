@@ -896,5 +896,23 @@ public final class MsgKey {
      */
     public static final String ERR_SAMPLE_ITEM_DUPLICATED = "err.sample.item-duplicated";
 
+    // @feat FEAT-040 — 공통 관리 저장 판정
+    /** 관리 저장 입력이 올바르지 않습니다. */
+    public static final String ERR_MANAGED_VALIDATION = "err.managed.validation";
+    /** 현재 관리 변경 권한이 없습니다. */
+    public static final String ERR_MANAGED_FORBIDDEN = "err.managed.forbidden";
+    /** 기준 정보가 변경되었습니다. 다시 조회해 주세요. */
+    public static final String ERR_MANAGED_REVISION_CONFLICT = "err.managed.revisionConflict";
+    /** 현재 참조 때문에 변경할 수 없습니다. */
+    public static final String ERR_MANAGED_REFERENCE_CONFLICT = "err.managed.referenceConflict";
+    /** 다른 저장 의도에 사용한 명령 키입니다. */
+    public static final String ERR_MANAGED_COMMAND_CONFLICT = "err.managed.commandConflict";
+    /** 보존 기간이 종료된 명령입니다. */
+    public static final String ERR_MANAGED_COMMAND_EXPIRED = "err.managed.commandExpired";
+    /** 정확한 과거 구성을 확인할 수 없습니다. */
+    public static final String ERR_MANAGED_HISTORY_UNAVAILABLE = "err.managed.historyUnavailable";
+    /** 관리 저장 원천을 확인할 수 없습니다. 원 명령으로 결과를 확인해 주세요. */
+    public static final String ERR_MANAGED_UNAVAILABLE = "err.managed.unavailable";
+
     private MsgKey() {}
 }

@@ -60,9 +60,15 @@ public class AdminAuthorityGuard implements SessionAuthority {
             AdminRequestContext.request().setAttribute(com.aiagent.api.authz.AuthzVersionHeader.NAME, authority.version());
             if (!context.selfScope()) {
                 var entry = catalog.entry(context.operationId());
-                var fact = registry.find(entry.path()).orElseThrow(() -> new Rejected(403));
-                if (!fact.action().name().equals(context.requiredAction()) || !fact.isMapped() || !fact.isAllowedBy(authority))
-                    throw new Rejected(403);
+                // @feat FEAT-040: 원 결과는 공통 메뉴가 아니라 원 기능 READ+SAVE와 원 주체로 판정한다.
+                boolean ownedResult = entry.id().equals("API-082")
+                        && entry.path().equals("/api/admin/service/managementCommand/getResult")
+                        && "READ".equals(context.requiredAction());
+                if (!ownedResult) {
+                    var fact = registry.find(entry.path()).orElseThrow(() -> new Rejected(403));
+                    if (!fact.action().name().equals(context.requiredAction()) || !fact.isMapped() || !fact.isAllowedBy(authority))
+                        throw new Rejected(403);
+                }
             }
         } else if (!context.selfScope()) throw new Rejected(401);
         AdminRequestContext.withAuthority(authority, command);
