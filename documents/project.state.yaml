@@ -18,7 +18,7 @@ current:
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-006          # SLICE-040 G4 승인 후 사용자 그룹 정의 구현 중
+  slice: SLICE-006          # CR-040 완료 범위 구현·필수 검증 완료, G4 사용자 승인 대기
   blocked_by: []
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
@@ -1069,7 +1069,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 사용자가 공통 기반 범위로 SLICE-040 G4를 승인했다. 승인 상태를 원격에 푸시하고 SLICE-006 사용자 그룹 정의의 실제 화면·현재/HIST 연결을 구현한 뒤 필요한 범위만 검증해 G4 결과를 제시한다. SLICE-305는005·302·완료521이 선행한다."
+  first: "2026-11-14 공통 기반 범위 SLICE-040 G4 승인과 원격 푸시를 완료했다(cac18807). CR-040 범위의 SLICE-006 구현·필수 검증을 완료하고 G4 사용자 승인을 기다린다. 승인 후 다음 작업은 SLICE-042 시작월별 쿼터 등급 기준이다. 실제 사용자 소속은005, 자산 역조회는002/003/004/011/020에서 검증한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1123,9 +1123,9 @@ counters:
   ENT: 238    # 2026-11-11 CR-035/036 변경 상세 반영
   API: 239    # CR-038 현재 시스템 정보/진행률 미등록2건 추적 보완
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
-  TC: 456    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
+  TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 38    # CR-039 초기 개발 DB 재기준선 반영
+  CR: 40    # CR-041 사용자 그룹 메뉴 순서·이름과 하단 탭 최소 폭
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -1578,17 +1578,8 @@ slices:
     features:
       - FEAT-006
     testcases:
-      - TC-0069
-      - TC-0061
-      - TC-0062
-      - TC-0063
-      - TC-0064
-      - TC-0065
-      - TC-0066
-      - TC-0067
-      - TC-0068
-      - TC-00610
-    scope: 그룹 정의·동일 소속 원장·현재 권한 공개 계약
+      - TC-00611
+    scope: CR-040 그룹 정의 CRUD·화면·공통 전체 이력·원 소유 연결 포트
     stage: P4
     status: in_progress
     started_at: "2026-11-14"
@@ -1597,6 +1588,51 @@ slices:
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: 6bc98b62
+      implemented: CR-040 범위의 그룹 정의 생성/조회/수정/삭제 서버 계약, 현재값·동형 전체 이력·리비전·원 결과 원자 저장, 독립 행 부분 성공·미확정 원 명령 보존, 현재 관리자 READ/SAVE/EXPORT 권한, 연결 상태 구분과 미확인 참조 삭제 차단을 구현했다. 사용자 그룹 실제 화면·메뉴·번역·현재 페이지 반출을 연결했다.
+      source_refs:
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/group/
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/group/UserGroupController.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/004-user-group.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/005-user-group-menu.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/006-user-group-navigation.sql
+        - sources/frontend/src/modules/admin/features/usergroup/
+      verification:
+        test_first: 정의 입력 계약의 미구현 컴파일 실패를 먼저 확인했다. 실제 화면 저장에서 발견한 admin 경로 CSRF 헤더 누락도 shared/api/client.test.ts의 실패를 확인한 뒤 정규식 경로에 admin을 추가했다.
+        unit: 그룹 정의2·참조/연결 상태2, 총4개 통과.
+        actual_database: UserGroupLiveTest5개 통과. 실제 PostgreSQL·제품 인증 HTTP·JPA에서 생성/수정/전체 HIST/재전송/NO_CHANGE/기준본 충돌/읽기 권한 저장 거부, HIST 실패 원자 rollback·다른 행 성공, 소속 위조 입력 거부, 미연결 삭제 차단·참조 포트가 모두 ABSENT인 경우 삭제 직전 전체 이력을 검증했다. 마지막 ABSENT 포트는 후속 소유 원장 연결의 대역이며 실제 연결 완료로 세지 않는다.
+        migration: 신규004~006 적용→rollback3→재적용 및 대시보드/시스템/HUB 순서 통과. 040 공통 migrationAndIdentifierContract1개도 별도 재실행해 통과했다. 병렬 Gradle 리소스 갱신으로 발생했던040 리소스 누락 실패는 단독 재실행으로 해소했다.
+        frontend: userGroupApi4·shared client7·gridPerRow8, 총19개 통과/skip0. 이번 범위의 고유 자동 시험29개 통과이며 마지막 메뉴 보완은 해당 migration1개만 다시 실행했다. 타입 검사·변경 파일 ESLint 통과. 전체 프론트/인증/Redis 시험은 반복하지 않았다.
+        browser: localhost3006 실제 화면에서 검토용 물류 그룹 생성·설명 수정 저장 성공. 사용자 비밀번호 변경 완료 후 같은 세션을 유지했다. 메뉴는 대시보드→시스템→AI Agent Hub 관리. 하단 탭 실측80/80/94/80/80px·미연결 안내·확인 불가/삭제 잠금·반출 현재 페이지만 제공 확인. 사용자 자체 G4 수락과 구별한다.
+        static: 품질 중복2.74%·삼킴0·미태깅0. domain-schema ENT238/테이블43/컬럼387/changelog21 일치. doc-gen ID1619·장문17737 누락0/깨진링크0. HTML design492/user19/operations9 구조·자산 검사 통과. 최종 하네스18개 일치·meta 위반0·추적성 오류0/후속 경고72·diff 검사 통과.
+        evidence:
+          - sources/build/slice006-unit.log
+          - sources/backend/modules/admin/build/test-results/test/TEST-com.aiagent.admin.group.UserGroupLinksTest.xml
+          - sources/build/slice006-final-live.log
+          - sources/build/slice006-common-migration.log
+          - sources/build/slice006-nav-test.log
+          - sources/build/slice006-front-final.log
+          - sources/build/slice006-user-group.jpg
+      redteam:
+        - failure: 연결 포트가 없거나 조회가 실패한 것을 참조0건으로 간주하면 사용 중인 그룹이 삭제될 수 있다.
+          resolution: NOT_CONNECTED/UNAVAILABLE/FORBIDDEN과 READY를 구분하고 모든 소유자의 ABSENT 증거가 없으면 삭제를 차단한다. 실제 API503 rollback과 포트 조건별 단위 시험으로 확인했다.
+        - failure: 저장 응답을 잃은 뒤 새 키로 재전송하거나 입력을 바꾸면 중복 그룹과 이력이 생길 수 있다.
+          resolution: 원 키·원 입력을 관리자별 탭 저장소에 먼저 보존하고 재시도 시 원 결과부터 확인한다. APPLIED 재실행 없음·UNKNOWN 동일 본문/키·결과 조회403 시 원 명령 보존을 시험했다.
+        - failure: HIST 쓰기 실패나 CSRF 누락이 실제 저장 경로에서 드러나면 화면 완료 보고와 업무 결과가 달라진다.
+          resolution: HIST 실패 현재값·이력·결과 전체 rollback을 실제 DB로 검증했다. CSRF 누락을 실패 시험으로 재현·수정하고 브라우저 생성·수정 성공을 확인했다.
+      review_environment: 사용자 요청으로 전용 PostgreSQL55420·backend18006·Vite3006과 검토 탭을 유지한다. DB managed040_slice의 group006_review만 사용하며 기존 개발 DB·Redis6379와 사용자 새 비밀번호는 변경하지 않았다.
+      g4:
+        status: pending
+        technical_exit_criteria: 승인된 CR-040 범위 기술 항목9/9 충족. 10번째 사용자 결과 수락 대기. 실제 소속·자산 소유 원장 연결은 후속 슬라이스 검증이며 사용자 그룹 화면에 미연결로 표시한다.
+        unresolved_assumptions: 이번 완료 범위를 막는 미해결 전제 없음. 사용자의 그룹 수동 활성/비활성 질문에는 승인 설계상 독립 ACTIVE_YN 없음과 소속/매핑별 활성의 차이를 설명했다. 신규 정책 변경 지시는 아직 없다.
+        decision_card:
+          - 그룹 이름·설명과 변경 이력은 지금 관리할 수 있다. 표시 조정 비용은 낮다.
+          - 사용자 소속·자산 실제 연결은005와 각 소유 기능에서 완성한다. 연동 변경 비용은 중간이다.
+          - 참조 여부를 확인할 수 없는 그룹은 삭제할 수 없다. 이 보호 경계를 완화하는 비용은 높다.
+        reverse_question: 소속·자산 연결 전까지 삭제를 막는 현재 완료 범위가 운영 의도에 맞는가?
+        approval_effect: 명시 G4 승인 시006을 done으로 바꾸고 다음042 시작월별 쿼터 등급 기준으로 이동한다. admin 전체 완료나 후속 실제 원장 연결 승인은 아니다.
   - id: SLICE-042
     workstream: admin
     features:
@@ -1620,6 +1656,13 @@ slices:
     features:
       - FEAT-005
     testcases:
+      - TC-0061
+      - TC-0062
+      - TC-0063
+      - TC-0064
+      - TC-0065
+      - TC-0066
+      - TC-0069
       - TC-0051
       - TC-0052
       - TC-0053
@@ -1973,6 +2016,9 @@ slices:
     features:
       - FEAT-020
     testcases:
+      - TC-0067
+      - TC-0068
+      - TC-00610
       - TC-0201
       - TC-0202
       - TC-0203
@@ -2034,6 +2080,9 @@ slices:
     features:
       - FEAT-002
     testcases:
+      - TC-0067
+      - TC-0068
+      - TC-00610
       - TC-00212
       - TC-00211
       - TC-00210
@@ -2072,6 +2121,9 @@ slices:
     features:
       - FEAT-003
     testcases:
+      - TC-0067
+      - TC-0068
+      - TC-00610
       - TC-00325
       - TC-00214
       - TC-00215
@@ -2131,6 +2183,9 @@ slices:
     features:
       - FEAT-011
     testcases:
+      - TC-0067
+      - TC-0068
+      - TC-00610
       - TC-01110
       - TC-0111
       - TC-0112
@@ -2153,6 +2208,9 @@ slices:
     features:
       - FEAT-004
     testcases:
+      - TC-0067
+      - TC-0068
+      - TC-00610
       - TC-00432
       - TC-00423
       - TC-00424
@@ -2372,6 +2430,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-006, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "CR-040으로006/005 순환 완료 경계를 분리했다. 전체 수정 반복 횟수는 계측하지 않았다. HIST 원자성·미확정 재시도·참조 미확인 보호와 실제 화면 CSRF 누락을 검증/보완했다. 현재 범위 자동29개 통과, 후속 소속·자산 실제 연결은 소유 슬라이스에 배정한다." }
   - { slice: SLICE-040, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "공통 구현의 고유 필수 시험46개 통과/skip0. 실제 DB10개와 적용/rollback/재적용, 단위2·제품기동1·구조/시드33개. 최초 컴파일 및 시험 fixture 배선 보정의 총 수정 반복 수는 집계하지 않아 null로 둔다. Low 누락 RECORDED_DTM을 사전 통지·보완했고 원자성/권한 순서/전이 보호의3가지 실패 경로를 실제 DB에서 차단했다. 실제19화면 연결은 소유 슬라이스에서 검증하며2026-11-14 공통 기반 범위의 G4 사용자 승인 완료." }
   - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. 2026-11-14 G4사용자명시승인완료." }
   - { slice: SLICE-307, measured_at: "2026-11-10", fix_rounds: 3, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: 4, note: "공통 계약/실제 HTTP·DB 구현의 컴파일·시험 수정3회, 독립 레드팀4건 수정. 최초 RED·수동 변이/PIT 및 Windows 실행환경 실패는 수정 반복에서 제외한다. 통합 검토의 제품 JAR 메시지 자산 누락은 실제 설치 전 수정했고 별도 설치/복구 시험을 통과했다. G4 사용자 확인 대기이며 소유 후속 업무 구현을 완료로 세지 않는다." }
