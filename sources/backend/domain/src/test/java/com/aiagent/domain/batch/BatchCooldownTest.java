@@ -16,7 +16,10 @@ import com.aiagent.domain.batch.run.BatchHistoryWriter;
 import com.aiagent.domain.batch.run.BatchRunner;
 import com.aiagent.domain.batch.schedule.CronRules;
 import com.aiagent.support.config.ConfigLookup;
-import com.aiagent.support.lock.LockStore;
+import com.aiagent.domain.lock.BatchLeaseStore;
+import com.aiagent.domain.batch.run.BatchRowLock;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -44,14 +47,16 @@ class BatchCooldownTest {
 
     private SysBatchHistoryRepository histories;
     private BatchHistoryWriter writer;
-    private LockStore locks;
+    private BatchLeaseStore locks;
     private BatchRunner runner;
+    private BatchRowLock rows;
 
     @BeforeEach
     void setUp() {
+        rows = mock(BatchRowLock.class);
         histories = mock(SysBatchHistoryRepository.class);
         writer = mock(BatchHistoryWriter.class);
-        locks = mock(LockStore.class);
+        locks = mock(BatchLeaseStore.class);
         when(writer.now()).thenReturn(NOW);
 
         runner = new BatchRunner(
@@ -61,7 +66,7 @@ class BatchCooldownTest {
                 locks,
                 mock(BatchHeartbeat.class),
                 mock(ConfigLookup.class),
-                mock(Executor.class));
+                mock(Executor.class), rows);
     }
 
     /** 5분 주기에 쿨다운 300초 — 저장이 막는 조합이지만 시드·직접 UPDATE 는 지나온다. */
@@ -77,7 +82,7 @@ class BatchCooldownTest {
         when(histories.findLastAttemptStart(BATCH_ID))
                 .thenReturn(Optional.of(NOW.minusSeconds(100)));
 
-        runner.runScheduled(batch(300));
+        scheduled(batch(300));
 
         verify(writer).skip(eq(BATCH_ID), any(), eq(BatchResultCode.SKIP_COOLDOWN), anyString());
         /*
@@ -85,7 +90,7 @@ class BatchCooldownTest {
           가르지 못해 쿨다운에 막힌 것이 전부 {@code SKIP_LOCK} 으로 적힌다 — 결함이
           정상으로 기록된다.
         */
-        verify(locks, never()).tryAcquire(anyString(), anyString(), any(), any());
+        verify(locks, never()).tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean());
     }
 
     @Test
@@ -97,9 +102,9 @@ class BatchCooldownTest {
           제외하면 <i>실제로 돈 적이 없다</i> 가 되어 <b>돈다</b>.
         */
         when(histories.findLastAttemptStart(BATCH_ID)).thenReturn(Optional.empty());
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false);
+        when(locks.tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean())).thenReturn(false);
 
-        runner.runScheduled(batch(300));
+        scheduled(batch(300));
 
         verify(writer, never())
                 .skip(anyString(), any(), eq(BatchResultCode.SKIP_COOLDOWN), anyString());
@@ -111,9 +116,9 @@ class BatchCooldownTest {
     void anOldEnoughRunDoesNotBlock() {
         when(histories.findLastAttemptStart(BATCH_ID))
                 .thenReturn(Optional.of(NOW.minusSeconds(300)));
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false);
+        when(locks.tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean())).thenReturn(false);
 
-        runner.runScheduled(batch(300));
+        scheduled(batch(300));
 
         // 정확히 300초 전은 아직 지난 것이다 — 아니면 매 경계에서 한 주기가 새어 나간다.
         verify(writer, never())
@@ -123,9 +128,9 @@ class BatchCooldownTest {
     @Test
     @DisplayName("쿨다운이 0이면 이력을 읽지도 않는다 — 대부분의 등록이 이쪽이다")
     void noCooldownSkipsTheQuery() {
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false);
+        when(locks.tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean())).thenReturn(false);
 
-        runner.runScheduled(batch(0));
+        scheduled(batch(0));
 
         verify(histories, never()).findLastAttemptStart(anyString());
     }
@@ -146,4 +151,9 @@ class BatchCooldownTest {
         */
         assertThat(CronRules.cooldownSwallowsCycles("매일 두시", 600)).isFalse();
     }
+    private void scheduled(SysScheduleBatch batch) {
+        when(rows.schedule(BATCH_ID)).thenReturn(Optional.of(batch));
+        runner.runScheduled(batch);
+    }
+
 }

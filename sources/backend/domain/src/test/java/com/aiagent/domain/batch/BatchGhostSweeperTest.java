@@ -14,7 +14,8 @@ import com.aiagent.domain.batch.entity.SysBatchHistory;
 import com.aiagent.domain.batch.run.BatchGhostSweeper;
 import com.aiagent.domain.batch.run.BatchHistoryWriter;
 import com.aiagent.domain.batch.run.BatchRunner;
-import com.aiagent.support.lock.LockStore;
+import com.aiagent.domain.lock.BatchLeaseStore;
+import com.aiagent.domain.batch.repository.SysScheduleBatchRepository;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,14 +36,16 @@ class BatchGhostSweeperTest {
     private static final String DEAD_NODE = "app-03#c9d0e1f2";
 
     private BatchHistoryWriter writer;
-    private LockStore locks;
+    private BatchLeaseStore locks;
     private BatchGhostSweeper sweeper;
 
     @BeforeEach
     void setUp() {
         writer = mock(BatchHistoryWriter.class);
-        locks = mock(LockStore.class);
-        sweeper = new BatchGhostSweeper(writer, locks);
+        locks = mock(BatchLeaseStore.class);
+        var batches = mock(SysScheduleBatchRepository.class);
+        when(batches.existsById(anyString())).thenReturn(true);
+        sweeper = new BatchGhostSweeper(writer, locks, batches);
         when(writer.markLost(anyLong(), anyString())).thenReturn(true);
     }
 
@@ -56,7 +59,7 @@ class BatchGhostSweeperTest {
         // 사흘 전에 시작했다. 옛 배지 규칙(시작 + 락 만료)이었다면 유령이라고 불렀을 행이다.
         when(writer.runningHistories())
                 .thenReturn(List.of(row(1L, LIVE_NODE, NOW.minusSeconds(259_200))));
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", LIVE_NODE)).thenReturn(true);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(LIVE_NODE))).thenReturn(true);
 
         assertThat(sweeper.sweep()).isZero();
         verify(writer, never()).markLost(anyLong(), anyString());
@@ -71,7 +74,7 @@ class BatchGhostSweeperTest {
         */
         when(writer.runningHistories())
                 .thenReturn(List.of(row(2L, DEAD_NODE, NOW.minusSeconds(30))));
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", DEAD_NODE)).thenReturn(false);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(DEAD_NODE))).thenReturn(false);
 
         assertThat(sweeper.sweep()).isEqualTo(1);
         verify(writer).markLost(anyLong(), anyString());
@@ -82,7 +85,7 @@ class BatchGhostSweeperTest {
     void theMessageNamesTheNode() {
         when(writer.runningHistories())
                 .thenReturn(List.of(row(3L, DEAD_NODE, NOW.minusSeconds(600))));
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", DEAD_NODE)).thenReturn(false);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(DEAD_NODE))).thenReturn(false);
 
         sweeper.sweep();
 
@@ -94,7 +97,7 @@ class BatchGhostSweeperTest {
     void aRunThatFinishedMeanwhileIsNotCounted() {
         when(writer.runningHistories())
                 .thenReturn(List.of(row(4L, DEAD_NODE, NOW.minusSeconds(600))));
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", DEAD_NODE)).thenReturn(false);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(DEAD_NODE))).thenReturn(false);
         // 목록을 읽고 락을 묻는 사이에 배치가 SUCCESS 로 끝냈다 — markLost 가 안 먹는다.
         when(writer.markLost(anyLong(), anyString())).thenReturn(false);
 
@@ -108,8 +111,8 @@ class BatchGhostSweeperTest {
                 .thenReturn(List.of(
                         row(5L, LIVE_NODE, NOW.minusSeconds(60)),
                         row(6L, DEAD_NODE, NOW.minusSeconds(60))));
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", LIVE_NODE)).thenReturn(true);
-        when(locks.isHeldBy(BatchRunner.LOCK_TYPE, "RETENTION_PURGE", DEAD_NODE)).thenReturn(false);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(LIVE_NODE))).thenReturn(true);
+        when(locks.isHeldBy(eq("RETENTION_PURGE"), anyLong(), eq(DEAD_NODE))).thenReturn(false);
 
         assertThat(sweeper.sweep()).isEqualTo(1);
         verify(writer).markLost(anyLong(), anyString());

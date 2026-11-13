@@ -1,6 +1,6 @@
 package com.aiagent.domain.batch.run;
 
-import com.aiagent.support.lock.LockStore;
+import com.aiagent.domain.lock.BatchLeaseStore;
 import jakarta.annotation.PreDestroy;
 import java.time.Clock;
 import java.time.Duration;
@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
  *
  * <h2>뺏겼으면 <b>멈춘다</b></h2>
  *
- * <p>{@link LockStore#heartbeat} 는 {@code NODE_ID} 가 맞을 때만 민다. {@code false} 가
+ * <p>{@link BatchLeaseStore#heartbeat} 는 {@code NODE_ID} 와 HIST_ID가 맞을 때만 민다. {@code false} 가
  * 돌아왔다는 것은 <b>이미 남이 잡았거나 누가 강제 해제했다</b>는 뜻이고, 그때 계속 두드리면
  * 로그만 채운다. 배치를 죽이지는 <b>않는다</b> — 중단은 협조적이어야 하고(sys/batch.md), 여기서
  * 스레드를 끊으면 배치가 체크포인트 밖에서 죽어 <b>정확히 유령을 만든다</b>. 대신 크게
@@ -63,11 +63,11 @@ public class BatchHeartbeat {
     /** 아무리 짧아도 이보다 자주 두드리지 않는다 — 만료를 15초 미만으로 두는 설정 대비. */
     private static final long MIN_PERIOD_SEC = 5L;
 
-    private final LockStore locks;
+    private final BatchLeaseStore locks;
     private final Clock clock;
     private final ScheduledExecutorService scheduler;
 
-    public BatchHeartbeat(LockStore locks, Clock clock) {
+    public BatchHeartbeat(BatchLeaseStore locks, Clock clock) {
         this.locks = locks;
         this.clock = clock;
         /*
@@ -87,9 +87,9 @@ public class BatchHeartbeat {
      *
      * @param expirySec 등록의 {@code LOCK_EXPIRY_SEC} — 밀 때마다 이만큼 뒤로 잡는다
      */
-    public Beat start(String lockType, String key, int expirySec) {
+    public Beat start(String lockType, String key, Long histId, int expirySec) {
         long period = Math.max(MIN_PERIOD_SEC, expirySec / DIVISOR);
-        Beat beat = new Beat(lockType, key, expirySec);
+        Beat beat = new Beat(lockType, key, histId, expirySec);
         beat.future.set(scheduler.scheduleWithFixedDelay(beat, period, period, TimeUnit.SECONDS));
         return beat;
     }
@@ -105,12 +105,14 @@ public class BatchHeartbeat {
         private final String lockType;
         private final String key;
         private final int expirySec;
+        private final Long histId;
         private final AtomicReference<ScheduledFuture<?>> future = new AtomicReference<>();
 
-        private Beat(String lockType, String key, int expirySec) {
+        private Beat(String lockType, String key, Long histId, int expirySec) {
             this.lockType = lockType;
             this.key = key;
             this.expirySec = expirySec;
+            this.histId = histId;
         }
 
         @Override
@@ -121,7 +123,7 @@ public class BatchHeartbeat {
               만료에서 락을 잃는다. 여기서는 조용히 넘기고 다음 박자에 다시 시도한다.
             */
             try {
-                if (locks.heartbeat(lockType, key, clock.instant().plusSeconds(expirySec))) {
+                if (locks.heartbeat(key, histId, clock.instant().plusSeconds(expirySec))) {
                     return;
                 }
             } catch (RuntimeException e) {

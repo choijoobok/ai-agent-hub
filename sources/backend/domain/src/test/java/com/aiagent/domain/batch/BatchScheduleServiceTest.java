@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.core.grid.RowState;
 import com.aiagent.domain.batch.entity.SysScheduleBatch;
+import com.aiagent.domain.batch.run.BatchRowLock;
 import com.aiagent.domain.batch.repository.SysBatchHistoryRepository;
 import com.aiagent.domain.batch.repository.SysScheduleBatchRepository;
 import com.aiagent.domain.batch.schedule.BatchScheduleService;
@@ -49,8 +50,10 @@ class BatchScheduleServiceTest {
         histories = mock(SysBatchHistoryRepository.class);
         // 빈 하나가 등록돼 있다 — 그래야 그 뒤의 검증에 닿는다.
         registry = new BatchJobRegistry(java.util.Map.of("settleDailyJob", context -> null));
+        BatchRowLock rowLocks = mock(BatchRowLock.class);
+        when(rowLocks.schedule(anyString())).thenAnswer(call -> batches.findById(call.getArgument(0)));
         service = new BatchScheduleService(
-                batches, histories, registry, mock(ApplicationEventPublisher.class));
+                batches, histories, registry, mock(ApplicationEventPublisher.class), rowLocks);
     }
 
     /**

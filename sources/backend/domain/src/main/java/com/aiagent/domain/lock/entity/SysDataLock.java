@@ -63,6 +63,10 @@ public class SysDataLock {
     @Column(name = "USER_ID", length = 30)
     private String userId;
 
+    /** 배치 lease 소유 실행. 일반 잠금과 쿨다운만 남은 행은 null이다. FK는 두지 않는다. */
+    @Column(name = "BATCH_HIST_ID")
+    private Long batchHistId;
+
     @Column(name = "CRE_DTM", nullable = false)
     private Instant creDtm;
 

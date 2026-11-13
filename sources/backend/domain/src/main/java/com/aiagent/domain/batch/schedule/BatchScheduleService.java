@@ -5,6 +5,7 @@ import com.aiagent.core.error.BusinessException;
 import com.aiagent.core.error.RowTx;
 import com.aiagent.core.grid.RowState;
 import com.aiagent.domain.batch.BatchJobRegistry;
+import com.aiagent.domain.batch.run.BatchRowLock;
 import com.aiagent.domain.batch.entity.SysScheduleBatch;
 import com.aiagent.domain.batch.repository.SysBatchHistoryRepository;
 import com.aiagent.domain.batch.repository.SysScheduleBatchRepository;
@@ -65,16 +66,18 @@ public class BatchScheduleService {
     private final SysBatchHistoryRepository histories;
     private final BatchJobRegistry registry;
     private final ApplicationEventPublisher events;
+    private final BatchRowLock rowLocks;
 
     public BatchScheduleService(
             SysScheduleBatchRepository batches,
             SysBatchHistoryRepository histories,
             BatchJobRegistry registry,
-            ApplicationEventPublisher events) {
+            ApplicationEventPublisher events, BatchRowLock rowLocks) {
         this.batches = batches;
         this.histories = histories;
         this.registry = registry;
         this.events = events;
+        this.rowLocks = rowLocks;
     }
 
     /**
@@ -106,6 +109,8 @@ public class BatchScheduleService {
             }
         });
 
+        rows.stream().filter(row -> row.rowState() != RowState.C).map(BatchScheduleSaveRow::batchId)
+                .distinct().sorted().forEach(rowLocks::schedule);
         RowTx.oneTxForAll(rows, row -> {
             switch (row.rowState()) {
                 case C -> create(row);
@@ -287,7 +292,7 @@ public class BatchScheduleService {
     }
 
     private SysScheduleBatch require(String batchId) {
-        return batches.findById(batchId)
+        return rowLocks.schedule(batchId)
                 .orElseThrow(() -> new BusinessException(
                         BatchScheduleErrorCode.NOT_FOUND, "없는 배치다 — " + batchId));
     }

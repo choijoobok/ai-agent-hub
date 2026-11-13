@@ -34,9 +34,21 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // 메시지 버전의 실제 JPA 원자 증가·롤백·동시 저장 회귀 시험.
     testRuntimeOnly("com.h2database:h2")
+    testRuntimeOnly(libs.driver.postgresql)
 
     testImplementation(libs.querydsl.jpa)
     testAnnotationProcessor(variantOf(libs.querydsl.apt) { classifier("jakarta") })
     testAnnotationProcessor("jakarta.persistence:jakarta.persistence-api")
     testAnnotationProcessor("jakarta.annotation:jakarta.annotation-api")
+}
+
+// 실제 PostgreSQL 배치 경합은 명시한 독립 테스트 DB에서만 실행한다. 일반 단위 게이트와 분리한다.
+tasks.named<Test>("test") { exclude("**/BatchPostgresTest*") }
+tasks.register<Test>("batchPostgresTest") {
+    description = "독립 PostgreSQL에서 배치 접수·행 잠금·lease 경합을 검증한다"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    filter { includeTestsMatching("*BatchPostgresTest") }
+    systemProperty("batch.pg.url", providers.gradleProperty("batchPgUrl").orElse("").get())
+    maxHeapSize = "384m"
 }

@@ -21,7 +21,9 @@ import com.aiagent.domain.batch.run.BatchHeartbeat;
 import com.aiagent.domain.batch.run.BatchHistoryWriter;
 import com.aiagent.domain.batch.run.BatchRunner;
 import com.aiagent.support.config.ConfigLookup;
-import com.aiagent.support.lock.LockStore;
+import com.aiagent.domain.lock.BatchLeaseStore;
+import com.aiagent.domain.batch.run.BatchRowLock;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +41,19 @@ class BatchRunnerTest {
 
     private SysBatchHistoryRepository histories;
     private BatchHistoryWriter writer;
-    private LockStore locks;
+    private BatchLeaseStore locks;
     private BatchHeartbeat heartbeat;
     private BatchHeartbeat.Beat beat;
     private ConfigLookup configs;
     private BatchRunner runner;
+    private BatchRowLock rows;
 
     @BeforeEach
     void setUp() {
+        rows = mock(BatchRowLock.class);
         histories = mock(SysBatchHistoryRepository.class);
         writer = mock(BatchHistoryWriter.class);
-        locks = mock(LockStore.class);
+        locks = mock(BatchLeaseStore.class);
         heartbeat = mock(BatchHeartbeat.class);
         beat = mock(BatchHeartbeat.Beat.class);
         configs = mock(ConfigLookup.class);
@@ -57,8 +61,8 @@ class BatchRunnerTest {
         when(writer.now()).thenReturn(STARTED_AT);
         when(writer.start(BATCH_ID, BatchExecType.MANUAL)).thenReturn(42L);
         when(writer.start(BATCH_ID, BatchExecType.SCHEDULE)).thenReturn(43L);
-        when(heartbeat.start(anyString(), anyString(), anyInt())).thenReturn(beat);
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(true);
+        when(heartbeat.start(anyString(), anyString(), anyLong(), anyInt())).thenReturn(beat);
+        when(locks.tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean())).thenReturn(true);
         when(histories.findByBatchIdAndRsltCd(BATCH_ID, BatchResultCode.RUNNING)).thenReturn(List.of());
         org.mockito.Mockito.doAnswer((Answer<Void>) invocation -> {
             ((Runnable) invocation.getArgument(0)).run();
@@ -81,7 +85,7 @@ class BatchRunnerTest {
                 locks,
                 heartbeat,
                 configs,
-                executor);
+                executor, rows);
     }
 
     private static SysScheduleBatch batch() {
@@ -92,13 +96,13 @@ class BatchRunnerTest {
     @Test
     @DisplayName("TC-5081 즉시 실행은 RUNNING을 먼저 남기고 성공 결과와 종료 처리를 확정한다")
     void manualRunStartsAndFinishesSuccessfully() {
-        BatchRunner.RunOutcome outcome = runner.runNow(batch());
+        BatchRunner.RunOutcome outcome = manual(batch());
 
         assertThat(outcome.started()).isTrue();
         verify(writer).start(BATCH_ID, BatchExecType.MANUAL);
         verify(writer).finish(42L, BatchResultCode.SUCCESS, "정산 완료", "처리 대상 1건", null);
         verify(beat).close();
-        verify(locks).release(BatchRunner.LOCK_TYPE, BATCH_ID);
+        verify(locks).release(BATCH_ID, 42L);
     }
 
     @Test
@@ -108,11 +112,11 @@ class BatchRunnerTest {
                 BATCH_ID, BatchExecType.MANUAL, "app-02", STARTED_AT);
         when(histories.findByBatchIdAndRsltCd(BATCH_ID, BatchResultCode.RUNNING)).thenReturn(List.of(running));
 
-        BatchRunner.RunOutcome outcome = runner.runNow(batch());
+        BatchRunner.RunOutcome outcome = manual(batch());
 
         assertThat(outcome).isEqualTo(new BatchRunner.RunOutcome(false, "app-02", STARTED_AT));
         verify(writer, never()).start(anyString(), any());
-        verify(locks, never()).tryAcquire(anyString(), anyString(), any(), any());
+        verify(locks, never()).tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean());
         verify(writer, never()).finish(anyLong(), any(), any(), any(), any());
     }
 
@@ -121,7 +125,7 @@ class BatchRunnerTest {
     void manualRunFinishesCanceledOnlyWhenJobReportsCancellation() {
         runner = runnerFor(context -> BatchJobResult.canceled("300건 처리 후 중단"));
 
-        runner.runNow(batch());
+        manual(batch());
 
         verify(writer).finish(42L, BatchResultCode.CANCELED, "300건 처리 후 중단", null, null);
     }
@@ -135,7 +139,7 @@ class BatchRunnerTest {
             return BatchJobResult.of("이미 완료", "중단 요청 전에 모든 처리가 끝남");
         });
 
-        runner.runNow(batch());
+        manual(batch());
 
         verify(writer).finish(42L, BatchResultCode.SUCCESS, "이미 완료", "중단 요청 전에 모든 처리가 끝남", null);
     }
@@ -148,7 +152,7 @@ class BatchRunnerTest {
             throw queueFull;
         });
 
-        assertThatThrownBy(() -> runner.runNow(batch())).isSameAs(queueFull);
+        assertThat(manual(batch()).started()).isTrue();
 
         verify(beat).close();
         verify(writer)
@@ -158,35 +162,23 @@ class BatchRunnerTest {
                         eq("실행 큐에 넣지 못했다"),
                         eq(null),
                         contains("IllegalStateException: 실행 풀이 가득 찼다"));
-        verify(locks).release(BatchRunner.LOCK_TYPE, BATCH_ID);
+        verify(locks).release(BATCH_ID, 42L);
     }
 
     @Test
-    @DisplayName("UC-508 수동 실행은 쿨다운 락만 지우고 다시 선점해 시작한다")
+    @DisplayName("UC-508 수동 실행은 등록 잠금 뒤 RUNNING 부재에서만 쿨다운을 우회한다")
     void manualRunReacquiresOnlyTheCooldownLock() {
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false, true);
-        when(histories.findByBatchIdAndRsltCd(BATCH_ID, BatchResultCode.RUNNING))
-                .thenReturn(List.of(), List.of());
-
-        assertThat(runner.runNow(batch()).started()).isTrue();
-
-        verify(locks).forceRelease(BatchRunner.LOCK_TYPE, BATCH_ID);
-        verify(writer).start(BATCH_ID, BatchExecType.MANUAL);
+        assertThat(manual(batch()).started()).isTrue();
+        verify(locks).tryAcquire(eq(BATCH_ID), eq(42L), any(), any(), eq(true));
     }
 
     @Test
-    @DisplayName("UC-508 경쟁 실행이 보이면 수동 실행은 락을 강제 해제하지 않는다")
+    @DisplayName("UC-508 최신 RUNNING이 있으면 새 실행 lease와 이력을 만들지 않는다")
     void manualRunDoesNotReleaseALockWhenAnotherNodeStartedFirst() {
-        SysBatchHistory raced = SysBatchHistory.started(
-                BATCH_ID, BatchExecType.SCHEDULE, "app-03", STARTED_AT);
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false);
-        when(histories.findByBatchIdAndRsltCd(BATCH_ID, BatchResultCode.RUNNING))
-                .thenReturn(List.of(), List.of(raced));
-
-        assertThat(runner.runNow(batch()))
-                .isEqualTo(new BatchRunner.RunOutcome(false, "app-03", STARTED_AT));
-
-        verify(locks, never()).forceRelease(BatchRunner.LOCK_TYPE, BATCH_ID);
+        SysBatchHistory raced = SysBatchHistory.started(BATCH_ID, BatchExecType.SCHEDULE, "app-03", STARTED_AT);
+        when(histories.findByBatchIdAndRsltCd(BATCH_ID, BatchResultCode.RUNNING)).thenReturn(List.of(raced));
+        assertThat(manual(batch())).isEqualTo(new BatchRunner.RunOutcome(false, "app-03", STARTED_AT));
+        verify(locks, never()).tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean());
         verify(writer, never()).start(anyString(), any());
     }
 
@@ -196,7 +188,7 @@ class BatchRunnerTest {
         SysScheduleBatch cooldownBatch = batch(60);
         when(histories.findLastAttemptStart(BATCH_ID)).thenReturn(Optional.of(STARTED_AT.minusSeconds(1)));
 
-        runner.runScheduled(cooldownBatch);
+        scheduled(cooldownBatch);
 
         verify(writer)
                 .skip(
@@ -204,15 +196,15 @@ class BatchRunnerTest {
                         eq(BatchExecType.SCHEDULE),
                         eq(BatchResultCode.SKIP_COOLDOWN),
                         contains("쿨다운(60초)"));
-        verify(locks, never()).tryAcquire(anyString(), anyString(), any(), any());
+        verify(locks, never()).tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean());
     }
 
     @Test
     @DisplayName("TC-5083 쿨다운이 아니고 다른 노드가 선점했으면 SKIP_LOCK으로 기록한다")
     void scheduledRunRecordsLockContentionSeparatelyFromCooldown() {
-        when(locks.tryAcquire(anyString(), anyString(), any(), any())).thenReturn(false);
+        when(locks.tryAcquire(anyString(), anyLong(), any(), any(), anyBoolean())).thenReturn(false);
 
-        runner.runScheduled(batch());
+        scheduled(batch());
 
         verify(writer)
                 .skip(
@@ -220,17 +212,17 @@ class BatchRunnerTest {
                         eq(BatchExecType.SCHEDULE),
                         eq(BatchResultCode.SKIP_LOCK),
                         contains("다른 노드"));
-        verify(writer, never()).start(anyString(), any());
+        verify(writer).discardStart(43L);
     }
 
     @Test
     @DisplayName("TC-5081 스케줄 실행도 시작 이력부터 남기고 성공과 락 해제로 끝낸다")
     void scheduledRunStartsAndFinishesSuccessfully() {
-        runner.runScheduled(batch());
+        scheduled(batch());
 
         verify(writer).start(BATCH_ID, BatchExecType.SCHEDULE);
         verify(writer).finish(43L, BatchResultCode.SUCCESS, "정산 완료", "처리 대상 1건", null);
-        verify(locks).release(BatchRunner.LOCK_TYPE, BATCH_ID);
+        verify(locks).release(BATCH_ID, 43L);
     }
 
     @Test
@@ -239,7 +231,7 @@ class BatchRunnerTest {
         SysScheduleBatch missingJob = SysScheduleBatch.created(
                 BATCH_ID, "야간 정산", "설명", "removedJob", "0 0 2 * * *", "Asia/Seoul", null, 300, 0, true, 0);
 
-        runner.runNow(missingJob);
+        manual(missingJob);
 
         verify(writer)
                 .finish(
@@ -257,7 +249,7 @@ class BatchRunnerTest {
             throw new IllegalStateException("정산 원장 연결 실패");
         });
 
-        runner.runNow(batch());
+        manual(batch());
 
         verify(writer)
                 .finish(
@@ -267,7 +259,7 @@ class BatchRunnerTest {
                         eq(null),
                         contains("IllegalStateException: 정산 원장 연결 실패"));
         verify(beat).close();
-        verify(locks).release(BatchRunner.LOCK_TYPE, BATCH_ID);
+        verify(locks).release(BATCH_ID, 42L);
     }
 
     private static SysScheduleBatch batch(int lockMinIntervalSec) {
@@ -284,4 +276,44 @@ class BatchRunnerTest {
                 true,
                 0);
     }
+    @Test
+    @DisplayName("TC-5088 수동 접수는 커밋 전에 heartbeat나 큐를 시작하지 않는다")
+    void handoffWaitsForAdmissionCommit() {
+        Executor queue = mock(Executor.class);
+        runner = runnerFor(context -> BatchJobResult.of("완료", null), queue);
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        org.springframework.transaction.support.TransactionSynchronizationManager.setActualTransactionActive(true);
+        try {
+            when(rows.schedule(BATCH_ID)).thenReturn(Optional.of(batch()));
+            assertThat(runner.runNow(batch()).started()).isTrue();
+            verify(queue, never()).execute(any());
+            verify(heartbeat, never()).start(anyString(), anyString(), anyLong(), anyInt());
+            org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(org.springframework.transaction.support.TransactionSynchronization::afterCommit);
+            verify(queue).execute(any());
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager.clear();
+        }
+    }
+
+    private BatchRunner.RunOutcome manual(SysScheduleBatch batch) {
+        when(rows.schedule(BATCH_ID)).thenReturn(Optional.of(batch));
+        return committed(() -> runner.runNow(batch));
+    }
+
+    private void scheduled(SysScheduleBatch batch) {
+        when(rows.schedule(BATCH_ID)).thenReturn(Optional.of(batch));
+        committed(() -> { runner.runScheduled(batch); return null; });
+    }
+
+    private <T> T committed(java.util.function.Supplier<T> action) {
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            T value = action.get();
+            org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(org.springframework.transaction.support.TransactionSynchronization::afterCommit);
+            return value;
+        } finally { org.springframework.transaction.support.TransactionSynchronizationManager.clear(); }
+    }
+
 }

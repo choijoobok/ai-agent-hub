@@ -14,22 +14,22 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 이력 행을 <b>즉시 보이게</b> 쓰는 자리 — sys/batch.md.
+ * 이력 행을 <b>접수 확정과 함께 보이게</b> 쓰는 자리 — sys/batch.md.
  *
  * <p>{@link BatchRunner} 에서 떼어 낸 이유는 <b>트랜잭션 경계가 실행과 반대</b>이기
  * 때문이다. 배치 본체는 트랜잭션 밖에서 오래 돌고(그 안에서 자기 트랜잭션을 연다),
  * 이력 행은 <b>그 전후에 각각 커밋</b>돼야 한다.
  *
  * <table><caption></caption>
- *   <tr><td>{@link #start}</td><td><b>실행 전에 커밋</b></td>
+ *   <tr><td>{@link #start}</td><td><b>접수 REQUIRED에 참여</b></td>
  *       <td>커밋 안 하면 도는 동안 화면에 아무것도 안 보인다 — {@code RUNNING} 행을
  *           미리 넣는 이유 전부가 무효가 된다</td></tr>
  *   <tr><td>{@link #finish}</td><td><b>실행 후에 새 트랜잭션</b></td>
  *       <td>배치가 자기 업무 트랜잭션을 롤백해도 <b>실패했다는 기록은 남아야</b> 한다</td></tr>
  * </table>
  *
- * <p><b>{@code REQUIRES_NEW} 가 그 둘을 함께 표현한다.</b> 락 저장소가 같은 이유로 같은
- * 전파를 쓴다(backend/persistence.md — <i>업무 롤백이 선점·해제를 되돌리면 안 된다</i>).
+ * <p>시작과 배치 lease는 같은 접수 트랜잭션에 참여한다. 종결은 {@code REQUIRES_NEW}로
+ * 독립하여 작업 본체의 롤백과 구분한다.
  *
  * <p><b>{@code NODE_ID} 를 여기서 채운다.</b> sys/batch.md 가 세 테이블이 같은 규칙으로 이 값을
  * 만든다고 했고 그 하나가 {@link NodeId} 다 — 러너가 문자열을 직접 만들면 락 테이블과
@@ -42,16 +42,18 @@ public class BatchHistoryWriter {
     private final BatchFailNotifier failNotifier;
     private final NodeId nodeId;
     private final Clock clock;
+    private final BatchRowLock rows;
 
     public BatchHistoryWriter(
             SysBatchHistoryRepository histories,
             BatchFailNotifier failNotifier,
             NodeId nodeId,
-            Clock clock) {
+            Clock clock, BatchRowLock rows) {
         this.histories = histories;
         this.failNotifier = failNotifier;
         this.nodeId = nodeId;
         this.clock = clock;
+        this.rows = rows;
     }
 
     /**
@@ -59,12 +61,15 @@ public class BatchHistoryWriter {
      *
      * @return {@code HIST_ID}
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public Long start(String batchId, BatchExecType execType) {
         SysBatchHistory started =
                 SysBatchHistory.started(batchId, execType, nodeId.value(), clock.instant());
         return histories.save(started).getHistId();
     }
+
+    @Transactional
+    public void discardStart(Long histId) { histories.deleteById(histId); }
 
     /**
      * 건너뜀 — {@code RUNNING} 을 거치지 않는 두 갈래다(sys/batch.md).
@@ -93,7 +98,8 @@ public class BatchHistoryWriter {
             String rsltMsg,
             String rsltDtlMsg,
             String errMsg) {
-        histories.findById(histId).ifPresent(history -> {
+        rows.history(histId).ifPresent(history -> {
+            if (history.getRsltCd() != BatchResultCode.RUNNING && history.getRsltCd() != BatchResultCode.LOST) return;
             history.finish(rsltCd, clock.instant(), rsltMsg, rsltDtlMsg, errMsg);
             /*
               <b>BATCH-06 이 여기 걸린다</b>(screen/admin/system/batch/history/requirements.md · screen/admin/system/notice/requirements.md). 러너에는 FAIL 을 적는
@@ -151,8 +157,8 @@ public class BatchHistoryWriter {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean markLost(Long histId, String rsltMsg) {
-        return histories
-                .findById(histId)
+        return rows
+                .history(histId)
                 .map(history -> {
                     /*
                       <b>실제로 바꿨을 때만 알린다.</b> markLost 는 RUNNING 이 아니면

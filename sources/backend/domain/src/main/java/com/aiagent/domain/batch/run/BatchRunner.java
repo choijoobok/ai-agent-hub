@@ -1,5 +1,7 @@
+// @feat FEAT-508
 package com.aiagent.domain.batch.run;
 
+import com.aiagent.core.error.BusinessException;
 import com.aiagent.domain.batch.BatchExecType;
 import com.aiagent.domain.batch.BatchJob;
 import com.aiagent.domain.batch.BatchJobContext;
@@ -9,86 +11,45 @@ import com.aiagent.domain.batch.BatchResultCode;
 import com.aiagent.domain.batch.entity.SysBatchHistory;
 import com.aiagent.domain.batch.entity.SysScheduleBatch;
 import com.aiagent.domain.batch.repository.SysBatchHistoryRepository;
+import com.aiagent.domain.batch.schedule.BatchScheduleErrorCode;
+import com.aiagent.domain.lock.BatchLeaseStore;
 import com.aiagent.support.config.ConfigLookup;
-import com.aiagent.support.lock.LockStore;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/**
- * 배치 한 번을 <b>실제로 돌리는 곳</b> — BATCH-02 · BATCH-09 · backend/persistence.md.
- *
- * <p>두 입구가 있고 <b>쿨다운에서만 갈린다</b>.
- *
- * <table><caption></caption>
- *   <tr><th></th><th>{@link #runNow}</th><th>{@link #runScheduled}</th></tr>
- * <tr><td>부르는 쪽</td><td>화면의 <b>즉시 실행</b>(screen/admin/system/batch/schedule/requirements.md)</td><td>크론</td></tr>
- *   <tr><td>{@code EXEC_TYPE_CD}</td><td>{@code MANUAL}</td><td>{@code SCHEDULE}</td></tr>
- * <tr><td>쿨다운</td><td><b>우회한다</b>(backend/persistence.md)</td>
- *       <td>지킨다 — 막히면 {@code SKIP_COOLDOWN}</td></tr>
- *   <tr><td>락에 막히면</td><td><b>거절</b> — 사람이 보고 있다</td>
- *       <td>{@code SKIP_LOCK} 행 하나 — 다중화에서 <b>정상</b>이다</td></tr>
- * </table>
- *
- * <p><b>거절과 {@code SKIP} 이 다른 것이 요점이다.</b> 사람이 누른 실행은 <i>안 됐다</i> 를
- * <b>그 자리에서 말해야</b> 하고(screen/admin/system/batch/schedule/requirements.md 의 문구가 노드와 시각을 요구한다), 크론이 깨운
- * 실행은 아무도 보고 있지 않으므로 <b>이력에 적는 것이 유일한 말하기</b>다.
- *
- * <h2>던지고 끝낸다 — 진행률을 쓰지 않는다</h2>
- *
- * <p>screen/admin/system/batch/schedule/requirements.md. {@code ProgressHelper} 는 <i>요청 스레드가 시작하는 작업</i>을 전제하는데
- * 배치는 <b>락을 잡은 노드에서</b> 돌고 그것이 다른 노드일 수 있다. 진행 상황을 보여줄
- * 자리는 이미 있다 — 실행 이력의 {@code RUNNING} 행이다.
- *
- * <p>그래서 {@link #runNow} 는 <b>시작만 확인하고 돌아온다.</b> 화면은 하단 pane 을
- * 재조회하고 거기 {@code RUNNING} 행이 보인다(screen/admin/system/batch/schedule/requirements.md).
- *
- * <h2>락 해제가 {@code finally} 에 있다</h2>
- *
- * <p>없으면 프로세스가 살아 있는 채로 락이 남아 <b>만료까지 그 배치가 다시 못 돈다</b>.
- * 만료 안전망은 <i>프로세스가 죽었을 때</i>의 것이지 예외가 났을 때의 것이 아니다(backend/persistence.md).
- */
+/** ADMIN 보호 접수에 REQUIRED로 참여한다. 장기 작업은 확정 뒤 서버 소유 실행기로 인계한다. */
 @Component
 public class BatchRunner {
-
-    /** 락 네임스페이스 — 키는 {@code BATCH_ID} 이고 그것이 PK 인 이유다(backend/persistence.md · sys/batch.md). */
     public static final String LOCK_TYPE = "BATCH";
-
     private static final Logger log = LoggerFactory.getLogger(BatchRunner.class);
-
-    /**
-     * {@code ERR_MSG} 는 {@code nclob} 이라 길이 제약이 사실상 없지만 <b>무한은 아니다</b>.
-     *
-     * <p>backend/packages.md 가 요청 전문에 1MB 를 둔 것과 같은 이유이며, sys/batch.md 이 상세 결과의 절단
-     * 상한을 미결로 남긴 것과 <b>같은 축</b>이다 — 스택은 보통 수 KB 라 이 값에 닿지
-     * 않는다. 닿는 경우는 재귀 예외뿐이고 그때 필요한 것은 앞쪽 프레임이다.
-     */
     private static final int STACK_MAX = 1_000_000;
-
     private final SysBatchHistoryRepository histories;
     private final BatchHistoryWriter writer;
     private final BatchJobRegistry registry;
-    private final LockStore locks;
+    private final BatchLeaseStore locks;
     private final BatchHeartbeat heartbeat;
     private final ConfigLookup configs;
     private final Executor executor;
+    private final BatchRowLock rows;
 
-    public BatchRunner(
-            SysBatchHistoryRepository histories,
-            BatchHistoryWriter writer,
-            BatchJobRegistry registry,
-            LockStore locks,
-            BatchHeartbeat heartbeat,
-            ConfigLookup configs,
-            @Qualifier(BatchExecutorConfig.EXECUTOR) Executor executor) {
+    public BatchRunner(SysBatchHistoryRepository histories, BatchHistoryWriter writer,
+            BatchJobRegistry registry, BatchLeaseStore locks, BatchHeartbeat heartbeat,
+            ConfigLookup configs, @Qualifier(BatchExecutorConfig.EXECUTOR) Executor executor,
+            BatchRowLock rows) {
         this.histories = histories;
         this.writer = writer;
         this.registry = registry;
@@ -96,140 +57,102 @@ public class BatchRunner {
         this.heartbeat = heartbeat;
         this.configs = configs;
         this.executor = executor;
+        this.rows = rows;
     }
 
-    /**
-     * 즉시 실행 — <b>거절되면 이유가 돌아온다</b>(screen/admin/system/batch/schedule/requirements.md).
-     *
-     * <p>거절 사유는 <b>하나뿐</b>이다: 이미 실행 중. 쿨다운은 우회하고({@link
-     * LockStore#forceRelease}) {@code USE_YN='N'} 은 막지 않는다 — <i>꺼 둔 배치를 한 번
-     * 돌려 보는 것이 정상 동선</i>이기 때문이다.
-     *
-     * <p><b>노드와 시각을 문구에 넣는 것이 요점이다.</b> <i>"실행 중입니다"</i> 만 내면
-     * 운영자는 얼마나 기다려야 하는지 모른다 — backend/persistence.md 이 {@code NODE_ID} 를 남긴 것과
-     * 같은 이유다. 그래서 락이 아니라 <b>이력 행</b>을 보고 판정한다(락은 <i>잡혔다</i>
-     * 만 말한다).
-     */
+    /** 전체 ID를 먼저 검증/정렬 잠금하고 같은 커밋으로 확정한다. 결과는 입력 순서다. */
+    @Transactional
+    public List<RunOutcome> runNow(List<String> ids) {
+        Map<String, SysScheduleBatch> batches = new LinkedHashMap<>();
+        ids.stream().distinct().sorted().forEach(id -> batches.put(id, rows.schedule(id)
+                .orElseThrow(() -> new BusinessException(BatchScheduleErrorCode.NOT_FOUND, "없는 배치다 — " + id))));
+        Map<String, RunOutcome> outcomes = new LinkedHashMap<>();
+        batches.forEach((id, batch) -> outcomes.put(id, admit(batch, BatchExecType.MANUAL)));
+        return ids.stream().map(outcomes::get).toList();
+    }
+
+    @Transactional
     public RunOutcome runNow(SysScheduleBatch batch) {
+        return runNow(List.of(batch.getBatchId())).getFirst();
+    }
+
+    /** 예약은 관리자 문맥 없이 자기 접수 트랜잭션을 연다. 낡은 스케줄 객체를 실행하지 않는다. */
+    @Transactional
+    public void runScheduled(SysScheduleBatch snapshot) {
+        rows.schedule(snapshot.getBatchId()).filter(batch -> Boolean.TRUE.equals(batch.getUseYn()))
+                .ifPresent(batch -> admit(batch, BatchExecType.SCHEDULE));
+    }
+
+    private RunOutcome admit(SysScheduleBatch batch, BatchExecType type) {
         Optional<SysBatchHistory> running = runningOf(batch.getBatchId());
-        if (running.isPresent()) {
-            return RunOutcome.ofAlreadyRunning(running.get());
-        }
-
-        if (!acquire(batch)) {
-            /*
-              락에 막혔다. 이력에 RUNNING 이 있으면 방금 다른 노드가 시작한 것이고 —
-              그때는 노드와 시각이 있는 문구를 낸다.
-
-              없으면 쿨다운만 남은 락이다(backend/persistence.md — 작업이 끝나도 그 시각까지 행이 남는다).
-              수동은 그것을 우회하므로 지우고 다시 잡는다. **먼저 RUNNING 을 확인한 뒤에만**
-              지우는 것이 forceRelease 의 계약이다 — 저장소는 도는 락과 쿨다운 락을 가리지
-              못한다.
-            */
-            Optional<SysBatchHistory> raced = runningOf(batch.getBatchId());
-            if (raced.isPresent()) {
-                return RunOutcome.ofAlreadyRunning(raced.get());
-            }
-            locks.forceRelease(LOCK_TYPE, batch.getBatchId());
-            if (!acquire(batch)) {
+        if (type == BatchExecType.SCHEDULE) {
+            Instant until = cooldownUntil(batch);
+            if (until != null) {
+                writer.skip(batch.getBatchId(), type, BatchResultCode.SKIP_COOLDOWN,
+                        "쿨다운(" + batch.getLockMinIntervalSec() + "초)에 막혔다 — " + until + " 이후에 다시 시도한다");
                 return RunOutcome.ofAlreadyRunning(null);
             }
         }
-
-        submit(batch, BatchExecType.MANUAL);
+        if (running.isPresent()) {
+            if (type == BatchExecType.SCHEDULE) skipLock(batch);
+            return RunOutcome.ofAlreadyRunning(running.get());
+        }
+        Long id = writer.start(batch.getBatchId(), type);
+        Instant now = writer.now();
+        Instant cooldown = batch.getLockMinIntervalSec() > 0 ? now.plusSeconds(batch.getLockMinIntervalSec()) : null;
+        if (!locks.tryAcquire(batch.getBatchId(), id, now.plusSeconds(batch.getLockExpirySec()), cooldown,
+                type == BatchExecType.MANUAL)) {
+            writer.discardStart(id);
+            if (type == BatchExecType.SCHEDULE) skipLock(batch);
+            return RunOutcome.ofAlreadyRunning(null);
+        }
+        // lease와 RUNNING은 같은 DB 트랜잭션이다. 롤백이면 함께 사라지고 메모리 작업은 없다.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { handoff(batch, id); }
+        });
         return RunOutcome.ofStarted();
     }
 
-    /**
-     * 크론이 깨웠다 — <b>건너뛰면 행이 남는다</b>(sys/batch.md).
-     *
-     * <p>기록하지 않으면 <i>"어제 배치가 안 돌았다"</i> 를 조사할 때 아무 흔적도 없고,
-     * 크론이 안 맞은 것인지 다른 노드가 가져간 것인지 쿨다운에 막힌 것인지 구분할 수 없다.
-     *
-     * <p><b>{@code SKIP_LOCK} 과 {@code SKIP_COOLDOWN} 을 가르는 것이 여기서 일어난다.</b>
-     * 락 저장소는 둘을 가르지 않으므로({@code tryAcquire} 가 {@code false} 하나로 돌려준다)
-     * <b>쿨다운을 먼저 본다</b> — 순서가 판정이다. 뒤바꾸면 쿨다운에 막힌 것이 전부
-     * {@code SKIP_LOCK} 으로 적히고, 그러면 <b>결함이 정상으로 기록</b>된다(screen/admin/system/batch/schedule/requirements.md).
-     */
-    public void runScheduled(SysScheduleBatch batch) {
-        Instant cooldownUntil = cooldownUntil(batch);
-        if (cooldownUntil != null) {
-            writer.skip(
-                    batch.getBatchId(),
-                    BatchExecType.SCHEDULE,
-                    BatchResultCode.SKIP_COOLDOWN,
-                    "쿨다운("
-                            + batch.getLockMinIntervalSec()
-                            + "초)에 막혔다 — "
-                            + cooldownUntil
-                            + " 이후에 다시 시도한다");
-            return;
-        }
-        if (!acquire(batch)) {
-            writer.skip(
-                    batch.getBatchId(),
-                    BatchExecType.SCHEDULE,
-                    BatchResultCode.SKIP_LOCK,
-                    "다른 노드가 실행 중이다 — 다중화에서는 정상이다");
-            return;
-        }
-        submit(batch, BatchExecType.SCHEDULE);
+    private void skipLock(SysScheduleBatch batch) {
+        writer.skip(batch.getBatchId(), BatchExecType.SCHEDULE, BatchResultCode.SKIP_LOCK,
+                "다른 노드가 실행 중이다 — 다중화에서는 정상이다");
     }
 
-    // ── 안 ──────────────────────────────────────────────────────────
-
-    /**
-     * <b>{@code RUNNING} 행을 먼저 쓰고</b> 실행을 큐에 넣는다.
-     *
-     * <p>순서가 뒤바뀌면 큐에서 기다리는 동안 화면에 아무것도 안 보이고, 사용자는
-     * <i>버튼이 안 먹었다</i> 로 읽어 다시 누른다 — screen/admin/system/batch/schedule/requirements.md 가 중단 버튼에서 걱정한 것과
-     * 같은 종류다.
-     */
-    private void submit(SysScheduleBatch batch, BatchExecType execType) {
-        Long histId = writer.start(batch.getBatchId(), execType);
-        /*
-          <b>큐에 넣기 전에 시작한다.</b> 실행 풀이 밀려 있으면 작업이 큐에서 몇 분을
-          기다리는데, 그동안에도 락은 이 노드의 것이다. execute() 안에서 시작하면 그
-          대기 시간이 통째로 밀리지 않는 구간이 되고, 만료가 지나면 유령 청소가
-          **아직 시작도 안 한 실행**을 유실로 판정한다.
-        */
-        BatchHeartbeat.Beat beat =
-                heartbeat.start(LOCK_TYPE, batch.getBatchId(), batch.getLockExpirySec());
+    private void handoff(SysScheduleBatch batch, Long id) {
+        BatchHeartbeat.Beat beat = null;
         try {
-            executor.execute(() -> execute(batch, histId, beat));
-        } catch (RuntimeException e) {
-            // 큐가 가득 찼다 — 시작 행만 남기고 죽으면 그 행이 영영 유령이 된다.
-            beat.close();
-            writer.finish(histId, BatchResultCode.FAIL, "실행 큐에 넣지 못했다", null, stackOf(e));
-            locks.release(LOCK_TYPE, batch.getBatchId());
-            throw e;
+            beat = heartbeat.start(LOCK_TYPE, batch.getBatchId(), id, batch.getLockExpirySec());
+            BatchHeartbeat.Beat active = beat;
+            executor.execute(() -> execute(batch, id, active));
+        } catch (RuntimeException failure) {
+            if (beat != null) beat.close();
+            // @swallow 확정 접수의 인계 실패는 이력에 남기며 다른 확정 접수의 인계를 막지 않는다.
+            try {
+                writer.finish(id, BatchResultCode.FAIL, "실행 큐에 넣지 못했다", null, stackOf(failure));
+            } catch (RuntimeException recordFailure) {
+                log.error("배치 인계 실패를 기록하지 못했다 — histId={}", id, recordFailure);
+            } finally {
+                releaseQuietly(batch.getBatchId(), id);
+            }
         }
     }
 
-    /**
-     * 실행 스레드가 하는 일 전부 — <b>트랜잭션 밖</b>이다.
-     *
-     * <p>배치가 자기 트랜잭션을 연다(대개 청크마다). 여기서 하나로 감싸면 오래 걸리는
-     * 배치가 <b>커넥션 하나를 몇 분씩 잡고</b> 있게 되고, 그것은 중단이 협조적이어야 하는
-     * 이유와 같은 종류의 문제를 만든다.
-     */
-    private void execute(SysScheduleBatch batch, Long histId, BatchHeartbeat.Beat beat) {
+    private void execute(SysScheduleBatch batch, Long id, BatchHeartbeat.Beat beat) {
         try {
-            /*
-              <b>sys/config.md 가 비워 둔 경계 셋 중 하나가 여기다.</b> 그 ADR 은 경계를
-              <i>요청</i> 이 아니라 <b>작업</b> 으로 정의했고 스케줄러를 그 한 종류로
-              들면서 "생기는 슬라이스가 한 줄을 넣는다" 고 적었다 — 이 슬라이스다.
-
-              열지 않으면 배치가 `configs.get(...)` 에서 IllegalStateException 으로
-              죽는다. 그리고 여기서 여는 것이 옳은 이유는 따로 있다: **한 실행 동안
-              값이 고정돼야** 한다. 청크 백 번을 도는 중에 화면에서 보존 기간이 바뀌면
-              앞 청크와 뒤 청크가 서로 다른 기준으로 지운다.
-            */
-            configs.inNewSnapshot(() -> runJob(batch, histId));
+            configs.inNewSnapshot(() -> runJob(batch, id));
+        } catch (RuntimeException failure) {
+            log.error("배치 실행 준비가 실패했다 — histId={}", id, failure);
+            writer.finish(id, BatchResultCode.FAIL, oneLineOf(failure), null, stackOf(failure));
         } finally {
             beat.close();
-            locks.release(LOCK_TYPE, batch.getBatchId());
+            releaseQuietly(batch.getBatchId(), id);
         }
+    }
+
+    private void releaseQuietly(String batchId, Long id) {
+        // @swallow DB 해제 장애는 만료 안전망으로 복구하며 다른 확정 접수는 계속 인계한다.
+        try { locks.release(batchId, id); }
+        catch (RuntimeException failure) { log.error("배치 lease를 해제하지 못했다 — histId={}", id, failure); }
     }
 
     /** 실행 그 자체 — 이력을 적는 것까지가 한 덩어리다. */
@@ -274,21 +197,6 @@ public class BatchRunner {
             log.error("배치 실행이 실패했다 — batchId={} histId={}", batch.getBatchId(), histId, e);
             writer.finish(histId, BatchResultCode.FAIL, oneLineOf(e), null, stackOf(e));
         }
-    }
-
-    /**
-     * 선점 — <b>쿨다운을 락에 실어 준다</b>(backend/persistence.md).
-     *
-     * <p>{@code releasableAt} 이 미래면 작업이 끝나도 그 시각까지 행이 남고, 그 사이의
-     * {@code tryAcquire} 가 실패한다. 그것이 정확히 <i>같은 키의 최소 재실행 간격</i>이다.
-     */
-    private boolean acquire(SysScheduleBatch batch) {
-        Instant now = writer.now();
-        Instant expiresAt = now.plus(Duration.ofSeconds(batch.getLockExpirySec()));
-        Instant releasableAt = batch.getLockMinIntervalSec() > 0
-                ? now.plus(Duration.ofSeconds(batch.getLockMinIntervalSec()))
-                : null;
-        return locks.tryAcquire(LOCK_TYPE, batch.getBatchId(), expiresAt, releasableAt);
     }
 
     /**

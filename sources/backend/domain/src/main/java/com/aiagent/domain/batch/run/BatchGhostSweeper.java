@@ -1,6 +1,7 @@
 package com.aiagent.domain.batch.run;
 
-import com.aiagent.support.lock.LockStore;
+import com.aiagent.domain.lock.BatchLeaseStore;
+import com.aiagent.domain.batch.repository.SysScheduleBatchRepository;
 import jakarta.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.concurrent.Executors;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
  *   <tr><td><b>없다</b></td><td>프로세스가 없다 — 밀어 줄 것이 없어 만료됐다</td></tr>
  * </table>
  *
- * <p><b>{@code NODE_ID} 까지 맞춰 묻는 것</b>이 요점이다. 키만 물으면 <i>그 배치가 지금
+ * <p><b>{@code NODE_ID}와 정확한 {@code HIST_ID}까지 맞춰 묻는다.</b> 같은 프로세스의 새 실행도 구별한다. 키만 물으면 <i>그 배치가 지금
  * 다시 돌고 있는 경우</i> 새 실행의 락을 보고 옛 유령을 살아 있다고 판정한다. {@code NodeId}
  * 는 기동마다 달라지므로(같은 호스트를 재기동해도 다르다) 그 비교가 <b>프로세스 동일성</b>을
  * 정확히 가른다 — sys/batch.md 가 세 테이블에 같은 값을 쓰기로 한 것이 여기서 값을 한다.
@@ -72,12 +73,14 @@ public class BatchGhostSweeper {
     private static final Duration INITIAL_DELAY = Duration.ofSeconds(20);
 
     private final BatchHistoryWriter writer;
-    private final LockStore locks;
+    private final BatchLeaseStore locks;
+    private final SysScheduleBatchRepository batches;
     private final ScheduledExecutorService scheduler;
 
-    public BatchGhostSweeper(BatchHistoryWriter writer, LockStore locks) {
+    public BatchGhostSweeper(BatchHistoryWriter writer, BatchLeaseStore locks, SysScheduleBatchRepository batches) {
         this.writer = writer;
         this.locks = locks;
+        this.batches = batches;
         this.scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "batch-sweeper");
             thread.setDaemon(true);
@@ -106,7 +109,7 @@ public class BatchGhostSweeper {
     public int sweep() {
         int swept = 0;
         for (BatchHistoryWriter.RunningRow row : writer.runningHistories()) {
-            if (locks.isHeldBy(BatchRunner.LOCK_TYPE, row.batchId(), row.nodeId())) {
+            if (!batches.existsById(row.batchId()) || locks.isHeldBy(row.batchId(), row.histId(), row.nodeId())) {
                 continue;
             }
             if (writer.markLost(row.histId(), messageFor(row))) {

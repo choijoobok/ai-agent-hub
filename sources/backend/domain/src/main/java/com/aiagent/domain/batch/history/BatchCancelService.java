@@ -2,7 +2,7 @@ package com.aiagent.domain.batch.history;
 
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.domain.batch.entity.SysBatchHistory;
-import com.aiagent.domain.batch.repository.SysBatchHistoryRepository;
+import com.aiagent.domain.batch.run.BatchRowLock;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,11 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BatchCancelService {
 
-    private final SysBatchHistoryRepository histories;
+    private final BatchRowLock rows;
     private final Clock clock;
 
-    public BatchCancelService(SysBatchHistoryRepository histories, Clock clock) {
-        this.histories = histories;
+    public BatchCancelService(BatchRowLock rows, Clock clock) {
+        this.rows = rows;
         this.clock = clock;
     }
 
@@ -58,14 +58,10 @@ public class BatchCancelService {
             throw new BusinessException(
                     BatchHistoryErrorCode.NOT_CANCELABLE, "중단 대상이 비었다");
         }
-        List<SysBatchHistory> found = histories.findByHistIdIn(histIds);
-
-        List<Long> missing = new ArrayList<>(histIds);
-        found.forEach(history -> missing.remove(history.getHistId()));
-        if (!missing.isEmpty()) {
-            // 파기됐거나 없는 번호다 — screen/admin/system/batch/schedule/requirements.md 의 그 자리이며 조용히 넘기지 않는다.
-            throw new BusinessException(
-                    BatchHistoryErrorCode.PURGED, "없는 이력 번호다 — " + missing);
+        List<SysBatchHistory> found = new ArrayList<>();
+        for (Long id : histIds.stream().distinct().sorted().toList()) {
+            found.add(rows.history(id).orElseThrow(() -> new BusinessException(
+                    BatchHistoryErrorCode.PURGED, "없는 이력 번호다 — " + id)));
         }
 
         Instant now = clock.instant();

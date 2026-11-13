@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.aiagent.core.error.BusinessException;
 import com.aiagent.domain.batch.entity.SysBatchHistory;
 import com.aiagent.domain.batch.history.BatchCancelService;
-import com.aiagent.domain.batch.repository.SysBatchHistoryRepository;
+import com.aiagent.domain.batch.run.BatchRowLock;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -29,12 +29,12 @@ class BatchCancelServiceTest {
 
     private static final Instant NOW = Instant.parse("2026-08-30T14:00:00Z");
 
-    private SysBatchHistoryRepository histories;
+    private BatchRowLock histories;
     private BatchCancelService service;
 
     @BeforeEach
     void setUp() {
-        histories = mock(SysBatchHistoryRepository.class);
+        histories = mock(BatchRowLock.class);
         service = new BatchCancelService(histories, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
@@ -57,7 +57,7 @@ class BatchCancelServiceTest {
     void requestsCancelOnRunningRows() {
         SysBatchHistory first = running(1L);
         SysBatchHistory second = running(2L);
-        when(histories.findByHistIdIn(List.of(1L, 2L))).thenReturn(List.of(first, second));
+        found(List.of(first, second));
 
         BatchCancelService.CancelResult result = service.cancel(List.of(1L, 2L));
 
@@ -72,7 +72,7 @@ class BatchCancelServiceTest {
         SysBatchHistory already = running(1L);
         Instant first = NOW.minusSeconds(30);
         already.requestCancel(first);
-        when(histories.findByHistIdIn(List.of(1L))).thenReturn(List.of(already));
+        found(List.of(already));
 
         BatchCancelService.CancelResult result = service.cancel(List.of(1L));
 
@@ -88,7 +88,7 @@ class BatchCancelServiceTest {
     @Test
     @DisplayName("실행 중이 아니면 거절한다 — 조용히 건너뛰면 중단이 먹었다고 믿는다")
     void rejectsRowsThatAreNotRunning() {
-        when(histories.findByHistIdIn(List.of(1L))).thenReturn(List.of(finished(1L)));
+        found(List.of(finished(1L)));
 
         assertThatThrownBy(() -> service.cancel(List.of(1L)))
                 .isInstanceOf(BusinessException.class)
@@ -99,7 +99,7 @@ class BatchCancelServiceTest {
     @Test
     @DisplayName("없는 번호가 섞이면 거절한다 — 그 사이 파기됐다는 뜻이다")
     void rejectsMissingRows() {
-        when(histories.findByHistIdIn(List.of(1L, 2L))).thenReturn(List.of(running(1L)));
+        found(List.of(running(1L)));
 
         assertThatThrownBy(() -> service.cancel(List.of(1L, 2L)))
                 .isInstanceOf(BusinessException.class)
@@ -151,4 +151,19 @@ class BatchCancelServiceTest {
         // <b>화면은 그것을 거짓말하지 않는다</b> — 요청한 사실이 남아야 그 상태를 그릴 수 있다.
         assertThat(history.getCancelReqDtm()).isEqualTo(NOW.minusSeconds(10));
     }
+    private void found(List<SysBatchHistory> found) {
+        found.forEach(row -> when(histories.history(row.getHistId())).thenReturn(java.util.Optional.of(row)));
+    }
+
+    @Test
+    @DisplayName("TC-5087 중복·역순 입력도 이력 번호순으로 한 번만 잠근다")
+    void cancellationLocksInStableDistinctOrder() {
+        found(List.of(running(1L), running(2L)));
+        assertThat(service.cancel(List.of(2L, 1L, 2L)).requested()).isEqualTo(2);
+        var order = org.mockito.Mockito.inOrder(histories);
+        order.verify(histories).history(1L);
+        order.verify(histories).history(2L);
+        order.verifyNoMoreInteractions();
+    }
+
 }

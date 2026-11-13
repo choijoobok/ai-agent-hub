@@ -110,6 +110,7 @@ conventions:
       - table: SYS_DATA_LOCK
         module: platform
         reason: 공유 작업 잠금 기반. 업무 ENT를 만들지 않는다
+        batch_lease: FEAT-508의 nullable BATCH_HIST_ID BIGINT는 배치 실행 HIST_ID 동등성 참조다. FK 없이 일반 잠금/종료 후 쿨다운은 null이며 회수·밀기·유령은 정확 실행 소유를 확인한다
       - table: SYS_JOB_PROGRESS
         module: platform
         reason: 공통 작업 진행 기반. 업무 ENT를 만들지 않는다
