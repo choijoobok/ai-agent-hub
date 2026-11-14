@@ -2,6 +2,8 @@
 # Spring Boot BOM 이 관리하는 아티팩트는 버전을 명시하지 않는다.
 
 [versions]
+jsoup = "1.24.1"
+commonmark = "0.30.0"
 springBoot = "4.1.1"
 querydsl = "7.6"
 archunit = "1.5.0"
@@ -14,6 +16,9 @@ pitestJunit5 = "1.2.3"
 
 
 [libraries]
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
+commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "springBoot" }
 
 querydsl-core = { module = "io.github.openfeign.querydsl:querydsl-core", version.ref = "querydsl" }

@@ -51,3 +51,5 @@ CMP-034  sources/backend/core/src/main/java/com/aiagent/core/security
 CMP-035  sources/backend/core/src/main/java/com/aiagent/core/deployment
 CMP-036  sources/backend/support/src/main/java/com/aiagent/support/deployment
 CMP-037  sources/backend/core/src/main/java/com/aiagent/core/access
+CMP-038  sources/backend/core/src/main/java/com/aiagent/core/content
+CMP-039  sources/backend/support/src/main/java/com/aiagent/support/content

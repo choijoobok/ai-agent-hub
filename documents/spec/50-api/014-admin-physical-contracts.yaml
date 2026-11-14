@@ -1011,7 +1011,18 @@ feature_contracts:
       transport: FEAT-040.physical_transport를 따른다.
   FEAT-010:
     physical_contract:
-      implementation: planned
+      implementation: implemented
+      source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/chathelp/ChatHelpService.java
+      rendering:
+        policy_version: chat-content/1
+        limits: 원문 최대200000 Unicode 코드포인트·UTF-8 800000바이트, 표10000셀, 표시 HTML 2000000바이트. NUL·잘못된 surrogate·개행/탭 외 제어문자는400.
+        source: sources/backend/support/src/main/java/com/aiagent/support/content/SafeContentRenderer.java
+        styles: sources/backend/support/src/main/java/com/aiagent/support/content/SafeInlineStyles.java
+        contract: REQ-308.portal_content.rendering. Markdown 안 HTML은 문자, HTML은 허용 태그/제한 style, TEXT는 그대로 표시. 절대 http/https 링크만 허용하고 모든 이미지/외부 미디어를 제거한다. 원문은 보존하고 표시 내용 없는 저장은 거부한다. iframe sandbox/CSP로 표시를 격리한다.
+      consumption:
+        source: sources/backend/core/src/main/java/com/aiagent/core/content/ChatHelpContent.java
+        contract: current는 등록 소비자의 실재/권한 증명을 검사해 현재 정확 판을 보호하고 반환한다. exact는 같은 소비자가 보호한 과거 판만 같은 policyVersion으로 재현한다. UNSET/미보호/미등록/알 수 없는 정책은 실패한다. 공개 Portal API·현재 제출 조건 재검사는 FEAT-107/agent 소유다.
+      bootstrap: 고정3행을 MARKDOWN/빈 본문/revision1/INITIAL_UNSET으로 만든다. 최초 정상 저장은 revision2 CHANGE 이력을 남기며 존재하지 않은 과거 운영 문구를 만들지 않는다.
       screens:
         SCR-014:
           root: ENT-145
@@ -1075,4 +1086,5 @@ feature_contracts:
             getList: API-139
             getOne: API-140
             save: API-141
+            getPreview: API-144
       transport: FEAT-040.physical_transport를 따른다.

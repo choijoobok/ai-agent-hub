@@ -32,3 +32,9 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/011-portal-user-messages.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/012-chat-help.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/013-chat-help-menu.sql
+      relativeToChangelogFile: false

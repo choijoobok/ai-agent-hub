@@ -474,7 +474,7 @@ entities:
   - id: ENT-231
     name: 채팅 도움말 고정 구분 본문 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_CHAT_HELP_HIST
     features:
@@ -486,7 +486,11 @@ entities:
       - REQ-601
     term: TRM-294
     domain: 업무 지식
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/012-chat-help.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/chathelp/ChatHelpService.java
     attributes:
       - name: 고정 구분
         physical_name: HELP_CD
@@ -681,7 +685,7 @@ entities:
         - name: IX_CHAT_HELP_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CHAT_HELP_HIST_LOOKUP ON AI_ADMIN_CHAT_HELP_HIST (HELP_CD, HISTORY_NO)
+          definition: (HELP_CD, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-145

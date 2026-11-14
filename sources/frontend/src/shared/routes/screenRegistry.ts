@@ -14,6 +14,7 @@ import { SAMPLE_SCREENS } from '@/shared/routes/sampleScreens';
  */
 const PRODUCT_SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   // @feat FEAT-005
+  '/admin/hub/chat-help': lazy(async () => ({ default: (await import('@/modules/admin/features/chathelp/pages/ChatHelpPage')).ChatHelpPage })),
   '/admin/hub/portal-user': lazy(async () => ({
     default: (await import('@/modules/admin/features/portaluser/pages/PortalUserPage')).PortalUserPage,
   })),

@@ -58,7 +58,8 @@ testcases:
     when: 기대 판과 사유·원 키를 붙여 본문 저장
     then: 지정 코드의 형식/원문과 전체 HIST·새 판·원 결과만 반영되고 다른 안내 코드는 유지된다. 재조회 시 원문과 적용 판이 일치한다.
     verification: SLICE-010의 실제 저장/재조회 시험. 선행 CR-046 고정 코드 키 기반은 ManagedTargetKeysTest/ManagedNaturalKeyLiveTest에서 형식·소유 집합·원장/재수신·동형 HIST와 숫자 소유 거부를 검증하며, 형식/본문 관리 화면의 완료 근거로 대신하지 않는다.
-    status: planned
+    verification_status: ChatHelpLiveTest.selectedCodeAtomicSaveReplayConflictAndExactProtectedVersion 및 migrationRollbackAndReapply
+    status: implemented
   - id: TC-01110
     feature: FEAT-011
     usecase: UC-008
@@ -264,7 +265,8 @@ testcases:
     when: 목록/상세/형식본문저장
     then: 목록은고정3구분, 임의코드/추가/삭제거부. 기존기대판필수, 원문만저장, agent 제공판은별도소비보호.
     verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
-    status: planned
+    verification_status: ChatHelpLiveTest.invalidCodesEmptyDisplayAndHistoryFailureHaveNoEffect
+    status: implemented
   - id: TC-0058
     feature: FEAT-005
     usecase: UC-006

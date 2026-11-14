@@ -7,7 +7,7 @@ class: policy
 created: 2026-05-04
 updated: 2026-11-14
 status: active
-sources: ["sources/backend/", "sources/backend/core/src/main/java/com/aiagent/core/security/"]
+sources: ["sources/backend/", "sources/backend/core/src/main/java/com/aiagent/core/security/", "sources/backend/core/src/main/java/com/aiagent/core/content/", "sources/backend/support/src/main/java/com/aiagent/support/content/"]
 tier: 2
 tags: [backend, module, package, naming, transaction]
 ---
@@ -72,7 +72,6 @@ modules     {모듈}/src/main/java/com/aiagent/{모듈}/
 이행 전 `domain` 애그리거트 열일곱: `auth` `authz` `batch` `code` `config` `favorite` `gridpref`
 `lock` `log` `menustat` `message` `notification` `progress` `retention` `search` `searchcond` `user`.
 `sample`은 여기에 두지 않고 `modules/sample`이 전부 소유한다.
-
 ### 레이어가 아니라 기능으로 묶는다
 
 `controller/` · `service/` · `entity/`를 최상위에 두지 않고 업무 화면별 파일을 모은다.
@@ -94,7 +93,6 @@ modules     {모듈}/src/main/java/com/aiagent/{모듈}/
 | 화이트리스트 | **`*Spec`** |
 | api 층 요청 | **`*Request`** (`api/{도메인}/request/`) |
 | api 층 응답 | **`*Response`** — API 전용 응답이 필요할 때만. **도메인 레코드를 그대로 내보내는 것이 기본** |
-
 ### 메서드 이름 — **URL 마지막 마디와 같다**
 
 ```
@@ -126,7 +124,6 @@ POST /api/system/service/code/saveGroup
 >
 > **위 표만으로는 읽히지 않는 자리다** — `user/detail` 이 마디를 붙이니 `user/admin` 도
 > 붙일 것처럼 보이고, 그러면 `UserAdminService` 가 나온다.
-
 ### `ErrorCode` 상수 — 술어 어휘를 고정한다
 
 **같은 뜻이면 같은 이름을 쓴다.** 파일마다 새로 지으면 문구 시드의 키(`err.{도메인}.{상수}`)가
@@ -198,3 +195,6 @@ POST /api/system/service/code/saveGroup
 - [api.md](./api.md) — 경로·응답·액션 판정
 - [INDEX.md](./INDEX.md) — 백엔드 카테고리 진입
 - [AGENTS.md §8](../../../AGENTS.md) — 기계가 막는 것 / 사람이 지키는 것
+
+### 정적 콘텐츠 표시 포트와 기술 렌더러
+소유 관리 모듈의 원문 저장과 소비 모듈을 직접 의존시키지 않는다. `core/content`는 판·형식·정책 버전을 묶는 소비 계약을, `support/content`는 네트워크 없이 허용 표현만 만드는 표시 기술을 둔다. 실제 소유 데이터·권한·소비 참조 보호 구현은 관리 모듈에 남긴다. 원문을 정제 결과로 덮어쓰지 않으며 표시 정책을 바꾸면 보존 판의 재현과 현재 소비자를 함께 검토한다. 프로젝트 연결/시험 절차는 [개발 가이드](../../../developer-guide/03-develop.md)의 채팅 안내 절을 따른다.

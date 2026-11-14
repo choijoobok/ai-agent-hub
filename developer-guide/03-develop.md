@@ -206,6 +206,16 @@ SLICE-303의 서버 소비자는 `core/access/CurrentDataAccess`를 주입받는
 `:backend:bootstrap:managedStorageTest --tests '*GroupAccessLiveTest'`다. 실제 계정/소속/등급과
 DB 보호 경합을 시험하며 자산 정책은 합성 DB 원천이다. 후속 자산 원장/고객 마스킹 완료를 대신하지 않는다.
 
+### 채팅 안내의 안전 표시와 소비 연결
+
+관리 원문/저장 API와 소비 포트를 구분한다. 관리 API는 [FEAT-010 물리 계약](../documents/spec/50-api/014-admin-physical-contracts.yaml), 원문/전체 이력은 ENT-145/231이다. 현재 부트스트랩 빈 행은 미설정이며 제공할 판이 아니다.
+
+후속 agent는 `ChatHelpContent.current(Use, helpCd, language)`로 등록 소비자의 실제 참조를 검증·보호한 판을 받는다. 이후 `exact`는 그 소비자가 보호한 정확 판만 읽는다. `body`, `formatCd`, `revision`, `historyNo`, `policyVersion`을 같은 결과에서 사용한다. Portal 관리 API 직접 호출이나 최신 본문으로 과거 표시를 대체하지 않는다. 실제 제출 시점의 최신성·동적 전송 범위 재검사는 호출자가 구현해야 한다.
+
+`SafeContentRenderer` 한 정책을 관리자 미리보기와 소비 포트가 공유한다. [jsoup 허용 목록 정제](https://jsoup.org/cookbook/cleaning-html/safelist-sanitizer)와 [commonmark-java](https://github.com/commonmark/commonmark-java)를 사용하며 정확 버전은 Gradle 버전 카탈로그, 표현/상한은 위 계약과 렌더러 소스가 정본이다. HTML 정제를 정규식으로 대체하지 않는다. 표시 iframe에는 정제한 결과만 넣고 sandbox/CSP를 유지한다. 정책 변경은 정책 버전을 바꾸며 보존된 소비 판을 어떻게 재현할지 함께 정해야 한다.
+
+필수 시험은 `SafeContentRendererTest`, `ChatHelpLiveTest`, `ChatHelpPage.test.tsx`다. 실제 PostgreSQL 시험은 위 `MANAGED_TEST_*` 환경으로 해당 클래스만 선택한다. 신규012/013은 격리 시험 스키마에서 적용·롤백·재적용한다. 운영 롤백은 안내 원문/이력 보존 절차 없이 실행하지 않는다.
+
 ## 5. ⑥ 개선 요청 — 어디로 돌아가나
 
 | 요청의 성격 | 어디로 |

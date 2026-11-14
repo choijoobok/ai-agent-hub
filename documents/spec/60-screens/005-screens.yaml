@@ -364,14 +364,15 @@ screens:
     menu_parent: "HUB_KNOWLEDGE"
     target_doc: "documents/screen/admin/hub/chat-help/requirements.md"
     screen_role: "management"
-    design_status: "screen_draft"
-    menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
+    design_status: "implemented"
+    menu_contract: "menu-tree.yaml·생성 시드·013-chat-help-menu.sql로 설치. READ/SAVE, 추가/삭제/반출 없음."
     history_policy:
       kind: "independent"
       rule: "REQ-601.change_history. 선택 구분의 형식·본문·리비전·사유를 원 화면 상속 이력에서 조회한다. 지식 이력과 분리한다."
     history_view: "SCR-069"
     usecases: [UC-021]
     save_boundary: "REQ-601.direct_management에 따라 선택 구분의 현재값/전체 이력을 현재 권한·기대 버전·사유 검증 후 원자 저장한다. 관리자 승인 요청 경로를 두지 않는다."
+    implementation_boundary: "CR-047. 현재 관리/원자 이력 저장 구현. 독립 SCR-069 검색/반출은 FEAT-033 후속이며 Portal 표시/제출은 FEAT-107·agent에서 실증한다."
   - id: SCR-015
     workstream: admin
     module: "admin"

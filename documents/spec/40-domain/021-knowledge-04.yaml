@@ -133,7 +133,7 @@ entities:
   - id: ENT-145
     name: 채팅 도움말 고정 구분 본문
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_CHAT_HELP
     features:
@@ -229,8 +229,12 @@ entities:
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     rules:
       - 명칭·표시 위치/시점은 REQ-308 고정 계약. 동적 치환·안전 렌더 결과를 저장하지 않는다. 실제 제공한 판은 agent가 소비 참조로 보호한다.
-    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. CR-047의 고정 3행 UNSET 부트스트랩과 첫 정상 변경부터 전체 이력을 남긴다.
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/012-chat-help.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/chathelp/ChatHelp.java
     history_storage:
       mode: full_owned_snapshot
       parent: root

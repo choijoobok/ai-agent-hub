@@ -1,5 +1,9 @@
 // support — 기술 어댑터(캐시/파일/암호화/알림/락/엑셀). 의존은 core 뿐이다(backend/packages.md).
 dependencies {
+    // @feat FEAT-010 — 관리자/Portal 동일 안전 표시 정책
+    implementation(libs.jsoup)
+    implementation(libs.commonmark)
+    implementation(libs.commonmark.tables)
     api(project(":backend:core"))
     implementation("org.springframework.security:spring-security-crypto")
     implementation("org.springframework:spring-context")

@@ -146,6 +146,38 @@ batchSchedule.warn.disable,FRONT,저장 확인의 첫 줄 — 끄는 배치가 `
 batchSchedule.warn.disableItem,FRONT,"그 목록의 한 줄 — `{name}` `{batchId}`. 다음 줄에 설명이 그대로 붙는다. 설명이 데이터라 메시지가 아니다 — sys/batch.md 의 셋째 항목(*""껐다 켜면 따라잡는가""*)을 끄는 순간에 읽히게 하는 것이 이 확인의 목적 전부다. /"
 batchSchedule.warn.timezone,FRONT,저장 확인 — 시간대를 바꾼 배치가 `{count}` 건 있다(screen/admin/system/batch/schedule/requirements.md §5-1). 크론이 그대로라 경고가 필요하다. 화면상 달라진 것은 한 칸인데 실제 실행 시각은 몇 시간 옮겨진다 — 보이는 변화의 크기와 결과의 크기가 어긋나는 자리다. /
 batchSchedule.warn.timezoneItem,FRONT,그 목록의 한 줄 — `{name}` `{batchId}` `{from}` `{to}`. 바뀐 값 둘을 나란히 놓는다.
+chat_help.apply,FRONT,반영
+chat_help.body,FRONT,본문
+chat_help.changed,FRONT,확인 중인 원 저장 내용과 다릅니다. 원 명령 결과를 먼저 확인하세요.
+chat_help.denied,FRONT,현재 권한으로 콘텐츠를 조회할 수 없습니다.
+chat_help.empty,FRONT,안전하게 표시할 본문이 없습니다. 형식과 내용을 확인하세요.
+chat_help.enlarge,FRONT,본문 크게 편집
+chat_help.failed,FRONT,처리하지 못했습니다. 입력을 보존했습니다. 다시 확인하세요.
+chat_help.format,FRONT,작성 형식
+chat_help.hint,FRONT,"원문 최대 200,000자. 미리보기는 저장하거나 외부 미디어를 불러오지 않습니다."
+chat_help.kind,FRONT,구분
+chat_help.loading,FRONT,불러오는 중…
+chat_help.notice,FRONT,개인정보·전송 주의사항
+chat_help.notice_position,FRONT,입력창 주변
+chat_help.notice_timing,FRONT,요청 제출 전
+chat_help.pending,FRONT,저장 결과 확인이 필요합니다. 원 명령을 확인한 뒤 계속하세요.
+chat_help.policy,FRONT,표시 정책
+chat_help.preview,FRONT,미리보기
+chat_help.read,FRONT,조회
+chat_help.readonly,FRONT,조회 전용입니다. 본문과 미리보기를 확인할 수 있습니다.
+chat_help.reason,FRONT,변경 사유
+chat_help.recover,FRONT,저장 결과 확인·재전송
+chat_help.removed,FRONT,허용하지 않는 표현은 미리보기에서 제거했습니다. 저장 원문은 보존됩니다.
+chat_help.revision,FRONT,적용 버전
+chat_help.save_scope,FRONT,선택 구분만 저장
+chat_help.saved,FRONT,선택 구분을 저장했습니다.
+chat_help.start,FRONT,새 대화 초기 안내
+chat_help.start_position,FRONT,새 대화 시작 영역
+chat_help.start_timing,FRONT,새 대화 시작
+chat_help.unset,FRONT,본문 미설정입니다. 작성 후 저장해야 안내에 사용할 수 있습니다.
+chat_help.usage,FRONT,사용 도움말
+chat_help.usage_position,FRONT,Portal 도움말 영역
+chat_help.usage_timing,FRONT,도움말 열기
 codeCombo.empty,FRONT,조건에 맞는 후보가 없습니다.
 codeCombo.loading,FRONT,후보를 불러오는 중입니다.
 codeCombo.parent,FRONT,후보를 조회하려면 먼저 상위 조건을 선택하세요.

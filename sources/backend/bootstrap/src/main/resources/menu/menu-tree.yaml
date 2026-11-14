@@ -204,3 +204,9 @@ menus:
     parent: HUB_FOUNDATION
     url: /admin/hub/portal-user
     export: true
+  # @feat FEAT-010
+  - code: HUB_KNOWLEDGE
+    parent: HUB
+  - code: HUB_CHAT_HELP
+    parent: HUB_KNOWLEDGE
+    url: /admin/hub/chat-help

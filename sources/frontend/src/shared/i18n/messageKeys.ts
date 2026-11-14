@@ -3283,4 +3283,68 @@ export const MSG = {
   PORTAL_LOCKED: 'portal_user.locked',
   /** 비밀번호 변경 필요 */
   PORTAL_MUST_CHANGE: 'portal_user.must_change',
+  /** 구분 */
+  CHAT_HELP_KIND: 'chat_help.kind',
+  /** 작성 형식 */
+  CHAT_HELP_FORMAT: 'chat_help.format',
+  /** 본문 */
+  CHAT_HELP_BODY: 'chat_help.body',
+  /** 적용 버전 */
+  CHAT_HELP_REVISION: 'chat_help.revision',
+  /** 사용 도움말 */
+  CHAT_HELP_USAGE: 'chat_help.usage',
+  /** Portal 도움말 영역 */
+  CHAT_HELP_USAGE_POSITION: 'chat_help.usage_position',
+  /** 도움말 열기 */
+  CHAT_HELP_USAGE_TIMING: 'chat_help.usage_timing',
+  /** 새 대화 초기 안내 */
+  CHAT_HELP_START: 'chat_help.start',
+  /** 새 대화 시작 영역 */
+  CHAT_HELP_START_POSITION: 'chat_help.start_position',
+  /** 새 대화 시작 */
+  CHAT_HELP_START_TIMING: 'chat_help.start_timing',
+  /** 개인정보·전송 주의사항 */
+  CHAT_HELP_NOTICE: 'chat_help.notice',
+  /** 입력창 주변 */
+  CHAT_HELP_NOTICE_POSITION: 'chat_help.notice_position',
+  /** 요청 제출 전 */
+  CHAT_HELP_NOTICE_TIMING: 'chat_help.notice_timing',
+  /** 미리보기 */
+  CHAT_HELP_PREVIEW: 'chat_help.preview',
+  /** 본문 크게 편집 */
+  CHAT_HELP_ENLARGE: 'chat_help.enlarge',
+  /** 반영 */
+  CHAT_HELP_APPLY: 'chat_help.apply',
+  /** 본문 미설정입니다. 작성 후 저장해야 안내에 사용할 수 있습니다. */
+  CHAT_HELP_UNSET: 'chat_help.unset',
+  /** 허용하지 않는 표현은 미리보기에서 제거했습니다. 저장 원문은 보존됩니다. */
+  CHAT_HELP_REMOVED: 'chat_help.removed',
+  /** 안전하게 표시할 본문이 없습니다. 형식과 내용을 확인하세요. */
+  CHAT_HELP_EMPTY: 'chat_help.empty',
+  /** 변경 사유 */
+  CHAT_HELP_REASON: 'chat_help.reason',
+  /** 선택 구분만 저장 */
+  CHAT_HELP_SAVE_SCOPE: 'chat_help.save_scope',
+  /** 저장 결과 확인이 필요합니다. 원 명령을 확인한 뒤 계속하세요. */
+  CHAT_HELP_PENDING: 'chat_help.pending',
+  /** 확인 중인 원 저장 내용과 다릅니다. 원 명령 결과를 먼저 확인하세요. */
+  CHAT_HELP_CHANGED: 'chat_help.changed',
+  /** 저장 결과 확인·재전송 */
+  CHAT_HELP_RECOVER: 'chat_help.recover',
+  /** 처리하지 못했습니다. 입력을 보존했습니다. 다시 확인하세요. */
+  CHAT_HELP_FAILED: 'chat_help.failed',
+  /** 현재 권한으로 콘텐츠를 조회할 수 없습니다. */
+  CHAT_HELP_DENIED: 'chat_help.denied',
+  /** 원문 최대 200,000자. 미리보기는 저장하거나 외부 미디어를 불러오지 않습니다. */
+  CHAT_HELP_HINT: 'chat_help.hint',
+  /** 조회 전용입니다. 본문과 미리보기를 확인할 수 있습니다. */
+  CHAT_HELP_READONLY: 'chat_help.readonly',
+  /** 불러오는 중… */
+  CHAT_HELP_LOADING: 'chat_help.loading',
+  /** 조회 */
+  CHAT_HELP_READ: 'chat_help.read',
+  /** 선택 구분을 저장했습니다. */
+  CHAT_HELP_SAVED: 'chat_help.saved',
+  /** 표시 정책 */
+  CHAT_HELP_POLICY: 'chat_help.policy',
 } as const;

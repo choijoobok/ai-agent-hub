@@ -715,6 +715,12 @@ features:
       - API-139
       - API-140
       - API-141
+      - API-144
+    completion_boundary: CR-047. SLICE-010은 관리 화면/API·현재값/전체 이력 원자 저장·공통 안전 표시·보호된 정확 판 소비 포트를 구현한다. SCR-069 전체 이력 검색/반출은 FEAT-033, 실제 Portal 표시/제출/동적 전송 검증은 FEAT-107·agent 소유 구현에서 검증한다.
+    sources:
+      - sources/frontend/src/modules/admin/features/chathelp/pages/ChatHelpPage.tsx
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/chathelp/ChatHelpService.java
+      - sources/backend/core/src/main/java/com/aiagent/core/content/ChatHelpContent.java
   - id: FEAT-011
     workstream: admin
     usecases:

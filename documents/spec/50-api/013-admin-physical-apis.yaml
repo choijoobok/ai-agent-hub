@@ -542,34 +542,37 @@ apis:
     contract: FEAT-013 전체 규칙 검토·ENT-173. 현재 EXECUTE·완전 집합·저장판/템플릿/실제 모델 계약을 검사한다. 집합 변경409, 길이초과413, 실패/부분전송/미지원은 완료 아님. 늦은 결과는 원 inputDigest에만 연결한다. 실행 상태 조회는 같은 키 재조회이며 새 실제 호출을 만들지 않는다.
   - id: API-139
     feature: FEAT-010
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/chathelp/ChatHelpController.java#getList
     method: POST
     path: /api/admin/service/chatHelp/getList
     action: READ
     summary: SCR-014 getList
     request: '{}; 페이지·검색 조건 없음'
-    response: ApiResponse<고정3구분 요약 목록>
-    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+    response: ApiResponse<List<ChatHelpQueryService.View>>
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장한다. View는 helpCd/name/position/timing/formatCd/body/revision/state/acceptedDtm/changeReason/modId/modDtm. UNSET은 빈 본문 초기 자리이며 정상 제공 판이 아니다. 안전 표시와 소비 보호는 FEAT-010.physical_contract를 따른다.
   - id: API-140
     feature: FEAT-010
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/chathelp/ChatHelpController.java#getOne
     method: POST
     path: /api/admin/service/chatHelp/getOne
     action: READ
     summary: SCR-014 getOne
     request: helpCd:USAGE_HELP|CHAT_START|INPUT_NOTICE
-    response: ApiResponse<안내 구분 전체 현재값>
-    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+    response: ApiResponse<ChatHelpQueryService.View>
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장한다. View는 helpCd/name/position/timing/formatCd/body/revision/state/acceptedDtm/changeReason/modId/modDtm. UNSET은 빈 본문 초기 자리이며 정상 제공 판이 아니다. 안전 표시와 소비 보호는 FEAT-010.physical_contract를 따른다.
   - id: API-141
     feature: FEAT-010
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/chathelp/ChatHelpController.java#save
     method: POST
     path: /api/admin/service/chatHelp/save
     action: SAVE
     summary: SCR-014 save
-    request: commandKey, helpCd:고정3코드, expectedRevision:필수, values:{formatCd,body}, reason:필수
+    request: ManagedCommand; commandKey, targetId:고정 helpCd, expectedRevision:필수, scope=content, values:{formatCd,body}, reason:필수
     response: ApiResponse<ManagedResult>
-    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
+    contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장한다. View는 helpCd/name/position/timing/formatCd/body/revision/state/acceptedDtm/changeReason/modId/modDtm. UNSET은 빈 본문 초기 자리이며 정상 제공 판이 아니다. 안전 표시와 소비 보호는 FEAT-010.physical_contract를 따른다.
   - id: API-142
     feature: FEAT-005
     implementation: implemented
@@ -593,3 +596,15 @@ apis:
     request: ManagedCommand; targetId+expectedRevision+commandKey+reason+scope=definition+values={}
     response: ApiResponse<ManagedResult>
     contract: FEAT-042.references/race 및 CR-043. 현재/과거 금지, 전체 사용/예약 영향 재검사, 삭제 직전 부모/자식 HIST와 미발효 이전 취소/대체는 같은 트랜잭션. 안정 등급과 과거 이력은 보존.
+
+  - id: API-144
+    feature: FEAT-010
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/chathelp/ChatHelpController.java#getPreview
+    method: POST
+    path: /api/admin/service/chatHelp/getPreview
+    action: READ
+    summary: 채팅 안내 안전 미리보기
+    request: formatCd:MARKDOWN|HTML|TEXT, body:원문
+    response: ApiResponse<SafeContentRenderer.Rendered(policyVersion,html,removed,hasContent)>
+    contract: FEAT-010.physical_contract.rendering. 미저장 본문을 동일 정책으로 표시하며 쓰기/모델 호출/네트워크 요청이 없다. 미지원 형식·크기·문자400. 빈 표시는 hasContent=false이며 저장은400. 원문은 응답 HTML로 덮어쓰지 않는다.
