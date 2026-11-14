@@ -2,7 +2,7 @@ usecases:
   - id: UC-046
     name: 환경 설정과 비밀을 검증해 서비스를 기동한다
     workstream: integration
-    design_status: draft
+    design_status: approved
     reqs:
       - REQ-402
       - REQ-403

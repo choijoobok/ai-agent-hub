@@ -1,0 +1,2 @@
+org.springframework.boot.EnvironmentPostProcessor=com.aiagent.support.deployment.SecretBootstrapGuard,com.aiagent.support.deployment.SecretEnvironment
+org.springframework.boot.diagnostics.FailureAnalyzer=com.aiagent.support.deployment.SecretFailureAnalyzer

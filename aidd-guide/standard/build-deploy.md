@@ -7,7 +7,7 @@ class: none
 created: 2026-09-04
 updated: 2026-10-28
 status: active
-sources: ["sources/build.gradle.kts", "sources/backend/bootstrap/build.gradle.kts", ".github/workflows/", "sources/backend/bootstrap/src/main/resources/application.yml", "sources/frontend/vite.config.ts"]
+sources: ["sources/build.gradle.kts", "sources/backend/bootstrap/build.gradle.kts", ".github/workflows/", "sources/backend/bootstrap/src/main/resources/application.yml", "sources/frontend/vite.config.ts", "sources/backend/support/src/main/java/com/aiagent/support/deployment/", "sources/backend/core/src/main/java/com/aiagent/core/deployment/"]
 tier: 2
 tags: [build, deploy, ci, profile, spa]
 ---
@@ -69,8 +69,14 @@ React Router 의 클라이언트 라우팅과 정적 리소스 처리가 충돌�
 | `local` | 로컬 개발 | PostgreSQL(**ICU**) · **세션 스토어 `jdbc`** · SQL 로그 |
 | 그 외 | 배포 환경 | 현재 저장소에는 설정 파일을 두지 않는다. 배포 환경이 명시 프로파일·데이터소스·비밀값을 제공한다. |
 
-**비밀값은 파일에 두지 않고 환경변수로 주입한다**(`DB_PASSWORD` · `REDIS_PASSWORD`).
-다만 **암호화 키는 운영에서 키 파일이 기본**이고 환경변수는 로컬·개발용이다.
+**제품 연결 비밀은 `ENC(v1.A256GCM...)`로 암호화한 YAML에 둔다.** 공통 `support/deployment`가
+원천 우선순위를 유지해 소비 시 해석한다. 환경별 활성 키 하나는 `AIHUB_CONFIG_MASTER_KEY` 또는
+`AIHUB_CONFIG_MASTER_KEY_FILE` 중 하나로 주입하고 암호문과 별도로 보호한다.
+로컬 합성 자격의 평문 허용은 `app.secrets.allow-plaintext=true`이며 운영 기본값은 false다.
+설정 선택·키/용도 실패에 하위 값/평문 폴백은 없다. 임의 비밀 설정키는 canonical 이름으로 등록한다.
+JDBC 세션 배포는 Redis 구성을 만들지 않으며 선택한 경우에만 자격을 소비한다.
+운영 명령·별도 복구 세트·고정 연결 세대는 [배포 가이드](../../developer-guide/04-release.md)의 설정 비밀 절을 따른다.
+`ConnectionRegistry`의 서버 소비자 bean은 현재 READ/실행 권한을 검사하고, 해석된 연결/비밀은 콜백 밖으로 보관하지 않는다.
 
 > **서버 기동에는 활성 프로파일을 반드시 명시한다.** `application.yml`에 기본 프로파일을
 > 두지 않았고, 애플리케이션도 누락을 데이터소스 구성 전에 거부한다. `bootRun`은

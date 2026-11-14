@@ -41,8 +41,8 @@ testcases:
     given: 기본/프로파일/외부 YAML/환경변수의 정상 설정
     when: 부팅 후 공개 조회·같은 세대 연결 소비
     then: 선택 원천/Origin 보존·동일 세대 소비·공개 비밀0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SecretEnvironmentTest/DeploymentConnectionsTest로 원천 선택·파일 Origin·환경 mapper·중첩/배열·불변 세대/목적지를 확인했다. DeploymentSecretLiveTest는 실제 제품 Boot/외부 설정 파일/환경 상위 암호문과 PostgreSQL/Liquibase 기동을 검증한다.
   - id: TC-3022
     feature: FEAT-302
     usecase: UC-046
@@ -52,8 +52,8 @@ testcases:
     given: 유효 하위값과 잘못된 상위 암호문/키
     when: 필수 DB 설정 소비
     then: DB/Liquibase 시작 전 실패, 하위/평문/다른 연결 폴백0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: 잘못된 상위 암호문에서 유효한 하위 설정으로 폴백하지 않는 것을 Environment/Binder 양쪽에서 확인했다. DeploymentSecretLiveTest의 잘못된 키 첫 기동은 DB 풀/마이그레이션 전에 실패하고 전용 스키마 테이블0을 확인했다.
   - id: TC-3023
     feature: FEAT-302
     usecase: UC-046
@@ -63,8 +63,8 @@ testcases:
     given: 정상/변조/다른 환경·설정키·과대/비정규 입력
     when: encrypt/verify/reencrypt 및 바인딩/진단
     then: 엄격 거부·표준 암호 사용, 키/평문 인자·로그·파일 유출0, verify 평문 출력0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SecretEnvelopeTest는 표준 GCM·용도/환경 결합·정규 base64·버전/프로파일·크기·내부 길이/UTF-8/잔여를 검증했다. SecretToolTest의 encrypt/verify/reencrypt 출력·평문 인자 거부와 ProtectedInputTest의 실제 Windows ACL/크기 거부, 원천/바인딩 오류 비노출을 확인했다.
   - id: TC-3024
     feature: FEAT-302
     usecase: UC-046
@@ -74,8 +74,8 @@ testcases:
     given: 새 암호문/이전 키·키 유실·분리한 복구 세트
     when: 기동과 원래 짝 복구
     then: 부분 교체 실패·기존 데이터 보존·검수된 짝만 재기동, 무중단 성공 주장0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: DeploymentSecretLiveTest는 실제 자식 제품 프로세스에서 잘못된 키·새 암호문/이전 키 부분 교체를 거부하고 새 짝/이전 짝 재기동 후 sentinel·changelog 보존을 검증한다. 실제 고객 키 발급/분리 백업/복구 인수는 P6에서 별도로 수행한다.
   - id: TC-3025
     feature: FEAT-302
     usecase: UC-046
@@ -85,8 +85,8 @@ testcases:
     given: 미사용 선택 비밀 오류·진행 호출·디스크 설정 변경
     when: 부팅/선택 소비/새 세대 적용
     then: 미사용은 기동 허용, 실제 소비 실패는 차단, 기존 해석 구성의 목적지 자동 변경0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: 선택 메일·JDBC 배포의 Redis 오류 암호문은 기동에 영향을 주지 않고 실제 선택 소비는 거부한다. DeploymentConnectionsTest는 현재 소비자 권한·세대 불일치·콜백 수명·배열 소거·파일/Environment 수정 후 목적지 불변을 확인했다. Redis 선택의 Portal 실HTTP 수명 시험은 조립 회귀로 재사용한다.
   - id: TC-3031
     feature: FEAT-303
     usecase: UC-047

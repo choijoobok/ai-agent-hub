@@ -45,6 +45,7 @@ spring:
   # 전역 Spring Session 자동 설치를 금지한다. 선택은 app.auth.session.provider 한 곳에서 한다.
   autoconfigure:
     exclude:
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
       - org.springframework.boot.session.data.redis.autoconfigure.SessionDataRedisAutoConfiguration
       - org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionAutoConfiguration
 

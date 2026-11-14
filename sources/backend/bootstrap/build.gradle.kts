@@ -59,6 +59,7 @@ tasks.processResources {
 
 dependencies {
     implementation("org.springframework.data:spring-data-redis")
+    implementation("org.springframework.boot:spring-boot-data-redis")
     testImplementation("org.springframework.data:spring-data-jpa")
     implementation(project(":backend:api"))
     implementation(project(":backend:modules:system"))
@@ -145,6 +146,7 @@ tasks.test {
 
 // @feat FEAT-040 — 변경된 공통 저장/인증 연결만 실제 PostgreSQL에서 검증한다.
 tasks.register<Test>("managedStorageTest") {
+    systemProperty("deployment.test.classpath", sourceSets.test.get().runtimeClasspath.asPath)
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().runtimeClasspath
     useJUnitPlatform { includeTags("managedStorageLive") }

@@ -167,6 +167,82 @@ cd sources && ./gradlew :backend:bootstrap:portabilityTest -Pdeployment=template
 > 시스템 기능이 아니므로 값을 우리가 정하지 않는다 — 대신 **확정되지 않은 상태로 구축에
 > 들어가지 않는다**는 것을 요건으로 둔다.
 
+## 설정 비밀과 고정 연결
+
+SLICE-302는 환경/프로파일/외부 파일 우선순위를 유지하는 공통 설정 복호화와 운영 도구를 제공한다.
+암호 형식은 ADR-022의 `ENC(v1.A256GCM.<base64url-no-padding>)`이며 Spring Security Crypto를 사용한다.
+고객사·환경·정규 설정키를 암호문 내부에 결합하므로 다른 속성으로 복사하면 소비가 실패한다.
+`app.secrets.tenant`, `app.secrets.environment`는 암호화할 때와 기동할 때 같아야 한다.
+
+DB/Liquibase·Redis·메일·TLS 저장소의 표준 password 속성은 등록돼 있다. 추가 문자열 비밀은
+`app.secrets.properties` 목록에 `app.providers.primary.api-key`처럼 canonical 이름으로 등록한다.
+배열은 `app.integrations[0].access-token`처럼 정확 인덱스를 포함한다. 환경 재정의는 이 정규 이름의
+표준 환경변수 표기(`SPRING_DATASOURCE_PASSWORD`)로 한다. 임의 별칭을 거쳐 암호문을 복사하지 않는다.
+선택된 비밀만 변환하며 잘못된 상위 값은 하위 설정으로 넘어가지 않는다. 필수 Hub DB 비밀은
+DB 풀/Liquibase 전에 검사한다. 미사용 메일·JDBC 배포의 Redis·선택 연결 비밀은 실제 소비까지 지연한다.
+
+환경별 활성 키는 CSPRNG 32바이트의 base64url-no-padding 값이다. 고객 운영 체계가 발급·접근 권한을 관리한다.
+`AIHUB_CONFIG_MASTER_KEY` 또는 `AIHUB_CONFIG_MASTER_KEY_FILE` 하나만 제공한다. 키 파일은 일반 파일이어야 하며,
+POSIX는 소유자 전용, Windows는 소유자·SYSTEM·Administrators 이외 읽기·쓰기·권한 변경 허용 ACL이 없어야 한다.
+키와 암호문은 같은 파일·배포 묶음·백업에 넣지 않는다. 실제 키는 채팅·명령 인자·셸 이력에 입력하지 않는다.
+
+운영 도구는 `sources/`에서 다음과 같이 호출한다. 예시 파일은 사전에 권한을 제한한 별도 입력이며
+키/비밀 내용은 명령 인자로 받지 않는다. `-q`는 Gradle 진행 출력을 줄인다.
+
+```powershell
+./gradlew.bat -q :backend:support:configSecret '-PsecretAction=encrypt' '-PsecretTenant=company' '-PsecretEnvironment=prod' '-PsecretProperty=spring.datasource.password' '-PsecretKeyFile=D:/secure/config-master' '-PsecretFile=D:/secure/db-input'
+./gradlew.bat -q :backend:support:configSecret '-PsecretAction=verify' '-PsecretTenant=company' '-PsecretEnvironment=prod' '-PsecretProperty=spring.datasource.password' '-PsecretKeyFile=D:/secure/config-master' '-PsecretInputFile=D:/deploy/db-ciphertext'
+./gradlew.bat -q :backend:support:configSecret '-PsecretAction=reencrypt' '-PsecretTenant=company' '-PsecretEnvironment=prod' '-PsecretProperty=spring.datasource.password' '-PsecretKeyFile=D:/secure/config-master-old' '-PsecretNewKeyFile=D:/secure/config-master-new' '-PsecretInputFile=D:/deploy/db-ciphertext'
+```
+
+`encrypt`/`reencrypt`는 암호문만, `verify`는 `OK` 또는 안전한 오류만 출력한다. `secretKeyEnv`와
+`secretNewKeyEnv`는 비밀이 아닌 **환경변수 이름**이다. 보호된 파이프를 직접 연결할 때만 `secretStdin=true`를 사용한다.
+입력의 줄바꿈도 비밀번호에 포함되므로 줄바꿈을 덧붙이는 셸 출력을 비밀 입력으로 사용하지 않는다.
+도구는 기존 YAML/입력 파일을 수정하지 않는다. 임시 평문 파일을 새로 만들도록 요구하지 않으며,
+기존 운영 비밀 파일이나 보호된 파이프를 사용하고 고객사의 보관/파기 규칙을 따른다.
+
+새 키/암호문과 실제 자격을 격리 환경에서 검수한 후 계획 배출·재기동한다. 부분 교체는 기동을 막는다.
+이전 키·이전 암호문은 서로 분리한 논리 복구 세트로 보존하고, 복구 때도 두 짝과 실제 접속을 함께 검수한다.
+자동 키 혼용·무중단 교체·일반 오류 후 자동 롤백은 제공하지 않는다.
+`management.endpoint.env.show-values`와 `configprops.show-values`는 `never`만 허용한다.
+로컬 합성 계정의 `app.secrets.allow-plaintext=true`를 운영에 적용하지 않는다.
+
+배포 연결은 다음처럼 비밀 **설정키 참조**를 갖는다. 공개 조회에는 URL·헤더·사용자명·암호문이 없다.
+
+```yaml
+app:
+  secrets:
+    tenant: company
+    environment: prod
+    properties: [app.providers.primary.api-key]
+  providers:
+    primary:
+      api-key: ENC(운영_도구가_출력한_전체_값)
+  deployment:
+    id: release-20261114
+    connections:
+      primary:
+        kind: MODEL
+        display-name: 사내 모델 연결
+        endpoint: https://model.example.invalid/v1
+        authentication: BEARER
+        secret-property: app.providers.primary.api-key
+        required: false
+```
+
+종류는 DATASOURCE/BUSINESS_API/MODEL/EXTERNAL_IDENTITY, 인증 방식은 NONE/BASIC/BEARER/API_KEY/EXTERNAL이다.
+NONE은 명시 검수한 무인증 연결만 사용한다. 비밀/인증 헤더를 URL이나 일반 headers에 넣지 않는다.
+선택 비밀을 아직 소비하지 않은 공개 상태는 `SECRET_NOT_VERIFIED`이며 연결 성공을 뜻하지 않는다.
+필수(`required=true`) 연결은 기동 시 비밀을 검증한다. 실제 공급자 기능·현재 권한·연결 성공은 소유 어댑터가 별도로 검증한다.
+설정 세대는 기동별 UUID·배포 ID·계약 버전·로드 시각으로 고정한다. 파일 수정은 기존 호출 목적지를 바꾸지 않는다.
+
+서버 소비자는 core `ConnectionRegistry.Consumer` bean으로 허용 종류와 현재 권한 검사 함수를 등록한다.
+미등록 소비자는 거부된다. public 투영의 READ와 실제 연결 CONNECT를 매번 구분해 검사한다.
+해석된 연결은 `withResolvedConnection` 내부에서만, 비밀 char 배열은 그 안의 `withSecret`에서만 소비한다.
+콜백이 끝나면 접근을 차단하고 전달 배열을 지운다. JVM의 모든 String 복사까지 완전 소거된다고 보장하지 않는다.
+새 설정 바인딩은 공통 `SecretEnvironment.binder` 또는 보호 advisor가 설치된 `@ConfigurationProperties`를 사용한다.
+기본 `Binder.get`만으로 비밀을 바인딩하지 않는다. 설정 객체를 API DTO/로그/모델 입력으로 넘기지 않는다.
+
 ## 관련
 
 - 파이프라인의 정본 — [`aidd-guide/standard/build-deploy.md`](../aidd-guide/standard/build-deploy.md)

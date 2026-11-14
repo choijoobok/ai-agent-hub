@@ -38,6 +38,8 @@ spring:
 
 # 파라미터가 박힌 SQL 을 콘솔에 낸다 — backend/logging.md. 로컬에서 켜는 것이 기본이다.
 app:
+  secrets:
+    allow-plaintext: true # 합성 로컬 자격만 허용. 운영은 암호화 설정을 사용한다.
   auth:
     session:
       origin: ${AUTH_ORIGIN:http://localhost:3000}

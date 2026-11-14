@@ -1,0 +1,4 @@
+# @feat FEAT-302
+app:
+  secrets:
+    allow-plaintext: true # 시험 자격만 사용하며 제품 리소스에는 포함하지 않는다.

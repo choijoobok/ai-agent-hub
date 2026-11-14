@@ -54,6 +54,11 @@ features:
     module: common
     roadmap: RM-P1
     title: 모듈별 환경 설정과 프로파일 관리
+    implementation: implemented
+    sources:
+      - sources/backend/core/src/main/java/com/aiagent/core/deployment/ConnectionRegistry.java
+      - sources/backend/support/src/main/java/com/aiagent/support/deployment/
+    delivery: 공통 설정/비밀·고정 연결 포트와 운영 도구 구현. 고객 운영 키/백업 인계·외부 공급자 실제 연결 검수는 해당 배포/소유 기능 후속이다.
     detail: 환경별 설정 분리는 REQ-402, 접속 설정·비밀정보의 관리 대상·저장/주입·공통 설정 복호화 연동/운영 도구·비노출 경계는 REQ-403을 따른다. 비밀 원문 관리 화면을 만들지 않는다
     reqs:
       - REQ-402

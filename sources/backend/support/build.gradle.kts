@@ -1,6 +1,7 @@
 // support — 기술 어댑터(캐시/파일/암호화/알림/락/엑셀). 의존은 core 뿐이다(backend/packages.md).
 dependencies {
     api(project(":backend:core"))
+    implementation("org.springframework.security:spring-security-crypto")
     implementation("org.springframework:spring-context")
 
     // 설정 조회 유틸이 yml 을 직접 바인딩한다 — props 를 빈으로 등록하지 않는다(sys/code.md).
@@ -94,5 +95,22 @@ tasks.named<JavaCompile>("compileJava") {
         destinationDirectory
             .file("META-INF/spring-configuration-metadata.json")
             .get().asFile.delete()
+    }
+}
+
+// @feat FEAT-302 — 인자에는 동작/용도/파일 경로/환경변수 이름만 받는다.
+tasks.register<JavaExec>("configSecret") {
+    group = "application"
+    description = "설정 비밀 encrypt/verify/reencrypt (평문 인자 금지)"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.aiagent.support.deployment.SecretTool")
+    standardInput = System.`in`
+    doFirst {
+        val options = mutableListOf(providers.gradleProperty("secretAction").getOrElse(""))
+        mapOf("secretTenant" to "tenant", "secretEnvironment" to "environment", "secretProperty" to "property", "secretKeyFile" to "key-file", "secretKeyEnv" to "key-env", "secretNewKeyFile" to "new-key-file", "secretNewKeyEnv" to "new-key-env", "secretInputFile" to "input-file", "secretFile" to "secret-file").forEach { (property, option) ->
+            providers.gradleProperty(property).orNull?.let { options.addAll(listOf("--$option", it)) }
+        }
+        if (providers.gradleProperty("secretStdin").orNull == "true") options.add("--secret-stdin")
+        setArgs(options)
     }
 }

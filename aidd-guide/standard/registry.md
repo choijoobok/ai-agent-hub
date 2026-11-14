@@ -47,6 +47,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-019` | 프론트 | `shared/theme/` | 3 | [./frontend/theme.md](./frontend/theme.md) |
 | `CMP-020` | 프론트 | `shared/tree/` | 4 | [../playbook/tree-screen.md](../playbook/tree-screen.md) |
 | `CMP-021` | 프론트 | `shared/user/` | 1 | [../knowledge/sys/user-role.md](../knowledge/sys/user-role.md) |
+| `CMP-035` | core | `core/deployment/` | 1 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-022` | core | `core/domain/` | 2 | [./backend/persistence.md](./backend/persistence.md) |
 | `CMP-023` | core | `core/error/` | 6 | [./backend/exception.md](./backend/exception.md) · [./backend/row-transaction.md](./backend/row-transaction.md) |
 | `CMP-024` | core | `core/grid/` | 1 | [./frontend/grid.md](./frontend/grid.md) |
@@ -55,6 +56,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-027` | core | `core/search/` | 19 | [./backend/persistence.md](./backend/persistence.md) · [./backend/search-spec.md](./backend/search-spec.md) · [./backend/search.md](./backend/search.md) 외 1 |
 | `CMP-034` | core | `core/security/` | 15 | [./backend/packages.md](./backend/packages.md) |
 | `CMP-028` | support | `support/config/` | 26 | [../knowledge/sys/config.md](../knowledge/sys/config.md) |
+| `CMP-036` | support | `support/deployment/` | 8 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-029` | support | `support/excel/` | 1 | [../playbook/excel-download.md](../playbook/excel-download.md) |
 | `CMP-030` | support | `support/lock/` | 9 | [./backend/batch.md](./backend/batch.md) |
 | `CMP-031` | support | `support/logging/` | 5 | [./backend/logging.md](./backend/logging.md) |
@@ -80,7 +82,7 @@ tags: [standard, registry, shared, commons]
 그러면 **같은 공통물이 ID 둘**을 갖는다. ② 정말 지웠다 — 그러면 그것을 설명하던 문서가
 아직 있는지 본다(AGENTS.md §4-4). **번호는 어느 쪽이든 비워 둔 채로 남는다.**
 
-## 어디를 읽나가 빈 것 — 0 / 34
+## 어디를 읽나가 빈 것 — 0 / 36
 
 없다.
 
