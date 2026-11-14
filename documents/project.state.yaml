@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # admin 선행 범위 G3 승인, 다음 SLICE-005
+  workstream: integration   # integration G3 승인, 다음 SLICE-301
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-042          # 위임 진행 검증 완료, 다음 SLICE-005 Portal 이용자 독립 원장
+  slice: SLICE-301          # Portal 실제 로그인·세션 연결
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 약5시간 후속 구현·권장안 결정·슬라이스별 커밋/푸시 위임을 반영했다. SLICE-042 기준 관리의 자체 G4 검증을 완료하고 직접 사용자 수락과 구분했다. 다음005 Portal 독립 원장·소속·등급·자격 공개 포트를 구현하며 변경 범위 필수 시험만 실행한다."
+  first: "2026-11-14 사용자 부재 중 후속 구현·권장안 결정·슬라이스별 커밋/푸시 위임에 따라 SLICE-042와005의 자체 G4 검증을 완료했다. 직접 사용자 화면 수락은 복귀 후 검토로 구분한다. 다음301 실제 Portal 로그인·세션 연결이며 변경 범위 필수 시험만 실행한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 42    # CR-043 등급 기준과 후속 사용자/배정 연결 완료 경계 분리
+  CR: 43    # CR-044 Portal 원장과 후속 연결 완료 경계·기간 정정
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -1754,15 +1754,18 @@ slices:
       - TC-0051
       - TC-0052
       - TC-0053
-      - TC-0054
       - TC-0055
       - TC-0405
       - TC-0406
       - TC-0407
       - TC-0058
+      - TC-0059
     scope: Portal 독립 원장/자격/암호이력·그룹/등급/신원 저장·인증 공개 포트
-    stage: P3
-    status: todo
+    stage: P4
+    status: done
+    started_at: "2026-11-14"
+    approved_at: "2026-11-14"
+    change: CR-044
     depends_on:
       - SLICE-006
       - SLICE-042
@@ -1770,6 +1773,63 @@ slices:
       - CR-040/043 후속 실제 사용자 소속 및 등급 효력/예약 이전을 연결하고006/042 소비 경계를 검증한다.
       - admin G3·SCR-005 승인과 FEAT-301/005 계약 일치. 원장 포트부터 구현하고 실제 Portal 세션과의 경계 시험은 SLICE-301에서 연결한다. 두 소유 작업을 한 슬라이스로 합치지 않는다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: 67e42d33
+      implemented: CR-044 독립 원장 완료 범위. Portal 이용자·자격·암호이력·그룹 소속·등급·신원 매핑과 전체 HIST, 여섯 API와 관리자 화면을 구현했다.006의 실제 소속 및042의 사용자 효력/미래 예약 이전을 연결했다. LOCAL 인증/현재 접근·검증된 EXTERNAL 신원의 공개 포트는 실제 원장을 사용하며 세션·고객 인증의 생산 조립은 후속이다.
+      source_refs:
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/009-portal-user.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/010-portal-user-menu.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/011-portal-user-messages.sql
+        - sources/frontend/src/modules/admin/features/portaluser/
+        - sources/frontend/src/modules/admin/features/usergroup/pages/GroupMembersEditor.tsx
+      verification:
+        test_first: 입력 정의 미구현과 새 등급 clientKey 이전 계약을 RED로 확인한 뒤 구현했다. 화면에서 발견한 Y/N 변환·탭 초안 보존·등급명 표시를 보완했다.
+        backend: 정의3·새 등급 이전1·PortalUserLiveTest5·PortalExternalLiveTest1의 신규10개와 영향 QuotaGradeLiveTest2 통과. 실제 PostgreSQL/인증 HTTP로 권한403·낡은 리비전409·명령 재수신·HIST 실패 전체 rollback·초기화 첫 응답·암호 재사용/만료/감사 실패·현재 접근과 해제 경합·미래 기준/예약 취소·마이그레이션009~011 복구/재적용을 확인했다. 최종 보안 보완은 해당 실제 시험1개만 재실행했다.
+        frontend: 신규 저장 봉투/결과 복구3·그룹 편집기 탭 초안/권한1 및 영향 등급 봉투1 통과. 전체 고유17개/skip0. 최종 타입 검사·변경 ESLint 통과. 전체 인증/Redis/프론트 회귀를 반복하지 않았다.
+        browser: localhost3006 시험 ADMIN 계정으로 이용자 생성·소속 저장·탭 왕복 초안/사유 보존, 그룹 화면의 실제 소속 조회·수정 및 이용자 화면 재조회 반영을 확인했다. 등급명·효력·Y/N 표시, 미연결 데이터소스 안내와 저장된 이용자 삭제 잠금을 확인했다. 원 admin 자격은 변경하지 않았다.
+        production_boundary: EXTERNAL 시험의 검증 디렉터리/보안 사건은 시험 조립 대역이며 고객 SSO 완료가 아니다. 대상 후보·배정 전체 미설치는 미연결로 표시하고 일부 설치/검사 실패는 차단한다. 실제 세션과 보안 사건 생산 저장은301에서 소비한다.
+        static: 품질 중복2.66%·삼킴0·미태깅0. domain ENT238/테이블60/컬럼576/changelog26 일치. doc-gen413개·ID1621·장문17852 누락0/깨진링크0. HTML492/21/9장·manifest799 구조/자산 문제0. 하네스18개 일치·meta 위반0·추적성 오류0/후속경고72·diff 통과.
+        evidence:
+          - sources/build/slice005-status-live.log
+          - sources/build/slice005-member-security.log
+          - sources/build/slice005-live-final.log
+          - sources/build/slice005-frontend-test.log
+          - sources/build/slice005-group-ui-test.log
+          - sources/build/slice005-typecheck.log
+          - sources/build/slice005-portal-user-final.jpg
+      redteam:
+        - risk: 그룹 조회 권한만 있는 관리자가 이용자 개인정보를 조회하거나 낡은 화면에서 소속을 덮어쓸 수 있다.
+          resolution: 현재 Portal READ/SAVE도 요구하고 미보유 시 FORBIDDEN/빈 투영 또는403을 반환한다. 실제 HTTP와 리비전409·탭 초안 보존을 확인했다.
+        - risk: 마지막 소속 해제 또는 암호 변경과 요청 수락이 경합하면 접근 철회 후 업무 효과가 남을 수 있다.
+          resolution: 같은 정책 잠금과 현재 상태 재검사·동일 트랜잭션 이력을 적용하고 두 스레드 수락/철회 순서를 검증했다. 실제 세션/실행 생산 소비는301과 해당 실행 소유 기능에서 검증한다.
+        - risk: 초기화 재전송·전체 이력에 비밀번호가 남거나 감사 실패에도 자격 변경이 남을 수 있다.
+          resolution: 첫 응답의 메모리 전달·no-store와 재수신 비공개, 자격 별도 저장·전체 HIST 제외, 보안 사건 실패 전체 rollback을 시험했다.
+        - risk: 미래 예약 취소나 등급 제거가 나중 기준의 존재하지 않는 등급을 남기고 미연결 배정을 성공으로 오인할 수 있다.
+          resolution: 모든 미래 기준을 재검사하고 기존/새 등급 이전을 원자 적용한다. 일부 설치/소유 포트 누락은 차단한다. 실제 배정·미리보기는 후속 책임을 유지한다.
+      resolved_followup:
+        - SLICE-006의 사용자 소속 조회/참조/양방향 편집과 비활성 소속도 포함한 삭제 보호를 실제 원장으로 검증했다. 자산 참조는 각 소유 기능 후속이다.
+        - SLICE-042의 실제 사용자 수·효력/미래 예약·명시 이전 및 새 등급 clientKey 대상 적용을 연결했다. 배정 경합은045 후속이다.
+      followup:
+        - "@defer SLICE-301 — 실제 LOCAL 로그인·세션과 보안 사건 생산 저장을 연결한다."
+        - "@defer SLICE-305/306 — 실제 인사 사건 수신·고객 SSO 검증을 연결한다. TC-0054 생산 수신 검증은305가 소유한다."
+        - "@defer SLICE-001/002/205 — 대상 후보와 실행 신원/토큰을 소유 기능에서 연결한다."
+        - "@defer SLICE-017/045/018 — 예정 배정·확정 배정·추가 쿼터의 실제 연계를 검증한다."
+      g4:
+        status: approved
+        approved_at: "2026-11-14"
+        approval_basis: delegated_progress
+        technical_exit_criteria: CR-044 완료 경계의 기술9/9 충족. 실제 화면 결과를 제시하고 사용자 부재 중 위임에 따라 다음 기능으로 진행한다. 직접 사용자 화면 수락으로 기록하지 않는다.
+        user_screen_acceptance: pending_return_review
+        unresolved_assumptions: 현재 원장 완료 범위를 막는 미해결 전제 없음. 후속 생산 연결 책임은 CR-044에 명시했다.
+        decision_card:
+          - 신규 이용자는 비활성으로 등록하고 현재 기본 등급을 부여한다. 활성화에는 사용 가능한 소속이 필요하며 정책 변경 비용은 중간이다.
+          - 이용자 원장을 물리 삭제하지 않고 소속 해제와 비활성화를 이력으로 남긴다. 기존 관계 자동 삭제를 도입하는 비용은 높다.
+          - 현재/과거 등급은 보존하고 미래 예약/기준 이전의 정합성을 함께 검사한다. 적용 정책 변경 비용은 높다.
+          - 미연결 생산 기능은 미연결로 표시하고 확인 실패는 저장을 막는다. 우회 허용의 되돌리기 비용은 높다.
+        reverse_question: 복귀 후 이용자/그룹 양쪽 소속 편집과 미래 등급 예약이 운영 흐름에 맞는지 화면 수용 검토로 확인한다. 부재 중 위임 작업을 중단하지 않는다.
   - id: SLICE-301
     workstream: integration
     features:
@@ -1960,6 +2020,7 @@ slices:
     features:
       - FEAT-305
     testcases:
+      - TC-0054
       - TC-3051
       - TC-3052
       - TC-3053
@@ -2521,6 +2582,8 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-005, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-044 완료 경계에서 신규14·영향 회귀3 고유17개/skip0 통과. 실제 DB 적용/복구·권한·현재 접근 경합·원자성·암호 재수신과 브라우저 양방향 소속 저장을 검증했다. 전체 수정/레드팀 반복 수는 미계측이며 계측하지 않은 값을0으로 만들지 않는다. 실제 세션·고객 인증/인사 수신·대상 후보·배정은 후속 소유 범위다." }
+  - { slice: SLICE-042, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-043 기준 관리 완료 범위 고유13개 통과. 실제 DB·이력 rollback·미래 기준/안정 ID와 브라우저 저장/복사를 검증했다. 전체 수정 반복은 미계측이다. 사용자 연결 후속은005에서 검증 완료, 예정/확정 배정 경합은017/045에서 검증한다." }
   - { slice: SLICE-006, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "CR-040으로006/005 순환 완료 경계를 분리했다. 전체 수정 반복 횟수는 계측하지 않았다. HIST 원자성·미확정 재시도·참조 미확인 보호와 실제 화면 CSRF 누락을 검증/보완했다. 현재 범위 자동29개 통과, 후속 소속·자산 실제 연결은 소유 슬라이스에 배정한다." }
   - { slice: SLICE-040, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "공통 구현의 고유 필수 시험46개 통과/skip0. 실제 DB10개와 적용/rollback/재적용, 단위2·제품기동1·구조/시드33개. 최초 컴파일 및 시험 fixture 배선 보정의 총 수정 반복 수는 집계하지 않아 null로 둔다. Low 누락 RECORDED_DTM을 사전 통지·보완했고 원자성/권한 순서/전이 보호의3가지 실패 경로를 실제 DB에서 차단했다. 실제19화면 연결은 소유 슬라이스에서 검증하며2026-11-14 공통 기반 범위의 G4 사용자 승인 완료." }
   - { slice: SLICE-308, measured_at: "2026-11-11", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 0, redteam_fixes: null, note: "핵심 반전11개와 최종 backend800·실환경46합산 근거를 확보했다. 수정/레드팀 총반복은 미집계여서0으로 만들지 않는다. API전체PIT81%는 마지막회전주체보완전이며 이후집중반례로검증했다. 사용자지시로앞으로도중요위험중심최소시험을적용한다. 2026-11-14 G4사용자명시승인완료." }
