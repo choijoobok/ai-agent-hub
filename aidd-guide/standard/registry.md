@@ -49,7 +49,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-021` | 프론트 | `shared/user/` | 1 | [../knowledge/sys/user-role.md](../knowledge/sys/user-role.md) |
 | `CMP-037` | core | `core/access/` | 3 | [./backend/security.md](./backend/security.md) |
 | `CMP-038` | core | `core/content/` | 2 | [./backend/packages.md](./backend/packages.md) |
-| `CMP-035` | core | `core/deployment/` | 4 | [./build-deploy.md](./build-deploy.md) |
+| `CMP-035` | core | `core/deployment/` | 5 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-022` | core | `core/domain/` | 2 | [./backend/persistence.md](./backend/persistence.md) |
 | `CMP-023` | core | `core/error/` | 6 | [./backend/exception.md](./backend/exception.md) · [./backend/row-transaction.md](./backend/row-transaction.md) |
 | `CMP-024` | core | `core/grid/` | 1 | [./frontend/grid.md](./frontend/grid.md) |
@@ -59,7 +59,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-034` | core | `core/security/` | 16 | [./backend/packages.md](./backend/packages.md) |
 | `CMP-028` | support | `support/config/` | 26 | [../knowledge/sys/config.md](../knowledge/sys/config.md) |
 | `CMP-039` | support | `support/content/` | 2 | [./backend/packages.md](./backend/packages.md) |
-| `CMP-036` | support | `support/deployment/` | 15 | [./build-deploy.md](./build-deploy.md) |
+| `CMP-036` | support | `support/deployment/` | 16 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-029` | support | `support/excel/` | 1 | [../playbook/excel-download.md](../playbook/excel-download.md) |
 | `CMP-030` | support | `support/lock/` | 9 | [./backend/batch.md](./backend/batch.md) |
 | `CMP-031` | support | `support/logging/` | 5 | [./backend/logging.md](./backend/logging.md) |

@@ -64,3 +64,4 @@ spec_set:
     - 030-external-change-support.yaml
     - 031-auth-session-admission.yaml
     - 032-target-deployment.yaml
+    - 033-catalog-index.yaml

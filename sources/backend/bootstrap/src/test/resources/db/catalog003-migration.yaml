@@ -1,0 +1,25 @@
+# @feat FEAT-003
+# 카탈로그의 롤백 범위를 고정한다. 후속 슬라이스가 추가되어도 롤백 대상은 늘리지 않는다.
+databaseChangeLog:
+  - include:
+      file: db/datasource002-migration.yaml
+  - include:
+      file: db/changelog/modules/admin/028-catalog.sql
+  - include:
+      file: db/changelog/modules/admin/029-catalog-menu.sql
+  - include:
+      file: db/changelog/modules/admin/030-catalog-messages.sql
+  - include:
+      file: db/changelog/modules/admin/031-catalog-source-evidence.sql
+  - include:
+      file: db/changelog/modules/admin/032-catalog-key-details.sql
+  - include:
+      file: db/changelog/modules/admin/033-catalog-member-mapping.sql
+  - include:
+      file: db/changelog/modules/admin/034-catalog-index-draft.sql
+  - include:
+      file: db/changelog/modules/admin/035-catalog-column-identity.sql
+  - include:
+      file: db/changelog/modules/admin/036-catalog-index-history-owner.sql
+  - include:
+      file: db/changelog/modules/admin/037-catalog-navigation-message.sql

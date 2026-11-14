@@ -5,7 +5,7 @@ entities:
     term: TRM-264
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -29,6 +29,15 @@ entities:
       - name: 생성 시각
         physical_name: REG_DTM
         description: 생성 시각
+      - name: CLIENT_KEY
+        physical_name: CLIENT_KEY
+        description: 카탈로그 서버 소유 CLIENT_KEY
+      - name: COMMAND_KEY
+        physical_name: COMMAND_KEY
+        description: 카탈로그 서버 소유 COMMAND_KEY
+      - name: CREATED_REVISION
+        physical_name: CREATED_REVISION
+        description: 카탈로그 서버 소유 CREATED_REVISION
     relations:
       - entity: ENT-005
         cardinality: 소유 판·구성의 복합 키로 참조
@@ -63,15 +72,34 @@ entities:
           type: timestamp with time zone
           nullable: false
           default: null
+        - name: CLIENT_KEY
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: true
+          default: null
+        - name: CREATED_REVISION
+          type: bigint
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_MEMBER
           definition: PRIMARY KEY (MEMBER_ID)
         - name: FK_CATALOG_MEMBER_1
           definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG (CATALOG_ID) ON UPDATE NO ACTION ON DELETE RESTRICT
+        - name: UK_CATALOG_MEMBER_CLIENT
+          definition: UNIQUE(COMMAND_KEY,CLIENT_KEY)
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/033-catalog-member-mapping.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: not_management_history
   - id: ENT-021
@@ -79,7 +107,7 @@ entities:
     term: TRM-265
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -112,6 +140,12 @@ entities:
       - name: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
         physical_name: REVIEW_EVIDENCE
         description: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
+      - name: DECLARED_UNIQUE_CD
+        physical_name: DECLARED_UNIQUE_CD
+        description: 카탈로그 서버 소유 DECLARED_UNIQUE_CD
+      - name: SUPPORT_STATUS
+        physical_name: SUPPORT_STATUS
+        description: 카탈로그 서버 소유 SUPPORT_STATUS
     relations:
       - entity: ENT-005
         cardinality: 소유 현재 구성 1:N
@@ -164,6 +198,14 @@ entities:
           type: text
           nullable: true
           default: null
+        - name: DECLARED_UNIQUE_CD
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: SUPPORT_STATUS
+          type: character varying(40)
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_KEY
           definition: PRIMARY KEY (CATALOG_ID, KEY_NO)
@@ -172,7 +214,12 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/032-catalog-key-details.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-005
@@ -183,7 +230,7 @@ entities:
     term: TRM-266
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -261,7 +308,11 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-021
@@ -272,7 +323,7 @@ entities:
     term: TRM-269
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -370,7 +421,11 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-008

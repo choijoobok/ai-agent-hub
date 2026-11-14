@@ -3513,4 +3513,200 @@ export const MSG = {
   DS_TECHNICAL_HELP: 'data_source.technical_help',
   /** 미지정 */
   DS_UNSPECIFIED: 'data_source.unspecified',
+  /** 스키마 카탈로그 */
+  CAT_TITLE: 'catalog.title',
+  /** 컬럼 정의 */
+  CAT_COLUMNS: 'catalog.columns',
+  /** 사용자 그룹 */
+  CAT_GROUPS: 'catalog.groups',
+  /** 컬럼 그룹 예외 */
+  CAT_EXCEPTIONS: 'catalog.exceptions',
+  /** 인덱스 */
+  CAT_INDEXES: 'catalog.indexes',
+  /** 연관 지식 */
+  CAT_KNOWLEDGE: 'catalog.knowledge',
+  /** 신규 카탈로그 */
+  CAT_NEW: 'catalog.new',
+  /** 객체 확인 */
+  CAT_OBJECT_CHECK: 'catalog.object_check',
+  /** 선택 영역 저장 */
+  CAT_SAVE: 'catalog.save',
+  /** 저장 영역 */
+  CAT_SCOPE: 'catalog.scope',
+  /** 마스터를 먼저 저장한 뒤 각 영역을 저장합니다. 다른 영역의 편집은 유지됩니다. */
+  CAT_HELP: 'catalog.help',
+  /** PostgreSQL의 정확한 DB·스키마·객체명을 입력합니다. 객체 확인 결과는 입력 보조이며 자동 등록하거나 검수 완료로 바꾸지 않습니다. */
+  CAT_SOURCE_HELP: 'catalog.source_help',
+  /** 연관 지식 원천을 아직 확인할 수 없습니다. 참조 없음과 구분합니다. */
+  CAT_PENDING_REF: 'catalog.pending_ref',
+  /** 저장은 반영됐지만 최신 구성을 불러오지 못했습니다. 입력을 보존한 채 다시 조회하세요. */
+  CAT_RELOAD: 'catalog.reload',
+  /** 제거하는 그룹의 컬럼 예외도 함께 삭제됩니다. 다른 그룹의 입력은 유지합니다. */
+  CAT_GROUP_REMOVE: 'catalog.group_remove',
+  /** 마스킹 유형을 확인할 수 없습니다. 기존 값을 보존하며 MASK 신규 지정은 잠깁니다. */
+  CAT_MASK_UNAVAILABLE: 'catalog.mask_unavailable',
+  /** 자료형 후보를 확인할 수 없습니다. 원문과 기존 입력은 보존합니다. */
+  CAT_TYPE_UNAVAILABLE: 'catalog.type_unavailable',
+  /** 필수 입력과 오류가 있는 셀을 확인하세요. */
+  CAT_REQUIRED: 'catalog.required',
+  /** 객체명 */
+  CAT_OBJECT_NAME: 'catalog.object_name',
+  /** 업무명 */
+  CAT_BUSINESS_NAME: 'catalog.business_name',
+  /** 객체 유형 */
+  CAT_OBJECT_TYPE: 'catalog.object_type',
+  /** DB·카탈로그 */
+  CAT_DATABASE: 'catalog.database',
+  /** DB 스키마 */
+  CAT_SCHEMA: 'catalog.schema',
+  /** 서버 한정자 */
+  CAT_SERVER: 'catalog.server',
+  /** 사용 여부 */
+  CAT_USE: 'catalog.use',
+  /** 상세 설명 */
+  CAT_DESCRIPTION: 'catalog.description',
+  /** 식별 규칙 */
+  CAT_PROFILE: 'catalog.profile',
+  /** 메타데이터 검수 */
+  CAT_REVIEW: 'catalog.review',
+  /** 검수 근거 */
+  CAT_EVIDENCE: 'catalog.evidence',
+  /** 동일 객체 근거 */
+  CAT_IDENTITY: 'catalog.identity',
+  /** 등록 근거 */
+  CAT_DEFINITION: 'catalog.definition',
+  /** PK 이름 */
+  CAT_PK_NAME: 'catalog.pk_name',
+  /** PK 검수 */
+  CAT_PK_REVIEW: 'catalog.pk_review',
+  /** PK 검수 근거 */
+  CAT_PK_EVIDENCE: 'catalog.pk_evidence',
+  /** 적용 리비전 */
+  CAT_REVISION: 'catalog.revision',
+  /** 반영 시각 */
+  CAT_APPLIED: 'catalog.applied',
+  /** 컬럼 순서 */
+  CAT_ORDER: 'catalog.order',
+  /** 컬럼명 */
+  CAT_COLUMN_NAME: 'catalog.column_name',
+  /** 컬럼 업무명 */
+  CAT_COLUMN_BUSINESS: 'catalog.column_business',
+  /** 원천 자료형 */
+  CAT_SOURCE_TYPE: 'catalog.source_type',
+  /** 원천 자료형 원문 */
+  CAT_SOURCE_TEXT: 'catalog.source_text',
+  /** 원천 치수 */
+  CAT_DIMENSIONS: 'catalog.dimensions',
+  /** PK */
+  CAT_PK: 'catalog.pk',
+  /** PK 순서 */
+  CAT_PK_POSITION: 'catalog.pk_position',
+  /** NOT NULL */
+  CAT_NULLABLE: 'catalog.nullable',
+  /** 개인·민감정보 */
+  CAT_PRIVACY: 'catalog.privacy',
+  /** 마스킹 유형 */
+  CAT_MASK: 'catalog.mask',
+  /** 개인정보 유형 */
+  CAT_PRIVACY_TYPE: 'catalog.privacy_type',
+  /** 정보주체 식별자 */
+  CAT_SUBJECT: 'catalog.subject',
+  /** 개인정보 검수 */
+  CAT_PRIVACY_REVIEW: 'catalog.privacy_review',
+  /** 의미 유형 */
+  CAT_SEMANTIC: 'catalog.semantic',
+  /** 의미 검수 */
+  CAT_COLUMN_REVIEW: 'catalog.column_review',
+  /** 그룹 코드 */
+  CAT_GROUP_CODE: 'catalog.group_code',
+  /** 해석 형식 */
+  CAT_FORMAT: 'catalog.format',
+  /** 컬럼 시간대 */
+  CAT_TIMEZONE: 'catalog.timezone',
+  /** 단위 */
+  CAT_UNIT: 'catalog.unit',
+  /** 값 검수 */
+  CAT_VALUE_REVIEW: 'catalog.value_review',
+  /** 값 검수 근거 */
+  CAT_VALUE_EVIDENCE: 'catalog.value_evidence',
+  /** 컬럼 동일성 근거 */
+  CAT_COLUMN_IDENTITY: 'catalog.column_identity',
+  /** 예외 유형 */
+  CAT_EXCEPTION_TYPE: 'catalog.exception_type',
+  /** 사유 */
+  CAT_REASON: 'catalog.reason',
+  /** 정의 종류 */
+  CAT_INDEX_KIND: 'catalog.index_kind',
+  /** 정의 이름 */
+  CAT_INDEX_NAME: 'catalog.index_name',
+  /** 유일 여부 */
+  CAT_UNIQUE: 'catalog.unique',
+  /** 구성 컬럼 */
+  CAT_INDEX_COLUMNS: 'catalog.index_columns',
+  /** 정렬 방향 */
+  CAT_DIRECTION: 'catalog.direction',
+  /** 미확인 */
+  CAT_UNKNOWN: 'catalog.unknown',
+  /** 해당 없음 */
+  CAT_NA: 'catalog.na',
+  /** 예 */
+  CAT_YES: 'catalog.yes',
+  /** 아니오 */
+  CAT_NO: 'catalog.no',
+  /** 검수 완료 */
+  CAT_VERIFIED: 'catalog.verified',
+  /** 검수 오류 */
+  CAT_INVALID: 'catalog.invalid',
+  /** 테이블 */
+  CAT_TABLE: 'catalog.table',
+  /** 뷰 */
+  CAT_VIEW: 'catalog.view',
+  /** 숨김 */
+  CAT_HIDE: 'catalog.hide',
+  /** 마스킹 */
+  CAT_MASK_MODE: 'catalog.mask_mode',
+  /** 유일키 */
+  CAT_UNIQUE_KEY: 'catalog.unique_key',
+  /** 인덱스 */
+  CAT_INDEX: 'catalog.index',
+  /** 확인됨 */
+  CAT_KNOWN: 'catalog.known',
+  /** 치수 상태 */
+  CAT_DIMENSION_STATE: 'catalog.dimension_state',
+  /** 문자 길이 */
+  CAT_CHAR_LENGTH: 'catalog.char_length',
+  /** 바이트 길이 */
+  CAT_OCTET_LENGTH: 'catalog.octet_length',
+  /** 숫자 정밀도 */
+  CAT_PRECISION: 'catalog.precision',
+  /** 소수 자릿수 */
+  CAT_SCALE: 'catalog.scale',
+  /** 길이 단위 */
+  CAT_LENGTH_UNIT: 'catalog.length_unit',
+  /** 확인 상태 */
+  CAT_STATE: 'catalog.state',
+  /** 원천 정의 */
+  CAT_RAW_DEFINITION: 'catalog.raw_definition',
+  /** 원천 컬럼 */
+  CAT_SOURCE_COLUMNS: 'catalog.source_columns',
+  /** 원천 인덱스 */
+  CAT_SOURCE_INDEXES: 'catalog.source_indexes',
+  /** 입력 반영 */
+  CAT_APPLY: 'catalog.apply',
+  /** 저장된 컬럼을 순서대로 선택하고 정렬 방향을 지정합니다. 함수·부분·include 인덱스는 객체 확인에서 원문을 조회합니다. */
+  CAT_INDEX_PARTS_HELP: 'catalog.index_parts_help',
+  /** 미확인과 해당 없음을 숫자 0으로 바꾸지 않습니다. 확인된 치수만 입력하세요. */
+  CAT_DIMENSION_HELP: 'catalog.dimension_help',
+  /** 상단에서 카탈로그를 선택하거나 신규 등록하세요. */
+  CAT_NOT_SELECTED: 'catalog.not_selected',
+  /** 선택 인덱스 구성 추가 */
+  CAT_INDEX_PART_ADD: 'catalog.index_part_add',
+  /** {group}: 저장된 예외 {saved}건, 미저장 입력 {draft}건 */
+  CAT_GROUP_REMOVAL_COUNT: 'catalog.group_removal_count',
+  /** 검수자 */
+  CAT_REVIEWER: 'catalog.reviewer',
+  /** 검수 시각 */
+  CAT_REVIEWED_AT: 'catalog.reviewed_at',
+  /** 접근정책은 조회만 가능합니다. 변경 권한 구성을 확인해 주세요. */
+  CAT_POLICY_READONLY: 'catalog.policy_readonly',
 } as const;

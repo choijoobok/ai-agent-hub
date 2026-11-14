@@ -145,7 +145,7 @@ entities:
   - id: ENT-245
     name: 호출/조회 허용 그룹 CATALOG_ID 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_CATALOG_GROUP_HIST
     features:
@@ -158,7 +158,11 @@ entities:
       - REQ-601
     term: TRM-177
     domain: 연동 자산
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     attributes:
       - name: 소유 자산
         physical_name: CATALOG_ID
@@ -213,7 +217,7 @@ entities:
         - name: IX_CATALOG_GROUP_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_GROUP_HIST_LOOKUP ON AI_ADMIN_CATALOG_GROUP_HIST (CATALOG_ID, GROUP_ID, HISTORY_NO)
+          definition: (CATALOG_ID, GROUP_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-151

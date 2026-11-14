@@ -5,7 +5,7 @@ entities:
     term: TRM-223
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -132,6 +132,15 @@ entities:
         physical_name: SCHEMA_VERSION
         pk: false
         description: 이력 읽기 구조 버전
+      - name: SAVE_TARGET_CD
+        physical_name: SAVE_TARGET_CD
+        description: 카탈로그 서버 소유 SAVE_TARGET_CD
+      - name: SOURCE_OBJECT_TOKEN
+        physical_name: SOURCE_OBJECT_TOKEN
+        description: 카탈로그 서버 소유 SOURCE_OBJECT_TOKEN
+      - name: SOURCE_SETTINGS_ID
+        physical_name: SOURCE_SETTINGS_ID
+        description: 카탈로그 서버 소유 SOURCE_SETTINGS_ID
     relations:
       - entity: ENT-005
         cardinality: 원본 키를 값으로 보존
@@ -143,7 +152,12 @@ entities:
     storage_role: history
     history_copy_of: ENT-005
     table: AI_ADMIN_CATALOG_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/031-catalog-source-evidence.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -155,19 +169,19 @@ entities:
           nullable: false
           default: null
         - name: SERVER_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: DATABASE_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: SCHEMA_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: OBJECT_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: false
           default: null
         - name: IDENTITY_PROFILE
@@ -262,6 +276,18 @@ entities:
           type: integer
           nullable: false
           default: null
+        - name: SAVE_TARGET_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: SOURCE_OBJECT_TOKEN
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: SOURCE_SETTINGS_ID
+          type: character varying(128)
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_HIST
           definition: PRIMARY KEY (HIST_ID)
@@ -277,7 +303,7 @@ entities:
         - name: IX_CATALOG_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_HIST_LOOKUP ON AI_ADMIN_CATALOG_HIST (CATALOG_ID, HISTORY_NO)
+          definition: (CATALOG_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-005
@@ -293,7 +319,7 @@ entities:
     term: TRM-252
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -409,6 +435,18 @@ entities:
         physical_name: HISTORY_NO
         pk: false
         description: 전체 이력 세트 번호
+      - name: DEFINITION_EVIDENCE
+        physical_name: DEFINITION_EVIDENCE
+        description: 카탈로그 서버 소유 DEFINITION_EVIDENCE
+      - name: PK_NAME
+        physical_name: PK_NAME
+        description: 카탈로그 서버 소유 PK_NAME
+      - name: PK_REVIEW
+        physical_name: PK_REVIEW
+        description: 카탈로그 서버 소유 PK_REVIEW
+      - name: PK_EVIDENCE
+        physical_name: PK_EVIDENCE
+        description: 카탈로그 서버 소유 PK_EVIDENCE
     relations:
       - entity: ENT-006
         cardinality: 원본 키를 값으로 보존
@@ -427,7 +465,11 @@ entities:
     history_copy_of: ENT-006
     history_parent: ENT-051
     table: AI_ADMIN_CATALOG_CONTENT_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -435,23 +477,23 @@ entities:
           nullable: false
           default: null
         - name: SERVER_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: DATABASE_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: SCHEMA_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: OBJECT_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: false
           default: null
         - name: IDENTITY_PROFILE
-          type: character varying(40)
+          type: character varying(100)
           nullable: false
           default: null
         - name: OBJECT_KEY
@@ -463,12 +505,12 @@ entities:
           nullable: false
           default: null
         - name: BUSINESS_NAME
-          type: character varying(200)
-          nullable: false
+          type: text
+          nullable: true
           default: null
         - name: DESCRIPTION
           type: text
-          nullable: false
+          nullable: true
           default: null
         - name: INTENT_CD
           type: character varying(40)
@@ -530,6 +572,22 @@ entities:
           type: bigint
           nullable: false
           default: null
+        - name: DEFINITION_EVIDENCE
+          type: text
+          nullable: true
+          default: null
+        - name: PK_NAME
+          type: text
+          nullable: true
+          default: null
+        - name: PK_REVIEW
+          type: text
+          nullable: true
+          default: null
+        - name: PK_EVIDENCE
+          type: text
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_CONTENT_HIST
           definition: PRIMARY KEY (HIST_ID)
@@ -541,7 +599,7 @@ entities:
         - name: IX_CATALOG_CONTENT_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_CONTENT_HIST_LOOKUP ON AI_ADMIN_CATALOG_CONTENT_HIST (CATALOG_ID, HISTORY_NO)
+          definition: (CATALOG_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-006
@@ -557,7 +615,7 @@ entities:
     term: TRM-253
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -676,6 +734,60 @@ entities:
         physical_name: HISTORY_NO
         pk: false
         description: 전체 이력 세트 번호
+      - name: PRIMARY_KEY_SUMMARY
+        physical_name: PRIMARY_KEY_SUMMARY
+        description: 카탈로그 서버 소유 PRIMARY_KEY_SUMMARY
+      - name: PRIVACY_FLAG
+        physical_name: PRIVACY_FLAG
+        description: 카탈로그 서버 소유 PRIVACY_FLAG
+      - name: PRIVACY_TYPE
+        physical_name: PRIVACY_TYPE
+        description: 카탈로그 서버 소유 PRIVACY_TYPE
+      - name: SUBJECT_IDENTIFIER
+        physical_name: SUBJECT_IDENTIFIER
+        description: 카탈로그 서버 소유 SUBJECT_IDENTIFIER
+      - name: PRIVACY_REVIEW
+        physical_name: PRIVACY_REVIEW
+        description: 카탈로그 서버 소유 PRIVACY_REVIEW
+      - name: MASKING_REF
+        physical_name: MASKING_REF
+        description: 카탈로그 서버 소유 MASKING_REF
+      - name: LENGTH_STATUS
+        physical_name: LENGTH_STATUS
+        description: 카탈로그 서버 소유 LENGTH_STATUS
+      - name: PRECISION_STATUS
+        physical_name: PRECISION_STATUS
+        description: 카탈로그 서버 소유 PRECISION_STATUS
+      - name: SCALE_STATUS
+        physical_name: SCALE_STATUS
+        description: 카탈로그 서버 소유 SCALE_STATUS
+      - name: DIMENSION_STATE
+        physical_name: DIMENSION_STATE
+        description: 카탈로그 서버 소유 DIMENSION_STATE
+      - name: LENGTH_UNIT
+        physical_name: LENGTH_UNIT
+        description: 카탈로그 서버 소유 LENGTH_UNIT
+      - name: DIMENSION_RAW
+        physical_name: DIMENSION_RAW
+        description: 카탈로그 서버 소유 DIMENSION_RAW
+      - name: PK_POSITION
+        physical_name: PK_POSITION
+        description: 카탈로그 서버 소유 PK_POSITION
+      - name: CHARACTER_LENGTH
+        physical_name: CHARACTER_LENGTH
+        description: 카탈로그 서버 소유 CHARACTER_LENGTH
+      - name: OCTET_LENGTH
+        physical_name: OCTET_LENGTH
+        description: 카탈로그 서버 소유 OCTET_LENGTH
+      - name: NUMERIC_PRECISION
+        physical_name: NUMERIC_PRECISION
+        description: 카탈로그 서버 소유 NUMERIC_PRECISION
+      - name: NUMERIC_SCALE
+        physical_name: NUMERIC_SCALE
+        description: 카탈로그 서버 소유 NUMERIC_SCALE
+      - name: 원천에서 서버가 관측한 컬럼 번호
+        physical_name: SOURCE_ATTRIBUTE_NO
+        description: 현재 source OID/설정 세대와 함께 이름 정정의 동일 컬럼 근거로 사용하며 사용자가 지정하지 않는다
     relations:
       - entity: ENT-007
         cardinality: 원본 키를 값으로 보존
@@ -699,7 +811,12 @@ entities:
       - HISTORY_NO는 루트와 모든 자식에 동일하다. 자식은 HISTORY_NO+소유 부모 키의 복합 FK로 같은 세트의 소속까지 보장한다. HIST_DTM은 루트만 소유하고 자식 조회는 부모 체인을 통해 루트를 조인한다.
       - 원 REG/MOD 값은 원본 시점 그대로 보존한다. 보호 등록과 파기는 같은 세트 잠금이며 부분 누락을 현재값으로 메우지 않는다.
     table: AI_ADMIN_CATALOG_COLUMN_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/035-catalog-column-identity.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -716,35 +833,35 @@ entities:
           default: null
         - name: ORDINAL_POSITION
           type: integer
-          nullable: false
+          nullable: true
           default: null
         - name: COLUMN_NAME
-          type: character varying(200)
-          nullable: false
+          type: character varying(500)
+          nullable: true
           default: null
         - name: COLUMN_KEY
           type: character varying(200)
-          nullable: false
+          nullable: true
           default: null
         - name: SOURCE_TYPE
-          type: character varying(40)
-          nullable: false
+          type: character varying(200)
+          nullable: true
           default: null
         - name: SOURCE_TYPE_CD
-          type: character varying(40)
-          nullable: false
+          type: character varying(30)
+          nullable: true
           default: null
         - name: NULLABLE_CD
           type: character varying(40)
           nullable: false
           default: null
         - name: BUSINESS_NAME
-          type: character varying(200)
-          nullable: false
+          type: text
+          nullable: true
           default: null
         - name: DESCRIPTION
           type: text
-          nullable: false
+          nullable: true
           default: null
         - name: SEMANTIC_TYPE
           type: character varying(40)
@@ -755,7 +872,7 @@ entities:
           nullable: true
           default: null
         - name: TIME_ZONE_ID
-          type: bigint
+          type: character varying(100)
           nullable: true
           default: null
         - name: UNIT_CD
@@ -810,6 +927,78 @@ entities:
           type: bigint
           nullable: false
           default: null
+        - name: PRIMARY_KEY_SUMMARY
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_FLAG
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_TYPE
+          type: text
+          nullable: true
+          default: null
+        - name: SUBJECT_IDENTIFIER
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_REVIEW
+          type: text
+          nullable: true
+          default: null
+        - name: MASKING_REF
+          type: text
+          nullable: true
+          default: null
+        - name: LENGTH_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: PRECISION_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: SCALE_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: DIMENSION_STATE
+          type: text
+          nullable: true
+          default: null
+        - name: LENGTH_UNIT
+          type: text
+          nullable: true
+          default: null
+        - name: DIMENSION_RAW
+          type: text
+          nullable: true
+          default: null
+        - name: PK_POSITION
+          type: bigint
+          nullable: true
+          default: null
+        - name: CHARACTER_LENGTH
+          type: bigint
+          nullable: true
+          default: null
+        - name: OCTET_LENGTH
+          type: bigint
+          nullable: true
+          default: null
+        - name: NUMERIC_PRECISION
+          type: bigint
+          nullable: true
+          default: null
+        - name: NUMERIC_SCALE
+          type: bigint
+          nullable: true
+          default: null
+        - name: SOURCE_ATTRIBUTE_NO
+          type: integer
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_COLUMN_HIST
           definition: PRIMARY KEY (HIST_ID)
@@ -821,7 +1010,7 @@ entities:
         - name: IX_CATALOG_COLUMN_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_COLUMN_HIST_LOOKUP ON AI_ADMIN_CATALOG_COLUMN_HIST (COLUMN_ID, HISTORY_NO)
+          definition: (COLUMN_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-007
@@ -832,7 +1021,7 @@ entities:
     term: TRM-254
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-011
@@ -938,7 +1127,11 @@ entities:
     history_copy_of: ENT-008
     history_parent: ENT-051
     table: AI_ADMIN_CATALOG_RELATION_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -1028,7 +1221,7 @@ entities:
         - name: IX_CATALOG_RELATION_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_RELATION_HIST_LOOKUP ON AI_ADMIN_CATALOG_RELATION_HIST (RELATION_ID, HISTORY_NO)
+          definition: (RELATION_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-008
@@ -2512,7 +2705,7 @@ entities:
     term: TRM-265
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -2562,6 +2755,12 @@ entities:
         physical_name: HISTORY_NO
         pk: false
         description: 전체 이력 세트 번호
+      - name: DECLARED_UNIQUE_CD
+        physical_name: DECLARED_UNIQUE_CD
+        description: 카탈로그 서버 소유 DECLARED_UNIQUE_CD
+      - name: SUPPORT_STATUS
+        physical_name: SUPPORT_STATUS
+        description: 카탈로그 서버 소유 SUPPORT_STATUS
     relations:
       - entity: ENT-021
         cardinality: 원본 키를 값으로 보존
@@ -2580,7 +2779,12 @@ entities:
     history_copy_of: ENT-021
     history_parent: ENT-051
     table: AI_ADMIN_CATALOG_KEY_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/032-catalog-key-details.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -2623,6 +2827,14 @@ entities:
           type: bigint
           nullable: false
           default: null
+        - name: DECLARED_UNIQUE_CD
+          type: character varying(40)
+          nullable: true
+          default: null
+        - name: SUPPORT_STATUS
+          type: character varying(40)
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_KEY_HIST
           definition: PRIMARY KEY (HIST_ID)
@@ -2634,7 +2846,7 @@ entities:
         - name: IX_CATALOG_KEY_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_KEY_HIST_LOOKUP ON AI_ADMIN_CATALOG_KEY_HIST (CATALOG_ID, KEY_NO, HISTORY_NO)
+          definition: (CATALOG_ID, KEY_NO, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-021
@@ -2650,7 +2862,7 @@ entities:
     term: TRM-266
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -2702,7 +2914,11 @@ entities:
     history_copy_of: ENT-022
     history_parent: ENT-071
     table: AI_ADMIN_CATALOG_KEY_COLUMN_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -2740,7 +2956,7 @@ entities:
         - name: IX_CATALOG_KEY_COLUMN_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_KEY_COLUMN_HIST_LOOKUP ON AI_ADMIN_CATALOG_KEY_COLUMN_HIST (CATALOG_ID, KEY_NO, POSITION_NO, HISTORY_NO)
+          definition: (CATALOG_ID, KEY_NO, POSITION_NO, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-022
@@ -2756,7 +2972,7 @@ entities:
     term: TRM-269
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -2821,7 +3037,11 @@ entities:
     history_copy_of: ENT-025
     history_parent: ENT-057
     table: AI_ADMIN_CATALOG_JOIN_PAIR_HIST
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     physical:
       attributes:
         - name: CATALOG_ID
@@ -2871,7 +3091,7 @@ entities:
         - name: IX_CATALOG_JOIN_PAIR_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CATALOG_JOIN_PAIR_HIST_LOOKUP ON AI_ADMIN_CATALOG_JOIN_PAIR_HIST (CATALOG_ID, RELATION_ID, PAIR_NO, HISTORY_NO)
+          definition: (CATALOG_ID, RELATION_ID, PAIR_NO, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-025

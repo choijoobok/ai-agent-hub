@@ -1,92 +1,104 @@
-# 카탈로그 관리 API — 소유 G3 전 미구현 설계
+# 카탈로그 관리 API — admin 소유 G3 승인 및 SLICE-003 생산 구현
 apis:
   - id: API-019
     feature: FEAT-003
-    implementation: "planned"
+    implementation: "implemented"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: "POST"
     path: "/api/admin/service/catalog/getList"
     action: "READ"
     summary: "카탈로그 목록"
-    request: "body=SearchRequest<CatalogFilter>"
+    request: "body=SearchRequest<CatalogQueryService.Filter>"
     response: "ApiResponse<PageResponse<CatalogRow>>"
-    contract: "CURRENT 적용본만 조회한다. 최초 미적용 요청·초안·반려 제출본은 제외한다."
+    contract: "현재 카탈로그 목록과 페이지 정보. businessName/dataSourceId/objectType 조건을 사용한다."
   - id: API-020
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getOne
     action: READ
     summary: "카탈로그 현재 항목"
-    request: "body=CatalogKey"
-    response: "ApiResponse<CatalogDetail>"
+    request: "body={id}"
+    response: "ApiResponse<CatalogQueryService.Detail>"
+    contract: "row/values/dependencies를 반환한다. 전체 wire 필드는 FEAT-003.implementation_transport가 정본이다."
   - id: API-022
     feature: FEAT-003
-    implementation: "planned"
+    implementation: "implemented"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: "POST"
     path: "/api/admin/service/catalog/getRevision"
     action: "READ"
     summary: "명시한 현재/적용 이력의 전체 구성"
-    request: "body=RevisionKey"
-    response: "ApiResponse<RevisionDetail>"
-    contract: "kind=CURRENT이면 안정 자산 ID, HISTORY이면 안정 자산 ID+appliedRevision 또는 historyNo로 실제 적용 전체 구성을 읽는다. 서버가 소유·현재 열람 권한·세트 일치를 검사하고 명시한 과거 문맥을 현재값으로 대체하지 않는다. REQUEST 문맥은 지원하지 않는다."
+    request: "body={id,kind,revision?,historyNo?}"
+    response: "ApiResponse<CatalogDetail|ManagedHistory.Event>"
+    contract: "CURRENT는 현재 구성, 그 외 명시한 revision 또는 historyNo의 typed 전체 이력이다. 소유와 세트 일치를 검사한다."
   - id: API-023
     feature: FEAT-003
-    implementation: "planned"
+    implementation: "implemented"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: "POST"
     path: "/api/admin/service/catalog/saveCreate"
     action: "SAVE"
     summary: "카탈로그 신규 직접 저장"
-    request: "body=ManagementChange"
+    request: "body=ManagedCommand"
     response: "ApiResponse<ManagementResult>"
-    contract: "신규는 saveTarget=MASTER와 마스터 areaValues만 허용하고 자식 영역은 거부한다. 마스터 발급 후 각 탭 영역을 저장한다. baseRevision=0/원본 미존재·업무키 유일성·현재 변경 권한/필수 참조·기술 검증과 전체 이력/명령 결과를 원자 반영한다."
+    contract: "신규 MASTER만 허용한다. targetId/expectedRevision=null, values=마스터 필드. HUB_CATALOG READ·SAVE·필수 참조·중복을 검사하고 전체 이력과 명령 결과를 원자 반영한다."
   - id: API-024
     feature: FEAT-003
-    implementation: "planned"
+    implementation: "implemented"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: "POST"
     path: "/api/admin/service/catalog/saveChange"
     action: "SAVE"
     summary: "카탈로그 지정 영역 직접 저장"
-    request: "body=ManagementChange"
+    request: "body=ManagedCommand"
     response: "ApiResponse<ManagementResult>"
-    contract: "REQ-301.save_reason. commandKey/targetId/baseRevision/saveTarget/reason/areaValues. 고정 대상과 허용 필드를 확인해 해당 영역만 반영하고 그 시점 전체 HIST를 원자 복사한다. 다른 탭 로컬 변경은 반영하지 않는다."
+    contract: "commandKey/targetId/expectedRevision/scope/values/reason. 모든 영역은 HUB_CATALOG READ·SAVE를 검사한다. 클릭한 영역만 반영하고 전체 HIST·리비전·원 명령 결과를 원자 확정한다."
   - id: API-026
     feature: FEAT-003
-    implementation: "planned"
+    implementation: "implemented"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: "POST"
     path: "/api/admin/service/catalog/getReferences"
     action: "READ"
     summary: "연관 지식 역조회"
-    request: "body=SearchRequest<RevisionKey>"
-    response: "ApiResponse<PageResponse<CatalogKnowledgeReferenceRow>>"
-    contract: "FEAT-003.types.CatalogKnowledgeReferenceRow. 조회 시점의 연관 지식과 매핑 활성 여부를 현재 열람 권한 안에서 반환하고 기술 참조 문맥은 별도로 보존한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다."
+    request: "body={id}"
+    response: "ApiResponse<{state,rows}>"
+    contract: "현재 지식 생산자가 연결되지 않아 NOT_CONNECTED와 빈 rows를 반환한다. 정상 참조 0건이 아니다. 지식 역조회 데이터는 후속 소유 기능에서 연결한다."
   - id: API-027
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getRelatedJoins
     action: READ
     summary: "양쪽 역할에서 보는 권장 관계"
-    request: "body=SearchRequest<RevisionKey>"
-    response: "ApiResponse<PageResponse<CatalogRelationReferenceRow>>"
-    contract: "FEAT-003.types.CatalogRelationReferenceRow. 소유 관계와 양쪽 정확 객체/판·역할을 현재 관리 열람 권한 안에서 반환한다. 자기조인은 한 관계 행의 두 역할을 유지한다. FEAT-011.relation_read_contract의 모델/예제 작성용 필터 결과를 대신하지 않는다."
+    request: "body={id}"
+    response: "ApiResponse<{state,rows}>"
+    contract: "현재 관계 생산자가 연결되지 않아 NOT_CONNECTED와 빈 rows를 반환한다. FEAT-011 관계 조회는 후속 소유 기능에서 연결한다."
   - id: API-028
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getResolvedObject
     action: READ
     summary: "선정 공개 객체의 정확 식별"
-    request: "body=SourceObjectQuery"
-    response: "ApiResponse<SourceObjectResult>"
+    request: "body=CatalogMasterValues"
+    response: "ApiResponse<CatalogSource.Observation>"
+    contract: "등록 데이터소스와 정확 이름으로 PostgreSQL 객체·컬럼·키·인덱스를 관측한다. 원천 업무값·비밀은 반환하지 않는다."
   - id: API-029
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getStructure
     action: READ
     summary: "데이터소스 일괄 비교에서 재사용할 등록 객체 구조 사실 조회"
-    request: "body=StructureQuery"
-    response: "ApiResponse<StructureResult>"
+    request: "body={id,revision}"
+    response: "ApiResponse<CatalogSource.Observation>"
+    contract: "현재 등록 카탈로그의 기대 리비전을 확인하고 같은 원천 구조 관측 포트를 호출한다. 일괄 비교 실행은 별도다."
   - id: API-030
     scope_status: "현재 화면/구현 범위 제외. @defer 사용자 재요청 시 — 샘플 조회 필요성과 통제 재검토"
     feature: FEAT-003
@@ -98,6 +110,7 @@ apis:
     request: "body=SampleRequest"
     response: "ApiResponse<SampleResult>"
   - id: API-031
+    scope_status: TC-00314에 따라 카탈로그 화면의 수동 근거 접수/탭은 설치하지 않는다. 품질 조사/구조 관측의 후속 소유 계약으로 보존한다.
     feature: FEAT-003
     implementation: planned
     method: POST
@@ -107,6 +120,7 @@ apis:
     request: "body=SearchRequest<EvidenceFilter>"
     response: "ApiResponse<PageResponse<EvidenceRow>>"
   - id: API-032
+    scope_status: TC-00314에 따라 카탈로그 화면의 수동 근거 접수/탭은 설치하지 않는다. 품질 조사/구조 관측의 후속 소유 계약으로 보존한다.
     feature: FEAT-003
     implementation: planned
     method: POST
@@ -116,6 +130,7 @@ apis:
     request: "body=EvidenceKey"
     response: "ApiResponse<EvidenceDetail>"
   - id: API-033
+    scope_status: TC-00314에 따라 카탈로그 화면의 수동 근거 접수/탭은 설치하지 않는다. 품질 조사/구조 관측의 후속 소유 계약으로 보존한다.
     feature: FEAT-003
     implementation: planned
     method: POST
@@ -126,29 +141,34 @@ apis:
     response: "ApiResponse<DraftResult>"
   - id: API-034
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getCommandResult
     action: READ
     summary: "초안 편집·근거 접수 결과 확인"
-    request: "body=CatalogCommandKey"
-    response: "ApiResponse<CatalogCommandResult>"
+    request: "body={commandKey}"
+    response: "ApiResponse<{status,result}>"
+    contract: "현재 READ와 명령 소유를 검사하여 APPLIED/UNKNOWN과 원래 ManagementResult를 반환한다."
   - id: API-035
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getValidation
     action: READ
     summary: "후보 전체 구성의 현재 검증"
-    request: "body=ValidationRequest"
-    response: "ApiResponse<ValidationResult>"
+    request: "body={id}"
+    response: "ApiResponse<{state,sqlSupport}>"
+    contract: "현재 원천 미연결 상태 NOT_CONNECTED를 알린다. 편집 전체의 독립 검증이나 SQL 지원 판정 완료를 뜻하지 않는다. 저장 시 기술 검증은 각 영역 명령에서 수행한다."
   - id: API-036
     feature: FEAT-003
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/catalog/CatalogController.java
     method: POST
     path: /api/admin/service/catalog/getReferenceCandidates
     action: READ
     summary: "등록 객체·컬럼·키 참조 후보"
-    request: "body=SearchRequest<ReferenceCandidateFilter>"
-    response: "ApiResponse<PageResponse<CatalogReferenceCandidateRow>>"
-    contract: "FEAT-003.types.ReferenceCandidateFilter·CatalogReferenceCandidateRow. 요청한 종류의 후보만 반환하며 정확 객체/판·컬럼 또는 전체 키·신규 편집 문맥을 구분한다. 현재 권한/참조를 검증하고 조회 실패·권한 제한·불완전을 정상0건으로 바꾸지 않는다."
+    request: "body={}"
+    response: "ApiResponse<CatalogOptions>"
+    contract: "dataSources/timezones/maskingTypes/maskingState 입력 후보를 제공한다. 객체·키/관계 후보의 확장은 후속 소비 기능에 남긴다."

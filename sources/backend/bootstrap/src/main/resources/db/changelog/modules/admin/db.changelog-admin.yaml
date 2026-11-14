@@ -80,3 +80,33 @@ databaseChangeLog:
   - include:
       file: 027-data-source-alert-menu.sql
       relativeToChangelogFile: true
+  - include:
+      file: 028-catalog.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 029-catalog-menu.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 030-catalog-messages.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 031-catalog-source-evidence.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 032-catalog-key-details.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 033-catalog-member-mapping.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 034-catalog-index-draft.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 035-catalog-column-identity.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 036-catalog-index-history-owner.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 037-catalog-navigation-message.sql
+      relativeToChangelogFile: true

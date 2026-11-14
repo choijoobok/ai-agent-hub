@@ -64,7 +64,7 @@ entities:
   - id: ENT-151
     name: 호출/조회 허용 그룹 CATALOG_ID
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_CATALOG_GROUP
     features:
@@ -114,7 +114,11 @@ entities:
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     rules: []
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-005

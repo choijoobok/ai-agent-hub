@@ -23,6 +23,15 @@ CONFIG_MGMT,/api/system/service/config/getPrefixes
 CONFIG_MGMT,/api/system/service/config/save
 ERROR_LOG,/api/system/service/errorLog/getDetail
 ERROR_LOG,/api/system/service/errorLog/getList
+HUB_CATALOG,/api/admin/service/catalog/getCommandResult
+HUB_CATALOG,/api/admin/service/catalog/getList
+HUB_CATALOG,/api/admin/service/catalog/getOne
+HUB_CATALOG,/api/admin/service/catalog/getReferenceCandidates
+HUB_CATALOG,/api/admin/service/catalog/getReferences
+HUB_CATALOG,/api/admin/service/catalog/getResolvedObject
+HUB_CATALOG,/api/admin/service/catalog/getStructure
+HUB_CATALOG,/api/admin/service/catalog/saveChange
+HUB_CATALOG,/api/admin/service/catalog/saveCreate
 HUB_CHAT_HELP,/api/admin/service/chatHelp/getList
 HUB_CHAT_HELP,/api/admin/service/chatHelp/getOne
 HUB_CHAT_HELP,/api/admin/service/chatHelp/getPreview

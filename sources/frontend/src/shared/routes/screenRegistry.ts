@@ -13,6 +13,8 @@ import { SAMPLE_SCREENS } from '@/shared/routes/sampleScreens';
  * 데이터가 앞서간 것이 아니라 <b>아직 만들지 않은 화면</b>이다.
  */
 const PRODUCT_SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
+  // @feat FEAT-003
+  '/admin/hub/catalog': lazy(async () => ({ default: (await import('@/modules/admin/features/catalog/pages/CatalogPage')).CatalogPage })),
   // @feat FEAT-002
   '/admin/hub/data-source': lazy(async () => ({ default: (await import('@/modules/admin/features/datasource/pages/DataSourcePage')).DataSourcePage })),
   // @feat FEAT-005

@@ -5,7 +5,7 @@ entities:
     term: TRM-223
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -66,6 +66,15 @@ entities:
       - name: 변경 사유
         physical_name: CHANGE_REASON
         description: 변경 사유
+      - name: SAVE_TARGET_CD
+        physical_name: SAVE_TARGET_CD
+        description: 카탈로그 서버 소유 SAVE_TARGET_CD
+      - name: SOURCE_OBJECT_TOKEN
+        physical_name: SOURCE_OBJECT_TOKEN
+        description: 카탈로그 서버 소유 SOURCE_OBJECT_TOKEN
+      - name: SOURCE_SETTINGS_ID
+        physical_name: SOURCE_SETTINGS_ID
+        description: 카탈로그 서버 소유 SOURCE_SETTINGS_ID
     relations:
       - entity: ENT-002
         cardinality: 항목마다 데이터소스 하나
@@ -99,19 +108,19 @@ entities:
           nullable: false
           default: null
         - name: SERVER_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: DATABASE_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: SCHEMA_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: OBJECT_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: false
           default: null
         - name: IDENTITY_PROFILE
@@ -158,6 +167,18 @@ entities:
           type: text
           nullable: false
           default: null
+        - name: SAVE_TARGET_CD
+          type: character varying(40)
+          nullable: false
+          default: null
+        - name: SOURCE_OBJECT_TOKEN
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: SOURCE_SETTINGS_ID
+          type: character varying(128)
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG
           definition: PRIMARY KEY (CATALOG_ID)
@@ -170,7 +191,12 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/031-catalog-source-evidence.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: root
@@ -182,7 +208,7 @@ entities:
     term: TRM-252
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -266,6 +292,18 @@ entities:
       - name: 최종 초안 편집 시각
         physical_name: MOD_DTM
         description: 최종 초안 편집 시각
+      - name: DEFINITION_EVIDENCE
+        physical_name: DEFINITION_EVIDENCE
+        description: 카탈로그 서버 소유 DEFINITION_EVIDENCE
+      - name: PK_NAME
+        physical_name: PK_NAME
+        description: 카탈로그 서버 소유 PK_NAME
+      - name: PK_REVIEW
+        physical_name: PK_REVIEW
+        description: 카탈로그 서버 소유 PK_REVIEW
+      - name: PK_EVIDENCE
+        physical_name: PK_EVIDENCE
+        description: 카탈로그 서버 소유 PK_EVIDENCE
     relations:
       - entity: ENT-005
         cardinality: 리비전마다 카탈로그 항목 하나
@@ -320,23 +358,23 @@ entities:
           nullable: false
           default: null
         - name: SERVER_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: DATABASE_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: SCHEMA_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: true
           default: null
         - name: OBJECT_NAME
-          type: character varying(200)
+          type: character varying(500)
           nullable: false
           default: null
         - name: IDENTITY_PROFILE
-          type: character varying(40)
+          type: character varying(100)
           nullable: false
           default: null
         - name: OBJECT_KEY
@@ -348,12 +386,12 @@ entities:
           nullable: false
           default: null
         - name: BUSINESS_NAME
-          type: character varying(200)
-          nullable: false
+          type: text
+          nullable: true
           default: null
         - name: DESCRIPTION
           type: text
-          nullable: false
+          nullable: true
           default: null
         - name: INTENT_CD
           type: character varying(40)
@@ -407,6 +445,22 @@ entities:
           type: timestamp with time zone
           nullable: false
           default: null
+        - name: DEFINITION_EVIDENCE
+          type: text
+          nullable: true
+          default: null
+        - name: PK_NAME
+          type: text
+          nullable: true
+          default: null
+        - name: PK_REVIEW
+          type: text
+          nullable: true
+          default: null
+        - name: PK_EVIDENCE
+          type: text
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_CONTENT
           definition: PRIMARY KEY (CATALOG_ID)
@@ -415,7 +469,11 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-005
@@ -427,7 +485,7 @@ entities:
     term: TRM-253
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-003
@@ -512,6 +570,60 @@ entities:
       - name: 컬럼 이름 변경의 동일 객체 확인 근거
         physical_name: IDENTITY_EVIDENCE
         description: 컬럼 이름 변경의 동일 객체 확인 근거
+      - name: PRIMARY_KEY_SUMMARY
+        physical_name: PRIMARY_KEY_SUMMARY
+        description: 카탈로그 서버 소유 PRIMARY_KEY_SUMMARY
+      - name: PRIVACY_FLAG
+        physical_name: PRIVACY_FLAG
+        description: 카탈로그 서버 소유 PRIVACY_FLAG
+      - name: PRIVACY_TYPE
+        physical_name: PRIVACY_TYPE
+        description: 카탈로그 서버 소유 PRIVACY_TYPE
+      - name: SUBJECT_IDENTIFIER
+        physical_name: SUBJECT_IDENTIFIER
+        description: 카탈로그 서버 소유 SUBJECT_IDENTIFIER
+      - name: PRIVACY_REVIEW
+        physical_name: PRIVACY_REVIEW
+        description: 카탈로그 서버 소유 PRIVACY_REVIEW
+      - name: MASKING_REF
+        physical_name: MASKING_REF
+        description: 카탈로그 서버 소유 MASKING_REF
+      - name: LENGTH_STATUS
+        physical_name: LENGTH_STATUS
+        description: 카탈로그 서버 소유 LENGTH_STATUS
+      - name: PRECISION_STATUS
+        physical_name: PRECISION_STATUS
+        description: 카탈로그 서버 소유 PRECISION_STATUS
+      - name: SCALE_STATUS
+        physical_name: SCALE_STATUS
+        description: 카탈로그 서버 소유 SCALE_STATUS
+      - name: DIMENSION_STATE
+        physical_name: DIMENSION_STATE
+        description: 카탈로그 서버 소유 DIMENSION_STATE
+      - name: LENGTH_UNIT
+        physical_name: LENGTH_UNIT
+        description: 카탈로그 서버 소유 LENGTH_UNIT
+      - name: DIMENSION_RAW
+        physical_name: DIMENSION_RAW
+        description: 카탈로그 서버 소유 DIMENSION_RAW
+      - name: PK_POSITION
+        physical_name: PK_POSITION
+        description: 카탈로그 서버 소유 PK_POSITION
+      - name: CHARACTER_LENGTH
+        physical_name: CHARACTER_LENGTH
+        description: 카탈로그 서버 소유 CHARACTER_LENGTH
+      - name: OCTET_LENGTH
+        physical_name: OCTET_LENGTH
+        description: 카탈로그 서버 소유 OCTET_LENGTH
+      - name: NUMERIC_PRECISION
+        physical_name: NUMERIC_PRECISION
+        description: 카탈로그 서버 소유 NUMERIC_PRECISION
+      - name: NUMERIC_SCALE
+        physical_name: NUMERIC_SCALE
+        description: 카탈로그 서버 소유 NUMERIC_SCALE
+      - name: 원천에서 서버가 관측한 컬럼 번호
+        physical_name: SOURCE_ATTRIBUTE_NO
+        description: 현재 source OID/설정 세대와 함께 이름 정정의 동일 컬럼 근거로 사용하며 사용자가 지정하지 않는다
     relations:
       - entity: ENT-020
         cardinality: 소유 판·구성의 복합 키로 참조
@@ -554,35 +666,35 @@ entities:
           default: null
         - name: ORDINAL_POSITION
           type: integer
-          nullable: false
+          nullable: true
           default: null
         - name: COLUMN_NAME
-          type: character varying(200)
-          nullable: false
+          type: character varying(500)
+          nullable: true
           default: null
         - name: COLUMN_KEY
           type: character varying(200)
-          nullable: false
+          nullable: true
           default: null
         - name: SOURCE_TYPE
-          type: character varying(40)
-          nullable: false
+          type: character varying(200)
+          nullable: true
           default: null
         - name: SOURCE_TYPE_CD
-          type: character varying(40)
-          nullable: false
+          type: character varying(30)
+          nullable: true
           default: null
         - name: NULLABLE_CD
           type: character varying(40)
           nullable: false
           default: null
         - name: BUSINESS_NAME
-          type: character varying(200)
-          nullable: false
+          type: text
+          nullable: true
           default: null
         - name: DESCRIPTION
           type: text
-          nullable: false
+          nullable: true
           default: null
         - name: SEMANTIC_TYPE
           type: character varying(40)
@@ -593,7 +705,7 @@ entities:
           nullable: true
           default: null
         - name: TIME_ZONE_ID
-          type: bigint
+          type: character varying(100)
           nullable: true
           default: null
         - name: UNIT_CD
@@ -640,6 +752,78 @@ entities:
           type: text
           nullable: true
           default: null
+        - name: PRIMARY_KEY_SUMMARY
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_FLAG
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_TYPE
+          type: text
+          nullable: true
+          default: null
+        - name: SUBJECT_IDENTIFIER
+          type: text
+          nullable: true
+          default: null
+        - name: PRIVACY_REVIEW
+          type: text
+          nullable: true
+          default: null
+        - name: MASKING_REF
+          type: text
+          nullable: true
+          default: null
+        - name: LENGTH_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: PRECISION_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: SCALE_STATUS
+          type: text
+          nullable: true
+          default: null
+        - name: DIMENSION_STATE
+          type: text
+          nullable: true
+          default: null
+        - name: LENGTH_UNIT
+          type: text
+          nullable: true
+          default: null
+        - name: DIMENSION_RAW
+          type: text
+          nullable: true
+          default: null
+        - name: PK_POSITION
+          type: bigint
+          nullable: true
+          default: null
+        - name: CHARACTER_LENGTH
+          type: bigint
+          nullable: true
+          default: null
+        - name: OCTET_LENGTH
+          type: bigint
+          nullable: true
+          default: null
+        - name: NUMERIC_PRECISION
+          type: bigint
+          nullable: true
+          default: null
+        - name: NUMERIC_SCALE
+          type: bigint
+          nullable: true
+          default: null
+        - name: SOURCE_ATTRIBUTE_NO
+          type: integer
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_COLUMN
           definition: PRIMARY KEY (COLUMN_ID)
@@ -652,7 +836,12 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/035-catalog-column-identity.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-005
@@ -663,7 +852,7 @@ entities:
     term: TRM-254
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     features:
       - FEAT-011
@@ -837,7 +1026,11 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-005

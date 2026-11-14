@@ -2,7 +2,7 @@ entities:
   - id: ENT-152
     name: 필드 그룹 전달 예외 CATALOG_ID
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_COLUMN_ACCESS_POLICY
     features:
@@ -31,6 +31,9 @@ entities:
       - name: 예외 활성
         physical_name: ACTIVE_YN
         description: 예외 활성
+      - name: REASON
+        physical_name: REASON
+        description: 카탈로그 서버 소유 REASON
     physical:
       attributes:
         - name: CATALOG_ID
@@ -53,6 +56,10 @@ entities:
           type: character(1)
           nullable: false
           default: null
+        - name: REASON
+          type: text
+          nullable: true
+          default: null
       constraints:
         - name: PK_COLUMN_ACCESS_POLICY
           definition: PRIMARY KEY (CATALOG_ID, COLUMN_ID, GROUP_ID)
@@ -67,7 +74,11 @@ entities:
     rules:
       - 필드 분류/기본 마스킹과 현재 그룹 판정은 소유 요구를 따른다. 허용 그룹 없음은 전체 허용이 아니다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/catalog/CatalogService.java
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-007

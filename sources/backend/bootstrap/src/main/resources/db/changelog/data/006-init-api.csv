@@ -1,4 +1,16 @@
 API_URL,API_NM,API_DESC,ACTION_CD
+/api/admin/service/catalog/getCommandResult,카탈로그 저장 원 결과 확인,,READ
+/api/admin/service/catalog/getList,카탈로그 목록 조회,,READ
+/api/admin/service/catalog/getOne,카탈로그 현재 전체 구성 조회,,READ
+/api/admin/service/catalog/getReferenceCandidates,카탈로그 현재 입력 참조 후보 조회,,READ
+/api/admin/service/catalog/getReferences,카탈로그 연관 지식 연결 상태 조회,,READ
+/api/admin/service/catalog/getRelatedJoins,카탈로그 관계 연결 상태 조회,,READ
+/api/admin/service/catalog/getResolvedObject,선정 공개 객체의 정확 원천 식별 조회,,READ
+/api/admin/service/catalog/getRevision,카탈로그 명시 적용 이력 조회,,READ
+/api/admin/service/catalog/getStructure,등록 카탈로그의 현재 원천 구조 조회,,READ
+/api/admin/service/catalog/getValidation,카탈로그 현재 검증 상태 조회,,READ
+/api/admin/service/catalog/saveChange,카탈로그 지정 영역 저장,,SAVE
+/api/admin/service/catalog/saveCreate,카탈로그 마스터 신규 저장,,SAVE
 /api/admin/service/chatHelp/getList,채팅 안내 고정 구분 조회,,READ
 /api/admin/service/chatHelp/getOne,채팅 안내 본문 조회,,READ
 /api/admin/service/chatHelp/getPreview,채팅 안내 안전 미리보기,,READ

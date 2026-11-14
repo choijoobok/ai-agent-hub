@@ -146,6 +146,104 @@ batchSchedule.warn.disable,FRONT,저장 확인의 첫 줄 — 끄는 배치가 `
 batchSchedule.warn.disableItem,FRONT,"그 목록의 한 줄 — `{name}` `{batchId}`. 다음 줄에 설명이 그대로 붙는다. 설명이 데이터라 메시지가 아니다 — sys/batch.md 의 셋째 항목(*""껐다 켜면 따라잡는가""*)을 끄는 순간에 읽히게 하는 것이 이 확인의 목적 전부다. /"
 batchSchedule.warn.timezone,FRONT,저장 확인 — 시간대를 바꾼 배치가 `{count}` 건 있다(screen/admin/system/batch/schedule/requirements.md §5-1). 크론이 그대로라 경고가 필요하다. 화면상 달라진 것은 한 칸인데 실제 실행 시각은 몇 시간 옮겨진다 — 보이는 변화의 크기와 결과의 크기가 어긋나는 자리다. /
 batchSchedule.warn.timezoneItem,FRONT,그 목록의 한 줄 — `{name}` `{batchId}` `{from}` `{to}`. 바뀐 값 둘을 나란히 놓는다.
+catalog.applied,FRONT,반영 시각
+catalog.apply,FRONT,입력 반영
+catalog.business_name,FRONT,업무명
+catalog.char_length,FRONT,문자 길이
+catalog.column_business,FRONT,컬럼 업무명
+catalog.column_identity,FRONT,컬럼 동일성 근거
+catalog.column_name,FRONT,컬럼명
+catalog.column_review,FRONT,의미 검수
+catalog.columns,FRONT,컬럼 정의
+catalog.database,FRONT,DB·카탈로그
+catalog.definition,FRONT,등록 근거
+catalog.description,FRONT,상세 설명
+catalog.dimension_help,FRONT,미확인과 해당 없음을 숫자 0으로 바꾸지 않습니다. 확인된 치수만 입력하세요.
+catalog.dimension_state,FRONT,치수 상태
+catalog.dimensions,FRONT,원천 치수
+catalog.direction,FRONT,정렬 방향
+catalog.evidence,FRONT,검수 근거
+catalog.exception_type,FRONT,예외 유형
+catalog.exceptions,FRONT,컬럼 그룹 예외
+catalog.format,FRONT,해석 형식
+catalog.group_code,FRONT,그룹 코드
+catalog.group_removal_count,FRONT,"{group}: 저장된 예외 {saved}건, 미저장 입력 {draft}건"
+catalog.group_remove,FRONT,제거하는 그룹의 컬럼 예외도 함께 삭제됩니다. 다른 그룹의 입력은 유지합니다.
+catalog.groups,FRONT,사용자 그룹
+catalog.help,FRONT,마스터를 먼저 저장한 뒤 각 영역을 저장합니다. 다른 영역의 편집은 유지됩니다.
+catalog.hide,FRONT,숨김
+catalog.identity,FRONT,동일 객체 근거
+catalog.index,FRONT,인덱스
+catalog.index_columns,FRONT,구성 컬럼
+catalog.index_kind,FRONT,정의 종류
+catalog.index_name,FRONT,정의 이름
+catalog.index_part_add,FRONT,선택 인덱스 구성 추가
+catalog.index_parts_help,FRONT,저장된 컬럼을 순서대로 선택하고 정렬 방향을 지정합니다. 함수·부분·include 인덱스는 객체 확인에서 원문을 조회합니다.
+catalog.indexes,FRONT,인덱스
+catalog.invalid,FRONT,검수 오류
+catalog.knowledge,FRONT,연관 지식
+catalog.known,FRONT,확인됨
+catalog.length_unit,FRONT,길이 단위
+catalog.mask,FRONT,마스킹 유형
+catalog.mask_mode,FRONT,마스킹
+catalog.mask_unavailable,FRONT,마스킹 유형을 확인할 수 없습니다. 기존 값을 보존하며 MASK 신규 지정은 잠깁니다.
+catalog.na,FRONT,해당 없음
+catalog.new,FRONT,신규 카탈로그
+catalog.no,FRONT,아니오
+catalog.not_selected,FRONT,상단에서 카탈로그를 선택하거나 신규 등록하세요.
+catalog.nullable,FRONT,NOT NULL
+catalog.object_check,FRONT,객체 확인
+catalog.object_name,FRONT,객체명
+catalog.object_type,FRONT,객체 유형
+catalog.octet_length,FRONT,바이트 길이
+catalog.order,FRONT,컬럼 순서
+catalog.pending_ref,FRONT,연관 지식 원천을 아직 확인할 수 없습니다. 참조 없음과 구분합니다.
+catalog.pk,FRONT,PK
+catalog.pk_evidence,FRONT,PK 검수 근거
+catalog.pk_name,FRONT,PK 이름
+catalog.pk_position,FRONT,PK 순서
+catalog.pk_review,FRONT,PK 검수
+catalog.policy_readonly,FRONT,접근정책은 조회만 가능합니다. 변경 권한 구성을 확인해 주세요.
+catalog.precision,FRONT,숫자 정밀도
+catalog.privacy,FRONT,개인·민감정보
+catalog.privacy_review,FRONT,개인정보 검수
+catalog.privacy_type,FRONT,개인정보 유형
+catalog.profile,FRONT,식별 규칙
+catalog.raw_definition,FRONT,원천 정의
+catalog.reason,FRONT,사유
+catalog.reload,FRONT,저장은 반영됐지만 최신 구성을 불러오지 못했습니다. 입력을 보존한 채 다시 조회하세요.
+catalog.required,FRONT,필수 입력과 오류가 있는 셀을 확인하세요.
+catalog.review,FRONT,메타데이터 검수
+catalog.reviewed_at,FRONT,검수 시각
+catalog.reviewer,FRONT,검수자
+catalog.revision,FRONT,적용 리비전
+catalog.save,FRONT,선택 영역 저장
+catalog.scale,FRONT,소수 자릿수
+catalog.schema,FRONT,DB 스키마
+catalog.scope,FRONT,저장 영역
+catalog.semantic,FRONT,의미 유형
+catalog.server,FRONT,서버 한정자
+catalog.source_columns,FRONT,원천 컬럼
+catalog.source_help,FRONT,PostgreSQL의 정확한 DB·스키마·객체명을 입력합니다. 객체 확인 결과는 입력 보조이며 자동 등록하거나 검수 완료로 바꾸지 않습니다.
+catalog.source_indexes,FRONT,원천 인덱스
+catalog.source_text,FRONT,원천 자료형 원문
+catalog.source_type,FRONT,원천 자료형
+catalog.state,FRONT,확인 상태
+catalog.subject,FRONT,정보주체 식별자
+catalog.table,FRONT,테이블
+catalog.timezone,FRONT,컬럼 시간대
+catalog.title,FRONT,스키마 카탈로그
+catalog.type_unavailable,FRONT,자료형 후보를 확인할 수 없습니다. 원문과 기존 입력은 보존합니다.
+catalog.unique,FRONT,유일 여부
+catalog.unique_key,FRONT,유일키
+catalog.unit,FRONT,단위
+catalog.unknown,FRONT,미확인
+catalog.use,FRONT,사용 여부
+catalog.value_evidence,FRONT,값 검수 근거
+catalog.value_review,FRONT,값 검수
+catalog.verified,FRONT,검수 완료
+catalog.view,FRONT,뷰
+catalog.yes,FRONT,예
 chat_help.apply,FRONT,반영
 chat_help.body,FRONT,본문
 chat_help.changed,FRONT,확인 중인 원 저장 내용과 다릅니다. 원 명령 결과를 먼저 확인하세요.

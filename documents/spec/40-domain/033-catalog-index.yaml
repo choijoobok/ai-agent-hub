@@ -1,0 +1,404 @@
+entities:
+  - id: ENT-535
+    name: "카탈로그 인덱스"
+    delete_policy: 현재 인덱스 제거는 소유 카탈로그 잠금과 기대 리비전 아래 전체 이력과 함께 반영한다. 안정 번호와 과거 이력은 제거하지 않는다.
+    module: "admin"
+    domain: "연동 자산"
+    implementation: implemented
+    design_stage: "physical"
+    features:
+      - "FEAT-003"
+    reqs:
+      - "REQ-301"
+      - "REQ-601"
+    table: "AI_ADMIN_CATALOG_INDEX"
+    attributes:
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 CATALOG_ID"
+      - name: "INDEX_ID"
+        physical_name: "INDEX_ID"
+        pk: true
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_ID"
+      - name: "INDEX_NAME"
+        physical_name: "INDEX_NAME"
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_NAME"
+      - name: "DEFINITION_KIND"
+        physical_name: "DEFINITION_KIND"
+        description: "승인된 카탈로그 구성과 전체 이력의 DEFINITION_KIND"
+      - name: "UNIQUE_YN"
+        physical_name: "UNIQUE_YN"
+        description: "승인된 카탈로그 구성과 전체 이력의 UNIQUE_YN"
+      - name: "FILTER_TEXT"
+        physical_name: "FILTER_TEXT"
+        description: "승인된 카탈로그 구성과 전체 이력의 FILTER_TEXT"
+      - name: "EXPRESSION_TEXT"
+        physical_name: "EXPRESSION_TEXT"
+        description: "승인된 카탈로그 구성과 전체 이력의 EXPRESSION_TEXT"
+      - name: "RAW_DEFINITION"
+        physical_name: "RAW_DEFINITION"
+        description: "승인된 카탈로그 구성과 전체 이력의 RAW_DEFINITION"
+      - name: "REVIEW_EVIDENCE"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "승인된 카탈로그 구성과 전체 이력의 REVIEW_EVIDENCE"
+      - name: "SUPPORT_STATUS"
+        physical_name: "SUPPORT_STATUS"
+        description: "승인된 카탈로그 구성과 전체 이력의 SUPPORT_STATUS"
+    physical:
+      attributes:
+        - name: "CATALOG_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_NAME"
+          type: "character varying(500)"
+          nullable: true
+          default: null
+        - name: "DEFINITION_KIND"
+          type: "character varying(40)"
+          nullable: false
+          default: null
+        - name: "UNIQUE_YN"
+          type: "character(1)"
+          nullable: false
+          default: null
+        - name: "FILTER_TEXT"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "EXPRESSION_TEXT"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "RAW_DEFINITION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "REVIEW_EVIDENCE"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "SUPPORT_STATUS"
+          type: "character varying(40)"
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_INDEX
+          definition: PRIMARY KEY (INDEX_ID)
+        - name: FK_CATALOG_INDEX_ROOT
+          definition: FOREIGN KEY (CATALOG_ID) REFERENCES AI_ADMIN_CATALOG(CATALOG_ID)
+        - name: UK_CATALOG_INDEX_PARENT
+          definition: UNIQUE(CATALOG_ID,INDEX_ID)
+      indexes: []
+    history_storage:
+      mode: "full_owned_snapshot"
+      parent: "ENT-005"
+      entity: "ENT-536"
+      root: "ENT-005"
+    copy_mapping:
+      history: "ENT-536"
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/034-catalog-index-draft.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/031-catalog-source-evidence.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql"
+  - id: ENT-536
+    name: "카탈로그 인덱스 전체 변경 이력"
+    history_copy_of: ENT-535
+    history_parent: ENT-051
+    storage_role: history
+    delete_policy: 루트 HISTORY_NO의 보존·파기 규칙을 따른다. 현재 인덱스 삭제에 연쇄 삭제하지 않는다.
+    module: "admin"
+    domain: "연동 자산"
+    implementation: implemented
+    design_stage: "physical"
+    features:
+      - "FEAT-003"
+    reqs:
+      - "REQ-301"
+      - "REQ-601"
+    table: "AI_ADMIN_CATALOG_INDEX_HIST"
+    attributes:
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 CATALOG_ID"
+      - name: "INDEX_ID"
+        physical_name: "INDEX_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_ID"
+      - name: "INDEX_NAME"
+        physical_name: "INDEX_NAME"
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_NAME"
+      - name: "DEFINITION_KIND"
+        physical_name: "DEFINITION_KIND"
+        description: "승인된 카탈로그 구성과 전체 이력의 DEFINITION_KIND"
+      - name: "UNIQUE_YN"
+        physical_name: "UNIQUE_YN"
+        description: "승인된 카탈로그 구성과 전체 이력의 UNIQUE_YN"
+      - name: "FILTER_TEXT"
+        physical_name: "FILTER_TEXT"
+        description: "승인된 카탈로그 구성과 전체 이력의 FILTER_TEXT"
+      - name: "EXPRESSION_TEXT"
+        physical_name: "EXPRESSION_TEXT"
+        description: "승인된 카탈로그 구성과 전체 이력의 EXPRESSION_TEXT"
+      - name: "RAW_DEFINITION"
+        physical_name: "RAW_DEFINITION"
+        description: "승인된 카탈로그 구성과 전체 이력의 RAW_DEFINITION"
+      - name: "REVIEW_EVIDENCE"
+        physical_name: "REVIEW_EVIDENCE"
+        description: "승인된 카탈로그 구성과 전체 이력의 REVIEW_EVIDENCE"
+      - name: "SUPPORT_STATUS"
+        physical_name: "SUPPORT_STATUS"
+        description: "승인된 카탈로그 구성과 전체 이력의 SUPPORT_STATUS"
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "승인된 카탈로그 구성과 전체 이력의 HIST_ID"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "승인된 카탈로그 구성과 전체 이력의 HISTORY_NO"
+    physical:
+      attributes:
+        - name: "CATALOG_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_NAME"
+          type: "character varying(500)"
+          nullable: true
+          default: null
+        - name: "DEFINITION_KIND"
+          type: "character varying(40)"
+          nullable: false
+          default: null
+        - name: "UNIQUE_YN"
+          type: "character(1)"
+          nullable: false
+          default: null
+        - name: "FILTER_TEXT"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "EXPRESSION_TEXT"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "RAW_DEFINITION"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "REVIEW_EVIDENCE"
+          type: "text"
+          nullable: true
+          default: null
+        - name: "SUPPORT_STATUS"
+          type: "character varying(40)"
+          nullable: false
+          default: null
+        - name: "HIST_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "HISTORY_NO"
+          type: "bigint"
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_INDEX_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: UK_CATALOG_INDEX_HIST_SET
+          definition: UNIQUE (HISTORY_NO, CATALOG_ID, INDEX_ID)
+        - name: FK_CATALOG_INDEX_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, CATALOG_ID) REFERENCES AI_ADMIN_CATALOG_HIST (HISTORY_NO, CATALOG_ID) ON DELETE RESTRICT
+      indexes: []
+    history_storage:
+      mode: "immutable_snapshot"
+      source: "ENT-535"
+      root_history: "ENT-051"
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/036-catalog-index-history-owner.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/034-catalog-index-draft.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql"
+  - id: ENT-537
+    name: "카탈로그 인덱스 구성"
+    delete_policy: 인덱스 전체 구성 저장에서만 교체한다. 같은 카탈로그의 등록 컬럼을 참조하며 과거 이력은 보존한다.
+    module: "admin"
+    domain: "연동 자산"
+    implementation: implemented
+    design_stage: "physical"
+    features:
+      - "FEAT-003"
+    reqs:
+      - "REQ-301"
+      - "REQ-601"
+    table: "AI_ADMIN_CATALOG_INDEX_PART"
+    attributes:
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 CATALOG_ID"
+      - name: "INDEX_ID"
+        physical_name: "INDEX_ID"
+        pk: true
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_ID"
+      - name: "POSITION_NO"
+        physical_name: "POSITION_NO"
+        pk: true
+        description: "승인된 카탈로그 구성과 전체 이력의 POSITION_NO"
+      - name: "COLUMN_ID"
+        physical_name: "COLUMN_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 COLUMN_ID"
+      - name: "DIRECTION_CD"
+        physical_name: "DIRECTION_CD"
+        description: "승인된 카탈로그 구성과 전체 이력의 DIRECTION_CD"
+      - name: "INCLUDED_YN"
+        physical_name: "INCLUDED_YN"
+        description: "승인된 카탈로그 구성과 전체 이력의 INCLUDED_YN"
+    physical:
+      attributes:
+        - name: "CATALOG_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "POSITION_NO"
+          type: "integer"
+          nullable: false
+          default: null
+        - name: "COLUMN_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "DIRECTION_CD"
+          type: "character varying(10)"
+          nullable: false
+          default: null
+        - name: "INCLUDED_YN"
+          type: "character(1)"
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_INDEX_PART
+          definition: PRIMARY KEY (INDEX_ID, POSITION_NO)
+        - name: FK_CATALOG_INDEX_PART_ROOT
+          definition: FOREIGN KEY (CATALOG_ID,INDEX_ID) REFERENCES AI_ADMIN_CATALOG_INDEX(CATALOG_ID,INDEX_ID)
+        - name: FK_CATALOG_INDEX_PART_COLUMN
+          definition: FOREIGN KEY (CATALOG_ID,COLUMN_ID) REFERENCES AI_ADMIN_CATALOG_COLUMN(CATALOG_ID,COLUMN_ID)
+      indexes: []
+    history_storage:
+      mode: "full_owned_snapshot"
+      parent: "ENT-005"
+      entity: "ENT-538"
+      root: "ENT-005"
+    copy_mapping:
+      history: "ENT-538"
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/031-catalog-source-evidence.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql"
+  - id: ENT-538
+    name: "카탈로그 인덱스 구성 전체 변경 이력"
+    history_copy_of: ENT-537
+    history_parent: ENT-536
+    storage_role: history
+    delete_policy: 루트 HISTORY_NO의 보존·파기 규칙을 따른다. 현재 인덱스 구성 삭제에 연쇄 삭제하지 않는다.
+    module: "admin"
+    domain: "연동 자산"
+    implementation: implemented
+    design_stage: "physical"
+    features:
+      - "FEAT-003"
+    reqs:
+      - "REQ-301"
+      - "REQ-601"
+    table: "AI_ADMIN_CATALOG_INDEX_PART_HIST"
+    attributes:
+      - name: "CATALOG_ID"
+        physical_name: "CATALOG_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 CATALOG_ID"
+      - name: "INDEX_ID"
+        physical_name: "INDEX_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 INDEX_ID"
+      - name: "POSITION_NO"
+        physical_name: "POSITION_NO"
+        description: "승인된 카탈로그 구성과 전체 이력의 POSITION_NO"
+      - name: "COLUMN_ID"
+        physical_name: "COLUMN_ID"
+        description: "승인된 카탈로그 구성과 전체 이력의 COLUMN_ID"
+      - name: "DIRECTION_CD"
+        physical_name: "DIRECTION_CD"
+        description: "승인된 카탈로그 구성과 전체 이력의 DIRECTION_CD"
+      - name: "INCLUDED_YN"
+        physical_name: "INCLUDED_YN"
+        description: "승인된 카탈로그 구성과 전체 이력의 INCLUDED_YN"
+      - name: "HIST_ID"
+        physical_name: "HIST_ID"
+        pk: true
+        description: "승인된 카탈로그 구성과 전체 이력의 HIST_ID"
+      - name: "HISTORY_NO"
+        physical_name: "HISTORY_NO"
+        description: "승인된 카탈로그 구성과 전체 이력의 HISTORY_NO"
+    physical:
+      attributes:
+        - name: "CATALOG_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "INDEX_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "POSITION_NO"
+          type: "integer"
+          nullable: false
+          default: null
+        - name: "COLUMN_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "DIRECTION_CD"
+          type: "character varying(10)"
+          nullable: false
+          default: null
+        - name: "INCLUDED_YN"
+          type: "character(1)"
+          nullable: false
+          default: null
+        - name: "HIST_ID"
+          type: "bigint"
+          nullable: false
+          default: null
+        - name: "HISTORY_NO"
+          type: "bigint"
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_CATALOG_INDEX_PART_HIST
+          definition: PRIMARY KEY (HIST_ID)
+        - name: FK_CATALOG_INDEX_PART_HIST_PARENT
+          definition: FOREIGN KEY (HISTORY_NO, CATALOG_ID, INDEX_ID) REFERENCES AI_ADMIN_CATALOG_INDEX_HIST (HISTORY_NO, CATALOG_ID, INDEX_ID) ON DELETE RESTRICT
+        - name: FK_CATALOG_INDEX_PART_HIST_COLUMN
+          definition: FOREIGN KEY (HISTORY_NO, COLUMN_ID) REFERENCES AI_ADMIN_CATALOG_COLUMN_HIST (HISTORY_NO, COLUMN_ID) ON DELETE RESTRICT
+      indexes: []
+    history_storage:
+      mode: "immutable_snapshot"
+      source: "ENT-537"
+      root_history: "ENT-051"
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/036-catalog-index-history-owner.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - "sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql"
