@@ -7,9 +7,11 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** 소유 기능의 전체 미설치만 증명한다. 일부 설치·남은 이력은 검사 포트 없이 추정하지 않는다. */
 @Service
+@Transactional(readOnly=true)
 public class UserGroupStorageQueryService {
     private static final Map<UserGroupLinkSource.Source,List<String>> STORES=Map.of(
             membership,List.of("AI_ADMIN_PORTAL_USER","AI_ADMIN_USER_MEMBERSHIP"),
