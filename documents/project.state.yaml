@@ -14,12 +14,17 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # admin 선행 범위 G3 승인, SLICE-042 구현
+  workstream: admin         # admin 선행 범위 G3 승인, 다음 SLICE-005
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-042          # SLICE-006 G4 사용자 승인 완료, 시작월별 쿼터 등급 기준 구현
+  slice: SLICE-042          # 위임 진행 검증 완료, 다음 SLICE-005 Portal 이용자 독립 원장
   blocked_by: []
+  delegated_progress:
+    authorized_at: "2026-11-14T09:32:00+09:00"
+    expected_return: "2026-11-14T14:32:00+09:00"
+    instruction: "약5시간 동안 다음 슬라이스도 계속 진행. 결정은 권장안 선택, 각 슬라이스 필수 검증 완료마다 커밋·푸시. 필요하면 시험 계정을 만들어 직접 브라우저 로그인·화면 시험."
+    gate_handling: 사용자 위임으로 자체 G4 검증을 마친 슬라이스는 다음 작업으로 진행한다. 직접 사용자 화면 수락과 구분해 승인 근거를 위임으로 기록한다. 프로덕션 변경·기존 데이터 초기화는 포함하지 않는다.
   verification_policy: '2026-11-14 사용자 지시: 앞으로 테스트는 변경 범위에서 꼭 필요한 것만 실행한다. 변경 영향의 중요 동작·실패 경로를 검증하고 비영향 통과 근거는 재사용한다. 새 변경·실패·미해결 위험의 근거 없이 전체 시험을 확대하거나 반복하지 않는다. 상태만 수정할 때는 YAML과 변경 내용만 확인한다.'
   maintenance_note: "2026-10-28 테이블 동기화 구조는 7e91527a·281923c7로 푸시됐다. 후속 요청으로 생성 보류 시 보완 파일·AI 담당 조치·사용자 판정 조건·재실행 순서를 안내하고 물리명 없는 logical 초안의 생성과 G3 물리 완성 검사를 분리했다. 명명 기준의 용어사전 링크를 바로잡고 논리명·업무 영역·사전 key/필요 약어·물리명 매핑 순서를 보완했다. 실제 admin 업무 영역/약어/테이블명은 아직 도출 전이며 기존 system 물리 계약·제품 소스·게이트는 유지한다. 2026-10-28 보조 판정 공급사 일시 장애의 순서별 후보 정책을 사용자 승인에 따라 요구·관련 설계·TC 16건·흐름도/시퀀스·운영 안내에 반영했다. 주 추론 수동 선택·시스템 운영·임베딩 경계와 단계 상태를 유지한다."
   template_maintenance: false
@@ -1069,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-006 G4 명시 승인을 반영했다. 그룹 정의·미참조 삭제·마스터 상세 기본 흐름의 완료 범위이며 실제 사용자 소속은005, 자산 역조회는002/003/004/011/020에서 검증한다. 현재까지 변경을 원격에 푸시한 뒤 SLICE-042 시작월별 쿼터 등급 기준을 구현하고 필요한 범위만 시험해 G4 검토를 요청한다."
+  first: "2026-11-14 약5시간 후속 구현·권장안 결정·슬라이스별 커밋/푸시 위임을 반영했다. SLICE-042 기준 관리의 자체 G4 검증을 완료하고 직접 사용자 수락과 구분했다. 다음005 Portal 독립 원장·소속·등급·자격 공개 포트를 구현하며 변경 범위 필수 시험만 실행한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1121,11 +1126,11 @@ counters:
   UC: 60
   FEAT: 108    # 2026-11-09 기존 Portal 인증 UI 소유를 FEAT-128로 분리 — 제품 범위 추가 아님
   ENT: 238    # 2026-11-11 CR-035/036 변경 상세 반영
-  API: 239    # CR-038 현재 시스템 정보/진행률 미등록2건 추적 보완
+  API: 240    # CR-038 현재 시스템 정보/진행률 미등록2건 추적 보완
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 41    # CR-042 미참조 그룹 삭제와 상세 조회 후 삭제 판정 분리
+  CR: 42    # CR-043 등급 기준과 후속 사용자/배정 연결 완료 경계 분리
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -1674,17 +1679,66 @@ slices:
       - TC-0421
       - TC-0172
       - TC-0173
-      - TC-04510
-      - TC-0455
-    scope: 시작월별 쿼터 등급 기준
+    scope: CR-043 시작월별 쿼터 등급 기준·화면·전체 이력·후속 소유 연결 포트
     stage: P4
-    status: in_progress
+    status: done
     started_at: "2026-11-14"
+    approved_at: "2026-11-14"
     depends_on:
       - SLICE-040
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: d67d1449
+      implemented: CR-043 기준 관리 완료 범위. 미래 시작월별 전체 등급·순위·정확한 상대 가중치·메모, 안정 등급 ID 유지/직전 복사, 최신 시작월 효력 조회, 전체 HIST·리비전·원 명령 결과의 원자 저장, 현재 READ/SAVE/EXPORT와 화면을 구현했다. 다른 기준 행은 독립 부분 성공이다.
+      source_refs:
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/quota/
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/quota/QuotaGradeController.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/007-quota-grade.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/008-quota-grade-menu.sql
+        - sources/frontend/src/modules/admin/features/quotagrade/
+      verification:
+        test_first: 정의 입력 미구현 실패, 화면 숫자 편집의 문자열 순위 전송 실패, 등급명 검색 미등록400을 각각 확인한 뒤 구현/보완했다.
+        backend: 정의 단위2·QuotaGradeLiveTest4·QuotaGradePortLiveTest1, 고유7개 통과. 실제 PostgreSQL·인증 HTTP로 전체 저장/재전송/NO_CHANGE/권한/리비전/안정 ID/효력 상속/현재월 잠금, 자식 HIST 실패 전체 rollback, 원장 일부 설치 시 삭제 차단과 전체 미설치 삭제, 신규007/008 rollback2·재적용을 검증했다. 검색 보완 뒤 해당 실제 API 시험1개만 추가 재실행했다.
+        port_boundary: 소유 포트 fixture1개는 월/사용자 잠금 순서와 실제 발급 대상/등급 ID 전달, 소유 적용 실패 시 현재값·이력·원 결과·소유 효과 전체 rollback을 검증한다. 실제 사용자 등급 이전·예약·배정 완료의 근거로 세지 않는다.
+        frontend: 기존 그룹 저장4·신규 등급 저장 봉투1·소유 저장 위임 그리드1, 고유6개 통과. 이번 범위 자동 시험 총13개/skip0. 최종 타입 검사·변경 ESLint 통과. 전체 인증/Redis/프론트 시험은 반복하지 않았다.
+        browser: 시험 계정 codex-review로 localhost3006 로그인 후2026-12 기준·두 등급 실제 저장, 하단 수정에 따른 상단 변경 표시와 상단 편집 취소의 동시 복원,2027-01 직전 기준 복사 저장·재조회, 상세 재조회·상하단 엑셀 버튼·선택 전 삭제 잠금을 확인했다. 원 admin 비밀번호와 기존 그룹은 변경하지 않았다. 화면에서 발견한 숫자 형식 오류·하단 도구 누락을 수정했다.
+        static: 품질 중복2.71%·삼킴0·미태깅0. domain-schema ENT238/테이블48/컬럼437/changelog23 일치. doc-gen ID1620·장문17771 누락0/깨진링크0. HTML492/20/9장 구조·자산 통과, 하네스18개 일치·meta 위반0·추적성 오류0/후속 경고72·diff 통과.
+        evidence:
+          - sources/build/slice042-unit.log
+          - sources/build/slice042-live-final.log
+          - sources/build/slice042-search-red.log
+          - sources/build/slice042-search-green.log
+          - sources/build/slice042-front.log
+          - sources/build/slice042-front-new.log
+          - sources/build/slice042-rank-green.log
+          - sources/build/slice042-quota-grade.jpg
+      redteam:
+        - risk: 사용자 원장 검사 누락을 참조0으로 치환하면 사용 중인 등급을 제거할 수 있다.
+          resolution: 전체 미설치만 별도 인정하며 부분 설치·실패는 UNAVAILABLE로 저장/삭제를 차단한다. 실제 DB 설치 흔적·실패 rollback을 시험했고 사용자 수는0이 아닌 미확인으로 표시한다.
+        - risk: 월 경계와 저장 수락 시점이 다르면 현재 기준이 수정되거나 사용자 이전만 남을 수 있다.
+          resolution: DB 시계·공통 달력 잠금과 월/사용자/관리 대상 순서, 미래 기준 재검사, 소유 효과와 HIST의 단일 트랜잭션을 적용했다. 실제 배정 경합은 CR-043의045에서 연결한다.
+        - risk: 복사/이름 변경 때 등급 ID를 새로 만들거나 화면의 숫자 문자열을 거부하면 기존 참조 또는 실제 저장이 깨진다.
+          resolution: 안정 ID를 보존하고 임의 ID는 거부한다. 실제 복사 저장·전체 HIST와 숫자 전송 실패→통과를 확인했다. 새 등급 이전 대상 등 실제 사용자 예약 처리의 완결성은005에서 검증한다.
+      followup:
+        - "@defer SLICE-005 — Portal 사용자 등급 효력/미래 예약 이전·그룹 소속을 실제 원장으로 연결한다. 현재 사용자 수 미제공은 완료된 실제 사용자 연계가 아니다."
+        - "@defer SLICE-017 — 등급 기준 변경 시 예정 배정의 낡음과 재검토를 연결한다."
+        - "@defer SLICE-045 — 월말 경계·확정 배정과의 실제 경합을 검증한다."
+      g4:
+        status: approved
+        approved_at: "2026-11-14"
+        approval_basis: delegated_progress
+        user_response: "나 어디 갔다가 대략 5시간 후에 돌아올 건데, 그 때까지 계속 다음 슬라이스들도 이어서 진행해줘. 결정할 사항이 있으면 권장안대로 하고, 각 슬라이스 작업 완료할 때마다 커밋 푸시하면서 진행해줘."
+        technical_exit_criteria: CR-043 완료 경계의 기술9/9 충족. 데모/실제 화면 결과를 제시했고 사용자의 부재 중 진행 위임에 따라 후속 구현으로 이동한다. 직접 사용자 화면 수락으로 기록하지 않는다.
+        user_screen_acceptance: pending_return_review
+        unresolved_assumptions: 현재 기준 관리 완료를 막는 미해결 전제 없음. 실제 사용자 이전·배정의 후속 소유 책임은 CR-043으로 유지한다.
+        decision_card:
+          - 미래 시작월의 기준만 바꾸고 과거 적용값은 유지한다. 이미 사용한 기준 변경 정책의 되돌리기 비용은 높다.
+          - 기준과 하단 등급 전체를 함께 저장하고 변경 전후 전체 이력을 남긴다. 저장 단위 변경 비용은 중간이다.
+          - 참조 확인 실패는 저장/삭제를 막으며 실제 사용자 이전과 배정은 후속 기능에서 연결한다. 보호 완화 비용은 높다.
+        reverse_question: 사용자 복귀 후 미래 기준 전체 저장·직전 복사와 현재/과거 잠금이 운영 흐름에 맞는지 화면 수용 검토로 확인한다. 부재 중 답변을 요구하거나 위임 작업을 중단하지 않는다.
   - id: SLICE-005
     workstream: admin
     features:
@@ -1713,6 +1767,7 @@ slices:
       - SLICE-006
       - SLICE-042
     entry_conditions:
+      - CR-040/043 후속 실제 사용자 소속 및 등급 효력/예약 이전을 연결하고006/042 소비 경계를 검증한다.
       - admin G3·SCR-005 승인과 FEAT-301/005 계약 일치. 원장 포트부터 구현하고 실제 Portal 세션과의 경계 시험은 SLICE-301에서 연결한다. 두 소유 작업을 한 슬라이스로 합치지 않는다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
   - id: SLICE-301
@@ -2024,6 +2079,8 @@ slices:
     features:
       - FEAT-045
     testcases:
+      - TC-04510
+      - TC-0455
       - TC-0176
       - TC-0177
       - TC-0182
