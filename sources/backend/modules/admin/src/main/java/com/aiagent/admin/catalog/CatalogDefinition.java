@@ -5,12 +5,13 @@ import java.util.*;
 /** 버튼별 입력 소유권. 누락 영역과 명시 빈 목록을 구분하며 서버 소유 식별/검수시각은 받지 않는다. */
 public final class CatalogDefinition {
  private CatalogDefinition(){}
- public static final Set<String> SCOPES=Set.of("MASTER","COLUMNS","ACCESS_GROUPS","COLUMN_GROUP_EXCEPTIONS","INDEXES");
+ public static final Set<String> SCOPES=Set.of("MASTER","COLUMNS","ACCESS_GROUPS","COLUMN_GROUP_EXCEPTIONS","INDEXES","RELATIONSHIPS");
  public static final List<String> MASTER=List.of("dataSourceId","serverName","databaseName","schemaName","objectName","objectType","businessName","description","useYn","definitionEvidence","identityEvidence","reviewStatus","reviewEvidence","pkName","pkReview","pkEvidence");
  public static final List<String> COLUMN=List.of("columnId","clientKey","columnName","ordinalPosition","sourceTypeCode","sourceType","nullable","columnBusinessName","primaryKeySummary","pkPosition","privacyFlag","privacyType","subjectIdentifier","privacyReview","maskingRef","semanticType","columnReviewStatus","groupCode","detailDescription","valueFormat","columnTimeZoneId","unitCode","valueReviewStatus","columnReviewEvidence","valueReviewEvidence","columnIdentityEvidence","sourceDimensions");
  public static final List<String> INDEX=List.of("indexId","clientKey","name","definitionKind","unique","columns","includedColumns","filter","expression","rawDefinition","definitionEvidence","supportStatus");
  public static Map<String,Object> normalize(String scope,Map<String,Object> v){
   if(scope==null||!SCOPES.contains(scope))throw bad();
+  if(scope.equals("RELATIONSHIPS"))return CatalogRelations.normalize(v);
   if(scope.equals("MASTER")){known(v,MASTER);var n=new LinkedHashMap<String,Object>();for(String f:MASTER)n.put(f,v.get(f));id(n.get("dataSourceId"));
    for(String f:List.of("databaseName","schemaName","objectName"))required(n.get(f),500);choice(n.get("objectType"),Set.of("TABLE","VIEW"));bool(n.get("useYn"));
    for(String f:List.of("businessName","pkName","serverName"))text(n.get(f),500);

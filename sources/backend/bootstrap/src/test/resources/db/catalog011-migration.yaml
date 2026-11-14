@@ -1,0 +1,6 @@
+# @feat FEAT-011
+databaseChangeLog:
+  - include:
+      file: db/catalog007-migration.yaml
+  - include:
+      file: db/changelog/modules/admin/039-catalog-relations.sql

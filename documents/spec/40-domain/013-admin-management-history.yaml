@@ -1109,6 +1109,21 @@ entities:
         physical_name: HISTORY_NO
         pk: false
         description: 전체 이력 세트 번호
+      - name: RELATION_NM
+        physical_name: RELATION_NM
+        description: 관계 관리 서버 소유 RELATION_NM
+      - name: REG_ID
+        physical_name: REG_ID
+        description: 관계 관리 서버 소유 REG_ID
+      - name: REG_DTM
+        physical_name: REG_DTM
+        description: 관계 관리 서버 소유 REG_DTM
+      - name: MOD_ID
+        physical_name: MOD_ID
+        description: 관계 관리 서버 소유 MOD_ID
+      - name: MOD_DTM
+        physical_name: MOD_DTM
+        description: 관계 관리 서버 소유 MOD_DTM
     relations:
       - entity: ENT-008
         cardinality: 원본 키를 값으로 보존
@@ -1128,6 +1143,7 @@ entities:
     history_parent: ENT-051
     table: AI_ADMIN_CATALOG_RELATION_HIST
     sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/039-catalog-relations.sql
       - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
@@ -1209,6 +1225,26 @@ entities:
         - name: HISTORY_NO
           type: bigint
           nullable: false
+          default: null
+        - name: RELATION_NM
+          type: varchar(500)
+          nullable: true
+          default: null
+        - name: REG_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamptz
+          nullable: true
+          default: null
+        - name: MOD_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamptz
+          nullable: true
           default: null
       constraints:
         - name: PK_CATALOG_RELATION_HIST
@@ -3019,6 +3055,18 @@ entities:
         physical_name: HISTORY_NO
         pk: false
         description: 전체 이력 세트 번호
+      - name: REG_ID
+        physical_name: REG_ID
+        description: 관계 관리 서버 소유 REG_ID
+      - name: REG_DTM
+        physical_name: REG_DTM
+        description: 관계 관리 서버 소유 REG_DTM
+      - name: MOD_ID
+        physical_name: MOD_ID
+        description: 관계 관리 서버 소유 MOD_ID
+      - name: MOD_DTM
+        physical_name: MOD_DTM
+        description: 관계 관리 서버 소유 MOD_DTM
     relations:
       - entity: ENT-025
         cardinality: 원본 키를 값으로 보존
@@ -3038,6 +3086,7 @@ entities:
     history_parent: ENT-057
     table: AI_ADMIN_CATALOG_JOIN_PAIR_HIST
     sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/039-catalog-relations.sql
       - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
@@ -3079,6 +3128,22 @@ entities:
         - name: HISTORY_NO
           type: bigint
           nullable: false
+          default: null
+        - name: REG_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamptz
+          nullable: true
+          default: null
+        - name: MOD_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamptz
+          nullable: true
           default: null
       constraints:
         - name: PK_CATALOG_JOIN_PAIR_HIST

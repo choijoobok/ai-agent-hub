@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 public class CatalogController {
  public record Key(String id,String targetId,String catalogId,String revision,String historyNo,String kind) {public String asset(){return id!=null?id:targetId!=null?targetId:catalogId;}}
  public record CommandKey(String commandKey){}
- private final CatalogQueryService queries;private final ManagedCommandService commands;private final CatalogCommandQueryService results;
- public CatalogController(CatalogQueryService queries,ManagedCommandService commands,CatalogCommandQueryService results){this.queries=queries;this.commands=commands;this.results=results;}
+ private final CatalogQueryService queries;private final ManagedCommandService commands;private final CatalogCommandQueryService results;private final CatalogRelationQueryService relations;
+ public CatalogController(CatalogQueryService queries,ManagedCommandService commands,CatalogCommandQueryService results,CatalogRelationQueryService relations){this.queries=queries;this.commands=commands;this.results=results;this.relations=relations;}
  @PostMapping("/getList") @Operation(summary="카탈로그 목록 조회") public ApiResponse<PageResponse<Map<String,Object>>> getList(@Valid @RequestBody SearchRequest<CatalogQueryService.Filter> r){return ok(queries.getList(r));}
+ @PostMapping("/getRelationList") @Operation(summary="테이블 관계 관리 목록 조회") public ApiResponse<PageResponse<Map<String,Object>>> getRelationList(@Valid @RequestBody SearchRequest<CatalogRelationQueryService.Filter> r){return ok(relations.getList(r));}
  @PostMapping("/getOne") @Operation(summary="카탈로그 현재 전체 구성 조회") public ApiResponse<CatalogQueryService.Detail> getOne(@RequestBody Key k){return ok(queries.getOne(k.asset()));}
  @PostMapping("/saveCreate") @Operation(summary="카탈로그 마스터 신규 저장") public ApiResponse<Object> saveCreate(@RequestBody ManagedCommand c){if(c.targetId()!=null||!"MASTER".equals(c.scope()))throw ManagedErrorCode.VALIDATION.failure();return ok(CatalogResults.management(commands.save("API-023",c),"0",queries.mappings(c.commandKey())));}
  @PostMapping("/saveChange") @Operation(summary="카탈로그 지정 영역 저장") public ApiResponse<Object> saveChange(@RequestBody ManagedCommand c){if(c.targetId()==null)throw ManagedErrorCode.VALIDATION.failure();return ok(CatalogResults.management(commands.save("API-024",c),c.expectedRevision(),queries.mappings(c.commandKey())));}

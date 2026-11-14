@@ -914,6 +914,21 @@ entities:
       - name: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
         physical_name: REVIEW_EVIDENCE
         description: 검수 근거. 샘플 원값이나 비밀을 넣지 않는다
+      - name: RELATION_NM
+        physical_name: RELATION_NM
+        description: 관계 관리 서버 소유 RELATION_NM
+      - name: REG_ID
+        physical_name: REG_ID
+        description: 관계 관리 서버 소유 REG_ID
+      - name: REG_DTM
+        physical_name: REG_DTM
+        description: 관계 관리 서버 소유 REG_DTM
+      - name: MOD_ID
+        physical_name: MOD_ID
+        description: 관계 관리 서버 소유 MOD_ID
+      - name: MOD_DTM
+        physical_name: MOD_DTM
+        description: 관계 관리 서버 소유 MOD_DTM
     relations:
       - entity: ENT-020
         cardinality: 소유 판·구성의 복합 키로 참조
@@ -1016,6 +1031,26 @@ entities:
           type: text
           nullable: true
           default: null
+        - name: RELATION_NM
+          type: varchar(500)
+          nullable: true
+          default: null
+        - name: REG_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamptz
+          nullable: true
+          default: null
+        - name: MOD_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamptz
+          nullable: true
+          default: null
       constraints:
         - name: PK_CATALOG_RELATION
           definition: PRIMARY KEY (RELATION_ID)
@@ -1027,6 +1062,7 @@ entities:
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
     sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/039-catalog-relations.sql
       - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
