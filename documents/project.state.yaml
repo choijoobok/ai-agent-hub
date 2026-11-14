@@ -14,7 +14,7 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-010 선행 고정 코드 키 보완 완료; 관리 API/화면 후속
+  workstream: admin         # SLICE-010 관리 구현 검증; 사용자 G4 승인 대기
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 약5시간 위임 진행: SLICE-042/005/301/302/303/305/522 기술 G4와 각각 커밋·푸시 완료. 직접 사용자 화면 수락·실제 고객 원천/마스킹 운영 검수는 별도다. 다음010은 CR-046 고정 코드 공통 저장/이력 선행 보완만 검증·커밋했고 관리 API/화면은 미완료다. localhost3006에서 시험 관리자 로그인·Portal 이용자/등급 조회 화면을 열어 뒀다. 시험 중 JAR 재생성으로 구 실행 서버 클래스 로딩 실패를 확인해 최신 빌드로 재기동하고 조회 정상화를 확인했다. 검토 캡처는 sources/build/unattended-portal-review.png다."
+  first: "2026-11-14 SLICE-010 관리 화면/API·안전 표시·전체 이력·소비 보호 포트 구현을 fa58844d로 로컬 커밋했다. 기술 검증 완료, 사용자 G4 승인 대기. localhost3006/admin/hub/chat-help를 시험 관리자 로그인 상태로 열어 두었다. 후속 독립 이력 화면과 실제 Portal 표시/제출은 CR-047의 소유 범위에서 검증한다. 이번 커밋은 아직 푸시하지 않았다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1126,11 +1126,11 @@ counters:
   UC: 60
   FEAT: 108    # 2026-11-09 기존 Portal 인증 UI 소유를 FEAT-128로 분리 — 제품 범위 추가 아님
   ENT: 238    # 2026-11-11 CR-035/036 변경 상세 반영
-  API: 240    # CR-038 현재 시스템 정보/진행률 미등록2건 추적 보완
+  API: 241    # CR-047 READ 전용 안전 미리보기 API-144 추가
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 45    # CR-046 고정 코드 관리 키·공통 저장/이력 호환
+  CR: 46    # CR-047 도움말 관리/안전 표시·후속 소비 경계
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2730,9 +2730,7 @@ slices:
       - TC-0101
       - TC-0102
       - TC-0103
-      - TC-0104
       - TC-0105
-      - TC-0106
       - TC-0107
     scope: 채팅 도움말·주의사항 관리
     stage: P4
@@ -2745,8 +2743,8 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
     implementation_entry:
       reviewed_at: "2026-11-14"
-      approval_basis: delegated_progress
-      scope: admin G3·040 완료와 고정3구분 단일 본문/이력 계약을 재확인했다. CR-046에 따라 자연키 지원을 먼저 보완한다. FEAT-010 관리 API/화면을 아직 구현 완료로 세지 않는다.
+      approval_basis: 2026-11-14 사용자 SLICE-010 구현·필수 시험·G4 결과 요청
+      scope: admin G3·040 및 CR-046 선행 완료를 확인했다. CR-047의 관리 생산·불변 이력·안전 표시·소비 포트 범위로 구현하며 사용자 G4는 별도 대기한다.
     prerequisite_review:
       source_commit: d8c22a86
       implemented: 공통 ManagedCommand 전송 키와 소유 ManagedTargetKeys 정책 분리. 기존 숫자 정책 기본 유지, 고정 코드 집합 명시 등록, 문자 SQL 바인딩·정확 HIST/현재 판/잠금 및 물리 타입 검사. 기존 스키마/명령 지문/리비전 규칙 유지.
@@ -2756,10 +2754,53 @@ slices:
       static: 품질 중복2.56%·삼킴0·미태깅0, 공통물37·하네스18, meta 위반0·추적성 오류0/기존 경고72, doc-gen ID1621·장문17934 누락0·상대링크0, HTML492/21/9 구조/자산 통과. DB 마이그레이션·API/메뉴·프런트 변경 없음.
       redteam: 전송 코드 형식만으로 숫자 소유 업무를 통과하는 경로는 명령 정규화 단계에서400, SQL 조각/정규화된 별도 코드는 허용하지 않음, 이력 원문을 최신 값으로 대체하지 않음, 숫자 소유 경로의 기존 보호 회귀3개 통과. 고정 코드의 실제 도움말 CRUD 완료를 시험 fixture 성공으로 주장하지 않는다.
       logs: sources/build/slice010-keys-red.log·slice010-keys-unit.log·slice010-keys-live.log·slice010-keys-http-final.log 및 slice010 문서/품질 로그
-      remaining:
-        - FEAT-010 고정3행 마이그레이션·형식/원문 검증·관리 조회/저장 API·전체 이력 화면·구분별 편집본/미리보기/큰 편집창 구현과 변경 범위 검증
-        - 관리자/Portal 공통 안전 렌더 정책과 형식 상한을 소유 계약으로 구체화; 실제 Portal 표시/제출 근거는 후속 소유 구현에서 실증
-        - 제품010 G4 결과 정리와 직접 사용자 화면 수용 검토
+      handoff: CR-046 선행 이후 관리 구현/검증은 implementation_review로 이어진다. 이전 전체 이력 화면 잔여 표기는 CR-047에서 SCR-069 소유 FEAT-033으로 정정했다.
+    implementation_review:
+      status: awaiting_user_g4
+      verified_at: "2026-11-14T15:56:00+09:00"
+      source_commit: fa58844d
+      incidental_fix: 8b55cbf3 — 기존 UserGroupStorageQueryService 읽기 전용 선언 누락을 별도 보완했다.
+      change: CR-047
+      scope: 고정3구분 관리 조회/선택 저장·초기 UNSET·전체 HIST·공통 안전 렌더러·소비 보호/정확 판 포트·구분별 편집/미리보기/확대창. 원문/정책/콘텐츠 판을 분리하며 신규/삭제/사용 중지 기능은 없다.
+      test_first: SafeContentRendererTest의 미구현 클래스 RED를 확인한 뒤 구현했다. 선행 공통 자연키 RED/GREEN 근거는 prerequisite_review를 재사용한다.
+      tests:
+        unique_passed: 24
+        skipped: 0
+        feature: SafeContentRendererTest4·ChatHelpLiveTest4·ChatHelpPage.test.tsx4. 실제 DB/HTTP3건과 별도 신규 마이그레이션 롤백/재적용1건을 실행했다.
+        architecture: ApiOperationSummaryTest1·LayerDependencyTest7·ServiceConventionTest4. 기존 조회 선언 누락 수정 후 실패한1건만 다시 통과했다.
+        reuse: 전체 백엔드/프런트/Redis 시험은 반복하지 않았다. 이후 CSS 손잡이 수정은 실제 브라우저, 정상 스타일 경고 오탐 수정은 해당 렌더러1건, 화면 조회 종료/lint 수정은 해당 화면4건만 다시 확인했다. 비영향 통과 결과를 재사용한다.
+        contracts: TC-0101/0102/0103/0105/0107/0108의 이번 관리 생산 범위. TC-0104/0106의 실제 Portal 소비는 통과로 세지 않는다.
+      browser: 시험 계정 codex-review로 localhost3006 로그인. 고정 구분/미설정, Markdown 표 미리보기, 확대 임시 입력/Esc 보존·1100x870에서860x635 드래그/반영, 선택 USAGE_HELP 저장 revision2·재조회, INPUT_NOTICE HTML의 script/event/이미지/위험 URL/위치 CSS 제거·원문 보존, 조회 취소/확인과 다른 구분 불변을 확인했다. 시험 위험 본문은 저장하지 않고 재조회로 정리했다. 최종 소스 재기동/화면 새로고침 후 저장 판 확인·브라우저 오류0.
+      screenshot: sources/build/slice010-browser.jpg
+      review_server: localhost3006 / backend18006 / PostgreSQL group006_review. 원 관리자 비밀번호 변경 없음. 사용자 검토용으로 기동 상태 유지.
+      static: 타입/lint 오류0, 품질 중복2.55%·삼킴0·미태깅0. 공통물39·문서결손0, 하네스18·meta 위반0·추적성 오류0/기존 경고72. ENT238·활성테이블70·컬럼686·changelog34 일치. doc-gen ID1622·장문17973 누락0·깨진 링크0. 요건 매핑/목업 통과, HTML492/22/9장·원본810개 구조/자산 통과.
+      verification_limit: 생성된 로컬 HTML 직접 열기는 브라우저 URL 정책의 file 프로토콜 제한으로 거부됐다. 다른 실행면으로 우회하지 않았다. 제품 localhost 화면은 직접 확인했고 문서 HTML은 구조/자산/링크 검사만 확인했다.
+      gate_check:
+        pending_rechecks: 범위 항목 없음 — documents/project.state.yaml pending_rechecks.
+        testcases: 소유6개 TC의 필수12개 기능 시험 통과/skip0 — sources/build/slice010-render.log·slice010-live.log·slice010-migration-architecture.log·slice010-front-final.log·slice010-style.log.
+        counterexamples: 권한 회수/READ 저장403·낡은 판409·HIST 실패503의 현재/이력/원장 무효과·정확 과거 판 보호·안전 표시를 실제 시험했다 — ChatHelpLiveTest 및 SafeContentRendererTest.
+        quality: sources/build/slice010-quality.log 통과.
+        test_scope: 영향 기능/규약만 실행하고 비영향 결과 재사용 — current.verification_policy.
+        migration: 012-chat-help.sql·013-chat-help-menu.sql 신규 적용과 롤백/재적용 검증.
+        api: 50-api/013-admin-physical-apis.yaml·014-admin-physical-contracts.yaml·현재 controller/생성 API/권한 시드 일치.
+        feat_tags: 품질 검사에서 신규 소스 미태깅0.
+        spec_errors: documents/decisions/CHANGES.md CR-047로 완료 경계·안전 표시/초기값/실제 전송 봉투 처리.
+        demo: 실제 화면과 sources/build/slice010-browser.jpg 제공. 직접 사용자 수락은 대기.
+      redteam:
+        - 위험 HTML이 실행되거나 외부 미디어를 로드하면 관리자 세션/본문을 노출할 수 있다. 허용 목록·제한 CSS·Markdown HTML 이스케이프·TEXT 문자 표시·sandbox/CSP를 적용하고 렌더러/실제 브라우저에서 script/event/이미지/위험 링크 제거를 확인했다. 정상 스타일 정규화의 잘못된 제거 경고도 수정했다.
+        - 다른 구분의 미저장 입력이나 늦은 응답을 선택 구분에 덮으면 운영 문구를 잃는다. 구분별 초안·저장/미리보기 대상 고정·진행 중 편집 잠금·요청 세대/조회 종료 보호를 적용했고 선택 저장과 구분 왕복·형식 변경/확대 취소를 화면 시험으로 확인했다.
+        - 현재값만 저장되고 이력이 실패하거나 과거 안내를 최신판으로 대체하면 당시 표시 근거를 잃는다. 실제 HIST 실패 주입으로 현재/이력/원장 무효과를 확인했고 동일 명령 재수신·낡은 판 거부·보호된 정확 과거 판 재현을 검증했다.
+      unresolved_slice_assumptions: []
+      decision_card:
+        - 고정3구분만 관리하고 추가/삭제/사용 중지는 제공하지 않는다. 변경 비용 낮음.
+        - 선택 구분만 새 사유로 저장하고 다른 구분 편집본은 유지한다. 변경 비용 중간.
+        - 운영 초기 문구를 자동으로 넣지 않고 미설정으로 시작한다. 변경 비용 낮음.
+        - 이번 완료는 관리 생산/이력/연결 포트이며 독립 이력 화면·실제 채팅 제출 검증은 후속이다. 현재 분리 비용 낮음, 소비 계약을 먼저 중복 구현하면 높아짐.
+      reverse_question: 별도 이력 조회 화면과 실제 채팅 적용·제출 검증은 후속으로 두고 이번 관리 기능 범위로 승인받는 것이 맞는지 사용자 확인을 요청한다.
+      followup:
+        - FEAT-033 SCR-069 전체 이력 검색/반출은 TC-0333/0335/03311에서 검증한다.
+        - FEAT-107·agent 실제 표시/제출 당시 정적 판·동적 전송 범위 검증은 TC-0104/0106의 후속 소유다.
+      acceptance: 직접 사용자 G4 승인 대기. 과거 약5시간 위임 승인으로 자동 완료 처리하지 않는다. 상태는 in_progress 유지.
   - id: SLICE-013
     workstream: admin
     features:
