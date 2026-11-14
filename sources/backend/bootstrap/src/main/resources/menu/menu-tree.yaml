@@ -199,3 +199,8 @@ menus:
     parent: HUB_FOUNDATION
     url: /admin/hub/quota-grade
     export: true
+  # @feat FEAT-005
+  - code: HUB_PORTAL_USER
+    parent: HUB_FOUNDATION
+    url: /admin/hub/portal-user
+    export: true

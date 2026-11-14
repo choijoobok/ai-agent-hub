@@ -3,7 +3,7 @@ entities:
   - id: ENT-114
     name: Portal 자체 인증정보
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_PORTAL_CREDENTIAL
     features:
@@ -96,8 +96,12 @@ entities:
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     rules:
       - LOCAL 계정에만 존재한다. 관리자 계정 암호 정책·소유 저장소와 분리하며 해시/로그인 실패값은 관리 HIST·일반 API에 반환하지 않는다. 비밀 없는 자격 변경 사건은 소유 보안 감사 계약으로 인계한다.
-    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 현재 Liquibase와 소유 API에서 검증한다.
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/009-portal-user.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
     history_storage:
       mode: not_management_history
       reason: 기술/불변 업무 기록 또는 비밀 저장 단위
@@ -109,7 +113,7 @@ entities:
   - id: ENT-131
     name: Portal 외부 인증 주체 연결
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_PORTAL_EXTERNAL_ID
     features:
@@ -176,8 +180,12 @@ entities:
     rules:
       - 원문 인증 응답/토큰은 저장하지 않는다. 관리자와 공통 개인키로 연결하지 않는다.
       - FEAT-305의 외부 사건은 현재 BINDING_KEY와 정확 연결 근거를 대조한다. 원천 subject 문자열이나 시각만으로 과거 연결을 새 연결에 적용하지 않는다.
-    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 현재 Liquibase와 소유 API에서 검증한다.
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/009-portal-user.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-101

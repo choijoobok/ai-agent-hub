@@ -77,13 +77,16 @@ public class QuotaGradeService implements ManagedAssetAdapter {
         else jdbc.update("UPDATE "+ROOT+" SET MEMO=?,REVISION=?,ACCEPTED_DTM=?,CHANGE_REASON=?,MOD_ID=?,MOD_DTM=? WHERE GRADE_SET_ID=?",value.memo(),Long.parseLong(stamp.revision()),at,stamp.reason(),stamp.actor(),at,target);
         jdbc.update("DELETE FROM "+ITEM+" WHERE GRADE_SET_ID=?",target);
         var resolved=new ArrayList<QuotaGradeDefinition.Grade>();
+        var clientIds=new HashMap<String,String>();
         for(var grade:value.grades()) {
             long id=grade.gradeId()==null?ids.next("AI_ADMIN_QUOTA_GRADE"):Long.parseLong(grade.gradeId());
             if(grade.gradeId()==null)jdbc.update("INSERT INTO AI_ADMIN_QUOTA_GRADE(GRADE_ID,CREATED_DTM) VALUES (?,?)",id,at);
+            if(grade.gradeId()==null)clientIds.put("new:"+grade.clientKey(),Long.toString(id));
             jdbc.update("INSERT INTO "+ITEM+"(GRADE_SET_ID,GRADE_ID,GRADE_NM,RANK_NO,WEIGHT,DESCRIPTION) VALUES (?,?,?,?,?,?)",target,id,grade.gradeNm(),grade.rankNo(),grade.weight(),grade.description());
             resolved.add(new QuotaGradeDefinition.Grade(Long.toString(id),null,grade.gradeNm(),grade.rankNo(),grade.weight(),grade.description()));
         }
-        var after=new QuotaGradeDefinition(value.startMonth(),value.memo(),List.copyOf(resolved),value.transitions());
+        var transitions=new LinkedHashMap<String,String>();value.transitions().forEach((from,to)->transitions.put(from,to.startsWith("new:")?clientIds.get(to):to));
+        var after=new QuotaGradeDefinition(value.startMonth(),value.memo(),List.copyOf(resolved),Map.copyOf(transitions));
         guard.apply(new QuotaGradeUsage.Change(Long.toString(target),change.startMonth(),change.nextMonth(),false,change.beforeIds(),after),stamp);return Long.toString(target);
     }
     @Transactional(propagation=Propagation.MANDATORY)

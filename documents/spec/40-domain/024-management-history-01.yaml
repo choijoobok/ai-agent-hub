@@ -235,7 +235,7 @@ entities:
   - id: ENT-201
     name: Portal 이용자 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_PORTAL_USER_HIST
     features:
@@ -248,7 +248,11 @@ entities:
       - REQ-601
     term: TRM-245
     domain: Portal 이용
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/009-portal-user.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
     attributes:
       - name: Portal 안정 식별자
         physical_name: PORTAL_USER_ID
@@ -394,7 +398,7 @@ entities:
           default: null
         - name: USE_END_DT
           type: date
-          nullable: false
+          nullable: true
           default: null
         - name: ACTIVE_YN
           type: character(1)
@@ -491,7 +495,7 @@ entities:
         - name: IX_PORTAL_USER_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_PORTAL_USER_HIST_LOOKUP ON AI_ADMIN_PORTAL_USER_HIST (PORTAL_USER_ID, HISTORY_NO)
+          definition: (PORTAL_USER_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-101
@@ -736,7 +740,7 @@ entities:
   - id: ENT-203
     name: Portal 이용자의 그룹 소속 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_USER_MEMBERSHIP_HIST
     features:
@@ -749,7 +753,11 @@ entities:
       - REQ-601
     term: TRM-045
     domain: Portal 이용
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/009-portal-user.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
     attributes:
       - name: 소유 Portal 이용자
         physical_name: PORTAL_USER_ID
@@ -844,7 +852,7 @@ entities:
         - name: IX_USER_MEMBERSHIP_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_USER_MEMBERSHIP_HIST_LOOKUP ON AI_ADMIN_USER_MEMBERSHIP_HIST (PORTAL_USER_ID, GROUP_ID, HISTORY_NO)
+          definition: (PORTAL_USER_ID, GROUP_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-103

@@ -23,6 +23,13 @@ CONFIG_MGMT,/api/system/service/config/getPrefixes
 CONFIG_MGMT,/api/system/service/config/save
 ERROR_LOG,/api/system/service/errorLog/getDetail
 ERROR_LOG,/api/system/service/errorLog/getList
+HUB_PORTAL_USER,/api/admin/service/managementCommand/getResult
+HUB_PORTAL_USER,/api/admin/service/portalUser/getIdentityTargets
+HUB_PORTAL_USER,/api/admin/service/portalUser/getList
+HUB_PORTAL_USER,/api/admin/service/portalUser/getOne
+HUB_PORTAL_USER,/api/admin/service/portalUser/resetCredential
+HUB_PORTAL_USER,/api/admin/service/portalUser/save
+HUB_PORTAL_USER,/api/admin/service/portalUser/unlockCredential
 HUB_QUOTA_GRADE,/api/admin/service/managementCommand/getResult
 HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getList
 HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getOne

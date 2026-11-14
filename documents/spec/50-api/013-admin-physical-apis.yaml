@@ -153,37 +153,41 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-017.physical_contract.screens.SCR-021
   - id: API-101
     feature: FEAT-005
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java#getList
     method: POST
     path: /api/admin/service/portalUser/getList
     action: READ
     summary: SCR-005 getList
-    request: QueryPage
-    response: ApiResponse<Page<요약 DTO>>
+    request: SearchRequest<Void>; conditions/page/sorts 공통 규격
+    response: ApiResponse<PageResponse<Row>>; 안전한 잠금/변경 필요/변경 시각 포함, 비밀 제외
     contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
   - id: API-102
     feature: FEAT-005
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java#getOne
     method: POST
     path: /api/admin/service/portalUser/getOne
     action: READ
     summary: SCR-005 getOne
-    request: targetId 및 소유 범위; 전체 기준 리비전 반환
-    response: ApiResponse<SCR-005 상세/읽기 투영 DTO와 기준 리비전>
+    request: targetId/scope/effectiveMonth; scope defaults는 targetId 없이 서버 업무일·배포 인증 모드 조회
+    response: ApiResponse<Detail>; user/rows/choices/state/today/allocation/gradeChoices/credential. 미연결은 명시 상태이며 미확정 수치는 null
     contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
   - id: API-103
     feature: FEAT-005
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java#getIdentityTargets
     method: POST
     path: /api/admin/service/portalUser/getIdentityTargets
     action: READ
     summary: SCR-005 getIdentityTargets
-    request: targetId 및 소유 범위; 전체 기준 리비전 반환
+    request: targetId/scope; scope identitySystem 또는 identityDataSource, 현재 열람 후보와 매핑 교집합
     response: ApiResponse<SCR-005 상세/읽기 투영 DTO와 기준 리비전>
     contract: FEAT-040.physical_transport; FEAT-005.physical_contract.screens.SCR-005
   - id: API-104
     feature: FEAT-005
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java#resetCredential
     method: POST
     path: /api/admin/service/portalUser/resetCredential
     action: SAVE
@@ -568,7 +572,8 @@ apis:
     contract: FEAT-010/SCR-014. 신규/삭제 코드 금지. 원문/형식만 직접 저장하고 서버 안전 렌더 및 실제 agent 제공 판은 별도 계약이다.
   - id: API-142
     feature: FEAT-005
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/portal/PortalUserController.java#unlockCredential
     method: POST
     path: /api/admin/service/portalUser/unlockCredential
     action: SAVE

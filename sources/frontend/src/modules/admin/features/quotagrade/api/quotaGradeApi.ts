@@ -15,7 +15,8 @@ export class QuotaGradeCommands extends ManagedCommands<QuotaBasis> {
           grades: (row.data.grades ?? []).filter((grade) => grade.state !== 'D').map(({ data }) => ({
             gradeId: data.gradeId, clientKey: data.clientKey, gradeNm: data.gradeNm, rankNo: Number(data.rankNo), weight: String(data.weight), description: data.description,
           })),
-          transitionMappings: (row.data.grades ?? []).filter((grade) => grade.state === 'D' && grade.data.transferGradeId).map(({ data }) => ({ fromGradeId: data.gradeId, toGradeId: data.transferGradeId })),
+          transitionMappings: (row.data.grades ?? []).filter((grade) => grade.state === 'D' && grade.data.transferGradeId).map(({ data }) => data.transferGradeId!.startsWith('new:')
+            ? { fromGradeId: data.gradeId, toClientKey: data.transferGradeId!.slice(4) } : { fromGradeId: data.gradeId, toGradeId: data.transferGradeId }),
         },
       }),
     }, send);

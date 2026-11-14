@@ -111,7 +111,7 @@ export function QuotaGradePage() {
     found.rows = detail.rows;
     const hash = fingerprint(detail.rows);
     masterEdit(selectedId, { detailHash: hash === found.baseline ? undefined : hash });
-    setGradeOptions(detail.rows.filter((row) => row.state !== 'D' && row.data.gradeId).map((row) => ({ value: row.data.gradeId!, text: row.data.gradeNm })));
+    setGradeOptions(detail.rows.filter((row) => row.state !== 'D').map((row) => ({ value: row.data.gradeId ?? `new:${row.data.clientKey}`, text: row.data.gradeNm })));
   }, [detail.rows, loading, masterEdit, selectedId]);
   const select = async (row: GridRow<QuotaBasis> | null, force = false) => {
     if (blocked) return false;

@@ -78,6 +78,9 @@ logging:
     level: "%5p [%X{traceId:-}]"
 
 app:
+  portal:
+    # @feat FEAT-005 — 배포 모드. 인증 실패 시 자동 전환하지 않는다.
+    auth-mode: ${PORTAL_AUTH_MODE:LOCAL}
   auth:
     session:
       provider: ${AUTH_SESSION_PROVIDER:jdbc}

@@ -11,16 +11,17 @@ import { label } from '@/shared/i18n/label';
 import { MSG } from '@/shared/i18n/messageKeys';
 import type { GroupProjection, GroupScope } from '../types';
 import { useGroupDetail, type ReferenceChange } from './useGroupDetail';
+import { GroupMembersEditor, type GroupMemberDraft } from './GroupMembersEditor';
 
 const titles: Record<GroupScope, string> = { membership: MSG.GROUP_MEMBERS, knowledge: MSG.GROUP_KNOWLEDGE, catalog: MSG.GROUP_CATALOG, api: MSG.GROUP_API, tool: MSG.GROUP_TOOL };
 type DetailRow = Record<string, unknown>;
 function columnsFor(scope: GroupScope): ColumnDef<DetailRow>[] {
   const text = (field: string, header: string): ColumnDef<DetailRow> => ({ field, header, type: 'text', width: 180 });
   if (scope === 'membership') return [text('loginId', MSG.GROUP_LOGIN), text('groupId', MSG.GROUP_ID),
-    { field: 'activeYn', header: MSG.GROUP_ACTIVE, type: 'ynFlag', width: 110 }, ...auditColumns<DetailRow>(), text('memo', MSG.GROUP_MEMO)];
+    { field: 'activeYn', header: MSG.GROUP_ACTIVE, type: 'ynFlag', derive: (row) => row.activeYn === 'Y', patch: (_row, value) => ({ activeYn: value === true ? 'Y' : 'N' }), width: 110 }, ...auditColumns<DetailRow>(), text('memo', MSG.GROUP_MEMO)];
   const names = scope === 'catalog' ? [text('tableNm', MSG.GROUP_TABLE), text('tableDescription', MSG.GROUP_TABLE_DESC), text('systemNm', MSG.GROUP_SYSTEM), text('datasourceNm', MSG.GROUP_DATASOURCE)]
     : [text('assetId', MSG.GROUP_ASSET_ID), text('assetNm', MSG.GROUP_ASSET_NAME)];
-  return [...names, { field: 'activeYn', header: MSG.GROUP_MAPPING, type: 'ynFlag', width: 130 }];
+  return [...names, { field: 'activeYn', header: MSG.GROUP_MAPPING, type: 'ynFlag', derive: (row) => row.activeYn === 'Y', patch: (_row, value) => ({ activeYn: value === true ? 'Y' : 'N' }), width: 130 }];
 }
 
 function ProjectionGrid({ scope, detail, onRead }: { scope: GroupScope; detail?: GroupProjection; onRead: () => void }) {
@@ -37,11 +38,13 @@ function ProjectionGrid({ scope, detail, onRead }: { scope: GroupScope; detail?:
 }
 
 export function GroupLinksPanel({ groupId, onReference }: { groupId: string | null; onReference: ReferenceChange }) {
+  const members = useMemo(() => new Map<string, GroupMemberDraft>(), []);
   const [selected, setSelected] = useState<Record<string, GroupScope>>({});
   const key = groupId ?? 'new';
   const scope = selected[key] ?? 'membership';
   const { details, onRead } = useGroupDetail(groupId, onReference);
   return <DetailTabs style={{ ['--bo-tab-min-width' as string]: '80px' }} activeKey={scope} onChange={(next) => setSelected((before) => ({ ...before, [key]: next as GroupScope }))}
     items={(Object.keys(titles) as GroupScope[]).map((tab) => ({ key: tab, label: label(titles[tab]),
-      children: <ProjectionGrid key={`${key}/${tab}`} scope={tab} detail={details[tab]} onRead={onRead} /> }))} />;
+      children: tab === 'membership' && groupId ? <GroupMembersEditor key={groupId} groupId={groupId} detail={details[tab]} onRead={onRead} cache={members} />
+        : <ProjectionGrid key={`${key}/${tab}`} scope={tab} detail={details[tab]} onRead={onRead} /> }))} />;
 }

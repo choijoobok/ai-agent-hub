@@ -276,5 +276,18 @@ testcases:
     given: LOCAL 이용자와EXTERNAL 이용자 및 같은 초기화명령재전송
     when: 임시비밀번호발급성공후응답유실·원키결과조회
     then: LOCAL만첫응답1회표시, 원장/HIST/로그에는비밀없음. 같은키재발급없고SECRET_NOT_REPLAYABLE. 잠금해제가그룹/기간권한을풀지않음.
-    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
-    status: planned
+    verification: PortalUserLiveTest·PortalExternalLiveTest와 portalUserApi.test.ts에서 단회 응답·유실 후 원 결과 확인·동일 키 재발급 금지·해시 제외·EXTERNAL 초기화 거부를 검증했다.
+    status: implemented
+
+  - id: TC-0059
+    feature: FEAT-005
+    usecase: UC-024
+    screens: [SCR-005, SCR-006, SCR-064]
+    type: concurrency
+    title: CR-044 Portal 관리 원장·LOCAL 자격·현재 수락 포트와 실제 그룹/등급 연결
+    actor: ACT-004
+    given: 독립 Portal 원장과 현재 ADMIN 권한·현재/미래 기준 및 원 결과 유실·외부 생산자 미연결
+    when: 소속 두 화면 저장·미래 기준 등급 이전·LOCAL 암호 정책·현재 수락/회수 동시 실행·HIST 실패
+    then: 같은 사용자 부모 판과 전체 이력/원 결과 원자성·불변 최초 감사·마지막 소속 보호·현재값 회수 순서·다른 탭 보존·비밀 비보존·미연결 명시를 유지한다. 기존 소속은 비활성화하며 참조가 있는 그룹을 삭제하지 않는다.
+    verification: PortalUserLiveTest·PortalExternalLiveTest·PortalDefinitionTest·QuotaGradeDefinitionTest 및 portalUserApi.test.ts. 실제 PostgreSQL 마이그레이션 왕복과 직접 브라우저 양방향 소속 저장/탭 입력 보존을 확인했다. 실제 세션/고객 SSO·인사 사건·대상 자산·월 배정 생산 연결은 원 소유 후속이다.
+    status: implemented

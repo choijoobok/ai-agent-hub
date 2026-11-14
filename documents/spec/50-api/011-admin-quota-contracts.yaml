@@ -299,6 +299,7 @@ feature_contracts:
       - ENT-105
       - ENT-106
     source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/quota/QuotaGradeService.java
+    implemented_usage: SLICE-005 PortalGradeUsage가 실제 사용자 효력/미래 예약·삭제 참조를 연결한다. 제거 등급의 명시 이전과 신규 toClientKey를 수락하고 같은 트랜잭션에서 사용자별 부모 리비전/전체 HIST를 남긴다. 배정/예정본 생산자는017/045 후속이다.
     connection_port: QuotaGradeUsage. 경계 잠금 뒤 locks는 관련 월1/사용자2를 반환한다. 부모3 취득 뒤 validate, 현재값 변경 후 발급된 부모/자식 안정 ID와 DB 수락 시각으로 apply를 같은 물리 트랜잭션에서 호출한다. 실패는 전체 rollback.
     storage: 시작월마다 전체 등급 세트의 기대 리비전·순위 유일성·양수 소수2자리 가중치·순위별 비감소를 검증한다. 대상 월 이하 최신 한 세트를 선택한다. 등급 안정 ID를 이름/순위로 대신하지 않는다.
     references: 사용자 효력 등급·미래 승인 예약·후속 시작월 등급 대응을 검증한다. REQ-606의 등급 이전/취소·대체 계약을 보존하며 이름이 같다는 이유로 과거/후속 등급을 합치지 않는다. 잠긴 월에서 사용한 세트/대응은 변경하지 않는다.

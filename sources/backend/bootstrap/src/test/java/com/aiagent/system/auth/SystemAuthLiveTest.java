@@ -92,7 +92,7 @@ class SystemAuthLiveTest {
     @Test @Order(1) @DisplayName("TC-50115 TC-50117 실제 빈 DB 기동은 자동 세션 필터0·정확 handler·CSV/SQL 집합을 대조한다")
     void bootstrapAndSeedCollections() throws Exception {
         assertThat(first.getBeanNamesForType(Class.forName("org.springframework.session.SessionRepository"))).isEmpty();
-        var catalog=first.getBean(AdminApiCatalog.class).catalog();assertThat(catalog.entries()).hasSize(sample?133:113);
+        var catalog=first.getBean(AdminApiCatalog.class).catalog();assertThat(catalog.entries()).hasSize(sample?139:119);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM AI_AUTH_DOMAIN_STATE WHERE AUTH_DOMAIN='PORTAL'",Integer.class)).isZero();
         assertThat(jdbc.queryForList("SELECT API_URL FROM SYS_API",String.class)).allMatch(path->path.matches("/api/(system|sample|admin)/service/.+"));
         assertThat(rows("006-init-api.csv",0,3)).containsExactlyInAnyOrderElementsOf(jdbc.query("SELECT API_URL,ACTION_CD FROM SYS_API",(r,i)->r.getString(1)+"|"+r.getString(2)));

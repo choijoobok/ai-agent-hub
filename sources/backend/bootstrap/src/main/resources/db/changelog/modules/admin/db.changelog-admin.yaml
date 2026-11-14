@@ -23,3 +23,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/008-quota-grade-menu.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/009-portal-user.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/010-portal-user-menu.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/011-portal-user-messages.sql
+      relativeToChangelogFile: false

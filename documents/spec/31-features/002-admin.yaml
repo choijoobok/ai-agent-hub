@@ -510,7 +510,13 @@ features:
     module: admin
     screen: SCR-005
     roadmap: RM-P1
-    title: Portal 사용자 관리
+    title: Portal 이용자 관리
+    design_status: approved
+    implementation: partial
+    delivery: CR-044. 독립 원장·자격/현재 접근 공개 포트·관리 화면과006/042 실제 연결 완료. 실제 세션301, 외부 원천305/306, 기술 대상001/002, 배정017/045·추가018은 원 소유 연결 후 검증한다.
+    sources:
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
+      - sources/frontend/src/modules/admin/features/portaluser/
     detail: REQ-616의 별도 Portal 계정·이용 기간/상태·최초 등급과 다섯 하단 탭을 관리한다. 사용자 그룹은 REQ-609.membership_record를 사용자 기준으로 조회·직접 저장하며 FEAT-006과 같은 소속 현재값·감사를 사용한다. 신원도 현재 변경 권한자의 직접 저장이며 Portal 계정/인증과 system 관리자는 분리한다.
     reqs:
       - REQ-103
@@ -565,7 +571,6 @@ features:
     implementation: partial
     delivery: FEAT-006.delivery_boundary; CR-040 정의·화면·연결 포트와 소유 실연결 검증을 분리한다.
     pending:
-      - "@defer SLICE-005 — Portal 소속 실원장·편집·사용자 선택 연결"
       - "@defer SLICE-002/003/004/011/020 — 각 자산 역조회와 현재 권한 소비 연결"
     screens: []
     entities:

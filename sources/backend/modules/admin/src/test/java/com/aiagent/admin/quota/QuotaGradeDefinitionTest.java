@@ -6,6 +6,14 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class QuotaGradeDefinitionTest {
+    @Test void acceptsTransferToNewGradeOnlyWithinTheSameCommand() {
+        var input=new HashMap<>(values(List.of(grade("신규",1,"1"))));
+        input.put("transitionMappings",List.of(Map.of("fromGradeId","1","toClientKey","신규")));
+        var result=QuotaGradeDefinition.parse(input);assertThat(result.transitions()).containsEntry("1","new:신규");
+        assertThat(QuotaGradeDefinition.parse(result.values())).isEqualTo(result);
+        input.put("transitionMappings",List.of(Map.of("fromGradeId","1","toClientKey","외부")));
+        assertThatThrownBy(()->QuotaGradeDefinition.parse(input));
+    }
     private Map<String,Object> grade(String name,int rank,String weight) {
         return Map.of("clientKey",name,"gradeNm",name,"rankNo",rank,"weight",weight,"description","");
     }

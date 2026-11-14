@@ -11,7 +11,8 @@ public final class SensitiveRequest {
     private static final Set<String> COMMANDS = Set.of(
             "/api/system/public/auth/login", "/api/system/public/auth/sendResetCode",
             "/api/system/public/auth/verifyResetCode", "/api/system/public/auth/saveResetPassword",
-            "/api/system/common/auth/changePassword", "/api/system/service/user/savePasswordReset");
+            "/api/system/common/auth/changePassword", "/api/system/service/user/savePasswordReset",
+            "/api/admin/service/portalUser/resetCredential");
     public static boolean excluded(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
         return path.startsWith("/api/portal/") || path.contains("/auth/") || COMMANDS.contains(path);

@@ -3167,4 +3167,109 @@ export const MSG = {
   QUOTA_GRADE_COPY_NEW: 'quota_grade.copy_new',
   QUOTA_GRADE_UNKNOWN: 'quota_grade.unknown',
   QUOTA_GRADE_STALE: 'quota_grade.stale',
+  // @feat FEAT-005
+  /** Portal 이용자 */
+  PORTAL_TITLE: 'portal_user.title',
+  /** 이용자 식별자 */
+  PORTAL_ID: 'portal_user.id',
+  /** 이름 */
+  PORTAL_NAME: 'portal_user.name',
+  /** 조직 */
+  PORTAL_ORGANIZATION: 'portal_user.organization',
+  /** 자체 계정 구분 */
+  PORTAL_MODE: 'portal_user.mode',
+  /** 정보 원천 */
+  PORTAL_SOURCE: 'portal_user.source',
+  /** 사용 시작일 */
+  PORTAL_START: 'portal_user.start',
+  /** 사용 종료일 */
+  PORTAL_END: 'portal_user.end',
+  /** 이용 상태 */
+  PORTAL_ACTIVE: 'portal_user.active',
+  /** 사용 */
+  PORTAL_ENABLED: 'portal_user.enabled',
+  /** 중지 */
+  PORTAL_DISABLED: 'portal_user.disabled',
+  /** 추가 토큰 */
+  PORTAL_EXTRA: 'portal_user.extra',
+  /** 데이터소스 아이디 매핑 */
+  PORTAL_DS_IDENTITY: 'portal_user.ds_identity',
+  /** 대상 시스템 아이디 매핑 */
+  PORTAL_SYSTEM_IDENTITY: 'portal_user.system_identity',
+  /** 등급 효력 시작월 */
+  PORTAL_EFFECTIVE_MONTH: 'portal_user.effective_month',
+  /** 신청 번호 */
+  PORTAL_REQUEST_ID: 'portal_user.request_id',
+  /** 신청 토큰 */
+  PORTAL_REQUESTED: 'portal_user.requested',
+  /** 승인 토큰 */
+  PORTAL_APPROVED: 'portal_user.approved',
+  /** 처리 상태 */
+  PORTAL_STATUS: 'portal_user.status',
+  /** 사용자 아이디 */
+  PORTAL_EXTERNAL_ID: 'portal_user.external_id',
+  /** 신원 연결 근거 */
+  PORTAL_IDENTITY_EVIDENCE: 'portal_user.identity_evidence',
+  /** 설정 가능 사유 */
+  PORTAL_TARGET_STATE: 'portal_user.target_state',
+  /** 한도 */
+  PORTAL_TOKEN_LIMIT: 'portal_user.token_limit',
+  /** 사용량 */
+  PORTAL_TOKEN_USED: 'portal_user.token_used',
+  /** 잔여량 */
+  PORTAL_TOKEN_REMAINING: 'portal_user.token_remaining',
+  /** 이용자도 함께 비활성화 */
+  PORTAL_DEACTIVATE_TOGETHER: 'portal_user.deactivate_together',
+  /** 기존 자료는 삭제하지 않고 비활성화합니다. */
+  PORTAL_KEEP_HISTORY: 'portal_user.keep_history',
+  /** 저장된 이용자를 선택하세요. 신규 이용자는 상단에서 먼저 저장합니다. */
+  PORTAL_SELECT: 'portal_user.select',
+  /** 다른 영역에서 이용자 정보가 변경되었습니다. 입력을 확인한 뒤 이 영역을 다시 조회하세요. */
+  PORTAL_STALE: 'portal_user.stale',
+  /** 이용자 정보를 확인할 수 없습니다. 다시 조회하세요. */
+  PORTAL_UNAVAILABLE: 'portal_user.unavailable',
+  /** 월별 배정 기능 연결 전입니다. 한도·사용량·잔여량은 아직 제공하지 않습니다. */
+  PORTAL_NOT_INSTALLED: 'portal_user.not_installed',
+  /** 이 원천의 연결이 준비되지 않았습니다. */
+  PORTAL_NOT_CONNECTED: 'portal_user.not_connected',
+  /** 비밀번호 초기화 */
+  PORTAL_RESET: 'portal_user.reset',
+  /** 잠금 해제 */
+  PORTAL_UNLOCK: 'portal_user.unlock',
+  /** 선택한 계정의 자격정보를 변경합니다. 변경 사유를 함께 기록합니다. */
+  PORTAL_CREDENTIAL_CONFIRM: 'portal_user.credential_confirm',
+  /** 자격정보 처리 결과 */
+  PORTAL_CREDENTIAL_RESULT: 'portal_user.credential_result',
+  /** 이 임시 비밀번호는 지금 한 번만 표시됩니다. 전달 후 창을 닫으세요. */
+  PORTAL_SECRET_ONCE: 'portal_user.secret_once',
+  /** 임시 비밀번호 */
+  PORTAL_TEMP_PASSWORD: 'portal_user.temp_password',
+  /** 원 명령은 처리되었으며 비밀번호를 다시 표시할 수 없습니다. 필요하면 별도 초기화를 요청하세요. */
+  PORTAL_SECRET_LOST: 'portal_user.secret_lost',
+  /** 잠금 해제가 완료되었습니다. */
+  PORTAL_UNLOCKED: 'portal_user.unlocked',
+  /** 외부 원천 키 */
+  PORTAL_EXTERNAL_SOURCE: 'portal_user.external_source',
+  /** 외부 주체 식별자 */
+  PORTAL_EXTERNAL_SUBJECT: 'portal_user.external_subject',
+  /** 추가 토큰은 소유 화면에서 변경합니다. */
+  PORTAL_EXTRA_READ_ONLY: 'portal_user.extra_read_only',
+  /** 먼저 원 계정의 처리 결과를 확인하세요. */
+  PORTAL_CREDENTIAL_PENDING: 'portal_user.credential_pending',
+  /** 소속 이용자 */
+  PORTAL_GROUP_USER: 'portal_user.group_user',
+  /** 이용자 선택 */
+  PORTAL_USER_PICK: 'portal_user.user_pick',
+  /** 소속을 편집할 이용자를 선택하세요. */
+  PORTAL_USER_REQUIRED: 'portal_user.user_required',
+  /** 다른 영역의 저장으로 기준본이 변경되었습니다. */
+  PORTAL_REVISION_CONFLICT: 'portal_user.revision_conflict',
+  /** 등급은 적용할 월의 기준에 포함되어야 합니다. 미래 예약만 취소·이동할 수 있습니다. */
+  PORTAL_GRADE_HINT: 'portal_user.grade_hint',
+  /** 확인 필요 */
+  PORTAL_UNKNOWN: 'portal_user.unknown',
+  /** 계정 잠금 */
+  PORTAL_LOCKED: 'portal_user.locked',
+  /** 비밀번호 변경 필요 */
+  PORTAL_MUST_CHANGE: 'portal_user.must_change',
 } as const;

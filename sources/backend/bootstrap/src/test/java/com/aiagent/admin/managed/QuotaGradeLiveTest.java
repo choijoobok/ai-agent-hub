@@ -30,7 +30,7 @@ class QuotaGradeLiveTest {
     void saveCopyReplayHistoryRevisionAndPermission() throws Exception {
         var cmd=command(null,null,start,List.of(grade(null,"일반",1,"1"),grade(null,"고급",2,"3")));
         var saved=call("save",cmd,200);String id=saved.path("targetId").asText();assertThat(call("save",cmd,200)).isEqualTo(saved);
-        var one=call("getOne",Map.of("targetId",id),200);assertThat(one.path("referenceState").asText()).isEqualTo("NOT_INSTALLED");
+        var one=call("getOne",Map.of("targetId",id),200);assertThat(one.path("referenceState").asText()).isEqualTo("READY");
         String first=one.path("grades").get(0).path("gradeId").asText(),second=one.path("grades").get(1).path("gradeId").asText();
         var rows=List.of(grade(first,"일반",1,"1"),grade(second,"고급",2,"3"));
         var search=Map.of("conditions",List.of(Map.of("field","gradeNm","op","eq","value","고급")),"page",Map.of("page",0,"size",20));
@@ -63,9 +63,9 @@ class QuotaGradeLiveTest {
     void deletionPreservesIdentityAndHistoryAndBlocksUnknownOrCurrentMonth() throws Exception {
         String month=YearMonth.parse(start).plusMonths(2).toString();var saved=call("save",command(null,null,month,List.of(grade(null,"삭제",1,"1"))),200);String id=saved.path("targetId").asText();
         var remove=new ManagedCommand(UUID.randomUUID().toString(),id,"1","definition",Map.of(),"미래 기준 취소");
-        f.database().execute("CREATE TABLE ai_admin_user_quota_grade (user_id bigint)");
+        f.database().execute("CREATE TABLE ai_admin_quota_plan (plan_id bigint)");
         try {call("remove",remove,503);assertThat(call("getOne",Map.of("targetId",id),200).path("referenceState").asText()).isEqualTo("UNAVAILABLE");}
-        finally {f.database().execute("DROP TABLE ai_admin_user_quota_grade");}
+        finally {f.database().execute("DROP TABLE ai_admin_quota_plan");}
         var deleted=call("remove",remove,200);assertThat(call("remove",remove,200)).isEqualTo(deleted);
         assertThat(f.database().queryForObject("SELECT COUNT(*) FROM ai_admin_quota_grade_set WHERE grade_set_id=?",Integer.class,Long.parseLong(id))).isZero();
         assertThat(f.database().queryForObject("SELECT COUNT(*) FROM ai_admin_quota_grade_item_hist WHERE grade_set_id=?",Integer.class,Long.parseLong(id))).isEqualTo(2);
@@ -77,7 +77,8 @@ class QuotaGradeLiveTest {
     @Test @Order(4) @DisplayName("TC-0421 등급 기준 신규 마이그레이션 왕복")
     void migrationRollbackAndReapply() throws Exception {
         try(var connection=f.bean(DataSource.class).getConnection();var migration=new Liquibase("db/changelog/db.changelog-master.yaml",new ClassLoaderResourceAccessor(),new JdbcConnection(connection))) {
-            migration.rollback(2,"");
+            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE filename LIKE 'db/changelog/modules/admin/%' AND orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-007-quota-grade')",Integer.class);
+            migration.rollback(count,"");
             try(var r=connection.createStatement().executeQuery("SELECT to_regclass('ai_admin_quota_grade_set')")){r.next();assertThat(r.getString(1)).isNull();}
             migration.update(new Contexts());
             try(var r=connection.createStatement().executeQuery("SELECT COUNT(*) FROM sys_menu_api WHERE menu_cd='HUB_QUOTA_GRADE'")){r.next();assertThat(r.getInt(1)).isEqualTo(5);}

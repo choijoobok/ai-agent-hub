@@ -37,9 +37,10 @@ public record QuotaGradeDefinition(String startMonth,String memo,List<Grade> gra
         var transitions=new TreeMap<String,String>();
         for(Object item:(List<?>)values.get("transitionMappings")) {
             if(!(item instanceof Map<?,?>))bad();var map=(Map<?,?>)item;
-            if(!map.keySet().equals(Set.of("fromGradeId","toGradeId")))bad();
-            String from=text(map.get("fromGradeId"),19,false),to=text(map.get("toGradeId"),19,false);
-            ManagedCommand.positive(from);ManagedCommand.positive(to);
+            boolean fresh=map.containsKey("toClientKey");
+            if(!map.keySet().equals(Set.of("fromGradeId",fresh?"toClientKey":"toGradeId")))bad();
+            String from=text(map.get("fromGradeId"),19,false),to=fresh?"new:"+text(map.get("toClientKey"),100,false):text(map.get("toGradeId"),19,false);
+            ManagedCommand.positive(from);if(!fresh)ManagedCommand.positive(to);
             if(from.equals(to)||transitions.put(from,to)!=null||!ids.contains(to)||ids.contains(from))bad();
         }
         return new QuotaGradeDefinition(month,memo,List.copyOf(rows),Map.copyOf(transitions));
@@ -60,6 +61,6 @@ public record QuotaGradeDefinition(String startMonth,String memo,List<Grade> gra
             var row=new LinkedHashMap<String,Object>();row.put("gradeId",grade.gradeId());row.put("clientKey",grade.clientKey());
             row.put("gradeNm",grade.gradeNm());row.put("rankNo",grade.rankNo());row.put("weight",grade.weight().toPlainString());row.put("description",grade.description());rows.add(row);
         }
-        return Map.of("startMonth",startMonth,"memo",memo,"grades",rows,"transitionMappings",transitions.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->Map.of("fromGradeId",e.getKey(),"toGradeId",e.getValue())).toList());
+        return Map.of("startMonth",startMonth,"memo",memo,"grades",rows,"transitionMappings",transitions.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->e.getValue().startsWith("new:")?Map.of("fromGradeId",e.getKey(),"toClientKey",e.getValue().substring(4)):Map.of("fromGradeId",e.getKey(),"toGradeId",e.getValue())).toList());
     }
 }

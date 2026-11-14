@@ -43,12 +43,15 @@ final class ManagedLiveFixture implements AutoCloseable {
     private final List<Browser> administrators;
     private final AtomicInteger round=new AtomicInteger();
     ManagedLiveFixture(Class<?>... extra) throws Exception {
+        this("LOCAL",extra);
+    }
+    ManagedLiveFixture(String portalMode,Class<?>... extra) throws Exception {
         url=System.getenv("MANAGED_TEST_JDBC"); user=System.getenv("MANAGED_TEST_USER"); password=System.getenv().getOrDefault("MANAGED_TEST_PASSWORD","");
         if(url==null||!url.matches("jdbc:postgresql://127[.]0[.]0[.]1:[0-9]+/managed040_[A-Za-z0-9_]+"))throw new IllegalStateException("전용 localhost managed040_ 시험 DB가 필요하다");
         String schema="managed040_"+UUID.randomUUID().toString().replace("-","");
         new JdbcTemplate(new DriverManagerDataSource(url,user,password)).execute("CREATE SCHEMA "+schema);
         var sources=new ArrayList<Class<?>>(List.of(AiAgentApplication.class,ManagedLiveConfiguration.class));sources.addAll(List.of(extra));
-        app=new SpringApplication(sources.toArray(Class<?>[]::new)).run("--spring.profiles.active=system-auth-test,managed-test",
+        app=new SpringApplication(sources.toArray(Class<?>[]::new)).run("--spring.profiles.active=system-auth-test,managed-test","--app.portal.auth-mode="+portalMode,
                 "--server.port=0","--spring.datasource.url="+url+"?currentSchema="+schema,"--spring.datasource.username="+user,"--spring.datasource.password="+password,
                 "--app.auth.session.origin="+ORIGIN,"--app.auth.session.local-http=true","--app.auth.session.provider=jdbc",
                 "--app.auth.session.epoch="+UUID.randomUUID(),"--app.auth.session.store-instance=managed040-test","--app.admin.history.retention-days=1",
@@ -81,6 +84,21 @@ final class ManagedLiveFixture implements AutoCloseable {
         var reader=login("reader040");
         data(reader.call("POST","/api/admin/service/quotaGrade/getOne",Map.of("targetId",command.targetId())),200);
         data(reader.call("POST","/api/admin/service/quotaGrade/save",command),403);
+    }
+    void groupOnlyCannotReadPortalMembers(String group) throws Exception {
+        jdbc.update("INSERT INTO sys_user(user_id,user_nm,pwd,pwd_init_yn,pwd_chg_dtm,locale_cd) SELECT 'groupOnly005','그룹 조회자',pwd,'N',CURRENT_TIMESTAMP,'ko' FROM sys_user WHERE user_id='admin'");
+        jdbc.update("INSERT INTO sys_role(role_id,role_nm,use_yn) VALUES ('GROUP_ONLY005','그룹만 조회','Y')");
+        jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('GROUP_ONLY005','HUB_USER_GROUP','READ')");
+        jdbc.update("INSERT INTO sys_user_role(user_id,role_id) VALUES ('groupOnly005','GROUP_ONLY005')");
+        var reader=login("groupOnly005");var denied=data(reader.call("POST","/api/admin/service/userGroup/getMembers",Map.of("targetId",group)),200);
+        assertThat(denied.path("state").asText()).isEqualTo("FORBIDDEN");assertThat(denied.path("rows").size()).isZero();
+    }
+    void portalReaderCannotSave(ManagedCommand command) throws Exception {
+        jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','HUB_PORTAL_USER','READ') ON CONFLICT DO NOTHING");
+        var reader=login("reader040");
+        data(reader.call("POST","/api/admin/service/portalUser/getOne",Map.of("targetId",command.targetId(),"scope","profile")),200);
+        data(reader.call("POST","/api/admin/service/portalUser/save",command),403);
+        data(reader.call("POST","/api/admin/service/portalUser/resetCredential",new ManagedCommand(UUID.randomUUID().toString(),command.targetId(),command.expectedRevision(),"resetCredential",Map.of(),"권한 반례")),403);
     }
     void groupReaderCannotSave(ManagedCommand command) throws Exception {
         jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','HUB_USER_GROUP','READ') ON CONFLICT DO NOTHING");
