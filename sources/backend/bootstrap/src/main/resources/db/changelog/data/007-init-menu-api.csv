@@ -23,6 +23,11 @@ CONFIG_MGMT,/api/system/service/config/getPrefixes
 CONFIG_MGMT,/api/system/service/config/save
 ERROR_LOG,/api/system/service/errorLog/getDetail
 ERROR_LOG,/api/system/service/errorLog/getList
+HUB_QUOTA_GRADE,/api/admin/service/managementCommand/getResult
+HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getList
+HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getOne
+HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/remove
+HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/save
 HUB_USER_GROUP,/api/admin/service/managementCommand/getResult
 HUB_USER_GROUP,/api/admin/service/userGroup/getAssets
 HUB_USER_GROUP,/api/admin/service/userGroup/getList

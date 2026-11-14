@@ -18,3 +18,5 @@ export { emitResponseSignal, onResponseSignal } from '@/shared/api/responseSigna
 export type { ResponseSignal } from '@/shared/api/responseSignals';
 export { ApiError, TRANSPORT_ERROR_CODE } from '@/shared/api/types';
 export type { ApiEnvelope, FieldError, RowError, RowReport } from '@/shared/api/types';
+export { ManagedCommands } from '@/shared/api/ManagedCommands';
+export type { ManagedCommand } from '@/shared/api/ManagedCommands';

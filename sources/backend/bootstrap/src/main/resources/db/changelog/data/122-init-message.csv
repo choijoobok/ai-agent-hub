@@ -1,0 +1,43 @@
+MSG_KEY,LANG_CD,MSG_VAL
+quota_grade.title,ko,등급 기준
+quota_grade.title,en,Grade sets
+quota_grade.detail,ko,쿼터 등급
+quota_grade.detail,en,Quota grades
+quota_grade.month,ko,등급 기준 시작월
+quota_grade.month,en,Start month
+quota_grade.memo,ko,메모
+quota_grade.memo,en,Memo
+quota_grade.name,ko,등급
+quota_grade.name,en,Grade
+quota_grade.rank,ko,순위
+quota_grade.rank,en,Rank
+quota_grade.weight,ko,배분 가중치
+quota_grade.weight,en,Relative weight
+quota_grade.transfer,ko,이전 등급
+quota_grade.transfer,en,Transfer to
+quota_grade.description,ko,설명
+quota_grade.description,en,Description
+quota_grade.references,ko,참조 사용자 수
+quota_grade.references,en,Referenced users
+quota_grade.copy,ko,직전 기준 복사
+quota_grade.copy,en,Copy preceding set
+quota_grade.select,ko,등급 기준을 선택하세요.
+quota_grade.select,en,Select a grade set.
+quota_grade.locked,ko,현재·과거 기준은 변경할 수 없습니다. 새 미래 기준을 등록하세요.
+quota_grade.locked,en,Current and past sets are immutable. Create a future set.
+quota_grade.not_installed,ko,사용자 등급·배정 기능 연결 전입니다. 참조 사용자 수는 아직 제공하지 않습니다.
+quota_grade.not_installed,en,User grade and allocation sources are not installed. Reference counts are not available yet.
+quota_grade.unavailable,ko,참조 원천을 확인할 수 없습니다. 저장과 삭제를 중단하고 다시 조회하세요.
+quota_grade.unavailable,en,References are unavailable. Reload before saving or deleting.
+quota_grade.detail_required,ko,등급 상세를 먼저 조회하세요.
+quota_grade.detail_required,en,Load the full grade set first.
+quota_grade.empty,ko,한 개 이상의 등급을 입력하세요.
+quota_grade.empty,en,Enter at least one grade.
+quota_grade.copy_new,ko,시작월을 입력한 신규 기준에서 복사할 수 있습니다.
+quota_grade.copy_new,en,Enter a start month on a new set to copy.
+quota_grade.unknown,ko,미확인
+quota_grade.unknown,en,Unknown
+menu.HUB_QUOTA_GRADE,ko,쿼터 등급 관리
+menu.HUB_QUOTA_GRADE,en,Quota grade management
+quota_grade.stale,ko,기준 정보가 변경되었습니다. 다시 조회하세요.
+quota_grade.stale,en,The grade set changed. Reload before saving.

@@ -844,6 +844,26 @@ progress.unreachable,FRONT,"진행률을 볼 수 없다 — 작업이 실패한 
 pwd.rule.charset-kinds,BACK,문자 종류 수 규칙 — {kinds}.
 pwd.rule.min-length,BACK,최소 길이 규칙 — {min}.
 pwd.rule.no-reuse,BACK,재사용 금지 규칙 — {count}. 서버만 판정한다.
+quota_grade.copy,FRONT,
+quota_grade.copy_new,FRONT,
+quota_grade.description,FRONT,
+quota_grade.detail,FRONT,
+quota_grade.detail_required,FRONT,
+quota_grade.empty,FRONT,
+quota_grade.locked,FRONT,
+quota_grade.memo,FRONT,
+quota_grade.month,FRONT,
+quota_grade.name,FRONT,
+quota_grade.not_installed,FRONT,
+quota_grade.rank,FRONT,
+quota_grade.references,FRONT,
+quota_grade.select,FRONT,
+quota_grade.stale,FRONT,
+quota_grade.title,FRONT,
+quota_grade.transfer,FRONT,
+quota_grade.unavailable,FRONT,
+quota_grade.unknown,FRONT,
+quota_grade.weight,FRONT,
 reauth.desc,FRONT,재인증 모달의 안내 — 탭이 그대로임을 알려 사용자를 안심시킨다.
 reauth.loginId,FRONT,재인증 모달에서 읽기 전용으로 보이는 아이디 칸의 라벨.
 reauth.otherAccount,FRONT,다른 계정으로 로그인하려는 사람이 누르는 링크 — 작업 중이던 탭을 버린다.

@@ -195,3 +195,7 @@ menus:
     parent: HUB_FOUNDATION
     url: /admin/hub/user-group
     export: true
+  - code: HUB_QUOTA_GRADE
+    parent: HUB_FOUNDATION
+    url: /admin/hub/quota-grade
+    export: true

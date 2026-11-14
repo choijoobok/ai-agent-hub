@@ -17,3 +17,9 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/006-user-group-navigation.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/007-quota-grade.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/admin/008-quota-grade-menu.sql
+      relativeToChangelogFile: false

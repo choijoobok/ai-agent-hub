@@ -132,6 +132,8 @@ export interface GridControllerOptions<T> {
    * 편집되는 것이 설계다. 마스터의 저장 권한을 넘겨받는다(screen/admin/system/code/requirements.md).
    */
   editable?: boolean;
+  /** 전체 구성 저장의 소유 그리드. 자식은 편집/추가/삭제만 제공하고 독립 저장 버튼은 만들지 않는다. */
+  saveOwner?: { canSave: boolean };
 }
 
 export interface GridController<T> {
@@ -439,7 +441,7 @@ export function useGridController<T>(options: GridControllerOptions<T>): GridCon
   const inFlight = useRef(false);
 
   const canRead = !api?.read || hasPermission(permissions, menuCd, 'READ');
-  const canSave = Boolean(api?.save) && hasPermission(permissions, menuCd, 'SAVE');
+  const canSave = (Boolean(api?.save) || Boolean(options.saveOwner?.canSave)) && hasPermission(permissions, menuCd, 'SAVE');
   // 추가한 행은 저장으로만 서버에 가므로, 저장할 수 없는 사람에게 추가를 허용하면
   // 버릴 것을 만들게 한다 — frontend/grid.md.
   const canAddRow = Boolean(options.addRow) && canSave;

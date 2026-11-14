@@ -1035,8 +1035,8 @@ screens:
     menu_code: HUB_QUOTA_GRADE
     menu_parent: HUB_FOUNDATION
     target_doc: documents/screen/admin/hub/quota-grade/requirements.md
-    design_status: draft
-    note: 화면/업무 흐름 합의 전 요건·목업이다. 물리/API·제품 소스/시드는 미확정이며 소유 요구사항과 화면 요건서가 컬럼/검수/경계를 정의한다.
+    design_status: approved
+    note: CR-043 기준 관리·원자 저장·전체 이력 화면 구현. 실제 사용자 이전/배정 연결은005/017/045 후속 검증.
     history_view: SCR-065
   - id: SCR-066
     workstream: admin-operations

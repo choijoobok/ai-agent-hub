@@ -135,7 +135,7 @@ api: {
   **성공 여부를 돌려주지 않는다** — 그래서 *조회 전* · *실패* · *0건* 이 화면에서 같아 보인다.
   빈 판에 무엇을 쓸지는 `read.emptyNotice` 가 정하고, **그보다 세밀한 판정은 지금 없다**.
 
-## 4. `useGridController` 옵션 — 11
+## 4. `useGridController` 옵션 — 12
 
 | 키 | 한마디 |
 |---|---|
@@ -148,6 +148,7 @@ api: {
 | `saveEnvelope` | 그 배열에 봉투를 씌운다 — 기본 `{ rows }`. 부모 키가 있는 디테일만 |
 | `toSavePayload` | ~~저장 본문을 화면이 만든다~~ — **낡았다**. 아래 |
 | `pageSize` · `editable` | |
+| `saveOwner` | 전체 구성 저장의 소유 그리드. 하단의 편집·추가·삭제 권한을 상속하며 독립 저장 버튼은 숨긴다 |
 
 > **`params` 와 `read.params` 를 혼동하지 않는다** — 조회조건은 컨트롤러 옵션이고
 > `read` 는 `url` 과 `emptyNotice` 둘뿐이다.
@@ -188,3 +189,5 @@ api: {
 - [search-form.md](./search-form.md) — 필드 하나를 고르는 판단
 - [standard/frontend/grid.md](./grid.md) — 컬럼 계약 원문
 - [standard/frontend/search-form.md](./search-form.md) — 검색 폼 계약 원문
+
+전체 구성 저장의 하단은 `GridControllerOptions.saveOwner`에 마스터를 넘긴다. 현재 메뉴 SAVE 권한을 함께 검사해 편집·추가·삭제를 제공하고 독립 저장 버튼은 숨긴다. 화면은 하단 변경과 부모의 미저장·원복·재조회·행 이동을 연결한다. 실물: 쿼터 등급 기준.

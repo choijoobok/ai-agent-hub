@@ -63,12 +63,13 @@ apis:
     contract: 현재 해당 원 기능 READ+SAVE와 원 ADMIN 주체를 다시 검사한다. 이 API의 공통 메뉴 READ만으로 원 결과를 열지 않는다. 다른 주체/소유·미발견은 UNKNOWN이며 오류/진행중/미실행 확정이 아니다. ENT-019/028/036은 기존 소유 결과 API 유지. FEAT-040.command_identity의 전역키 보호 검사를 동일하게 적용한다.
   - id: API-083
     feature: FEAT-042
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/quota/QuotaGradeController.java#save
     method: POST
     path: /api/admin/service/quotaGrade/save
     action: SAVE
     summary: "시작월 등급 전체 세트 저장"
-    request: "body=ManagedCommand<{startMonth, grades:[id|null,name,rank,weight], transitionMappings}>"
+    request: "ManagedCommand; scope=definition, values={startMonth:YYYY-MM,memo,grades:[gradeId|null,clientKey:신규,gradeNm,rankNo,weight:십진 문자열,description],transitionMappings:[fromGradeId,toGradeId]}. 신규 부모는 targetId/expectedRevision=null, 기존은 둘 다 필수. 관측/등록 필드는 수락하지 않는다."
     response: "ApiResponse<ManagedResult>"
     contract: "FEAT-042.storage/references/race. 이름 변경/세트 복사의 정당한 기존 등급 ID는 유지한다. 폐기 번호 재발급·다른 등급의 ID 가장·후속 효력 누락/확정월 영향은 거부한다. 소유 전체 세트 한 성공 단위."
   - id: API-084

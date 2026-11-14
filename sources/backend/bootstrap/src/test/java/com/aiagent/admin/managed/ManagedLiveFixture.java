@@ -71,7 +71,16 @@ final class ManagedLiveFixture implements AutoCloseable {
     JdbcTemplate database(){return jdbc;}
     <T> T bean(Class<T> type){return app.getBean(type);}
     JsonNode groupCall(String action,Object body,int status) throws Exception {
-        return data(administrators.getFirst().call("POST","/api/admin/service/userGroup/"+action,body),status);
+        return adminCall("userGroup",action,body,status);
+    }
+    JsonNode adminCall(String domain,String action,Object body,int status) throws Exception {
+        return data(administrators.getFirst().call("POST","/api/admin/service/"+domain+"/"+action,body),status);
+    }
+    void quotaReaderCannotSave(ManagedCommand command) throws Exception {
+        jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','HUB_QUOTA_GRADE','READ') ON CONFLICT DO NOTHING");
+        var reader=login("reader040");
+        data(reader.call("POST","/api/admin/service/quotaGrade/getOne",Map.of("targetId",command.targetId())),200);
+        data(reader.call("POST","/api/admin/service/quotaGrade/save",command),403);
     }
     void groupReaderCannotSave(ManagedCommand command) throws Exception {
         jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','HUB_USER_GROUP','READ') ON CONFLICT DO NOTHING");

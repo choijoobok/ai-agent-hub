@@ -286,8 +286,9 @@ feature_contracts:
             getOne: API-096
       transport: FEAT-040.physical_transport를 따른다.
   FEAT-042:
-    design_status: draft
-    implementation: planned
+    delivery_boundary: CR-043. 기준 관리·연결 포트는042에서 완료, 실제 사용자 효력/예약 이전은005, 예정본 낡음은017, 월 경계/배정 경합은045에서 검증한다. 전체 미설치 확인 외에는 연결 검사 누락/실패를 참조 없음으로 처리하지 않는다.
+    design_status: approved
+    implementation: partial
     reqs:
       - REQ-116
       - REQ-606
@@ -297,12 +298,14 @@ feature_contracts:
     entities:
       - ENT-105
       - ENT-106
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/quota/QuotaGradeService.java
+    connection_port: QuotaGradeUsage. 경계 잠금 뒤 locks는 관련 월1/사용자2를 반환한다. 부모3 취득 뒤 validate, 현재값 변경 후 발급된 부모/자식 안정 ID와 DB 수락 시각으로 apply를 같은 물리 트랜잭션에서 호출한다. 실패는 전체 rollback.
     storage: 시작월마다 전체 등급 세트의 기대 리비전·순위 유일성·양수 소수2자리 가중치·순위별 비감소를 검증한다. 대상 월 이하 최신 한 세트를 선택한다. 등급 안정 ID를 이름/순위로 대신하지 않는다.
     references: 사용자 효력 등급·미래 승인 예약·후속 시작월 등급 대응을 검증한다. REQ-606의 등급 이전/취소·대체 계약을 보존하며 이름이 같다는 이유로 과거/후속 등급을 합치지 않는다. 잠긴 월에서 사용한 세트/대응은 변경하지 않는다.
     race: 달력 경계→관련 월→대상 사용자 잠금 아래 배정 존재·원 월/기대 리비전을 재검사한다. 저장이 먼저면 배정은 새 등급을 사용하고 배정 확정이 먼저면 실제 사용량0이어도 수정 거부다. 예정본만 있으면 허용하고 계산 지문을 낡음으로 만든다.
     boundary_lock: ADR-043·REQ-116.month_boundary. B부터 마감 대상자의 해당 월 등급을 잠그며 원 작업 기동 지연에도 적용한다. 대상 여부 불명도 잠근다. 대상 밖 개별 배정 전 정정은 기존 순서 계약을 따른다.
     physical_contract:
-      implementation: planned
+      implementation: implemented
       screens:
         SCR-064:
           root: ENT-105
@@ -402,6 +405,7 @@ feature_contracts:
           operations:
             getList: API-097
             getOne: API-098
+            remove: API-143
       transport: FEAT-040.physical_transport를 따른다.
   FEAT-017:
     design_status: draft

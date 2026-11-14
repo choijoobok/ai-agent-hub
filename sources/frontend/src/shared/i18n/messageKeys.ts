@@ -3145,4 +3145,26 @@ export const MSG = {
   SAMPLE_COND_DLVR_DT: 'sample.cond.dlvrDt',
   /** 파일 안에서 같은 `(주문번호, 품목코드)` 가 두 번이다 — 그리드 층(frontend/grid.md). */
   SAMPLE_EXCEL_KEY_DUPLICATED: 'sample.excel.keyDuplicated',
+
+  // @feat FEAT-042
+  QUOTA_GRADE_TITLE: 'quota_grade.title',
+  QUOTA_GRADE_DETAIL: 'quota_grade.detail',
+  QUOTA_GRADE_MONTH: 'quota_grade.month',
+  QUOTA_GRADE_MEMO: 'quota_grade.memo',
+  QUOTA_GRADE_NAME: 'quota_grade.name',
+  QUOTA_GRADE_RANK: 'quota_grade.rank',
+  QUOTA_GRADE_WEIGHT: 'quota_grade.weight',
+  QUOTA_GRADE_TRANSFER: 'quota_grade.transfer',
+  QUOTA_GRADE_DESCRIPTION: 'quota_grade.description',
+  QUOTA_GRADE_REFERENCES: 'quota_grade.references',
+  QUOTA_GRADE_COPY: 'quota_grade.copy',
+  QUOTA_GRADE_SELECT: 'quota_grade.select',
+  QUOTA_GRADE_LOCKED: 'quota_grade.locked',
+  QUOTA_GRADE_NOT_INSTALLED: 'quota_grade.not_installed',
+  QUOTA_GRADE_UNAVAILABLE: 'quota_grade.unavailable',
+  QUOTA_GRADE_DETAIL_REQUIRED: 'quota_grade.detail_required',
+  QUOTA_GRADE_EMPTY: 'quota_grade.empty',
+  QUOTA_GRADE_COPY_NEW: 'quota_grade.copy_new',
+  QUOTA_GRADE_UNKNOWN: 'quota_grade.unknown',
+  QUOTA_GRADE_STALE: 'quota_grade.stale',
 } as const;

@@ -54,7 +54,7 @@ public class ManagedCommandService {
         try { revision=before==null?1:Math.addExact(ManagedCommand.positive(before.revision()),1); }
         catch(ArithmeticException failure) { throw ManagedErrorCode.REVISION_CONFLICT.failure(); }
         var stamp=new ManagedAssetAdapter.Stamp(input.commandKey(),actor,Long.toString(revision),ids.next("AI_ADMIN_HISTORY_NO"),
-                calendar.now().truncatedTo(ChronoUnit.MICROS),operation.delete()?"DELETE":before==null?"CREATE":"CHANGE",input.reason());
+                owner.acceptedAt(calendar.now()).truncatedTo(ChronoUnit.MICROS),operation.delete()?"DELETE":before==null?"CREATE":"CHANGE",input.reason());
         String target;
         if(operation.delete()) {
             target=before.targetId(); owner.history().capture(target,stamp); owner.delete(input,before);

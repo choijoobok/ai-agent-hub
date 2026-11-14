@@ -43,7 +43,8 @@ describe('TC-00611 하단 조회 후 삭제 판정', () => {
     const first = deferred<GroupProjection>(); const reference = vi.fn();
     api.detail.mockImplementation((id: string, scope: string) => id === '1' && scope === 'tool' ? first.promise : Promise.resolve(empty));
     api.group.mockResolvedValue({ useState: 'UNUSED' });
-    const { rerender } = renderHook(({ id }: { id: string | null }) => useGroupDetail(id, reference), { initialProps: { id: '1' } });
+    const initialProps: { id: string | null } = { id: '1' };
+    const { rerender } = renderHook(({ id }: { id: string | null }) => useGroupDetail(id, reference), { initialProps });
     rerender({ id: '2' });
     await waitFor(() => expect(reference).toHaveBeenLastCalledWith('2', 'UNUSED'));
     await act(async () => { first.resolve(empty); await first.promise; });

@@ -262,7 +262,7 @@ export function DataGrid<T>(props: DataGridProps<T>) {
   const editable = controller.canEdit;
   // 상태 컬럼은 <b>편집이 열리면</b> 그린다 — 저장 단위인가와 다른 축이다(frontend/grid.md).
   const showState = controller.canEdit;
-  const stateful = controller.savesItself && controller.canSave;
+  const stateful = controller.canSave;
   const serverSort = controller.mode !== 'all';
   const multiSelect = props.selection === 'multiple';
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -1252,7 +1252,7 @@ function GridHeader<T>(
             {label(MSG.GRID_ADD_ROW)}
           </Button>
         )}
-        {controller.canSave && (
+        {controller.canSave && controller.savesItself && (
           <Button
             type="primary"
             icon={<SaveOutlined />}

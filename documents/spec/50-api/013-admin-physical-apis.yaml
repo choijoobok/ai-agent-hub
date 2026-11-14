@@ -111,23 +111,25 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-016.physical_contract.screens.SCR-016
   - id: API-097
     feature: FEAT-042
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/quota/QuotaGradeController.java#getList
     method: POST
     path: /api/admin/service/quotaGrade/getList
     action: READ
     summary: SCR-064 getList
-    request: QueryPage
-    response: ApiResponse<Page<요약 DTO>>
+    request: SearchRequest<Void>; conditions=startMonth/gradeNm(eq EXISTS)/memo/regDtm/modDtm, offset page
+    response: ApiResponse<PageResponse<Row>>
     contract: FEAT-040.physical_transport; FEAT-042.physical_contract.screens.SCR-064
   - id: API-098
     feature: FEAT-042
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/quota/QuotaGradeController.java#getOne
     method: POST
     path: /api/admin/service/quotaGrade/getOne
     action: READ
     summary: SCR-064 getOne
-    request: targetId 및 소유 범위; 전체 기준 리비전 반환
-    response: ApiResponse<SCR-064 상세/읽기 투영 DTO와 기준 리비전>
+    request: targetId 또는 beforeMonth:YYYY-MM 중 하나. beforeMonth는 직전 기준 복사 준비 조회
+    response: ApiResponse<Detail{basis,grades,referenceState}>; 직전 기준이 없으면 null. NOT_INSTALLED/UNAVAILABLE를 사용자 수0으로 표현하지 않는다.
     contract: FEAT-040.physical_transport; FEAT-042.physical_contract.screens.SCR-064
   - id: API-099
     feature: FEAT-017
@@ -574,3 +576,15 @@ apis:
     request: targetId+expectedRevision+commandKey+reason
     response: ApiResponse<ManagedResult>
     contract: FEAT-005.credential_commands. EXTERNAL은409. 소속/기간/그룹 제한은 해제하지 않는다.
+
+  - id: API-143
+    feature: FEAT-042
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/quota/QuotaGradeController.java#remove
+    method: POST
+    path: /api/admin/service/quotaGrade/remove
+    action: SAVE
+    summary: 미래 쿼터 등급 기준 삭제
+    request: ManagedCommand; targetId+expectedRevision+commandKey+reason+scope=definition+values={}
+    response: ApiResponse<ManagedResult>
+    contract: FEAT-042.references/race 및 CR-043. 현재/과거 금지, 전체 사용/예약 영향 재검사, 삭제 직전 부모/자식 HIST와 미발효 이전 취소/대체는 같은 트랜잭션. 안정 등급과 과거 이력은 보존.
