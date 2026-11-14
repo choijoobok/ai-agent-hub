@@ -14,7 +14,7 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # 다음 SLICE-010 상세 범위 확인
+  workstream: admin         # SLICE-010 선행 고정 코드 키 보완 완료; 관리 API/화면 후속
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 사용자 위임으로 SLICE-042/005/301/302/303/305의 변경 범위 검증·기술 G4·각 커밋/푸시를 진행했다. 042/005 직접 화면 수락과 고객 원천 운영 검수는 복귀 후 검토로 구분한다. SLICE-522 공통코드 참조 조회까지 기술 검증/브라우저 확인을 마쳤다. 다음은 의존 기반이 준비된 SLICE-010 채팅 도움말·주의사항 관리다."
+  first: "2026-11-14 약5시간 위임 진행: SLICE-042/005/301/302/303/305/522 기술 G4와 각각 커밋·푸시 완료. 직접 사용자 화면 수락·실제 고객 원천/마스킹 운영 검수는 별도다. 다음010은 CR-046 고정 코드 공통 저장/이력 선행 보완만 검증·커밋했고 관리 API/화면은 미완료다. localhost3006에서 시험 관리자 로그인·Portal 이용자/등급 조회 화면을 열어 뒀다. 시험 중 JAR 재생성으로 구 실행 서버 클래스 로딩 실패를 확인해 최신 빌드로 재기동하고 조회 정상화를 확인했다. 검토 캡처는 sources/build/unattended-portal-review.png다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 44    # CR-045 공통 판정과 후속 자산/고객 마스킹 연결
+  CR: 45    # CR-046 고정 코드 관리 키·공통 저장/이력 호환
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2735,13 +2735,31 @@ slices:
       - TC-0106
       - TC-0107
     scope: 채팅 도움말·주의사항 관리
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-040
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_entry:
+      reviewed_at: "2026-11-14"
+      approval_basis: delegated_progress
+      scope: admin G3·040 완료와 고정3구분 단일 본문/이력 계약을 재확인했다. CR-046에 따라 자연키 지원을 먼저 보완한다. FEAT-010 관리 API/화면을 아직 구현 완료로 세지 않는다.
+    prerequisite_review:
+      source_commit: d8c22a86
+      implemented: 공통 ManagedCommand 전송 키와 소유 ManagedTargetKeys 정책 분리. 기존 숫자 정책 기본 유지, 고정 코드 집합 명시 등록, 문자 SQL 바인딩·정확 HIST/현재 판/잠금 및 물리 타입 검사. 기존 스키마/명령 지문/리비전 규칙 유지.
+      test_first: ManagedTargetKeys/owner.targetKeys 미구현 컴파일 RED 후 구현했다. 최종 고유12개/실패0/skip0이며 전체 백엔드/프런트/Redis는 반복하지 않았다.
+      unit: ManagedTargetKeysTest4·기존 ManagedCommandContractTest2 통과. 대소문자·공백·길이·미등록/숫자 소유 거부와 불변 집합, 큰 정수/선행0·리비전 검증을 확인했다.
+      database_http: ManagedNaturalKeyLiveTest3·숫자 기반 ManagedStorageLiveTest 영향3 통과. 실제 인증 HTTP→공통 명령→문자 키 원장/같은 재수신, 과거 원문/직전 세트·현재 판 보호·파기·물리 타입 거부를 확인했다. 잘못된 키는 기존 INVALID_REQUEST400이며 최초 시험 기대422를 소스에 따라 정정하고 해당1개만 재실행했다.
+      static: 품질 중복2.56%·삼킴0·미태깅0, 공통물37·하네스18, meta 위반0·추적성 오류0/기존 경고72, doc-gen ID1621·장문17934 누락0·상대링크0, HTML492/21/9 구조/자산 통과. DB 마이그레이션·API/메뉴·프런트 변경 없음.
+      redteam: 전송 코드 형식만으로 숫자 소유 업무를 통과하는 경로는 명령 정규화 단계에서400, SQL 조각/정규화된 별도 코드는 허용하지 않음, 이력 원문을 최신 값으로 대체하지 않음, 숫자 소유 경로의 기존 보호 회귀3개 통과. 고정 코드의 실제 도움말 CRUD 완료를 시험 fixture 성공으로 주장하지 않는다.
+      logs: sources/build/slice010-keys-red.log·slice010-keys-unit.log·slice010-keys-live.log·slice010-keys-http-final.log 및 slice010 문서/품질 로그
+      remaining:
+        - FEAT-010 고정3행 마이그레이션·형식/원문 검증·관리 조회/저장 API·전체 이력 화면·구분별 편집본/미리보기/큰 편집창 구현과 변경 범위 검증
+        - 관리자/Portal 공통 안전 렌더 정책과 형식 상한을 소유 계약으로 구체화; 실제 Portal 표시/제출 근거는 후속 소유 구현에서 실증
+        - 제품010 G4 결과 정리와 직접 사용자 화면 수용 검토
   - id: SLICE-013
     workstream: admin
     features:
