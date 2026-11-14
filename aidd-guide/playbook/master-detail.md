@@ -4,7 +4,7 @@ title: "마스터-디테일 화면 — 상하 · 좌우"
 category: playbook
 type: operation
 created: 2026-05-04
-updated: 2026-11-02
+updated: 2026-11-14
 status: active
 sources: ["sources/frontend/src/modules/sample/features/mdvertical/", "sources/frontend/src/modules/sample/features/mdhorizontal/", "aidd-guide/playbook/INDEX.md"]
 tier: 2
@@ -72,22 +72,23 @@ const selectOrder = async (row) => {
 
 **디테일의 행 추가에도 게이트가 있다** — `addRow.canAdd` 가 부모 선택을 요구한다.
 
-## 4. 마스터 삭제 게이트 — 근거는 마스터 응답에 있어야 한다
+## 4. 마스터 삭제 게이트 — 선택 행의 상세 확인 후 연다
 
 ```ts
-const masterDeletable = useMemo<DeleteColumnSpec<SampleOrder>>(() => ({
-  enabled: (row) => row.data.itemCnt === 0 && !row.data.lockYn,
-  reason: (row) => row.data.lockYn ? label(MSG.SAMPLE_LOCKED)
-                                   : label(MSG.SAMPLE_DELETE_BLOCKED, { count: row.data.itemCnt }),
-}), []);
+// deletionCheck의 기본값은 미확인이다. 상세 조회 완료 전에는 CLEAR를 넣지 않는다.
+// D는 이미 표시한 삭제를 취소하는 조작이며 새 삭제 허용과 구분한다.
+const masterDeletable = {
+  enabled: (row) => row.state === 'C' || row.state === 'D'
+    || (deletionCheck[row.id] === 'CLEAR' && !row.data.lockYn),
+};
 ```
 
-**게이트가 건수 컬럼에서 나온다** — 마스터 응답이 자식 건수를 실으므로 **행마다 답할 수
-있다.** 아래를 조회해야만 아는 것이면 게이트가 아니다.
+정본은 [grid-validation.md §4](../standard/frontend/grid-validation.md#4-마스터-디테일)다.
+신규 행은 즉시 제거하고, 기존 행은 기본 차단한 뒤 선택한 행의 모든 디테일 확인 결과로 연다.
+목록 전체에 자식 조회를 붙이지 않는다. 기존 샘플의 `itemCnt` 방식은 현재 예제의 업무 구현이며 새 화면의 기본 패턴으로 복제하지 않는다.
+알려진 건수나 잠금은 추가 차단에 사용할 수 있고, 활성 탭만 조회하는 성능 예외는 화면 요건서에 명시한다.
 
-> **건수를 싣는 것이 늘 옳지는 않다.** ①은 싣지 않고 **서버가 사유를 담아 거절한다** —
-> 컬럼 서른짜리 조회에 `group by` 가 한 벌 더 붙기 때문이다. **화면의 주제가 무엇이냐**로
-> 갈린다: 레이아웃이면 건수를 싣고, 컬럼이면 서버에 맡긴다.
+단일 그리드의 기존 삭제 방식과 마스터-디테일의 기본 흐름을 혼용하지 않는다.
 
 ## 5. `SplitPane` — 선언 넷
 
@@ -137,6 +138,8 @@ onRead={() => void detail.read(true)}
 - [ ] 선택 핸들러가 **`Promise<boolean>`** 을 돌려주는가(거부권)
 - [ ] 마스터 조회가 디테일을 리셋하는가
 - [ ] 신규 마스터 행에서 디테일이 **빈 상태**가 되는가
+- [ ] 기존 행은 처음 삭제 차단 → 선택 행의 모든 디테일 확인 → 참조 없음일 때만 활성화하는가. 신규 행 즉시 제거·서버 최종 검증·초기화/늦은 응답 처리는 [삭제 표준](../standard/frontend/grid-validation.md#41-마스터-삭제의-기본-흐름)을 따르는가
+- [ ] 활성 탭만 조회하고 기존 행 삭제를 처음부터 허용한다면 [다중 탭 예외](../standard/frontend/grid-validation.md#42-다중-탭의-성능-예외)를 화면 요건서에 명시했는가
 - [ ] [crud-screen.md §7](./crud-screen.md) 의 체크리스트
 
 ## 관련
