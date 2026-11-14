@@ -192,6 +192,7 @@ feature_contracts:
         type_compatibility: 2026-11-14 사용자 승인. 같은 데이터소스의 양끝점 컬럼이 같은 활성 DBMS_DATA_TYPE 코드를 사용하고 현재 DBMS의 PARENT·NATIVE_TYPE과 원천 자료형이 일치해야 한다. 미등록/비활성/불명/이종 타입 쌍은 거부한다.
         uniqueness: 2026-11-14 사용자 승인. N:1은 오른쪽, 1:N은 왼쪽, 1:1은 양쪽의 검수된 PRIMARY 또는 UNIQUE_KEY 전체 컬럼 집합과 쌍의 해당 측 컬럼 집합이 일치해야 VERIFIED다. 관리자 설명만으로 유일성을 인정하지 않는다. 불충분한 근거는 UNKNOWN으로 저장하고 기존 근거/설명은 보존한다.
       reads: API-604는 SearchRequest<CatalogRelationFilter>의 관계 목록이며 dataSourceId/keyword/catalogId 조건과 공통 offset 페이지를 사용한다. API-020의 values.relations는 같은 소유 전체 목록, API-027은 한 카탈로그의 양쪽 관리 역조회({state,rows})다. 양쪽 현재 후보는 API-019/020에서 선택한다. 연결 지식 생산자가 미설치인 상태는 NOT_CONNECTED로 구별한다.
+      bound_columns: API-604와 API-020의 관계 행은 읽기 전용 leftColumns/rightColumns를 함께 반환한다. 외부 끝점은 저장된 정확 HIST의 columnId/columnName/columnBusinessName/ordinalPosition/sourceTypeCode/sourceType와 원 컬럼 감사4개, 소유 끝점은 현재 판이며 저장 입력에서는 제외한다.
     review_evidence: 신규 수동 관계의 origin은 논리 작성으로 기록하고 description의 업무 용도·유일성/누락·중복/집계 설명을 논리 검수 근거로 연결한다. VERIFIED 의사는 서버가 현재 정확 참조/전체 쌍·기술 조건·설명 완전성을 검사한 경우만 확정하며 검수자/시각은 서버 신원으로 기록한다. 물리 FK 사실과 관리자 설명은 구분한다. 근거 부족은 UNKNOWN이고 미조회 기존 근거/과거 HIST는 삭제하지 않는다.
     workspace: REQ-301.relationship_metadata.workspace·ownership·related_knowledge. 같은 데이터소스의 양끝점 후보/등록 컬럼 조회, 양 선택의 동시 로컬 적용·초기화 확인·신규 왼쪽 소유/기존 소유 고정·전체 쌍/양의 고유 순서와 활성 합집합 역조회를 유지한다. API-024 RELATIONSHIPS 저장과 전체 HIST를 재사용한다.
     design_status: draft

@@ -244,6 +244,39 @@ catalog.value_review,FRONT,값 검수
 catalog.verified,FRONT,검수 완료
 catalog.view,FRONT,뷰
 catalog.yes,FRONT,예
+catalog_relation.add_pair,FRONT,쌍 추가
+catalog_relation.cardinality,FRONT,관계 유형
+catalog_relation.catalog_id,FRONT,카탈로그 식별자
+catalog_relation.description,FRONT,관계 설명
+catalog_relation.filter,FRONT,카탈로그 {catalogId}의 양쪽 관계
+catalog_relation.help,FRONT,같은 데이터소스의 두 테이블과 전체 컬럼 쌍을 등록합니다. 관계 설명에 유일성·양방향 매칭 누락과 집계 의미를 적으세요.
+catalog_relation.id,FRONT,관계 식별자
+catalog_relation.keyword,FRONT,관계명·객체명
+catalog_relation.knowledge_pending,FRONT,연결 지식 조회는 지식·예제 기능 연결 후 제공됩니다.
+catalog_relation.left,FRONT,왼쪽 테이블
+catalog_relation.left_column,FRONT,왼쪽 컬럼
+catalog_relation.left_role,FRONT,왼쪽 역할
+catalog_relation.name,FRONT,관계명
+catalog_relation.new,FRONT,신규 관계
+catalog_relation.open,FRONT,테이블 관계 열기
+catalog_relation.owner_changed,FRONT,관계의 저장 기준이 바뀌었습니다. 입력을 확인한 뒤 다시 조회하세요.
+catalog_relation.pair_invalid,FRONT,같은 자료형의 좌우 컬럼을 하나씩 선택하세요. 중복 쌍은 추가할 수 없습니다.
+catalog_relation.pair_map,FRONT,관계 매핑
+catalog_relation.pairs,FRONT,컬럼 쌍
+catalog_relation.pick,FRONT,테이블 선택
+catalog_relation.remove_pair,FRONT,쌍 제거
+catalog_relation.reset_pairs,FRONT,테이블을 변경하면 이 관계의 기존 컬럼 쌍을 지우고 검수 상태를 미확인으로 바꿉니다. 계속할까요?
+catalog_relation.right,FRONT,오른쪽 테이블
+catalog_relation.right_column,FRONT,오른쪽 컬럼
+catalog_relation.right_role,FRONT,오른쪽 역할
+catalog_relation.save,FRONT,관계 영역 저장
+catalog_relation.save_hint,FRONT,선택 관계와 같은 소유 카탈로그에서 편집한 관계·컬럼 쌍을 함께 저장합니다. 다른 소유의 편집은 유지합니다.
+catalog_relation.search,FRONT,객체명·업무명 검색
+catalog_relation.select_both,FRONT,같은 데이터소스에서 양쪽 테이블을 선택하세요.
+catalog_relation.select_source,FRONT,신규 관계의 데이터소스를 먼저 선택하세요.
+catalog_relation.summary,FRONT,관계 {count}건
+catalog_relation.title,FRONT,테이블 관계
+catalog_relation.type_help,FRONT,같은 활성 자료형 코드끼리 연결합니다. 검수된 기본키·유일키 전체 컬럼을 확인할 수 없으면 미확인으로 저장합니다.
 chat_help.apply,FRONT,반영
 chat_help.body,FRONT,본문
 chat_help.changed,FRONT,확인 중인 원 저장 내용과 다릅니다. 원 명령 결과를 먼저 확인하세요.

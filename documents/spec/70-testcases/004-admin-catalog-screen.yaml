@@ -191,9 +191,10 @@ testcases:
     actor: "ACT-003"
     given: "관계 관리측·반대편 조회/편집"
     when: "화면 사례의 조회/후보 편집·검증·소유 흐름 인계를 수행한다"
-    then: "CAT-20와 REQ-301.relationship_metadata.workspace를 만족한다. SCR-003의 관계 탭/FK 직접 설정은 없고 요약은 읽기 전용이다. SCR-039에서 관리측을 생성 시 선택·고정하고 반대편은 같은 안정 관계/소유 판을 읽는다. 전체 후보/BASE_REVISION/API-023/024/025 재사용과 미저장 입력 보존·현재 권한 재검사를 상세 설계 후 시험한다"
+    then: "CAT-20와 REQ-301.relationship_metadata.workspace를 만족한다. SCR-003의 관계 탭/FK 직접 설정은 없고 요약은 읽기 전용이다. SCR-039에서 신규 왼쪽 카탈로그를 관리측으로 자동 고정하고 반대편은 같은 안정 관계/소유 판을 읽는다. 전체 후보/BASE_REVISION/API-023/024/025 재사용과 미저장 입력 보존·현재 권한 재검사를 상세 설계 후 시험한다"
     verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. API-027의 CatalogRelationReferenceRow는 안정 관계·소유 카탈로그/판·양끝점 정확 판과 업무 역할을 반환하며 반대편에서 열어도 저장 소유가 바뀌지 않는다. 지식 응답형으로 대체하거나 상대 객체 열람 권한을 확장하면 실패한다."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-20"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: "planned"
   - id: TC-0112
     feature: "FEAT-011"
@@ -207,6 +208,7 @@ testcases:
     then: "CAT-21·CAT-23·CAT-25와 REQ-301·FEAT-003/011의 해당 규칙을 만족한다"
     verification: "단위/계약/DB 통합/E2E에서 요건서의 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. 관리 역조회는 자기조인 한 관계 행에 matchedSides=[LEFT,RIGHT]와 두 업무 역할을 보존한다. 관계 중복 행을 만들거나 양쪽 역할을 하나로 합치면 실패한다."
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-21","documents/screen/admin/hub/catalog/requirements.md#CAT-23","documents/screen/admin/hub/catalog/requirements.md#CAT-25"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: "planned"
   - id: TC-0113
     feature: "FEAT-011"
@@ -220,6 +222,7 @@ testcases:
     then: "CAT-22와 REQ-301·FEAT-003/011의 해당 규칙을 만족한다"
     verification: "SCR-039 상세 설계 후 단위/계약/DB 통합/E2E에서 정상·거부·경합 기대를 검증한다. 부분 저장·자동 운영 반영·소유/현재 권한 우회·불명 결과 새 키 발급·무효 참조를 허용하면 실패해야 한다. 추가 검증: 별도 화면의 테이블 이름/업무명 표시·정확 판/안정 ID 선택·테이블 변경 뒤 컬럼 종속성·같은 이름 자동 대체 거부. SCR-003에는 직접 관계 선택/편집이 없어야 한다"
     screen_cases: ["documents/screen/admin/hub/catalog/requirements.md#CAT-22","documents/screen/admin/hub/catalog/requirements.md#CAT-27"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: "planned"
 
   - id: TC-0114
@@ -373,6 +376,7 @@ testcases:
     then: "같은 선택 소스 후보만 양쪽 완전 선택 후 로컬 동시 반영한다. 신규 왼쪽 소유 자동 고정·기존 소유 보존, 기존 쌍 초기화 명시 동의·다른 관계 입력 보존. 소유 RELATIONSHIPS 저장/전체 HIST를 유지한다"
     verification: "목업/후속 계약에서 소스 미선택 열기·한쪽/다른 소스/권한 밖 적용·취소 입력 유실·소유 이전·다른 관계 쌍 삭제·낡은 검수 근거 재사용/독립 관계 이력/부분 저장이 가능하면 실패해야 한다"
     screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-01", "documents/screen/admin/hub/catalog-relation/requirements.md#REL-04"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: planned
   - id: TC-0117
     feature: FEAT-011
@@ -386,6 +390,7 @@ testcases:
     then: "안정 ID 두 개만 한 쌍으로 추가하며 미선택/다른 테이블/중복/타입 불명은 거부한다. 양의 고유 정수 순서를 ASC로 저장하고 역할·전체 복합 쌍을 보존한다. 검수 탭 없이 기술 검증/근거·소유 전체 HIST는 유지한다"
     verification: "목업/후속 통합에서 잘못된 순서·반쪽 쌍/동명 대체·일부 복합키만 완전 저장·검수/근거 면제·행 드래그 지원을 가장하거나 다른 관계/탭 입력 유실을 허용하면 실패해야 한다"
     screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-02", "documents/screen/admin/hub/catalog-relation/requirements.md#REL-03"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: planned
   - id: TC-0118
     feature: FEAT-011
@@ -414,6 +419,7 @@ testcases:
     then: "기존 description과 전체 HIST에 양방향 가능성/근거를 보존하고 테이블 관계 가이드에 전달한다. 주문 전체면 주문 기준 LEFT JOIN으로 미매칭 고객을 NULL 표현하고, 매칭 주문만이면 그 범위로 제한한다. 고객 전체면 고객을 SQL 기준으로 주문 없는 고객을 유지한다. 전체 쌍은 AND로 연결한다. 기준 전체 보존 요청의 상대 조건은 ON/WHERE 의미와 필수 행/신원 정책을 함께 충족한다. 1:N/NULL 허용이나 화면 좌우로 필수 매칭/JOIN을 단정하지 않고 결과 의미를 바꾸는 미확인은 질문/허용 조회로 확인한다"
     verification: "목업은 장문 설명/예시·편집/원복을 확인한다. 실제 저장/HIST·agent 계약/통합은 후속이며, 고정 JOIN 필드 추가·미매칭 기준 행 누락·화면 좌우에 SQL 방향 고정·복합 쌍 생략·상대 WHERE 조건으로 의도하지 않은 미매칭 제거·유일성/매칭 근거 창작·행/신원 정책 우회를 허용하면 실패해야 한다"
     screen_cases: ["documents/screen/admin/hub/catalog-relation/requirements.md#REL-07"]
+    verification_scope: FEAT-011.delivery_boundary의 관리 생산 범위. CatalogRelationDefinitionTest·CatalogRelationLiveTest·CatalogRelationPage/RelationCommands 시험으로 소유·정확 판·입력 보존·원 명령을 검증한다. 실제 SQL/모델·같은 세트·연결 지식 소비는 SLICE-048에서 별도로 수락한다.
     status: planned
   - id: TC-0231
     feature: FEAT-023

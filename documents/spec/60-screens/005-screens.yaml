@@ -93,7 +93,7 @@ screens:
     empty_state: "미등록 공개 객체·미완성 초안·현재 버전 없음·조회 실패·정책 계약 대기를 구분한다"
     loading: "현재 항목/선택 버전/현재 관측·정책/근거 분리, 전체 편집본 미확보와 저장/결과 불명 중 새 변경 차단"
     error_display: "초안 버전/소유·참조·정확 식별/profile 충돌·관측 실패·결과 불명을 입력 유지와 함께 표시한다"
-    relation_management: "REQ-301.relationship_metadata.workspace에 따라 관계 편집은 SCR-039가 맡고 여기서는 선택 판의 관계·관계 건수만 읽기 전용으로 표시한다. 기존 전체 후보의 소유 관계/쌍은 저장·복사·고정에서 보존하며 요약만 읽었거나 관계를 숨겼다는 이유로 삭제하지 않는다. 별도 화면 이동의 입력 보존·문맥/권한 계약은 SCR-039 상세 설계 후속이다"
+    relation_management: "REQ-301.relationship_metadata.workspace에 따라 관계 편집은 SCR-039가 맡고 여기서는 선택 판의 관계·관계 건수만 읽기 전용으로 표시한다. 기존 전체 후보의 소유 관계/쌍은 저장·복사·고정에서 보존하며 요약만 읽었거나 관계를 숨겼다는 이유로 삭제하지 않는다. 관계 관리는 catalogId 조건을 붙인 새 브라우저 탭으로 열어 원 화면 편집을 보존하며 HUB_CATALOG_RELATION READ가 있어야 이동한다"
     module: "admin"
     entry: "menu"
     group: "연동 관리"
@@ -133,8 +133,8 @@ screens:
     menu_parent: "HUB_INTEGRATION"
     target_doc: "documents/screen/admin/hub/catalog-relation/requirements.md"
     screen_role: "shared_composition"
-    design_status: "screen_draft"
-    menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
+    design_status: "approved"
+    menu_contract: "2026-11-14 admin G3 승인 범위. SLICE-011에서 선언·시드·실제 화면을 연결하며 카탈로그 READ/SAVE를 재사용한다."
     history_policy:
       kind: "shared_owner"
       source_screen: SCR-003

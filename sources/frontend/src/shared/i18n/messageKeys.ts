@@ -48,6 +48,72 @@ export const MSG = {
   GROUP_MEMBERS: 'group.members',
   /** 지식 */
   GROUP_KNOWLEDGE: 'group.knowledge',
+  /** 카탈로그 식별자 */
+  REL_CATALOG_ID: 'catalog_relation.catalog_id',
+  /** 카탈로그 {catalogId}의 양쪽 관계 */
+  REL_FILTER: 'catalog_relation.filter',
+  /** 관계 {count}건 */
+  REL_SUMMARY: 'catalog_relation.summary',
+  /** 테이블 관계 열기 */
+  REL_OPEN: 'catalog_relation.open',
+  /** 테이블 관계 */
+  REL_TITLE: 'catalog_relation.title',
+  /** 관계명 */
+  REL_NAME: 'catalog_relation.name',
+  /** 관계 식별자 */
+  REL_ID: 'catalog_relation.id',
+  /** 왼쪽 테이블 */
+  REL_LEFT: 'catalog_relation.left',
+  /** 오른쪽 테이블 */
+  REL_RIGHT: 'catalog_relation.right',
+  /** 왼쪽 역할 */
+  REL_LEFT_ROLE: 'catalog_relation.left_role',
+  /** 오른쪽 역할 */
+  REL_RIGHT_ROLE: 'catalog_relation.right_role',
+  /** 관계 유형 */
+  REL_CARDINALITY: 'catalog_relation.cardinality',
+  /** 관계 설명 */
+  REL_DESCRIPTION: 'catalog_relation.description',
+  /** 컬럼 쌍 */
+  REL_PAIRS: 'catalog_relation.pairs',
+  /** 관계 매핑 */
+  REL_PAIR_MAP: 'catalog_relation.pair_map',
+  /** 왼쪽 컬럼 */
+  REL_LEFT_COLUMN: 'catalog_relation.left_column',
+  /** 오른쪽 컬럼 */
+  REL_RIGHT_COLUMN: 'catalog_relation.right_column',
+  /** 테이블 선택 */
+  REL_PICK: 'catalog_relation.pick',
+  /** 신규 관계 */
+  REL_NEW: 'catalog_relation.new',
+  /** 쌍 추가 */
+  REL_ADD_PAIR: 'catalog_relation.add_pair',
+  /** 쌍 제거 */
+  REL_REMOVE_PAIR: 'catalog_relation.remove_pair',
+  /** 관계 영역 저장 */
+  REL_SAVE: 'catalog_relation.save',
+  /** 관계명·객체명 */
+  REL_KEYWORD: 'catalog_relation.keyword',
+  /** 객체명·업무명 검색 */
+  REL_SEARCH: 'catalog_relation.search',
+  /** 같은 데이터소스의 두 테이블과 전체 컬럼 쌍을 등록합니다. 관계 설명에 유일성·양방향 매칭 누락과 집계 의미를 적으세요. */
+  REL_HELP: 'catalog_relation.help',
+  /** 같은 활성 자료형 코드끼리 연결합니다. 검수된 기본키·유일키 전체 컬럼을 확인할 수 없으면 미확인으로 저장합니다. */
+  REL_TYPE_HELP: 'catalog_relation.type_help',
+  /** 신규 관계의 데이터소스를 먼저 선택하세요. */
+  REL_SELECT_SOURCE: 'catalog_relation.select_source',
+  /** 같은 데이터소스에서 양쪽 테이블을 선택하세요. */
+  REL_SELECT_BOTH: 'catalog_relation.select_both',
+  /** 같은 자료형의 좌우 컬럼을 하나씩 선택하세요. 중복 쌍은 추가할 수 없습니다. */
+  REL_PAIR_INVALID: 'catalog_relation.pair_invalid',
+  /** 테이블을 변경하면 이 관계의 기존 컬럼 쌍을 지우고 검수 상태를 미확인으로 바꿉니다. 계속할까요? */
+  REL_RESET_PAIRS: 'catalog_relation.reset_pairs',
+  /** 관계의 저장 기준이 바뀌었습니다. 입력을 확인한 뒤 다시 조회하세요. */
+  REL_OWNER_CHANGED: 'catalog_relation.owner_changed',
+  /** 연결 지식 조회는 지식·예제 기능 연결 후 제공됩니다. */
+  REL_KNOWLEDGE_PENDING: 'catalog_relation.knowledge_pending',
+  /** 선택 관계와 같은 소유 카탈로그에서 편집한 관계·컬럼 쌍을 함께 저장합니다. 다른 소유의 편집은 유지합니다. */
+  REL_SAVE_HINT: 'catalog_relation.save_hint',
   /** 스키마 카탈로그 */
   GROUP_CATALOG: 'group.catalog',
   /** API */

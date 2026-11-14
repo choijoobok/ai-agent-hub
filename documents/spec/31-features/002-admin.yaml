@@ -767,8 +767,12 @@ features:
     screen: SCR-039
     roadmap: RM-P1
     title: 권장 조인 경로 관리
-    design_status: draft
+    design_status: approved
     implementation_preparation: SLICE-011의 저장 입력·번호/소유·정확 참조·권한 재사용은 50-api FEAT-011.implementation_transport에서 구체화한다. 2026-11-14 사용자가 같은 활성 자료형 코드·검수된 기본키/유일키 전체 쌍 대조를 승인해 해당 제품 구현을 시작한다. 실제 SQL/모델 소비는 기존 relation_read_contract의 소유 후속이다.
+    delivery_boundary:
+      management: SLICE-011은 CR-057의 자료형·키 검증과 승인된 SCR-039 관리 화면, 소유 관계 전체 저장/전체 HIST, 정확 외부 판, 양쪽 역조회 및 SCR-003 요약 이동을 제공한다. 현재 카탈로그 READ·SAVE를 재사용한다.
+      verified_key: 검수된 PRIMARY 또는 UNIQUE_KEY의 전체 컬럼 집합과 대조한다. 현재 화면에서 기본키 검수는 지원하며 유일키 검수 편집은 후속이다. 설명만으로 검수 완료를 추정하지 않는다.
+      followup: '@defer SLICE-048 — 실제 SQL/모델/인증 예제의 관계 소비·같은 변경 세트 후보·연결 지식 합집합 역조회는 소유 구현과 함께 검증한다. 연결 지식은 현재 NOT_CONNECTED로 표시한다.'
     entities:
       - ENT-006
       - ENT-008
@@ -829,7 +833,7 @@ features:
       - REQ-306.shared_impact
       - UC-008
     pending:
-      - '@defer P3 integration_assets — SCR-039의 별도 화면 요건/목업·경로/메뉴/권한·SCR-003 요약 이동·미저장 입력 보존과 같은 전체 후보의 동시 편집을 상세 설계한다. TC-0111~0115·UC-008.sequence_design·ENT-008/025·FEAT-003.set_public_contract를 대조하고 공통 관계 조회의 LLM/예제 작성 입출력·실패/완전성·페이지/상한을 agent·knowledge와 확정한다. 1:N 집계·상대 참조 폐기·현재 권한 회수·반영 경합의 실제 시험은 후속이다'
+      - '@defer SLICE-048 — relation_read_contract의 실제 SQL/LLM/예제·지식 소비와 같은 변경 세트 후보 검증을 해당 소유 기능에 연결한다.'
     detail: REQ-301.relationship_metadata에 따라 관계 양쪽 객체·전체 조인 컬럼 쌍·방향·1:1/1:N의 업무 의미와 물리 FK/검수된 논리 관계 근거를 관리한다. 참조·1측 유일성·집계 중복을 검수하고 미확인 관계를 권장 경로로 사용하지 않는다
     why: '**FK 가 없는 레거시에서 LLM 의 조인 추측 오류를 막는 근거다.** 1:N 조인 뒤 집계가 부풀려지는 오류를 막고 DISTINCT 필요 판단에도 쓰인다'
     reqs:

@@ -5,6 +5,7 @@ API_URL,API_NM,API_DESC,ACTION_CD
 /api/admin/service/catalog/getReferenceCandidates,카탈로그 현재 입력 참조 후보 조회,,READ
 /api/admin/service/catalog/getReferences,카탈로그 연관 지식 연결 상태 조회,,READ
 /api/admin/service/catalog/getRelatedJoins,카탈로그 관계 연결 상태 조회,,READ
+/api/admin/service/catalog/getRelationList,테이블 관계 관리 목록 조회,,READ
 /api/admin/service/catalog/getResolvedObject,선정 공개 객체의 정확 원천 식별 조회,,READ
 /api/admin/service/catalog/getRevision,카탈로그 명시 적용 이력 조회,,READ
 /api/admin/service/catalog/getStructure,등록 카탈로그의 현재 원천 구조 조회,,READ

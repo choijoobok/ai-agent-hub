@@ -234,3 +234,9 @@ menus:
     parent: HUB_INTEGRATION
     url: /admin/hub/catalog
     export: true
+
+  # @feat FEAT-011
+  - code: HUB_CATALOG_RELATION
+    parent: HUB_INTEGRATION
+    url: /admin/hub/catalog-relation
+    export: true

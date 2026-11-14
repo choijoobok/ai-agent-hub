@@ -76,7 +76,7 @@ apis:
     summary: "양쪽 역할에서 보는 권장 관계"
     request: "body={id}"
     response: "ApiResponse<{state,rows}>"
-    contract: "현재 관계 생산자가 연결되지 않아 NOT_CONNECTED와 빈 rows를 반환한다. FEAT-011 관계 조회는 후속 소유 기능에서 연결한다."
+    contract: "현재 카탈로그의 양쪽 관계를 같은 소유 정본에서 READY/rows로 반환한다. 자기조인은 한 관계의 matchedSides=[LEFT,RIGHT]로 구별한다. 실제 모델 소비는 별도다."
   - id: API-028
     feature: FEAT-003
     implementation: implemented
@@ -175,7 +175,7 @@ apis:
 
   - id: API-604
     feature: FEAT-011
-    implementation: planned
+    implementation: implemented
     method: POST
     path: /api/admin/service/catalog/getRelationList
     action: READ
