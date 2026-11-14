@@ -137,7 +137,7 @@ describe('codeStore', () => {
       store.getState().syncWithSession(6);
 
       expect(store.getState().groups).toEqual({});
-      expect(store.getState().version).toBeNull();
+      expect(store.getState().version).toBe(6);
       expect(window.localStorage.getItem(CACHE_KEY)).toBeNull();
     });
 

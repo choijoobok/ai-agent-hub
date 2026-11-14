@@ -29,7 +29,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-001` | 프론트 | `shared/api/` | 8 | [./frontend/http.md](./frontend/http.md) |
 | `CMP-002` | 프론트 | `shared/authz/` | 9 | [../knowledge/sys/menu.md](../knowledge/sys/menu.md) |
 | `CMP-003` | 프론트 | `shared/batch/` | 3 | [./backend/batch.md](./backend/batch.md) |
-| `CMP-004` | 프론트 | `shared/code/` | 5 | [../knowledge/sys/code.md](../knowledge/sys/code.md) |
+| `CMP-004` | 프론트 | `shared/code/` | 6 | [../knowledge/sys/code.md](../knowledge/sys/code.md) |
 | `CMP-005` | 프론트 | `shared/components/` | 1 | [./frontend/grid.md](./frontend/grid.md) |
 | `CMP-006` | 프론트 | `shared/excelupload/` | 4 | [../playbook/excel-upload.md](../playbook/excel-upload.md) |
 | `CMP-007` | 프론트 | `shared/favorite/` | 3 | [../knowledge/sys/personalization.md](../knowledge/sys/personalization.md) |

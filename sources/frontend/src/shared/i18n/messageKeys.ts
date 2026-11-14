@@ -16,6 +16,17 @@
  * 서버 번들이 닿지 않을 때 쓰는 정적 문구는 `src/locales` 의 것이며 이 목록에 없다.
  */
 export const MSG = {
+  // @feat FEAT-504
+  /** 후보를 조회하려면 먼저 상위 조건을 선택하세요. */
+  CODE_COMBO_PARENT: 'codeCombo.parent',
+  /** 후보를 불러오는 중입니다. */
+  CODE_COMBO_LOADING: 'codeCombo.loading',
+  /** 조건에 맞는 후보가 없습니다. */
+  CODE_COMBO_EMPTY: 'codeCombo.empty',
+  /** 후보 조회 실패 — 다시 조회 */
+  CODE_COMBO_RETRY: 'codeCombo.retry',
+  /** 현재 조건에서 선택할 수 없는 값 */
+  CODE_COMBO_UNSUPPORTED: 'codeCombo.unsupported',
   // @feat FEAT-006
   /** 사용자 그룹 */
   GROUP_TITLE: 'group.title',

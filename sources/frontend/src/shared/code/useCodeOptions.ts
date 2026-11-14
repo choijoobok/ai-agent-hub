@@ -22,12 +22,13 @@ const SEP = ' ';
  */
 export function useCodeOptions(grpCds: string[]): Record<string, SelectOption[]> {
   const groups = useCodeStore((state) => state.groups);
+  const version = useCodeStore((state) => state.version);
   const key = [...new Set(grpCds.filter(Boolean))].sort().join(SEP);
 
   useEffect(() => {
     if (key === '') return;
     useCodeStore.getState().ensure(key.split(SEP));
-  }, [key]);
+  }, [key, version]);
 
   return useMemo(() => {
     const result: Record<string, SelectOption[]> = {};

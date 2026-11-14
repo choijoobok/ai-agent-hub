@@ -17,3 +17,9 @@ export interface CodeListResponse {
 export function fetchCodes(grpCds: string[]): Promise<CodeListResponse> {
   return post<CodeListResponse>(CODE_COMMON_ENDPOINTS.getList, { grpCds });
 }
+
+export interface CodeRefRequest { grpCd: string; refCd: string; refVal: string }
+export interface CodeRefListResponse { version: number; codes: string[] }
+export function fetchCodesByRef(request: CodeRefRequest): Promise<CodeRefListResponse> {
+  return post<CodeRefListResponse>(CODE_COMMON_ENDPOINTS.getListByRef, request);
+}

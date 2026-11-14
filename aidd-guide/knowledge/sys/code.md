@@ -106,6 +106,23 @@ SYS_CODE_GRP_REF 참조 코드 정의   COLOR · SORT_HINT            ← 열
 코드 행을 바꾸는 changeset 은 `SYS_CACHE_VERSION` 의 `code` 를 함께 올린다 —
 [message.md §4](./message.md) · [playbook/changeset.md](../../playbook/changeset.md).
 
+## 7. 참조 조건으로 콤보 후보를 좁히기
+
+`POST /api/system/common/code/getListByRef`는 `grpCd`, `refCd`, `refVal`을 받아 현재 참조 정의가
+있는 활성 상세 코드를 정렬해 반환한다. 참조값은 공백·대소문자를 바꾸지 않고 그대로 비교한다.
+응답은 조회 전에 읽은 CODE 버전과 코드 배열이며 표시명은 기존 메시지 번들을 사용한다.
+일반 유효 관리자 로그인으로 소비할 수 있지만 공통코드 관리 저장 권한은 주지 않는다.
+
+직접 폼에는 `<CodeSelect grpCd="DBMS_DATA_TYPE" refFilter={{ refCd: 'PARENT', refVal: dbms ?? '' }} />`,
+다른 공통 컨트롤에는 `useCodeOptionsByRef`의 `options/status/retry`를 사용한다.
+조건 미완성은 요청0·선행 선택 안내이고 첫 후보를 자동 선택하지 않는다. 실패는 재조회,
+빈 성공은 후보 없음으로 표시하며 기존 미지원 선택값은 경고와 함께 보존한다.
+실제 카탈로그의 DBMS별 자료형 연결은 해당 화면 구현 범위다. DBMS 버전은 이 조건이 아니다.
+
+`refFilter`가 없으면 기존 그룹 전체 조회다. 참조 후보는 구조화한 세 값의 튜플 키로 별도 메모리에
+보관하며 `groups[grpCd]`에 넣지 않는다. 새 CODE 버전은 전체/참조 캐시를 함께 비우고,
+관측한 버전보다 오래된 응답을 수락하지 않는다. 조건을 바꾼 뒤 늦게 도착한 이전 후보도 현재 콤보에 섞지 않는다.
+
 ## 관련
 
 - [message.md](./message.md) — `DTL_NM` 이 가리키는 곳

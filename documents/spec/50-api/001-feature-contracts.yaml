@@ -85,14 +85,20 @@ feature_contracts:
     revocation_guard: FEAT-301.admin_authority_guard. 메뉴 사용/액션·API 매핑/활성 변경과 자동 등록·시드 이행을 포함한다. 요청 중 직접 DB/캐시 갱신으로 우회하지 않는다. 오프라인 시드 변경은 배출/재기동 검수로 캐시를 재구성한다. 정확 경로/영역/액션 카탈로그 누락 시 닫는다.
   FEAT-504:
     reference_combo_contract:
-      implementation: planned
+      implementation: implemented
+      source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/code/CodeController.java#getListByRef
+      sources:
+        - sources/backend/domain/src/main/java/com/aiagent/domain/code/service/CodeRefQueryService.java
+        - sources/frontend/src/shared/code/useCodeOptionsByRef.ts
+        - sources/frontend/src/shared/code/CodeSelect.tsx
+        - sources/frontend/src/shared/code/codeStore.ts
       request: API-600 body는 grpCd(필수 1~30자)·refCd(필수 1~30자)·refVal(필수 1~200자) 세 문자열이다. 그룹/참조 키의 공백뿐 값과 refVal의 null/빈 문자열을 거부한다. 참조값의 내부/앞뒤 공백·대소문자를 임의 정규화하지 않고 저장 원문과 정확 비교한다. 열 이름·SQL·연산자·정렬 문자열을 입력받지 않는다. DBMS 버전은 조회 인자가 아니다
       query: SYS_CODE와 SYS_CODE_REF를 GRP_CD/DTL_CD로 조인하고 그룹코드=grpCd, 참조코드=refCd, 참조값=refVal, SYS_CODE.USE_YN=Y를 모두 적용한다. SYS_CODE_GRP_REF의 현재 해당 참조 정의도 확인한다. 파라미터 바인딩을 사용하고 결과는 중복 없는 DTL_CD를 SORT_NO/DTL_CD 순서로 반환한다. 일치하지 않는 코드/참조 정의는 빈 성공 목록이며 조회 실패와 다르다. SQL 삽입 문자열도 단순 참조값으로 비교한다
       response: ApiResponse<CodeRefListResponse>이며 data={version:CODE 캐시 버전,codes:상세 코드 문자열 배열}이다. 기존 API-554처럼 CODE 버전을 먼저 읽고 코드 목록을 조회한다. 조회 후 새 버전을 읽어 이전 데이터에 붙이지 않는다. 표시명은 기존 code.{grpCd}.{dtlCd} 메시지와 label 경로로 만든다. 임의 참조속성/전체 관리 DTO를 응답에 싣지 않는다. NATIVE_TYPE은 카탈로그 서버가 별도 내부 코드/참조 조회로 검증·해석하며 콤보 응답에 있다고 가정하지 않는다
       access: 기존 common 계층의 인증·유효 세션/계정·제한 세션·authzVersion 계약을 유지한다. CODE_MGMT 관리 메뉴 권한과 SYS_MENU_API 매핑을 요구하지 않으며 관리 저장 권한은 확대하지 않는다. Portal 인증 주체를 관리자 세션으로 받아들이는 별칭을 만들지 않는다
       frontend: shared/code/api/endpoints.ts·codeApi.ts에 getListByRef를 선언하고 shared/code/useCodeOptionsByRef의 공통 훅으로 콤보 옵션을 만든다. CodeSelect에 선택적 refFilter={refCd,refVal}를 두어 재사용한다. refFilter가 없으면 기존 그룹 전체 조회, 있으면 참조 조건 조회이며 조건 미완성 시 요청하지 않고 후보 없음/선행 선택 필요를 표시한다. 기존 선택값과 로딩/실패/미지원 표시를 구분하고 첫 후보를 자동 선택하지 않는다. 화면마다 같은 조인/후보 필터를 구현하지 않는다
       cache: 필터 결과는 기존 codeStore.groups[grpCd] 전체 목록에 넣지 않는다. (grpCd,refCd,refVal) 튜플을 구조적으로 직렬화한 별도 캐시 키를 사용한다. 공백 연결 키는 금지한다. API-554/600 응답 version과 현재 CODE 버전을 함께 대조해 새 버전이면 전체/필터 캐시를 모두 비운 뒤 해당 결과만 적재한다. 이전 버전의 늦은 응답은 버전을 내리거나 캐시에 다시 적재하지 않는다. CODE 버전 변경 알림도 양쪽 캐시를 함께 무효화한다. 조건 변경 후 이전 응답이 새 후보를 덮지 않게 요청 키를 대조한다. 빈 성공은 캐시 가능하나 실패는 빈 성공으로 캐시하지 않는다
-      errors: 필수/길이 오류 400, 인증/세션 오류는 기존 common 계약, 의존 조회 실패는 오류로 반환한다. 클라이언트는 로딩·빈 결과·조회 실패를 구분한다. 구체 MsgKey 및 source_contract는 소유 G3 이후 구현과 시드 생성에서 연결한다
+      errors: 필수/길이 오류 400, 인증/세션 오류는 기존 common 계약, 의존 조회 실패는 오류로 반환한다. 클라이언트는 로딩·빈 결과·조회 실패를 구분한다. codeCombo.parent/loading/empty/retry/unsupported 메시지와 정확 API 설치 목록을 연결했다
       verification: TC-5046. 같은 그룹 다른 부모·같은 참조값 다른 그룹/참조 키·비활성·빈 결과·누락 조건·따옴표/공백 값·일반 로그인 권한·전체 캐시 오염·CODE 무효화와 늦은 응답을 검증한다
     request_rule: 그룹·코드·참조 정의·참조값의 행 상태와 키를 함께 보낸다
     response_rule: 조회는 사용 중 값과 명시된 정렬을 유지한다

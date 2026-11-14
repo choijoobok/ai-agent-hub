@@ -1,6 +1,10 @@
 import type { CSSProperties } from 'react';
-import { Select } from 'antd';
+import { Button, Select } from 'antd';
 import { useCodeOptionsOf } from '@/shared/code/useCodeOptions';
+import { useCodeOptionsByRef, type CodeRefFilter } from './useCodeOptionsByRef';
+import { codeLabel } from '@/shared/i18n/codeLabel';
+import { label } from '@/shared/i18n/label';
+import { MSG } from '@/shared/i18n/messageKeys';
 
 /**
  * 공통코드 콤보 — sys/code.md.
@@ -15,6 +19,7 @@ import { useCodeOptionsOf } from '@/shared/code/useCodeOptions';
  */
 export function CodeSelect(props: {
   grpCd: string;
+  refFilter?: CodeRefFilter;
   value?: string | string[];
   onChange?: (value: string | string[]) => void;
   /** 다중 선택 — 값이 배열이 된다(frontend/search-form.md 의 `in` 과 같은 모양이다). */
@@ -24,20 +29,33 @@ export function CodeSelect(props: {
   allowClear?: boolean;
   style?: CSSProperties;
 }) {
-  const options = useCodeOptionsOf(props.grpCd);
+  const all = useCodeOptionsOf(props.refFilter ? '' : props.grpCd);
+  const filtered = useCodeOptionsByRef(props.grpCd, props.refFilter);
+  const options = props.refFilter ? filtered.options : all;
+  const values = props.value === undefined ? [] : Array.isArray(props.value) ? props.value : [props.value];
+  const unsupported = props.refFilter && filtered.status === 'ready' ? values.filter((value) => !options.some((option) => option.value === value)) : [];
+  const empty = filtered.status === 'error' ? <Button type="link" onClick={filtered.retry}>{label(MSG.CODE_COMBO_RETRY)}</Button>
+    : label(filtered.status === 'incomplete' ? MSG.CODE_COMBO_PARENT : filtered.status === 'loading' ? MSG.CODE_COMBO_LOADING : MSG.CODE_COMBO_EMPTY);
 
   return (
     <Select
       mode={props.multiple ? 'multiple' : undefined}
       value={props.value}
       onChange={props.onChange}
-      placeholder={props.placeholder}
+      placeholder={props.refFilter && filtered.status === 'incomplete' ? label(MSG.CODE_COMBO_PARENT) : props.placeholder}
       disabled={props.disabled}
+      loading={!!props.refFilter && filtered.status === 'loading'}
+      status={props.refFilter && filtered.status === 'error' ? 'error' : unsupported.length ? 'warning' : undefined}
+      notFoundContent={props.refFilter ? empty : undefined}
+      popupRender={unsupported.length && !options.length ? (menu) => <><div role="status" style={{ padding: 8 }}>{label(MSG.CODE_COMBO_EMPTY)}</div>{menu}</> : undefined}
       allowClear={props.allowClear}
       style={props.style}
       // `title: ''` — 판은 고른 항목의 글자를 그대로 브라우저 툴팁으로 단다. 보이는 글자를
       // 한 번 더 띄우는 것이고, 모양도 셸의 툴팁과 다르다(frontend/grid.md).
-      options={options.map((option) => ({ value: option.value, label: option.text, title: '' }))}
+      options={[
+        ...options.map((option) => ({ value: option.value, label: option.text, title: '' })),
+        ...unsupported.map((value) => ({ value, label: `${codeLabel(props.grpCd, value)} (${label(MSG.CODE_COMBO_UNSUPPORTED)})`, title: '', disabled: true })),
+      ]}
     />
   );
 }

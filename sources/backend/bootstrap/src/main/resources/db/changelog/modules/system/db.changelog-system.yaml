@@ -24,3 +24,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/system/008-source-notification-message.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/system/009-code-reference-message.sql
+      relativeToChangelogFile: false

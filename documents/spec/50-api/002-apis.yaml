@@ -1063,13 +1063,14 @@ apis:
     source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/menustat/MenuStatController.java#frequent
   - id: API-600
     feature: FEAT-504
-    implementation: planned
+    implementation: implemented
     method: POST
     path: /api/system/common/code/getListByRef
     action: AUTHENTICATED
     summary: 참조 조건 공통 코드 후보
     request: body={grpCd,refCd,refVal}; FEAT-504.reference_combo_contract
     response: ApiResponse<CodeRefListResponse>; data={version,codes}; CODE 버전과 활성 상세 코드 정렬 목록
+    source_contract: sources/backend/modules/system/src/main/java/com/aiagent/system/api/code/CodeController.java#getListByRef
   - id: API-601
     feature: FEAT-501
     implementation: planned

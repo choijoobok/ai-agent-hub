@@ -146,6 +146,11 @@ batchSchedule.warn.disable,FRONT,저장 확인의 첫 줄 — 끄는 배치가 `
 batchSchedule.warn.disableItem,FRONT,"그 목록의 한 줄 — `{name}` `{batchId}`. 다음 줄에 설명이 그대로 붙는다. 설명이 데이터라 메시지가 아니다 — sys/batch.md 의 셋째 항목(*""껐다 켜면 따라잡는가""*)을 끄는 순간에 읽히게 하는 것이 이 확인의 목적 전부다. /"
 batchSchedule.warn.timezone,FRONT,저장 확인 — 시간대를 바꾼 배치가 `{count}` 건 있다(screen/admin/system/batch/schedule/requirements.md §5-1). 크론이 그대로라 경고가 필요하다. 화면상 달라진 것은 한 칸인데 실제 실행 시각은 몇 시간 옮겨진다 — 보이는 변화의 크기와 결과의 크기가 어긋나는 자리다. /
 batchSchedule.warn.timezoneItem,FRONT,그 목록의 한 줄 — `{name}` `{batchId}` `{from}` `{to}`. 바뀐 값 둘을 나란히 놓는다.
+codeCombo.empty,FRONT,조건에 맞는 후보가 없습니다.
+codeCombo.loading,FRONT,후보를 불러오는 중입니다.
+codeCombo.parent,FRONT,후보를 조회하려면 먼저 상위 조건을 선택하세요.
+codeCombo.retry,FRONT,후보 조회 실패 — 다시 조회
+codeCombo.unsupported,FRONT,현재 조건에서 선택할 수 없는 값
 codeMgmt.col.codeCount,FRONT,그룹의 코드 수 — 파생이며 삭제 게이트가 읽는다(screen/admin/system/code/requirements.md).
 codeMgmt.col.codeNm,FRONT,코드명 컬럼 — 값이 `SYS_MESSAGE` 로 간다(screen/admin/system/code/requirements.md). 여기서 채우는 것은 지금 세션 언어 하나다. 다른 언어는 `MESSAGE_MGMT` 로 간다 — 언어를 컬럼으로 늘리면 지원 언어를 하나 켤 때마다 그리드가 옆으로 자란다. /
 codeMgmt.col.dtlCd,FRONT,코드 컬럼 — 그룹과 복합 PK 다. 신규 행에서만 열린다.

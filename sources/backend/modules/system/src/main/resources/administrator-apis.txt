@@ -56,6 +56,7 @@ API-551|POST|/api/system/service/code/save|com.aiagent.system.api.code.CodeAdmin
 API-552|POST|/api/system/service/code/getRefDefList|com.aiagent.system.api.code.CodeAdminController#getRefDefList|READ
 API-553|POST|/api/system/service/code/saveRefDef|com.aiagent.system.api.code.CodeAdminController#saveRefDef|SAVE
 API-554|POST|/api/system/common/code/getList|com.aiagent.system.api.code.CodeController#getList|AUTHENTICATED
+API-600|POST|/api/system/common/code/getListByRef|com.aiagent.system.api.code.CodeController#getListByRef|AUTHENTICATED
 API-555|POST|/api/system/service/message/getList|com.aiagent.system.api.message.MessageAdminController#getList|READ
 API-556|POST|/api/system/service/message/save|com.aiagent.system.api.message.MessageAdminController#save|SAVE
 API-557|GET|/api/system/public/message/getBundle|com.aiagent.system.api.message.MessageController#getBundle|PUBLIC

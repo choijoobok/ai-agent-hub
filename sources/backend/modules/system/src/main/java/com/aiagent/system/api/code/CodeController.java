@@ -6,6 +6,9 @@ import com.aiagent.system.api.code.response.CodeListResponse;
 import com.aiagent.api.trace.TraceId;
 import com.aiagent.core.response.ApiResponse;
 import com.aiagent.domain.code.service.CodeService;
+import com.aiagent.domain.code.service.CodeRefQueryService;
+import com.aiagent.system.api.code.request.CodeRefListRequest;
+import com.aiagent.system.api.code.response.CodeRefListResponse;
 import com.aiagent.domain.message.entity.SysCacheVersion;
 import com.aiagent.domain.message.service.CacheVersionService;
 import jakarta.validation.Valid;
@@ -28,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * ({@code /api/system/service/code/**}) 관리자만 부른다. 여기는 <b>로그인한 누구나</b> 부르며
  * 돌려주는 것도 다르다 — 저쪽은 관리 그리드의 행 전부, 여기는 <b>콤보 후보인 코드값</b>뿐이다.
  *
- * <h2>{@code getList} 하나뿐이다</h2>
+ * <h2>전체 그룹과 참조 조건 조회를 구분한다</h2>
  *
  * <p>그룹 하나짜리 {@code getOne} 을 함께 두지 않았다. 목록이 그것을 이미 할 수 있고,
  * <b>부르는 곳 없는 엔드포인트를 먼저 열면</b> 없는 기능이 API 로 먼저 생긴다
@@ -39,10 +42,12 @@ public class CodeController {
 
     private final CodeService codes;
     private final CacheVersionService versions;
+    private final CodeRefQueryService references;
 
-    public CodeController(CodeService codes, CacheVersionService versions) {
+    public CodeController(CodeService codes, CacheVersionService versions,CodeRefQueryService references) {
         this.codes = codes;
         this.versions = versions;
+        this.references = references;
     }
 
     /**
@@ -56,5 +61,11 @@ public class CodeController {
         return ApiResponse.success(
                 new CodeListResponse(version, codes.codesOf(request.grpCds())),
                 TraceId.current());
+    }
+
+    @PostMapping("/api/system/common/code/getListByRef")
+    public ApiResponse<CodeRefListResponse> getListByRef(@Valid @RequestBody CodeRefListRequest request) {
+        long version=versions.current(SysCacheVersion.CODE);
+        return ApiResponse.success(new CodeRefListResponse(version,references.codesByRef(request.grpCd(),request.refCd(),request.refVal())),TraceId.current());
     }
 }

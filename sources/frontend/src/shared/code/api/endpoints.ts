@@ -11,4 +11,5 @@
  */
 export const CODE_COMMON_ENDPOINTS = {
   getList: '/system/common/code/getList',
+  getListByRef: '/system/common/code/getListByRef',
 } as const;

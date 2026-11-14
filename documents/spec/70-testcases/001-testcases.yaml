@@ -22,7 +22,7 @@ testcases:
   - { id: TC-5032, feature: FEAT-503, usecase: UC-503, type: validation, title: "순환 메뉴와 중복 URL 저장 거부", actor: ACT-012, given: "자기 하위로 이동하거나 이미 사용 중인 URL", when: "API-539~542 호출", then: "409, ENT-510 트리 불변" }
   - { id: TC-5033, feature: FEAT-503, usecase: UC-503, type: business_exception, title: "인가 사슬 한 연결씩 제거하면 실패 폐쇄", actor: ACT-001, given: "API 등록·메뉴 매핑·액션 권한을 하나씩 제거한 표", when: "service API 직접 호출", then: "모든 행 403, 업무 서비스 호출 0회" }
   - { id: TC-5034, feature: FEAT-503, usecase: UC-503, type: permission, title: "URL 또는 역할명만으로 우회 불가", actor: ACT-001, given: "ADMIN 이름 역할 또는 화면 URL만 알고 액션 권한 없음", when: "신규 service API 호출", then: "403" }
-  - { id: TC-5035, feature: FEAT-503, usecase: UC-503, type: normal, title: "system API 경로와 메뉴 시드 단독 등록", actor: ACT-012, given: "현재 구현 API-501~599 99개와 추가 설계 API-600. 후속 API는 구현 승인 후 생성 입력에 포함", when: "시드 생성과 저장소 정적 검사", then: "신규 경로·액션·메뉴 매핑 일치, system 없는 구 경로·별칭·포괄 라우터 0건" }
+  - { id: TC-5035, feature: FEAT-503, usecase: UC-503, type: normal, title: "system API 경로와 메뉴 시드 단독 등록", actor: ACT-012, given: "현재 service API 시드99개와 구현된 common API-600. common 경로는 메뉴 매핑 시드에서 제외하고 정확 인증 설치 목록으로 검증", when: "시드 생성과 저장소 정적 검사", then: "신규 경로·액션·메뉴 매핑 일치, system 없는 구 경로·별칭·포괄 라우터 0건" }
   - { id: TC-5036, feature: FEAT-503, usecase: UC-503, type: business_exception, title: "프로파일 필수와 local 전용 빌드 변형", actor: ACT-012, given: "local·dev·운영 프로파일과 프로파일 누락, includeSample·skipFrontend 명시 옵션 조합", when: "bootRun 또는 패키지 JAR을 기동하고 빌드 태스크 그래프를 검사", then: "프로파일 누락은 데이터소스와 무관하게 기동 거부, local 기본은 sample 포함·프론트 생략, 그 밖의 기본은 sample 제외·프론트 포함, 명시 옵션은 기본값보다 우선" }
 
   - { id: TC-5041, feature: FEAT-504, usecase: UC-504, type: normal, title: "일반 코드와 참조값 저장", actor: ACT-012, given: "일반 그룹과 유효 참조 정의", when: "API-549·551·553 저장", then: "ENT-513~516과 코드명 원자 반영" }
@@ -83,4 +83,5 @@ testcases:
     when: "API-600·useCodeOptionsByRef/CodeSelect의 참조 조건 조회와 기존 API-554 그룹 전체 조회를 교대로 수행"
     then: "세 조건/활성의 교집합만 SORT_NO/DTL_CD 순으로 반환하고 조회 전에 읽은 CODE version을 함께 제공한다. 필터/전체 캐시는 분리하고 API-554/600 응답의 새 version을 관측하면 함께 갱신한다. 이전 version 응답은 버전을 내리거나 적재하지 않는다. 일반 유효 로그인 소비자는 관리 메뉴 권한 없이 조회하고 관리 저장은 여전히 거부된다"
     verification: "단위/계약/통합/프런트 시험; 참조 조건 하나 누락·타 그룹 조인·비활성 포함·조회 실패를 빈 성공 처리·공백 연결 키 충돌·그룹 전체 캐시 오염·이전 CODE/조건 응답 재사용·조건 미완성 전체 조회·첫 후보 자동 선택 시 실패해야 한다"
-    status: planned
+    status: implemented
+    evidence: CodeRefContractTest·CodeRefLiveTest·codeRefStore.test.ts·codeRefCombo.test.tsx와 기존 전체 코드 캐시/폼·그리드 소비 회귀. 실행 결과·브라우저 검토와 G4는 project.state.yaml이다.

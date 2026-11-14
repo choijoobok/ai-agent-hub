@@ -89,7 +89,7 @@ features:
     traces_to: [AUTHZ-091, ARCH-023]
 
   - id: FEAT-504
-    reference_combo_extension: "REQ-504.reference_combo에 따른 API-600과 shared/code의 참조 조건 콤보 유틸을 추가 설계한다. 현재 getList/CodeSelect/그룹 전체 캐시는 유지하며 필터 결과의 별도 키·CODE 버전 무효화·조회 실패/빈 결과 구분은 50-api.reference_combo_contract를 따른다. 구현은 소유 G3 승인 뒤 진행한다"
+    reference_combo_extension: "REQ-504.reference_combo의 API-600·useCodeOptionsByRef·CodeSelect 선택적 refFilter를 구현했다. 전체 그룹 캐시와 튜플별 참조 캐시를 분리하고 양쪽 CODE 버전 무효화·늦은 응답 차단·미완성/실패/빈 결과/기존 미지원 값 표시를 제공한다. 50-api.reference_combo_contract가 정본이다"
     module: system
     workstream: system
     roadmap: RM-P1
