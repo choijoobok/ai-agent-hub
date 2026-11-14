@@ -236,8 +236,8 @@ testcases:
     given: 검증된 원천/subject·최신 사건·대상 Portal
     when: 퇴직/조직이동 수신
     then: 해당 Portal 비활성화/필수 알림 인계·정확 HIST와 수신 결과 원자 확정·ADMIN 변경0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3052
     feature: FEAT-305
     usecase: UC-049
@@ -247,8 +247,8 @@ testcases:
     given: 같은 source/eventId의 동일/상이 본문
     when: 동시 수신·ACK 유실 후 재요청
     then: 동일 결과 재생·추가효과/HIST/알림0, 다른 본문409
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3053
     feature: FEAT-305
     usecase: UC-049
@@ -258,8 +258,8 @@ testcases:
     given: 새 인사 사건과 각 필수 저장 지점 장애
     when: 같은 트랜잭션 적용
     then: 실제 이력/수신/수신자조회/인앱 저장 장애는 이번 트랜잭션 전체 롤백·성공 ACK0. 정상 수신자0명은 ADR-047의 이용중지+pending202이며 장애로 보지 않는다.
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
     nfrs:
       - NFR-027
   - id: TC-3054
@@ -271,8 +271,8 @@ testcases:
     given: ADMIN/PORTAL 쿠키·다른 원천/subject·LOCAL 계정
     when: 정확 수신 경로 호출
     then: 원천 증명 없이 효과0, 같은 문자열 ADMIN/다른 원천 계정에 적용0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3055
     feature: FEAT-305
     usecase: UC-049
@@ -282,8 +282,8 @@ testcases:
     given: 지연/역순 사건·원천 재연결·변경된 Portal 판
     when: 최신성/원천 판 또는 현재 판 재확인
     then: 도착순/시각 추정 자동 적용0·불명은409/재확인, 무검증 자동 활성화0. 단순 부모 판 경합/대기 중 증거 만료는 영구 REJECTED0, 동일 사건을 재검증한 재요청은1회 적용
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3056
     feature: FEAT-305
     usecase: UC-049
@@ -293,7 +293,7 @@ testcases:
     given: 외부 사건으로 생성한 정책 HIST와 수신 결과
     when: 조회 인계·조사/파기 후보 대조
     then: 가짜 ADMIN ACTOR_ID0, 수신 commandKey=HIST 명령키·정확 HIST 역참조와 참조 보호 원자 유지. 보호 등록 실패 전체 롤백, 보존 검수 전 수신 근거 삭제0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
     nfrs:
       - NFR-027

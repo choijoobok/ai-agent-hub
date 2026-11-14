@@ -56,6 +56,13 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
         }
     }
     public void capture(String targetId,ManagedAssetAdapter.Stamp stamp) {
+        captureOrigin(targetId,stamp,"ADMIN");
+    }
+    public void captureExternal(String targetId,ManagedAssetAdapter.Stamp stamp) {
+        if(!kind.equals("PORTAL_USER")||stamp.actor()!=null||!stamp.action().equals("CHANGE"))throw ManagedErrorCode.VALIDATION.failure();
+        captureOrigin(targetId,stamp,"EXTERNAL");
+    }
+    private void captureOrigin(String targetId,ManagedAssetAdapter.Stamp stamp,String origin) {
         long target=ManagedCommand.positive(targetId);
         var selected=new LinkedHashMap<String,List<Map<String,Object>>>();
         for(var table:tables)selected.put(table.name(),jdbc.queryForList("SELECT "+String.join(",",table.columns())+" FROM "+table.name()+" WHERE "+table.ownerKey()+"=?",target));
@@ -72,7 +79,7 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
                 values.put("HIST_ID",next++); values.put("HISTORY_NO",stamp.historyNo());
                 if(i==0) {
                     values.put("HIST_DTM",Timestamp.from(stamp.at())); values.put("HIST_ACTION",stamp.action());
-                    values.put("HIST_ACTOR_ID",stamp.actor()); values.put("HIST_SOURCE_CD","ADMIN");
+                    values.put("HIST_ACTOR_ID",stamp.actor()); values.put("HIST_SOURCE_CD",origin);
                     values.put("HISTORY_COMMAND_KEY",stamp.commandKey()); values.put("RESULT_REVISION",Long.parseLong(stamp.revision()));
                     values.put("BEFORE_HISTORY_NO",previous.isEmpty()?null:previous.getFirst()); values.put("HIST_REASON",stamp.reason());
                     values.put("HIST_SUMMARY",stamp.action()); values.put("SCHEMA_VERSION",1);

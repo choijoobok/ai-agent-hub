@@ -10,7 +10,7 @@ entities:
     reqs:
       - REQ-103
       - REQ-107
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_USER_CHANGE
     attributes:
@@ -228,15 +228,15 @@ entities:
           definition: CHECK (NOTIFICATION_STATE IN ('NOT_REQUIRED','PENDING_NO_RECIPIENT','STORED'))
       indexes:
         - name: UX_PORTAL_CHANGE_EVENT
-          definition: CREATE UNIQUE INDEX UX_PORTAL_CHANGE_EVENT ON AI_PORTAL_USER_CHANGE (SOURCE_KEY, SOURCE_EPOCH, SOURCE_EVENT_ID)
+          definition: (SOURCE_KEY, SOURCE_EPOCH, SOURCE_EVENT_ID)
           unique: true
           method: btree
         - name: IX_PORTAL_CHANGE_HISTORY
-          definition: CREATE INDEX IX_PORTAL_CHANGE_HISTORY ON AI_PORTAL_USER_CHANGE (PORTAL_USER_ID, HISTORY_NO)
+          definition: (PORTAL_USER_ID, HISTORY_NO)
           unique: false
           method: btree
         - name: UX_PORTAL_CHANGE_COMMAND
-          definition: CREATE UNIQUE INDEX UX_PORTAL_CHANGE_COMMAND ON AI_PORTAL_USER_CHANGE (COMMAND_KEY)
+          definition: (COMMAND_KEY)
           unique: true
           method: btree
     history_storage:
@@ -252,4 +252,8 @@ entities:
       - ADR-047의 역할 기반 수신과0명 미완료 정책. 현재 효과/원 결과는 불변, 통지 상태/리비전만 보호 갱신하며 정확 다수 인앱 ID는 ENT-266에 저장한다.
       - FEAT-305.retention_detail의 사건키 최소종결과 보호 참조 해제/파기는 원자적이다. REQUEST_DIGEST는 업무본문, FRESHNESS_DIGEST는 현재 검증 근거이며 재전송 지문 비교에 서로 섞지 않는다.
       - sourceEpoch는 검증된 원천 사건 ID 명명 공간의 세대다. eventId가 새 epoch에서 재사용돼도 구분하며 키 교체만으로 epoch를 바꾸지 않는다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/003-external-user-change.sql
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/ChangeStore.java

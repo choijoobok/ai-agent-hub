@@ -15,7 +15,7 @@ public final class SensitiveRequest {
             "/api/admin/service/portalUser/resetCredential");
     public static boolean excluded(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        return path.startsWith("/api/portal/") || path.contains("/auth/") || COMMANDS.contains(path);
+        return path.startsWith("/api/portal/") || path.equals("/api/integration/public/identity/receiveChange") || path.contains("/auth/") || COMMANDS.contains(path);
     }
     public static boolean secretHeader(String name) {
         String key = name.toLowerCase(Locale.ROOT);

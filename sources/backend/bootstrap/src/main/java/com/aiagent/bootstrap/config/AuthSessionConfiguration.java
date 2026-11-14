@@ -36,7 +36,7 @@ import com.aiagent.core.security.v2.SessionAuthority;
 public class AuthSessionConfiguration {
     @Bean public SessionV2Assembly administratorSessions(Environment environment, DataSource source,
             PlatformTransactionManager manager, AdminAuthorityGuard guard, AdminApiCatalog catalog,
-            SessionAdmissionsV2.Producer producer, PortalAuthModule portal, PortalAuthorityGuard portalGuard, ObjectProvider<RedisConnectionFactory> redis,
+            SessionAdmissionsV2.Producer producer, PortalAuthModule portal, PortalAuthorityGuard portalGuard, com.aiagent.portal.change.SourceChangeModule sourceChanges, ObjectProvider<RedisConnectionFactory> redis,
             ObjectMapper mapper, ApiErrorWriter errors, jakarta.persistence.EntityManagerFactory entityManagerFactory,
             @Qualifier("administratorAuthorityDecorator") ObjectProvider<java.util.function.UnaryOperator<com.aiagent.core.security.v2.SessionAuthority>> decorators) {
         // EntityManagerFactory는 Liquibase가 완료된 뒤 초기화된다. 선택 판은 첫 빈 설치 때만 만든다.
@@ -64,6 +64,7 @@ public class AuthSessionConfiguration {
         boolean portalEnabled=configuration.domains().containsKey(AuthDomain.PORTAL);
         var operations=new ArrayList<>(catalog.catalog().entries());
         if(portalEnabled)operations.addAll(portal.operations());
+        operations.addAll(sourceChanges.operations());
         var combined=new ModuleApiCatalog(operations,Arrays.asList(environment.getActiveProfiles()).contains("local"));
         SessionAuthority administrator=decorators.getIfAvailable(java.util.function.UnaryOperator::identity).apply(guard);
         SessionAuthority authority=(context,exclusive,command)->{
@@ -85,7 +86,7 @@ public class AuthSessionConfiguration {
         registration.setOrder(1);
         return registration;
     }
-    @Bean public ApplicationRunner verifyAdministratorInstallation(SessionV2Assembly assembly, AdminApiCatalog catalog, PortalAuthModule portal, Environment environment,
+    @Bean public ApplicationRunner verifyAdministratorInstallation(SessionV2Assembly assembly, AdminApiCatalog catalog, PortalAuthModule portal, com.aiagent.portal.change.SourceChangeModule sourceChanges, Environment environment,
             @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlers,
             ConfigurableListableBeanFactory beans, ServletContext servletContext) {
         return args -> {
@@ -100,6 +101,7 @@ public class AuthSessionConfiguration {
             });
             var expected=new HashMap<>(catalog.expectedHandlers());
             if(environment.getProperty("app.auth.session.domains.portal.enabled",Boolean.class,false))expected.putAll(portal.handlers());
+            expected.putAll(sourceChanges.handlers());
             assembly.verifyInstallation(beans, servletContext, expected, observed);
         };
     }

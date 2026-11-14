@@ -207,7 +207,7 @@ usecases:
   - id: UC-049
     name: 검증된 외부 인사 사건을 Portal 이용 상태에 반영한다
     workstream: integration
-    design_status: draft
+    design_status: approved
     reqs:
       - REQ-103
       - REQ-107
@@ -235,7 +235,7 @@ usecases:
           - 일시 판 경합/증거 재확인 필요는409·일시 장애는503으로 반환하고 영구 REJECTED를 저장하지 않는다. 같은 사건을 원천부터 재검증한 재요청으로 복구한다.
     postcondition: 검증 연결된 Portal 주체만 기존 규칙대로 변경되고 외부 처리자·정확 정책 이력과 중복 방지 근거가 남는다.
     business_rules:
-      - FEAT-305 공개 계약이 처리/오류·소유 경계의 정본이며 실제 구현·운영 지원 검증은 별도다.
+      - FEAT-305 공개 계약이 처리/오류·소유 경계의 정본이다. 제품 실제 HTTP/DB 검증과 고객 원천 어댑터 운영 검수는 구분한다.
     feature_contract: FEAT-305
     sequence_design:
       scope: 검증된 외부 인사 사건을 Portal 이용 상태에 반영한다

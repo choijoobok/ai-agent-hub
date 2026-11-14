@@ -10,7 +10,7 @@ entities:
     reqs:
       - REQ-103
       - REQ-107
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_SOURCE_CHANGE_CURSOR
     attributes:
@@ -105,7 +105,11 @@ entities:
     rules:
       - 서명키/검증 설정 세대와 사건 원천 epoch·계정 연결 BINDING_KEY는 다르다. 키 교체/프로세스 재시작으로 커서를 초기화하지 않는다.
       - 원천 검증기는 이전 cursor판과의 비교/최신 상태 근거를 반환하며 보호 구간에서는 같은 cursor판인지 재검사한다. NO_CHANGE도 검증된 진전은 기록한다. 현재 연결이 바뀌면 옛 binding 사건은 자동 적용하지 않는다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/003-external-user-change.sql
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/ChangeStore.java
   - id: ENT-266
     name: 외부 사건의 인앱 통지 참조
     term: TRM-308
@@ -117,7 +121,7 @@ entities:
     reqs:
       - REQ-103
       - REQ-107
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_CHANGE_NOTIFICATION
     attributes:
@@ -184,7 +188,11 @@ entities:
     rules:
       - system 공개 포트가 확정한 정확 수신자+인앱 ID만 같은 트랜잭션에 기록한다. 상대 Repository 직접 접근/Portal ID 대체 없음.
       - 기존 인앱 보존 종료 후에도 이 참조를 이유로 알림을 재생성하지 않는다. 현재 알림 행 FK/CASCADE를 두지 않으며 저장 시 소유 결과로 검증한다. 사건 기록 파기와 함께 정리하며 최소종결표에 수신자/알림ID를 복사하지 않는다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/003-external-user-change.sql
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/ChangeStore.java
     relations:
       - entity: ENT-257
         cardinality: N:1

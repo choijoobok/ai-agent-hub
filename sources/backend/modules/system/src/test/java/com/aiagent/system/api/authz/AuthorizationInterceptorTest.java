@@ -31,6 +31,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /** 캐시/dirty 대신 현재 원천과 동일 트랜잭션의 업무 효과를 검증한다. PG 경합은 systemAuthTest. */
 public class AuthorizationInterceptorTest {
+    @Test @DisplayName("TC-3054 public 이름·위조 속성은 원천 검증을 대체하지 않는다")
+    void publicSourcePathCannotBypassBoundaryWithInventedAttribute() {
+        var request=new MockHttpServletRequest("POST","/api/integration/public/identity/receiveChange");
+        request.setAttribute(com.aiagent.api.auth.v2.SessionV2Filter.class.getName()+".sourceAcceptance",Boolean.TRUE);
+        assertThatThrownBy(()->new AuthorizationInterceptor().preHandle(request,new org.springframework.mock.web.MockHttpServletResponse(),new Object())).isInstanceOf(IllegalStateException.class);
+    }
     public static int testLock(int first, int second) { return 1; }
     private final UserAccountService users = mock(UserAccountService.class);
     private final EffectiveAuthorityService authorities = mock(EffectiveAuthorityService.class);

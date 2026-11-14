@@ -109,6 +109,38 @@ SLICE-521은 검증된 퇴직(`RETIRED`)·조직 이동(`ORG_MOVED`) 사건을 �
 외부 인사 연동·실제 ENT-266을 검증했다고 해석하지 않는다. 시험 DB/서버를 직접 시작했다면 종료도 실행자가 맡는다.
 화면 확인은 기존 알림 모달의 **내 알림 → 항목 상세 → 읽음/이동**을 사용한다.
 
+### 외부 인사 사건 수신과 고객 어댑터
+
+SLICE-305의 `POST /api/integration/public/identity/receiveChange`는 기존 EXTERNAL Portal 연결의
+퇴직·조직 이동을 받아 이용을 중지한다. 신규 입사 자동 등록·그룹 자동 배정·관리자 계정 변경은 하지 않는다.
+등록 `SourceChangeVerifier`가 없으면503이며 ADMIN/PORTAL 쿠키는 원천 인증을 대신하지 않는다.
+`X-AIHUB-Source`는 등록 원천 선택값이다. 고객 어댑터가 정확 POST/경로·원본문·원천 namespace/epoch·
+현재 연결·서명 기한/nonce를 검증하고, 신규 효과가 필요할 때 원천 판 비교 또는 현재 상태를 확인한다.
+두 검증 함수는 DB 트랜잭션 밖에서 실행한다. `configuration()`은 네트워크 없이 로컬 현재값만 반환한다.
+설정 세대는 불변으로 배포하고 변경 시 검수/배출/재기동한다. 서명키 교체와 사건 epoch 전환을 혼동하지 않는다.
+
+본문은 `schemaVersion`, `sourceEventId`, `subject`, `kind`, `occurredAt`, `sourceVersion`의 여섯 필드다.
+상세 형식·오류/반복 수신 계약은 `documents/spec/50-api/018-external-user-change-apis.yaml`이 정본이다.
+같은 사건·본문을 **새 유효 증명**으로 재전송하면 원효과를 재적용하지 않고 미완료 통지만 복구한다.
+보호 중 부모판/연결/cursor/검증 설정이나 증거 기한이 달라지면409이며 새 원천 검증부터 재시도한다.
+명확한 과거 사건은422, 필수 기록/조회 장애는503·전체 롤백이다. 성공 응답 유실에도 같은 사건 키를 유지한다.
+
+`app.portal.change.recipient-roles`는 기존 system 역할 코드의 쉼표 목록이며,
+`app.deployment.id`와 `app.portal.change.recipient-policy-version`도 고객 배포에서 정한다.
+역할 미설정/정상0명은 이용 중지와 `PENDING_NO_RECIPIENT`를202로 확정한다.
+수신자 조회 장애는0명으로 대체하지 않는다. 최초 STORED 뒤 인앱 보존 종료나 역할 변경으로 다시 발송하지 않는다.
+실제 원천 어댑터·역할/상세 READ 권한·재전송/키 교체·시계·보존 정책의 고객 검수 후 연동을 연다.
+
+`ChangeRetentionPolicy`는 고객 보존 종료시각·조사 보호·미통지 종료 허용·정책판을 제공한다.
+설치하지 않으면 파기는 비활성이며 자동 배치/파기 HTTP API는 없다.
+`ChangeRetentionService.purge`는 사건/명령 최소키를 먼저 등록하고 이력 보호/수신 개인정보를 같은 트랜잭션으로
+정리한다. 현재 연결의 순서 cursor는 유지한다. 기간을 임의 기본값이나 인앱90일과 동일하게 정하지 않는다.
+
+필수 제품 검증은 `sources/`에서 `:backend:bootstrap:managedStorageTest --tests com.aiagent.admin.managed.SourceChangeLiveTest`
+를 `-PincludeSample=false -PskipFrontend`로 실행한다. `MANAGED_TEST_JDBC/USER/PASSWORD`는 작업 전용
+PostgreSQL을 지정한다. 시험마다 별도 schema를 사용하며 합성 HMAC 어댑터는 시험 소스/프로파일에만 둔다.
+이 시험은 고객 인사 시스템의 실제 서명·최신성 계약 수락을 대신하지 않는다.
+
 ### 공통 JDBC/Redis v2 실제 시험
 
 `sources/`에서 `./gradlew.bat :backend:api:authV2LiveTest -PskipFrontend`를 별도로 실행한다.

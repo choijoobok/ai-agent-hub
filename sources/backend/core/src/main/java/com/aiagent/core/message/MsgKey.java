@@ -921,5 +921,7 @@ public final class MsgKey {
     /** 관리 저장 원천을 확인할 수 없습니다. 원 명령으로 결과를 확인해 주세요. */
     public static final String ERR_MANAGED_UNAVAILABLE = "err.managed.unavailable";
 
+    /** 외부 사건을 처리할 수 없습니다. 원천과 처리 결과를 확인해 주세요. */
+    public static final String ERR_SOURCE_CHANGE = "err.sourceChange";
     private MsgKey() {}
 }

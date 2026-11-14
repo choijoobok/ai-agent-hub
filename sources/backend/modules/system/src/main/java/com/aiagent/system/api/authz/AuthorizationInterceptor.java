@@ -13,6 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class AuthorizationInterceptor implements HandlerInterceptor {
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (SessionV2Filter.sourceVerified(request)) return true;
         if (request.getAttribute(SessionV2Filter.SCOPE) == null)
             throw new IllegalStateException("공통 인증 경계를 거치지 않은 API 요청이다");
         if (((com.aiagent.api.auth.v2.SessionRuntime.Scope)request.getAttribute(SessionV2Filter.SCOPE)).exchange().domain() == com.aiagent.core.security.AuthDomain.ADMIN && !request.getRequestURI().contains("/public/"))

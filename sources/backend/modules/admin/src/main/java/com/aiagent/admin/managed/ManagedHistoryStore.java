@@ -15,6 +15,7 @@ public interface ManagedHistoryStore {
     }
     String kind();
     void capture(String targetId,ManagedAssetAdapter.Stamp stamp);
+    default void captureExternal(String targetId,ManagedAssetAdapter.Stamp stamp){throw new IllegalStateException("외부 원천 이력은 소유 지원이 필요하다");}
     Event exact(Ref ref);
     Event event(long historyNo);
     boolean current(Event event);

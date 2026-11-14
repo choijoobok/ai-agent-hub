@@ -5,3 +5,9 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/portal/002-authentication-messages.sql
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/portal/003-external-user-change.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/portal/004-external-change-message.sql
+      relativeToChangelogFile: false

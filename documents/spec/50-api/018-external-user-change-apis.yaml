@@ -1,7 +1,7 @@
 apis:
   - id: API-307
     feature: FEAT-305
-    implementation: planned
+    implementation: implemented
     method: POST
     path: /api/integration/public/identity/receiveChange
     action: SOURCE_VERIFIED
@@ -11,6 +11,9 @@ apis:
     request: ExternalUserChange + 원천 어댑터가 명시한 증명 헤더. sourceKey는 서버 원천으로만 정하며 본문 지정은400이다.
     response: ApiResponse<ChangeReceipt>; 동일 사건은 원효과 결과와 duplicate=true·현재 notificationState. Portal 주체/수신자/정책 전문 제외.
     contract: FEAT-305.types/transaction; IF-006. 외부 검증기는 고객별 설치 계약, 수신 DTO와 원자성은 공통 계약.
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/change/SourceChangeController.java
+    source_assembly: sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/SourceChangeModule.java
+    headers: X-AIHUB-Source는 등록 원천 선택용 단일 헤더이며 인증 증명이 아니다. 추가 서명/기한/nonce 헤더는 고객 검증기 계약을 따른다. 적용 단계 오류는 비밀 없는 X-AIHUB-Change-Code와 공통 오류 봉투, 검증 경계 오류는 공통 오류 봉투를 반환한다.
     errors:
       '400': 미지원 형식/필드/길이
       '401': 원천 증명 불가/만료

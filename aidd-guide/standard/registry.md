@@ -55,7 +55,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-025` | core | `core/message/` | 2 | [../knowledge/sys/message.md](../knowledge/sys/message.md) |
 | `CMP-026` | core | `core/response/` | 1 | [./backend/api.md](./backend/api.md) |
 | `CMP-027` | core | `core/search/` | 19 | [./backend/persistence.md](./backend/persistence.md) · [./backend/search-spec.md](./backend/search-spec.md) · [./backend/search.md](./backend/search.md) 외 1 |
-| `CMP-034` | core | `core/security/` | 15 | [./backend/packages.md](./backend/packages.md) |
+| `CMP-034` | core | `core/security/` | 16 | [./backend/packages.md](./backend/packages.md) |
 | `CMP-028` | support | `support/config/` | 26 | [../knowledge/sys/config.md](../knowledge/sys/config.md) |
 | `CMP-036` | support | `support/deployment/` | 8 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-029` | support | `support/excel/` | 1 | [../playbook/excel-download.md](../playbook/excel-download.md) |

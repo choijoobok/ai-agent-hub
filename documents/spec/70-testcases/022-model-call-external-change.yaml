@@ -162,8 +162,8 @@ testcases:
     given: 검증된퇴직·수신자0명
     when: 접수 뒤 역할설정 후 동일사건재전송
     then: 첫202/이용중지·통지pending, 뒤200/통지만1회·HIST추가0 후속 사건/cursor진전·수동재활성화/재연결 뒤에도 과거pending의 통지만1회 완료하고 현재계정/이력 변경0.
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3058
     feature: FEAT-305
     usecase: UC-049
@@ -173,8 +173,8 @@ testcases:
     given: 같은pending사건2요청 또는 수신자조회DB실패
     when: 현재 수신자 보호/저장
     then: 인앱/참조1세트·조회실패는0명으로치환0/rollback 이미 확정된pending 복구 실패는 이번통지만rollback, 이전이용중지/HIST/pending유지.
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-3059
     feature: FEAT-305
     usecase: UC-049
@@ -184,8 +184,8 @@ testcases:
     given: 새nonce/검증시각/서명키로 같은본문 재전송
     when: 원결과조회
     then: 같은사건재생·검증메타로409발생0·kind변조거부
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-30510
     feature: FEAT-305
     usecase: UC-049
@@ -195,8 +195,8 @@ testcases:
     given: 현재binding·NO_CHANGE후과거사건·재연결
     when: cursor/기한재검사
     then: NO_CHANGE도watermark진전·옛binding/과거사건새효과0
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-30511
     feature: FEAT-305
     usecase: UC-049
@@ -206,8 +206,8 @@ testcases:
     given: 원결과와서버UUID매핑파기·최소사건키보존
     when: 서명키교체후같은사건재전송
     then: EXPIRED409·계정/HIST/인앱재생성0
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-30512
     feature: FEAT-305
     usecase: UC-049
@@ -217,8 +217,8 @@ testcases:
     given: STORED인앱90일파기 또는 pending사건
     when: 원사건재조회/파기
     then: 파기된인앱재생성0·pending수신결과파기0 pending 자체로 무기한 보존0·보존종결정책 미설정 자동파기0·고객종결정책/정당한보호 대조.
-    status: planned
-    verification: 소유 G3 뒤 실제 제품 DB/공개 포트로 실행한다. ASM-003 격리 프레임워크 실증이나 문서 검사를 이 TC 실행 통과로 표시하지 않는다.
+    status: implemented
+    verification: SourceChangeLiveTest의 실제 제품 HTTP/PostgreSQL·전체 HIST/수신/순서/인앱 참조와 장애/경합/마이그레이션 시험으로 검증했다. 인증 원천은 시험용 HMAC이며 고객 IF-006 실제 어댑터 운영 수락은 후속이다. 실행 결과와 G4는 project.state.yaml이다.
   - id: TC-5098
     feature: FEAT-509
     usecase: UC-509

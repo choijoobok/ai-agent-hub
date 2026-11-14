@@ -100,4 +100,14 @@ class UserActionLogInterceptorTest {
         request.addHeader("X-Menu-Code", "ROLE_AUTH_MGMT");
         return request;
     }
+
+    @Test @DisplayName("TC-3054 원천 사건의 식별자와 증명은 일반 접근/본문 로그에 남기지 않는다")
+    void sourceChangeNeverSerializesIdentityOrProof() {
+        var request=new MockHttpServletRequest("POST","/api/integration/public/identity/receiveChange");
+        request.setContent("{\"subject\":\"private-subject\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        request.addHeader("X-Source-Signature","private-proof");
+        assertThat(SensitiveRequest.excluded(request)).isTrue();
+        interceptor.afterCompletion(request,new MockHttpServletResponse(),new Object(),null);
+        org.mockito.Mockito.verifyNoInteractions(accessLogs,serializer);
+    }
 }

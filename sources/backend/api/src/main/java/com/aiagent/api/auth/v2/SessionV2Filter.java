@@ -24,6 +24,10 @@ import org.slf4j.MDC;
 public final class SessionV2Filter extends OncePerRequestFilter {
     public static final String SCOPE=SessionV2Filter.class.getName()+".scope";
     public static final String INSPECTION=SessionV2Filter.class.getName()+".inspection";
+    private static final String SOURCE_ACCEPTANCE=SessionV2Filter.class.getName()+".sourceAcceptance";
+    private record SourceAcceptance(String method,String path,Thread thread) {}
+    /** 정확 NONE 원천 검증을 마친 동기 filter 범위만 MVC 경계가 확인할 수 있다. */
+    public static boolean sourceVerified(HttpServletRequest request){return request.getAttribute(SOURCE_ACCEPTANCE) instanceof SourceAcceptance accepted&&accepted.thread()==Thread.currentThread()&&accepted.method().equals(request.getMethod())&&accepted.path().equals(request.getRequestURI());}
     @FunctionalInterface public interface Preflight {SessionInspectionPort.Plan prepare(HttpServletRequest request,SessionInspectionPort inspection)throws Exception;}
     private final SessionRuntime runtime;private final ModuleApiCatalog catalog;private final SessionV2Assembly.Configuration configuration;
     private final Map<AuthDomain,SessionAdmissionsV2.Producer> producers;private final BoundaryResponseWriter responses;private final Map<String,Preflight> preflights;
@@ -45,9 +49,12 @@ public final class SessionV2Filter extends OncePerRequestFilter {
         try{
             if(operation.domain()==ModuleApiCatalog.Domain.NONE){
                 var source=new ReplayRequest(withoutWasSession(original));
-                try{operation.sourceVerifier().verify(source);}catch(Exception failure){throw new AuthBoundaryAssembly.Rejected(403);}
+                try{operation.sourceVerifier().verify(source);}
+                catch(AuthBoundaryAssembly.Rejected failure){throw failure;}
+                catch(Exception failure){throw new AuthBoundaryAssembly.Rejected(403);}
                 SecurityContextHolder.clearContext();
-                chain.doFilter(source,buffered);
+                source.setAttribute(SOURCE_ACCEPTANCE,new SourceAcceptance(source.getMethod(),source.getRequestURI(),Thread.currentThread()));
+                try{chain.doFilter(source,buffered);}finally{source.removeAttribute(SOURCE_ACCEPTANCE);}
             }else{
                 AuthDomain domain=AuthDomain.valueOf(operation.domain().name());if(!configuration.domains().containsKey(domain))throw new AuthBoundaryAssembly.Rejected(403);
                 String cookie=cookie(original,"AIHUB_"+domain+"_SESSION");cookie(original,"AIHUB_"+domain+"_CSRF");
@@ -111,7 +118,7 @@ public final class SessionV2Filter extends OncePerRequestFilter {
     private static final class HandledFailure extends RuntimeException {HandledFailure(){super("업무 오류 응답을 보존하고 요청을 롤백한다");}}
     private static final class ReplayRequest extends HttpServletRequestWrapper {
         private final byte[] body;
-        ReplayRequest(HttpServletRequest request)throws IOException{super(request);body=request.getInputStream().readNBytes(1_048_577);if(body.length>1_048_576)throw new IllegalArgumentException("조회 준비 요청 본문이 너무 크다");}
+        ReplayRequest(HttpServletRequest request)throws IOException{super(request);body=request.getInputStream().readNBytes(1_048_577);if(body.length>1_048_576)throw new AuthBoundaryAssembly.Rejected(400);}
         @Override public ServletInputStream getInputStream(){var input=new java.io.ByteArrayInputStream(body);return new ServletInputStream(){public int read(){return input.read();}public boolean isFinished(){return input.available()==0;}public boolean isReady(){return true;}public void setReadListener(ReadListener listener){throw new IllegalStateException("조회 준비는 동기 요청만 허용한다");}};}
         @Override public java.io.BufferedReader getReader(){return new java.io.BufferedReader(new java.io.InputStreamReader(getInputStream(),StandardCharsets.UTF_8));}
     }

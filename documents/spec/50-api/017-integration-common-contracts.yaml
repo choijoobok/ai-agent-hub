@@ -120,8 +120,14 @@ feature_contracts:
     operational_acceptance: '@defer 운영 API 구독/유효 시험 연결 확보 직후 — ARCH-032.operational_usage_acceptance가 조합별 수락의 소유·기한·미지원 처리 정본이다. 해당 모델 통합 G4 완료/기능 최초 활성화 전 판정하며 계약 대역이나 CLI 결과로 이를 대체하지 않는다.'
     verification: TC-3041~3049. NFR-026/027의 공통 경계/기록 실패·대역 검증과 실제 공급 경로별 시험을 구분한다.
   FEAT-305:
-    design_status: draft
-    implementation: planned
+    design_status: approved
+    implementation: implemented
+    source_contract:
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/
+      - sources/backend/core/src/main/java/com/aiagent/core/security/portal/PortalChangeOwner.java
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/PortalChangeOwnerService.java
+      - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/SourceChangeConfiguration.java
+    source_assembly: 실제 공개 이름은 SourceChangeService.verify/receive와 PortalChangeOwner.protectBinding/apply다. Verified는 검증 서비스만 발급하는 비공개 생성자 객체이며 envelope 뒤 최신성 준비와 현재판 재검사를 분리한다. 추적 ID는 공통 요청 문맥에서 관리하며 원 증거/subject를 일반 접근 로그에 기록하지 않는다.
     decision: ADR-047
     reqs:
       - REQ-103

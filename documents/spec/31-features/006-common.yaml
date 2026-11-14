@@ -129,6 +129,12 @@ features:
     module: common
     roadmap: RM-P1
     title: 사용자 변경 이벤트 수신 인터페이스
+    implementation: implemented
+    sources:
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/change/
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/PortalUserChangeService.java
+      - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/SourceChangeConfiguration.java
+    delivery: 공통 수신 REST·기존 EXTERNAL Portal 원장/HIST·사건/순서/통지 기록과 최소 파기키를 실제 HTTP/PostgreSQL로 검증했다. 원천 인증은 시험용 HMAC이며 고객 IF-006 실제 어댑터·역할/보존 설정의 운영 검수는 별도다. 신규 입사 자동 등록은 포함하지 않는다.
     detail: 인사 시스템·그룹웨어가 폐쇄망 내부에서 보내는 변경 사건을 검증된 외부 연결의 Portal 계정에 적용한다. 퇴직은 Portal 비활성화, 조직 이동은 Portal 일시 비활성화와 관리자 통보이며 처리 결과를 정책 변경 이력에 남긴다. system 관리자 계정·세션에는 자동 전파하지 않는다
     reqs:
       - REQ-103

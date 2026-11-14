@@ -72,7 +72,7 @@ public class UserActionLogInterceptor implements HandlerInterceptor {
     public void afterCompletion(
             HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
-        if (ApiLayer.of(RequestFacts.path(request)) == null || RequestFacts.path(request).startsWith("/api/portal/")) {
+        if (ApiLayer.of(RequestFacts.path(request)) == null || RequestFacts.path(request).startsWith("/api/portal/") || RequestFacts.path(request).equals("/api/integration/public/identity/receiveChange")) {
             return;
         }
         try {
