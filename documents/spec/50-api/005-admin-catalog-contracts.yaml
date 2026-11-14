@@ -178,6 +178,19 @@ feature_contracts:
           save_guard: FEAT-040의 전역 원명령/잠금/원자 전체HIST, 기존 소유 API의 입력영역별 완전성/클라이언트행ID 치환/참조 규칙을 함께 적용한다. 설정 정리만 ENT-169/170 미리보기→재검증→ENT-168 전체 결과를 사용한다.
           read_projection: 연결/구조/빈 관측은 설정 세대·조회시각·미확인을 반환한다. exactRevision은 현재 스냅샷의 다른 판으로 대체하지 않는다.
   FEAT-011:
+    implementation_transport:
+      status: CR-057 입력 소유/식별 규약 보완. 자료형 지원·검수 완료 기준은 OQ-040/041의 사용자 답변 뒤 구현한다.
+      command: API-024의 ManagedCommand를 재사용한다. targetId는 소유 catalogId, expectedRevision은 소유 현재 판, scope=RELATIONSHIPS, values={relations:[RelationDraft]}, reason은 이번 저장 사유다. 별도 관계 revision/명령 원장을 만들지 않는다.
+      relation: RelationDraft는 relationId 또는 clientKey 중 하나, relationName/leftCatalogId/leftRevision/rightCatalogId/rightRevision/leftRole/rightRole/cardinality/description/reviewStatus/pairs를 가진다. 신규는 clientKey만 받고 첫 왼쪽 catalogId가 targetId와 같아야 한다. 기존 relationId의 소유는 바뀌지 않는다. 데이터소스/객체명/등록자/수정자/검수 주체·시각은 서버 조회/생성 필드이며 저장 입력에서 거부한다.
+      pairs: pairs의 각 항목은 position/leftColumnId/rightColumnId다. 양의 고유 정수 position으로 전체 쌍을 정렬하고 동일 컬럼 쌍 중복·반쪽 쌍·다른 카탈로그의 컬럼을 거부한다. 자기조인의 좌우 역할과 컬럼 식별자는 별개로 유지한다. 타입 호환과 1측 유일성의 지원 기준은 아래 open_decisions에서 확정한다.
+      completeness: 전체 소유 카탈로그의 현재 관계 목록을 확보한 편집본으로 저장한다. relations 누락과 명시 빈 목록은 다르다. 기존 관계의 명시 제거는 현재 소유 전체 목록에서 제외해 표현하고 다른 소유/조회하지 않은 관계를 자동 제거하지 않는다. 다른 영역의 편집값은 포함하지 않는다.
+      identities: 신규 관계는 기존 AI_ADMIN_CATALOG_MEMBER의 RELATION 종류와 원 명령 clientKey→memberId 매핑으로 번호를 발급한다. 원 명령 재수신은 같은 번호/결과를 반환한다. 기존 번호/소유의 재귀속과 clientKey·relationId 동시 지정은 거부한다.
+      revisions: 외부 끝점의 exact revision은 서버가 명시 HIST에서 해석하고 최신 판으로 대체하지 않는다. 같은 소유 구성의 끝점/컬럼은 저장할 전체 구성으로 검증해 새 적용 판에 연결한다. 다른 카탈로그는 변경 세트에 자동 포함하지 않는다. 현재 권한/기술 참조와 과거 구성 조회를 구별한다.
+      authority: 메뉴 진입은 SCR-039의 HUB_CATALOG_RELATION 선언을 따르며 API-024 및 참조 읽기는 승인된 FEAT-003.delivery_boundary.management_authority의 HUB_CATALOG READ·SAVE를 재사용한다. 별도 관계 저장 권한을 새로 만들지 않는다.
+      preservation: 관계 이름 및 관계/컬럼쌍 감사4는 현재 물리 구조의 누락이므로 새 migration·동형 HIST·물리 계약을 함께 보완한다. 미조회 근거는 보존하고 기술 입력 변경은 기존 검수를 무효화한다. 기존 적재 changeset은 수정하지 않는다.
+      open_decisions:
+        type_compatibility: OQ-040 — 같은 활성 자료형 코드 우선 또는 이종 자료형 지원 범위·허용표
+        uniqueness: OQ-041 — 검수된 기본키/유일키 전체 쌍 대조 또는 관리자 유일성 설명 근거의 수락 조건
     review_evidence: 신규 수동 관계의 origin은 논리 작성으로 기록하고 description의 업무 용도·유일성/누락·중복/집계 설명을 논리 검수 근거로 연결한다. VERIFIED 의사는 서버가 현재 정확 참조/전체 쌍·기술 조건·설명 완전성을 검사한 경우만 확정하며 검수자/시각은 서버 신원으로 기록한다. 물리 FK 사실과 관리자 설명은 구분한다. 근거 부족은 UNKNOWN이고 미조회 기존 근거/과거 HIST는 삭제하지 않는다.
     workspace: REQ-301.relationship_metadata.workspace·ownership·related_knowledge. 같은 데이터소스의 양끝점 후보/등록 컬럼 조회, 양 선택의 동시 로컬 적용·초기화 확인·신규 왼쪽 소유/기존 소유 고정·전체 쌍/양의 고유 순서와 활성 합집합 역조회를 유지한다. API-024 RELATIONSHIPS 저장과 전체 HIST를 재사용한다.
     design_status: draft

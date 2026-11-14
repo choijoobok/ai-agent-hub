@@ -768,6 +768,7 @@ features:
     roadmap: RM-P1
     title: 권장 조인 경로 관리
     design_status: draft
+    implementation_preparation: SLICE-011의 저장 입력·번호/소유·정확 참조·권한 재사용은 50-api FEAT-011.implementation_transport에서 구체화한다. OQ-040/041의 자료형·검수 기준 확정 전 해당 제품 변경을 시작하지 않는다. 실제 SQL/모델 소비는 기존 relation_read_contract의 소유 후속이다.
     entities:
       - ENT-006
       - ENT-008
