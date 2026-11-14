@@ -14,7 +14,7 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-002 G4 승인·SLICE-003 설계 확인
+  workstream: admin         # SLICE-002 G4 승인·푸시, SLICE-003 생산 관리 범위 G4 검토 대기
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
@@ -1125,12 +1125,12 @@ counters:
   REQ: 101    # 정본 실물 집계 2026-11-01
   UC: 60
   FEAT: 108    # 2026-11-09 기존 Portal 인증 UI 소유를 FEAT-128로 분리 — 제품 범위 추가 아님
-  ENT: 241    # 대상 연결 배포 허용·기동 검증 상세
+  ENT: 245    # 카탈로그 인덱스·구성과 동형 이력 추가
   API: 241    # CR-047 READ 전용 안전 미리보기 API-144 추가
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 52    # CR-051~053 시간대/시험 소유·정리 버튼 위치 정정
+  CR: 54    # CR-054 PostgreSQL 생산 경계·CR-055 카탈로그 저장 권한 통합
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 51    # CR-050 B와 후속 SAP 확장 경계
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2661,12 +2661,7 @@ slices:
       - TC-0068
       - TC-00610
       - TC-00325
-      - TC-00214
-      - TC-00215
       - TC-00319
-      - TC-00217
-      - TC-00222
-      - TC-00223
       - TC-0031
       - TC-0032
       - TC-0033
@@ -2674,15 +2669,11 @@ slices:
       - TC-0035
       - TC-0036
       - TC-0037
-      - TC-0038
       - TC-0039
       - TC-00310
       - TC-00311
-      - TC-00312
       - TC-00313
-      - TC-00314
       - TC-00316
-      - TC-00315
       - TC-00317
       - TC-00318
       - TC-00320
@@ -2690,13 +2681,57 @@ slices:
       - TC-00323
       - TC-00324
     scope: 공개 카탈로그·컬럼/구조 관측과 전체 저장
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
     depends_on:
       - SLICE-002
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_note: "2026-11-14 PostgreSQL 우선과 CR-055 단일 저장 권한으로 정의·그룹·컬럼 예외·인덱스 관리와 선택 객체 관측을 구현했다. 아래 생산 관리 범위를 자체 검증했으며 SLICE-003 G4는 사용자 승인 대기다. FEAT-003 전체와 스케줄 비교/SQL 소비 완료를 뜻하지 않는다."
+    implementation_review:
+      implementation_commit: 433f318a
+      reviewed_at: '2026-11-14'
+      scope: PostgreSQL 정확 객체/컬럼 식별과 읽기 전용 구조 관측, 영역별 전체 저장·전체 이력·기준판/원명령 복구, 단일 SAVE·그룹/숨김 예외·유일키/인덱스와 현재 참조 보호.
+      verification:
+        result: "선정한 고유 시험20개 통과/skip0(백엔드12·프런트8). 실제 PostgreSQL16.11에서 원자 저장/이력 실패 취소·동명 다른 객체/컬럼 거부·그룹 제거와 예외 연쇄 정리·READ 전용403·복합 이력 참조 제약을 확인했다. 028~037 적용/10개 롤백/재적용과 선행002 롤백 회귀를 통과했다. 비영향 원천/정의 시험과 API/인덱스 프런트 시험 결과는 재사용했다."
+        browser: "격리 검증 DB와 실제 로그인 화면에서 컬럼 저장 뒤 상단 미저장 입력 보존, 마스터 저장/새로고침 후 두 값 유지, PostgreSQL2컬럼/키/인덱스 관측, 그룹 탭 저장 노출과 메시지 캐시 갱신을 확인했다. 제품 JS 오류0. 사용자 수락과 구별한다."
+        checks: "프런트 변경 lint·타입/번들, 시드 생성/검사, 하네스18·meta 위반0·trace 오류0/기존 후속경고72·quality 중복2.41%/삼킴0/미태깅0, 도메인245엔티티/117테이블/1326컬럼/58changelog 통과. doc-gen ID1629/장문18425 누락0·깨진링크0, 목업/요건 매핑·HTML499/26/9장 구조/자산 오류0. 최종 사용자 매뉴얼의 카탈로그 내용/목업을 브라우저로 확인했다."
+        evidence:
+          - sources/build/slice003/catalog-final.log
+          - sources/build/slice003/catalog-migration-final.log
+          - sources/build/slice003/catalog-integration.log
+          - sources/build/slice003/backend/catalog-final.log
+          - sources/build/slice003/backend/source-test.log
+          - sources/build/slice003/frontend-test.log
+          - sources/build/slice003/frontend-policy.log
+          - sources/build/slice003/frontend-build.log
+          - sources/build/slice003/catalog-review.png
+          - sources/build/slice003/doc-check.log
+      redteam:
+        - risk: 컬럼 저장이 다른 영역 입력을 지우거나 응답 유실 후 새 명령으로 중복 저장한다.
+          resolution: 영역별 편집본 보존·최신 판 재결합과 원명령 결과 복구를 시험하고 실제 화면 저장/새로고침으로 확인했다.
+        - risk: 같은 이름의 다른 원천 객체/컬럼으로 정정되거나 다른 카탈로그 이력이 섞인다.
+          resolution: 원천 객체번호·컬럼번호·설정 세대와 정정 근거를 대조하고 다른 객체/컬럼409를 검증했다. 누락된 인덱스 이력 복합 참조를036으로 추가해 변조를 실제 DB에서 거부했다.
+        - risk: 그룹 제거가 다른 그룹 예외를 지우거나 조회 전용 관리자도 정책을 저장한다.
+          resolution: CR-055로 저장 권한을 통합하고 서버 READ+SAVE를 검사한다. 제거한 그룹의 예외만 정리하고 다른 초안 보존·실패 원자 취소·조회 전용403을 시험했다. MASK 공급 미연결은 신규 지정을 거부한다.
+      g4:
+        status: pending_user_approval
+        approved_at: null
+        technical_exit_criteria: "CR-054/055의 생산 관리 범위 기술9/9 자체 확인. 해당 범위 통합 후 재시험 없음. 전체 FEAT의 후속 TC9건은 아래에 유지하며 이번 승인 대상으로 세지 않는다. 마지막 사용자 화면 수락1건은 대기다."
+        user_screen_acceptance: agent_browser_verified_pending_user_review
+        unresolved_assumptions: 이번 생산 관리 범위 미결 전제 없음. 배치 설계와 소비 기능은 아래 후속으로 명시한다.
+        decision_card:
+          - 원천 확인은 PostgreSQL부터 제공하고 다른 종류는 후속으로 추가한다. 추가 비용은 중간이다.
+          - 카탈로그 저장 권한 보유자는 정의와 그룹·컬럼 예외를 함께 관리한다. 권한 재분리 비용은 중간이다.
+          - 선택한 영역만 저장하며 다른 영역의 입력을 유지하고 변경 사유와 전체 이력을 남긴다. 저장 경계 변경 비용은 높다.
+          - 자동 구조 비교와 실제 조회 실행·마스킹 적용은 후속 수락이다. 현재 관측을 실행 허용으로 사용하지 않는다. 조기 통합하면 재설계 비용이 높다.
+        reverse_question: 이번 수락을 카탈로그 관리와 선택 객체 관측으로 한정하고 자동 비교·실제 SQL 실행은 후속으로 남기는 경계가 업무 기대와 맞는지 확인한다.
+        next_action: 사용자 G4 판정 반영 후 승인된 후속 슬라이스로 진행한다. SLICE-003 푸시는 별도 요청 시 수행한다.
+    followup_verification:
+      boundary: "FEAT-003.delivery_boundary 및 CR-054. JOB-003의 빈/입력/잠금/한도/물리 모델은 65-batches/003-schema-comparison.yaml의 P3 후속이며 이번 카탈로그 생산 수락으로 승인하지 않는다. SQL/마스킹 적용과 품질 근거 소비도 각 소유 구현에서 검증한다."
+      batch_design_pending: [TC-00214, TC-00215, TC-00217, TC-00222, TC-00223, TC-00312]
+      consumer_pending: [TC-0038, TC-00314, TC-00315]
   - id: SLICE-007
     workstream: admin
     features:
@@ -3086,6 +3121,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-003, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 2, redteam_fixes: null, note: "CR-054/055 생산 관리 범위 고유20개 통과/skip0와 실제 화면. 전체 수정/검토 반복 횟수는 미계측이다. 원천 식별·이력 복합 참조·입력 보존·SAVE 통합/그룹 예외 반례를 보완했다. DB 환경 변수 오타와 Vite sandbox EPERM은 실행 설정 보정 뒤 해당 검사만 재실행했다. 비영향 통과 근거 재사용, 배치/SQL·마스킹/품질 소비 TC9건은 후속으로 유지하며 이번0건에 포함하지 않는다. G4 사용자 승인 대기." }
   - { slice: SLICE-002, measured_at: "2026-11-14", fix_rounds: 7, unverified_rules: 0, quality_fails: 0, spec_defects: 2, redteam_fixes: 3, note: "소유 생산 범위 필수25개/skip0·실제 화면. 원문 공백 보존·Portal 종류/비활성 신원 참조·조회 판 혼합 반례를 보완했다. 전체 시험 확대 없이 관련 시험만 재실행하고 비영향 결과를 재사용한다. 실제 카탈로그/SQL·독립 이력/대시보드 소비는 후속 소유다." }
   - { slice: SLICE-024, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-048 A 완료 범위 고유22건/skip0. 기능10·규약12 및 실제 브라우저 저장/상세 삭제 보호/미저장 보존을 검증했다. 전체 반복은 미계측이며 비영향 시험은 재사용했다. 실제 지식 연결·agent 검색은 후속이며2026-11-14 사용자 G4 명시 승인 완료." }
   - { slice: SLICE-010, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-047 완료 범위 고유24개 통과/skip0. 기능12·규약12와 실제 브라우저 저장/안전 표시/확대창을 검증했다. 비영향 통과 결과를 재사용하며 전체 시험은 반복하지 않았다. 독립 이력 화면·실제 Portal 소비는 후속이다. 전체 수정 횟수는 미계측이다." }
