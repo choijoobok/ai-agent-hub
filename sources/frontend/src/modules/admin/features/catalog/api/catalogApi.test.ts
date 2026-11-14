@@ -4,6 +4,15 @@ import {CatalogCommands} from './catalogApi';
 import {CATALOG_ENDPOINTS as E} from './endpoints';
 
 describe('카탈로그 영역별 저장', () => {
+  it('TC-0072 예외의 서버 등록 근거는 화면에 보존하고 저장 입력에서 제외한다', async () => {
+    const send = vi.fn().mockResolvedValue({status: 'APPLIED', targets: [{targetId: '7', appliedRevision: '4', historyNo: '16'}]});
+    const exception = {columnId: '11', groupId: '5', mode: 'HIDE', reason: '숨김', regId: 'admin', regDtm: '2026-11-14T00:00:00Z'};
+    const workspace = {master: [], columns: [], groups: [], exceptions: [exception], indexes: []};
+    const commands = new CatalogCommands('cat-policy-audit', sessionStorage, false, send);
+    await commands.save([{id: '7/COLUMN_GROUP_EXCEPTIONS', state: 'U', original: null, data: {id: '7', revision: '3', scope: 'COLUMN_GROUP_EXCEPTIONS', values: {exceptions: [exception]}, workspace}}], '예외 보완');
+    expect(send.mock.calls[0][1]).toMatchObject({values: {exceptions: [{columnId: '11', groupId: '5', mode: 'HIDE', reason: '숨김'}]}});
+    expect(workspace.exceptions[0].regId).toBe('admin');
+  });
   it('TC-00323 컬럼만 전송하고 명령 응답의 발급 번호와 리비전을 받는다', async () => {
     const send = vi.fn().mockResolvedValue({status: 'APPLIED', targets: [{targetId: '7', appliedRevision: '3', historyNo: '15'}]});
     const workspace = {master: [{businessName: '아직 저장하지 않은 이름'}], columns: [{clientKey: 'c1', columnName: 'code'}], groups: [{groupId: '5', mappingActive: true}], exceptions: [], indexes: []};

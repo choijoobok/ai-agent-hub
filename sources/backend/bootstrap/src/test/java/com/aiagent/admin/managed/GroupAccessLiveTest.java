@@ -25,7 +25,7 @@ class GroupAccessLiveTest {
         static volatile boolean failed;
         static volatile Requirements requirements=new Requirements(false,null,null,Set.of());
         @Bean PortalDataPolicySource groupAccessPolicy(DataSource source){return new PortalDataPolicySource() {
-            public String assetKind(){return "CATALOG";}
+            public String assetKind(){return "TEST_CATALOG";}
             public DataSource dataSource(){return source;}
             public Policy read(Request request) {
                 if(failed)throw new IllegalStateException("시험 정책 원천 장애");
@@ -50,7 +50,7 @@ class GroupAccessLiveTest {
         String secret=f.adminCall("portalUser","resetCredential",command(user,"3","resetCredential",Map.of()),200).path("password").asText();
         var principal=new PrincipalRef(AuthDomain.PORTAL,user);
         f.bean(ConfigLookup.class).inNewSnapshot(()->{var account=f.bean(PortalAccountService.class);var verified=account.verifyLocalCredentials("access303",secret);return account.changeOwnLocalPassword(principal,verified.credentialVersion(),secret,"Access303!Changed9");});
-        request=new Request(principal,Purpose.RESULT,new Target("CATALOG","303","content-1"),Set.of("name","secret"),"trace-303");
+        request=new Request(principal,Purpose.RESULT,new Target("TEST_CATALOG","303","content-1"),Set.of("name","secret"),"trace-303");
         f.database().execute("CREATE TABLE fx_group_policy(group_id varchar(50),revision varchar(50))");
         f.database().update("INSERT INTO fx_group_policy VALUES(?,'policy-1')",group);
         f.database().execute("CREATE TABLE fx_group_acceptance(value varchar(100))");

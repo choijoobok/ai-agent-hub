@@ -6,6 +6,7 @@ entities:
     design_stage: physical
     table: AI_ADMIN_COLUMN_ACCESS_POLICY_HIST
     features:
+      - FEAT-007
       - FEAT-008
       - FEAT-040
     reqs:
@@ -15,6 +16,7 @@ entities:
     term: TRM-253
     domain: 연동 자산
     sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/038-catalog-policy-audit.sql
       - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
       - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/028-catalog.sql
@@ -51,6 +53,12 @@ entities:
       - name: REASON
         physical_name: REASON
         description: 카탈로그 서버 소유 REASON
+      - name: 예외 등록자
+        physical_name: REG_ID
+        description: 새 예외의 서버 등록자. 기존 누락 근거는 미확인으로 보존한다.
+      - name: 예외 등록일시
+        physical_name: REG_DTM
+        description: 새 예외의 서버 등록시각. 수정 시 원 등록 근거를 보존한다.
     physical:
       attributes:
         - name: CATALOG_ID
@@ -83,6 +91,14 @@ entities:
           default: null
         - name: REASON
           type: text
+          nullable: true
+          default: null
+        - name: REG_ID
+          type: varchar(50)
+          nullable: true
+          default: null
+        - name: REG_DTM
+          type: timestamptz
           nullable: true
           default: null
       constraints:

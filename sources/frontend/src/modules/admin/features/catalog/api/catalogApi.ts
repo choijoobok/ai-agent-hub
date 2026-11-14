@@ -3,9 +3,12 @@ import {ManagedCommands, post} from '@/shared/api';
 import {MSG} from '@/shared/i18n/messageKeys';
 import {label} from '@/shared/i18n/label';
 import {CATALOG_ENDPOINTS as E} from './endpoints';
-import type {CatalogDetail, CommandDraft, CommandResult, Projection} from '../types';
+import type {CatalogDetail, CommandDraft, CommandResult, Projection, ValueRow} from '../types';
 
 interface ManagementResult {status: string; targets: {targetId: string; appliedRevision: string; historyNo: string | null}[]}
+const editableValues = (data: CommandDraft) => data.scope === 'COLUMN_GROUP_EXCEPTIONS'
+  ? {exceptions: (data.values.exceptions as ValueRow[]).map(row => ({columnId: row.columnId, groupId: row.groupId, mode: row.mode, reason: row.reason}))}
+  : data.values;
 const resultOf = (value: unknown): CommandResult => {
   const result = value as ManagementResult | null;
   const target = result?.targets?.[0];
@@ -29,7 +32,7 @@ export class CatalogCommands extends ManagedCommands<CommandDraft> {
       return response;
     };
     super(key, storage, {feature: 'FEAT-003', save, remove: save, getResult: E.getCommandResult, resultBody: commandKey => ({commandKey}), field: 'objectName', changedMessage: MSG.GROUP_PENDING_CHANGED, pendingMessage: MSG.GROUP_PENDING,
-      encode: ({data}, reason) => ({targetId: data.id, expectedRevision: data.revision, scope: data.scope, values: data.values, reason})}, transport);
+      encode: ({data}, reason) => ({targetId: data.id, expectedRevision: data.revision, scope: data.scope, values: editableValues(data), reason})}, transport);
     this.last = last;
   }
   result(): CommandResult | null {return this.last.value;}

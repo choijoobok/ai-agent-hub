@@ -1,0 +1,6 @@
+# @feat FEAT-007
+databaseChangeLog:
+  - include:
+      file: db/catalog003-migration.yaml
+  - include:
+      file: db/changelog/modules/admin/038-catalog-policy-audit.sql

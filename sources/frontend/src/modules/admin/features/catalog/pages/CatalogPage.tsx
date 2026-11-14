@@ -3,6 +3,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, App, Button, Input, Modal} from 'antd';
 import {FillColumn} from '@/shared/components/FillColumn';
 import {DataGrid} from '@/shared/grid/DataGrid';
+import {auditColumns} from '@/shared/grid/auditColumns';
 import {SplitPane} from '@/shared/grid/SplitPane';
 import {DetailTabs} from '@/shared/grid/DetailTabs';
 import {useGridController, type GridController} from '@/shared/grid/useGridController';
@@ -71,6 +72,7 @@ export function CatalogPage() {
     {field: 'groupId', header: MSG.GROUP_NAME, type: 'code', editor: 'richSelect', width: 230, required: true, options: (detail?.values.groups ?? []).map(g => ({value: String(g.groupId), text: candidates.find(c => c.groupId === g.groupId)?.groupName ?? String(g.groupId)})), editable: policySave && childEdit},
     {field: 'mode', header: MSG.CAT_EXCEPTION_TYPE, type: 'code', editor: 'richSelect', width: 150, required: true, options: [{value: 'HIDE', text: label(MSG.CAT_HIDE)}, ...(options?.maskingState === 'READY' ? [{value: 'MASK', text: label(MSG.CAT_MASK_MODE)}] : [])], editable: policySave && childEdit},
     {field: 'reason', header: MSG.CAT_REASON, type: 'text', editor: 'largeText', width: 350, required: true, editable: policySave && childEdit},
+    ...auditColumns<ValueRow>().filter(column => column.field === 'regId' || column.field === 'regDtm').map(column => ({...column, visible: true})),
   ], api: localApi, editable: policySave && childEdit, addRow: {canAdd: () => policySave && childEdit ? true : {ok: false, message: label(MSG.CAT_NOT_SELECTED)}, defaults: () => ({columnId: null, groupId: null, mode: null, reason: ''})}});
   const indexCols: ColumnDef<ValueRow>[] = [
     {field: 'definitionKind', header: MSG.CAT_INDEX_KIND, type: 'code', editor: 'richSelect', width: 140, options: [{value: 'UNIQUE_KEY', text: label(MSG.CAT_UNIQUE_KEY)}, {value: 'INDEX', text: label(MSG.CAT_INDEX)}], required: true, editable: r => childEdit && !r.indexId},

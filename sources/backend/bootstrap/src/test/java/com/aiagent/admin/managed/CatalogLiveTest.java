@@ -79,7 +79,7 @@ class CatalogLiveTest {
   String schema="catalog_migration003_"+UUID.randomUUID().toString().replace("-","");try(var c=java.sql.DriverManager.getConnection(System.getenv("MANAGED_TEST_JDBC"),System.getenv("MANAGED_TEST_USER"),System.getenv().getOrDefault("MANAGED_TEST_PASSWORD",""))){c.createStatement().execute("CREATE SCHEMA "+schema);c.setSchema(schema);try(var l=new liquibase.Liquibase("db/catalog003-migration.yaml",new liquibase.resource.ClassLoaderResourceAccessor(),new liquibase.database.jvm.JdbcConnection(c))){l.update(new liquibase.Contexts());l.rollback(10,"");try(var rows=c.createStatement().executeQuery("SELECT to_regclass('ai_admin_catalog') IS NULL")){rows.next();assertThat(rows.getBoolean(1)).isTrue();}l.update(new liquibase.Contexts());try(var rows=c.createStatement().executeQuery("SELECT to_regclass('ai_admin_catalog_column_hist') IS NOT NULL")){rows.next();assertThat(rows.getBoolean(1)).isTrue();}}}
  }
 
- @Test @DisplayName("TC-0034 TC-0039 TC-00310 TC-00311 TC-00325 통합 SAVE·그룹 부분집합·예외 연쇄 정리·원자성과 현재 권한")
+ @Test @DisplayName("TC-0072 TC-0073 TC-0034 TC-0039 TC-00310 TC-00311 TC-00325 통합 SAVE·그룹 부분집합·예외 연쇄 정리·원자성과 현재 권한")
  void policyUsesCatalogSaveAndRemovesOnlyOwnedExceptions()throws Exception{
   var json=tools.jackson.databind.json.JsonMapper.builder().build();String ds=f.database().queryForObject("SELECT DATA_SOURCE_ID::text FROM AI_ADMIN_DATA_SOURCE WHERE DATA_SOURCE_KEY='orders'",String.class);
   String a=f.groupCall("save",new ManagedCommand(UUID.randomUUID().toString(),null,null,"definition",Map.of("groupNm","카탈로그 A","description","정책 시험"),"그룹 시험"),200).path("targetId").asText();
@@ -94,6 +94,10 @@ class CatalogLiveTest {
   f.adminCall("catalog","saveChange",command(id,"2","ACCESS_GROUPS",Map.of("groups",groups)),200);
   var exceptions=List.of(Map.of("columnId",column,"groupId",a,"mode","HIDE","reason","A 제한"),Map.of("columnId",column,"groupId",b,"mode","HIDE","reason","B 제한"));
   f.adminCall("catalog","saveChange",command(id,"3","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",exceptions)),200);
+  var registered=f.adminCall("catalog","getOne",Map.of("id",id),200).path("values").path("exceptions").get(0);
+  assertThat(registered.path("regId").asText()).isEqualTo("admin");assertThat(registered.path("regDtm").asText()).isNotBlank();
+  var forged=new LinkedHashMap<String,Object>(exceptions.get(0));forged.put("regId","forged");
+  f.adminCall("catalog","saveChange",command(id,"4","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(forged))),400);
   f.database().update("INSERT INTO SYS_ROLE_MENU_AUTH VALUES ('READER040','HUB_CATALOG','READ') ON CONFLICT DO NOTHING");var reader=f.login("reader040");
   assertThat(reader.call("POST","/api/admin/service/catalog/getOne",Map.of("id",id)).statusCode()).isEqualTo(200);
   assertThat(reader.call("POST","/api/admin/service/catalog/saveChange",command(id,"4","ACCESS_GROUPS",Map.of("groups",List.of()))).statusCode()).isEqualTo(403);
@@ -107,6 +111,19 @@ class CatalogLiveTest {
   f.adminCall("catalog","saveChange",command(id,"6","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(exceptions.get(0)))),409);
   f.adminCall("catalog","saveChange",command(id,"6","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(Map.of("columnId",column,"groupId",b,"mode","MASK","reason","미설치 마스킹")))),503);
   f.adminCall("catalog","saveChange",command(id,"6","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of())),200);assertThat(f.adminCall("catalog","getOne",Map.of("id",id),200).path("values").path("groups").size()).isEqualTo(1);
+  f.adminCall("catalog","saveChange",command(id,"7","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(exceptions.get(1)))),200);
+  var original=f.adminCall("catalog","getOne",Map.of("id",id),200).path("values").path("exceptions").get(0);
+  var revised=new LinkedHashMap<String,Object>(exceptions.get(1));revised.put("reason","사유 수정");
+  f.adminCall("catalog","saveChange",command(id,"8","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(revised))),200);
+  var saved=f.adminCall("catalog","getOne",Map.of("id",id),200).path("values").path("exceptions").get(0);
+  assertThat(saved.path("regId")).isEqualTo(original.path("regId"));assertThat(saved.path("regDtm")).isEqualTo(original.path("regDtm"));
+  assertThat(f.database().queryForObject("SELECT REG_ID FROM AI_ADMIN_COLUMN_ACCESS_POLICY_HIST WHERE CATALOG_ID=? ORDER BY HISTORY_NO DESC LIMIT 1",String.class,Long.valueOf(id))).isEqualTo("admin");
+  assertThat(f.adminCall("catalog","saveChange",command(id,"9","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(revised))),200).path("status").asText()).isEqualTo("NO_CHANGE");
+  f.database().update("UPDATE AI_ADMIN_COLUMN_ACCESS_POLICY SET REG_ID=NULL,REG_DTM=NULL WHERE CATALOG_ID=?",Long.valueOf(id));revised.put("reason","과거 미확인 근거 보존");
+  f.adminCall("catalog","saveChange",command(id,"9","COLUMN_GROUP_EXCEPTIONS",Map.of("exceptions",List.of(revised))),200);
+  var legacy=f.adminCall("catalog","getOne",Map.of("id",id),200).path("values").path("exceptions").get(0);
+  assertThat(legacy.path("regId").isNull()).isTrue();assertThat(legacy.path("regDtm").isNull()).isTrue();
+
  }
  @Test @DisplayName("TC-0033 검수 주체·시각은 서버 소유이며 의미 수정은 이전 검수를 승계하지 않는다")
  void reviewEvidenceDoesNotSurviveMeaningChange()throws Exception{
