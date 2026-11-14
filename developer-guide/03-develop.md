@@ -144,6 +144,36 @@ LOCAL은 실제 자격/DB/HTTP·두 노드이며 EXTERNAL의 provider는 테스�
 기본 점수 문턱은 없고 명시 목표가 있을 때만 `-PmutationThreshold=...`를 준다. 대상/시험을 생략한 전수 실행은 거부한다.
 실제 Redis 중단·HTTP·마이그레이션 시험을 변이마다 반복하지 않는다. 중요한 반례·적용/복구의 의미는 유지한다.
 
+### 현재 그룹/자산 판정 포트 연결
+
+SLICE-303의 서버 소비자는 `core/access/CurrentDataAccess`를 주입받는다. 새 HTTP API는 없다.
+`Request`에는 인증된 Portal 주체, 목적, 정확 자산 종류/ID/내용판, 요청 필드와 추적 ID를 넣는다.
+자산 소유자는 `PortalDataPolicySource`를 종류별 하나만 등록한다. 같은 DataSource로 현재 정책판과
+필수 Gate(참조 자산 포함), 등록 필드·기본값·그룹 예외, 필수 참조 필드, 추가 관문을 완전히 읽는다.
+소유 정책의 등록/회수도 같은 Portal 정책 배타 보호 안에서 확정해야 한다. 정책판과 내용판을 합치지 않는다.
+
+필드 정책의 `MaskDomain`은 정보 유형과 유틸 버전이다. 카탈로그 RAW 상속과 API의 검수된 민감도별
+기본값을 소유 원천에서 구분한다. 카탈로그의 같은 유형 변환과 API의 복수 지원 수준을 임의로 섞지 않는다.
+`MaskingRegistry.Rule` 빈은 고객 합의한 소스 유틸만 등록한다. 현재 제품에 임의 마스킹 알고리즘/수준을
+탑재하지 않았다. 규칙이 없으면 MASK 요청은 차단된다. 실제 유형 목록 API/메시지·고객 처리표와
+검수된 입력/기대 결과는 해당 자산 구현 때 연결한다. 시험의 SYNTHETIC 규칙은 제품 빈이 아니다.
+
+`Use.project`는 같은 콜백·스레드에서만 동작한다. 원 JSON/SQL 결과를 등록된 안정 잎 경로의
+스칼라 행 목록으로 정규화한 `Payload(binding, rows)`를 넘긴다. 임의 객체/배열/미등록 경로는
+통과시키지 않는다. ALLOW의 RAW/MASKED 필드만 반환하고 DENIED 필드는 제외한다. MISMATCH는
+항상 빈 결과다. 변환 실패를 원문으로 대체하지 않는다. `decision.binding()`은 현재 호출의 주체/
+대상/목적/내용판·정책판·계정판에만 대응하며 보관한 결정을 새 효과의 허가로 쓰지 않는다.
+통제 결과를 이력의 비식별 사본으로 간주해서도 안 된다. 이력 마스킹/최종 직렬화는 각 소유 경계가 검증한다.
+
+기본 QUOTA/IDENTITY 검사는 실제 원장을 사용한다. ROW_SCOPE/CONSENT/EXECUTION_APPROVAL은
+`PortalDataControl`의 동일 DB 소유 검사로 연결한다. 필수 검사 미설치/오류는 차단한다. 신원 원값의
+실제 SQL 바인딩, 단일 전송 permit/쿼터 점유와 최종 공개는 후속 agent/자산 소유 실행 계약에서 검증한다.
+초기005 `PortalAssetPolicy`에는 현재 제품 구현자가 없으며 신규 연결은 위 포트만 사용한다.
+
+변경 시험은 `:backend:core:test --tests '*GroupAccessTest'`와 전용 DB 환경변수를 설정한
+`:backend:bootstrap:managedStorageTest --tests '*GroupAccessLiveTest'`다. 실제 계정/소속/등급과
+DB 보호 경합을 시험하며 자산 정책은 합성 DB 원천이다. 후속 자산 원장/고객 마스킹 완료를 대신하지 않는다.
+
 ## 5. ⑥ 개선 요청 — 어디로 돌아가나
 
 | 요청의 성격 | 어디로 |

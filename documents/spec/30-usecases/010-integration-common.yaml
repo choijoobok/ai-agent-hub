@@ -67,7 +67,7 @@ usecases:
   - id: UC-047
     name: 현재 접근 정책에 맞게 업무자료 제공 범위를 판정한다
     workstream: integration
-    design_status: draft
+    design_status: approved
     reqs:
       - REQ-103
       - REQ-105

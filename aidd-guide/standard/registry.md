@@ -47,6 +47,7 @@ tags: [standard, registry, shared, commons]
 | `CMP-019` | 프론트 | `shared/theme/` | 3 | [./frontend/theme.md](./frontend/theme.md) |
 | `CMP-020` | 프론트 | `shared/tree/` | 4 | [../playbook/tree-screen.md](../playbook/tree-screen.md) |
 | `CMP-021` | 프론트 | `shared/user/` | 1 | [../knowledge/sys/user-role.md](../knowledge/sys/user-role.md) |
+| `CMP-037` | core | `core/access/` | 3 | [./backend/security.md](./backend/security.md) |
 | `CMP-035` | core | `core/deployment/` | 1 | [./build-deploy.md](./build-deploy.md) |
 | `CMP-022` | core | `core/domain/` | 2 | [./backend/persistence.md](./backend/persistence.md) |
 | `CMP-023` | core | `core/error/` | 6 | [./backend/exception.md](./backend/exception.md) · [./backend/row-transaction.md](./backend/row-transaction.md) |
@@ -82,7 +83,7 @@ tags: [standard, registry, shared, commons]
 그러면 **같은 공통물이 ID 둘**을 갖는다. ② 정말 지웠다 — 그러면 그것을 설명하던 문서가
 아직 있는지 본다(AGENTS.md §4-4). **번호는 어느 쪽이든 비워 둔 채로 남는다.**
 
-## 어디를 읽나가 빈 것 — 0 / 36
+## 어디를 읽나가 빈 것 — 0 / 37
 
 없다.
 

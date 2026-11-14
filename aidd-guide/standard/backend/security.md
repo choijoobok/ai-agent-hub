@@ -7,7 +7,7 @@ class: policy
 created: 2026-05-04
 updated: 2026-11-14
 status: active
-sources: ["sources/backend/api/"]
+sources: ["sources/backend/api/", "sources/backend/core/src/main/java/com/aiagent/core/access/", "sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/"]
 tier: 1
 tags: [backend, security, authorization, menu, action]
 ---
@@ -164,6 +164,25 @@ API 하나를 인가하는 데 필요한 사실은 둘이고 **성격이 달라 
 인증 비밀은 수집 단계에서 제외한다. `X-Menu-Code`는 이력 문맥이며 권한 증거가 아니다.
 
 `EXPORT`는 프론트에서 이미 받은 데이터의 복사를 막지 못한다. 데이터 수락 경계는 READ다.
+
+## 8. 업무자료의 현재 그룹 판정
+
+`core/access/GroupAccess`는 검증된 PORTAL 주체의 활성 소속과 자산별 현재 정책을 순수하게 판정한다.
+관리자 메뉴 역할은 여기에 넣지 않는다. 필수 자산 관문은 모두 통과해야 하며 각 관문 안의 그룹은
+합집합이다. 데이터소스 적용 가능 그룹은 하위 매핑 어휘 제약이지 별도 런타임 관문이 아니다.
+등록 필드는 소유 기본 정책을 상속하고 미등록 필드는 닫는다. 필드 예외는 상위 허용 그룹만 참조한다.
+마스킹 비교는 필드가 지정한 같은 정보 유형/유틸 버전 안의 등록된 유일 순위를 따른다.
+
+`CurrentDataAccess.withCurrentAccess`의 현재 원천 조립은 admin 공개 `PortalDataAccess`가 소유한다.
+계정/소속/등급·자산 정책 읽기와 내부 수락은 동일 DB 트랜잭션/Portal 정책 공유 보호 안에서 수행한다.
+회수하는 모든 소유 쓰기는 같은 `PortalPolicy.protect(true)`를 먼저 얻어야 한다. 연결된 소유 원천이
+없거나 완전하게 읽지 못하면 UNAVAILABLE다. 정상 빈 허용 그룹은 DENIED로 구분한다.
+실제 신원/쿼터·행 스코프·동의·실행 승인 요구는 자산 소유 정책이 지정하고 해당 현재 검사도 통과한다.
+
+결정은 인가 토큰이 아니다. 콜백은 내부 수락/기록/안전 투영만 확정하고 네트워크를 기다리지 않는다.
+외부 실행기는 반환 뒤 전송하며 장기 대기·새 조회/전송/공개마다 다시 현재 판정한다.
+이미 송신한 데이터를 회수했다고 표현하지 않는다. 주체는 인증 경계에서 얻으며 클라이언트의
+주체/그룹/허용 값·정책 스냅샷을 이 서버 포트에 바인딩하지 않는다.
 
 ## 관련
 

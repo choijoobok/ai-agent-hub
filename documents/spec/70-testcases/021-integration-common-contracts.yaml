@@ -96,8 +96,8 @@ testcases:
     given: 두 활성 그룹과 서로 다른 허용 자산
     when: 같은 주체의 대상별 현재 판정
     then: 합집합 확대와 데이터소스/테이블/API 필수 관문 유지, system 역할 대체0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: GroupAccessTest는 복수 그룹 합집합·자산별 AND·ADMIN 거부를 확인하고 GroupAccessLiveTest는 실제 Portal 계정/소속/등급 원장으로 같은 판정을 조립했다. 자산 원장은 합성 정책 제공자이며 실제 연결은 소유 슬라이스 후속이다.
   - id: TC-3032
     feature: FEAT-303
     usecase: UC-047
@@ -107,8 +107,8 @@ testcases:
     given: 등록/미등록 컬럼·그룹별 RAW/MASKED/거부
     when: 컬럼/응답 경로 투영
     then: 등록 무예외 상속·허용 그룹 중 덜 엄격한 규칙, 미등록 경로 차단
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: GroupAccessTest는 등록 무예외 상속, RAW 우선·동일 유형/버전의 낮은 순위, 중복 순위·상위 밖 그룹·다른 유형/미등록 마스크 거부를 검증했다. 실제 고객 변환표는 후속이다.
   - id: TC-3033
     feature: FEAT-303
     usecase: UC-047
@@ -118,8 +118,8 @@ testcases:
     given: 계정 중지·정책 회수·조회 장애·과거 ALLOW
     when: 장기 대기 후 조회/새 모델 입력
     then: 현재 재판정 실패 폐쇄, 빈집합과 장애 구분, 과거 허용 재사용0
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: GroupAccessLiveTest는 미설치 자산/필수 관문·원천 장애·계정/소속 회수·현재 정책판 변경 뒤 과거 판 차단과 수락 실패 rollback을 실제 PostgreSQL로 확인했다.
   - id: TC-3034
     feature: FEAT-303
     usecase: UC-047
@@ -129,8 +129,8 @@ testcases:
     given: 합성 비공개 컬럼·미등록 경로·다른 목적 decision
     when: 공통 투영과 최종 소비 직전 대조
     then: 원문 노출0, 다른 주체/대상/목적/판 재사용 거부. 정책 제거·허용 반전 시 시험 실패
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: GroupAccessTest는 미등록/중첩 값·다른 주체/자산/내용판/목적·콜백 밖/다른 스레드·변환 실패에 빈 MISMATCH를 확인했다. 필드 자체의 유형/버전 우회도 보완했다. 최종 agent/Portal 직렬화는 해당 소비 구현 후속이다.
     nfrs:
       - NFR-026
   - id: TC-3035
@@ -142,8 +142,8 @@ testcases:
     given: 두 트랜잭션의 현재 정책 판정/회수
     when: 양 순서로 경합
     then: 먼저 수락/먼저 회수 경계대로 처리하고 네트워크를 잠금 안에서 기다리지 않음
-    status: planned
-    verification: 소유 G3 뒤 실제 구현/DB·HTTP 및 필요한 공급 경로로 실행한다. 현재 문서 검사/PoC 결과를 이 TC의 통과로 표시하지 않는다.
+    status: implemented
+    verification: GroupAccessLiveTest는 실제 두 트랜잭션에서 수락 먼저/회수 먼저를 각각 실행해 공유/배타 PortalPolicy 보호 순서와 후속 거부·효과1건을 확인했다. 시험은 외부 네트워크를 잠금 안에서 호출하지 않는다.
   - id: TC-3043
     feature: FEAT-304
     usecase: UC-048

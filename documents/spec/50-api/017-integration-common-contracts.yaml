@@ -38,8 +38,8 @@ feature_contracts:
     public_state: 선택 비밀의 미소비 상태는 SECRET_NOT_VERIFIED다. AVAILABLE도 해당 기동의 설정 검증 상태이며 실제 공급자 기능/접속 성공 판정은 소유 어댑터가 수행한다. 현재 권한은 등록된 서버 Consumer가 READ/CONNECT마다 검사한다.
     verification: TC-3021~3025의 제품 단위·실제 Boot/전용 PostgreSQL/Redis 선택 회귀로 검증한다. 고객 실제 운영 키 발급·접근/복구 인계와 외부 연결 검수는 P6/연동 소유 기능의 후속이다.
   FEAT-303:
-    design_status: draft
-    implementation: planned
+    design_status: approved
+    implementation: implemented
     reqs:
       - REQ-103
       - REQ-105
@@ -68,6 +68,10 @@ feature_contracts:
       no_fallback: 원천 일부 유실/시간초과/미지원 자산 종류·마스킹 규칙이면 UNAVAILABLE 또는 명시 미지원이다. 캐시·과거 내용판·다른 사용자의 결과로 우회하지 않는다.
     storage: 새 권한/정책 테이블 없음. ENT-101/102/103 및 자산별 admin 매핑을 현재 원천으로 사용한다. 판정 근거를 소유 실행 이력에 연결하지만 여기서 agent 턴 테이블을 만들지 않는다.
     verification: TC-3031~3035. 허용 그룹/정책 제거·마스킹 우선순위 반전·미등록 경로 공개·낡은 판 재사용을 반례로 검사한다. NFR-026의 공통 계층 시험이며 agent/Portal 최종 직렬화 시험을 대신하지 않는다.
+    delivery_boundary: CR-045에 따라 현재 계정/소속·등급의 실제 원장 보호, 공통 순수 판정과 제한 콜백/정규화 잎 필드 투영을 완료한다. 자산 소유 포트·필수 추가 관문이 미설치면 UNAVAILABLE이며 실제 자산 연결/최종 직렬화는 각 소유 슬라이스에서 검증한다.
+    datasource_semantics: AUTHZ-010의 데이터소스 적용 가능 그룹은 하위 매핑의 어휘 제약이다. 별도 런타임 허용 관문으로 중복 판정하지 않는다. 대상 신원 매핑·테이블/API/참조 자산의 독립 필수 관문은 유지한다.
+    mask_delivery: 고객 합의 전 임의 실제 마스킹을 만들지 않는다. 소스 등록 유틸의 동일 유형/버전·유일 순위·자료형을 검증하고 미등록 규칙은 닫는다. 합성 시험 구현은 시험 소스에만 둔다.
+    projection_shape: 소유 어댑터가 원 JSON/SQL 결과를 등록된 안정 경로/필드의 스칼라 행 목록으로 정규화한다. 공통 투영은 임의 객체/배열을 RAW로 통과시키지 않으며 미등록 셀·판/주체/목적 불일치·변환 실패는 빈 MISMATCH다. 실제 API 배열/최종 직렬화 대응은 자산/agent 소유 연결 시험으로 검증한다.
   FEAT-304:
     design_status: draft
     implementation: planned

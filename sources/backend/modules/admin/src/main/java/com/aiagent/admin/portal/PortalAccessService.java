@@ -35,6 +35,9 @@ public class PortalAccessService {
     static long portal(PrincipalRef principal){if(principal==null||principal.domain()!=AuthDomain.PORTAL)throw ManagedErrorCode.FORBIDDEN.failure();return ManagedCommand.positive(principal.subjectId());}
     @Transactional
     public Access resolveCurrentPortalAccess(PrincipalRef principal,PortalAssetPolicy.Request operation){return withinCurrentAccess(principal,operation,Function.identity());}
+    /** FEAT-303 조립용 현재 계정/소속 읽기. 허용/거부를 모두 같은 보호 구간의 콜백으로 전달한다. */
+    @Transactional
+    public <T> T inspectCurrentAccount(PrincipalRef principal,Function<Access,T> inspection){return withinCurrentAccess(principal,null,inspection);}
     /** 허용된 경우에만 실행 수락 callback을 호출한다. 반환 뒤 이 결과를 권한 토큰으로 재사용하지 않는다. */
     @Transactional
     public <T> T acceptCurrentAccess(PrincipalRef principal,PortalAssetPolicy.Request operation,Function<Access,T> acceptance) {
