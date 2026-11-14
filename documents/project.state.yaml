@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-002 구현 검증·G4 사용자 승인 대기
+  workstream: admin         # SLICE-002 G4 승인·SLICE-003 설계 확인
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-002          # 데이터소스 메타/가이드·참조/연결·저장 이력
+  slice: SLICE-003          # 공개 카탈로그·컬럼/구조 관측과 전체 저장
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-002 데이터소스 관리의 생산 구현·변경 범위 검증과 G4 사용자 수락을 진행한다. 승인 뒤 SLICE-003 카탈로그의 실제 현재 권한/참조·관측/비교/SQL 소비 계약 연결을 검토한다. 후속 소비를 이번 구현 완료로 표시하지 않는다."
+  first: "2026-11-14 SLICE-002 G4 명시 승인을 반영·푸시한 뒤 SLICE-003 카탈로그 관리의 승인 설계·현재 권한/참조·관측/비교·SQL 소비 경계를 확인하고 구현한다. 후속 소비를 선행 구현 완료로 표시하지 않는다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -2578,7 +2578,9 @@ slices:
       - TC-00225
     scope: 데이터소스 메타/가이드·참조/연결·저장 이력
     stage: P4
-    status: self_verified
+    status: done
+    approved_at: "2026-11-14"
+    approval_basis: 사용자 G4 명시 승인. DW 메모 입력과 정리 버튼 배치를 확인한 뒤 승인 상태 반영·푸시 및 SLICE-003 진행을 지시했다.
     started_at: "2026-11-14"
     depends_on:
       - SLICE-001
@@ -2588,7 +2590,8 @@ slices:
     verification: 변경된 중요한 정상/예외·현재 권한·정합성·원자성·재수신과 공개 생산 포트의 대표 반례를 검증한다. 후속 실제 소비와 사용자 수락은 별도다.
     implementation_review:
       reviewed_at: "2026-11-14"
-      status: self_verified
+      status: approved
+      approved_at: "2026-11-14"
       implemented: YAML 데이터소스 안정 키/별칭·URL 도출 DBMS 동기화, 수동 메타/전체 그룹/가이드·동형 전체 이력·원 결과의 원자 저장, 현재 권한·버전 충돌·응답 유실 복구, 정확 누락 전체 범위 정리와 경고, 그룹 삭제/Portal DATA_SOURCE 신원 실제 저장/비활성 참조 보호·현재 카탈로그 기반 내부 가이드 포트를 구현했다.
       dependency_boundary: SLICE-001/006/040/302 완료 계약을 재사용한다. SLICE-003 카탈로그·JOB-003 비교와 agent SQL 실행은 후속 소비자이며 선행 대기 조건이 아니다. 미설치/부분 설치/실패는 현재 미상으로 구분하고 SQL 사용을 허용하지 않는다.
       source_commit: e23d1b29
@@ -2622,7 +2625,7 @@ slices:
           - sources/build/slice002/domain.log
       static: 타입/변경 파일 ESLint 오류0, quality 중복2.44%·삼킴0·미태깅0. 하네스18개 일치·meta 위반0·trace 오류0/기존 후속 경고72. 도메인241/활성94테이블980컬럼48changelog 일치. 생성416문서·ID1625/장문18212 누락0·깨진링크0, 최종HTML495/25/9장 구조/자산 검사 통과. 샘플 포함 기준으로 generateSeeds/checkSeeds 일치.
       gate_check:
-        checklist: process/04-gates G4의 기술/제시10항목 충족. 사용자 수락은 대기이며 승인 상태로 바꾸지 않는다.
+        checklist: process/04-gates G4의 10항목 충족. 2026-11-14 사용자 명시 승인 완료.
         pending_rechecks: 범위 항목 없음.
         testcases: FEAT-002.delivery_boundary의 생산 범위를 위25개 필수 시험과 실제 화면으로 검증했다. TC-00211의 독립 이력 화면은 CR-052에 따라 기존 FEAT-033 소유에 배정했다.
         counterexamples: 기술값/불완전 자식/시간대·클라이언트 소유 변조 거부, 현재 권한403·기준판409, 그룹 참조/PRESENT/UNKNOWN 차단, 본값·전체HIST·명령/경고의 실패 롤백, 원 명령 재수신·구 기동 부활 금지·새 배포 새 ID, 실제 Portal DATA_SOURCE 비활성 신원 참조 보호, 내부 가이드의 현재 범위·판 변경 거부.
@@ -2647,7 +2650,7 @@ slices:
         - agent/integration은 실제 SQL·동적 코드/참조 선조회·가이드 적용 판/턴 근거 및 신규/예약/재시도/재개 직전 현재 검사를 검증한다. 관리 생산 포트 대역 통과를 실행 완료로 세지 않는다.
         - FEAT-033은 TC-00211의 SCR-041 상속 이력 검색·반출 통합을 검증한다. SLICE-002는 현재/전체 HIST 생산과 원 관리 화면만 수락 대상으로 둔다.
         - FEAT-510은 API-071 DATA_SOURCE 원인·null 영향 건수·PARTIAL/FAILED를 현재 권한 범위로 표시하고 실제 대시보드 연결을 검증한다.
-      acceptance: G4 사용자 명시 승인 대기. 소유 생산 범위 검증 후 승인/보류/재작업을 요청한다. 푸시는 요청받지 않았다.
+      acceptance: 2026-11-14 사용자 G4 명시 승인. 생산 범위와 후속 카탈로그/SQL/독립 이력 검증 경계를 수락하고 승인 상태 반영·푸시 후 SLICE-003 진행을 지시했다.
 
   - id: SLICE-003
     workstream: admin
