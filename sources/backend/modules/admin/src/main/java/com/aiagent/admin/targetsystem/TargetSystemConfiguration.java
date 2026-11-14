@@ -1,5 +1,6 @@
 // @feat FEAT-001
 package com.aiagent.admin.targetsystem;
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
 import com.aiagent.api.auth.v2.InstalledAdminRoutes;
 import com.aiagent.core.deployment.ConnectionRegistry;
@@ -11,11 +12,12 @@ import org.springframework.context.annotation.*;
 
 @Configuration
 public class TargetSystemConfiguration {
+    @Bean com.aiagent.admin.shared.configuration.ConfigurationLifecycle targetSystemLifecycle(TargetConnections loaded,ConfigurationDeploymentService deployment,TargetSystemSyncService sync){return new com.aiagent.admin.shared.configuration.ConfigurationLifecycle(loaded,deployment,()->sync.synchronize(loaded));}
     private static final String HANDLER="com.aiagent.admin.api.targetsystem.TargetSystemController#";
-    @Bean TargetSystemService targetSystemService(DataSource source,ManagedIds ids,TargetConnections loaded,TargetDeploymentService deployment){return new TargetSystemService(source,ids,loaded,deployment);}
-    @Bean TargetAssetJournal targetAssetJournal(DataSource source){return new TargetAssetJournal(source);}
-    @Bean ManagedRegistry.Operation targetSystemSave(TargetSystemService owner,TargetAssetJournal journal){return new ManagedRegistry.Operation("API-005",TargetSystemService.BASE+"/save",HANDLER+"save",false,owner,journal);}
-    @Bean ManagedRegistry.Operation targetSystemCleanup(TargetSystemService owner,TargetAssetJournal journal){return new ManagedRegistry.Operation("API-074",TargetSystemService.BASE+"/deleteConfigurationMismatches",HANDLER+"deleteConfigurationMismatches",false,owner,journal);}
+    @Bean TargetSystemService targetSystemService(DataSource source,ManagedIds ids,TargetConnections loaded,ConfigurationDeploymentService deployment){return new TargetSystemService(source,ids,loaded,deployment);}
+    @Bean AssetJournal targetAssetJournal(DataSource source){return new AssetJournal(source);}
+    @Bean ManagedRegistry.Operation targetSystemSave(TargetSystemService owner,AssetJournal journal){return new ManagedRegistry.Operation("API-005",TargetSystemService.BASE+"/save",HANDLER+"save",false,owner,journal);}
+    @Bean ManagedRegistry.Operation targetSystemCleanup(TargetSystemService owner,AssetJournal journal){return new ManagedRegistry.Operation("API-074",TargetSystemService.BASE+"/deleteConfigurationMismatches",HANDLER+"deleteConfigurationMismatches",false,owner,journal);}
     @Bean ManagedResultRoute targetSystemResult(){return new ManagedResultRoute("API-009",TargetSystemService.BASE+"/getCommandResult",HANDLER+"getCommandResult","FEAT-001");}
     @Bean static InstalledAdminRoutes targetSystemAlerts(){return new InstalledAdminRoutes(List.of(new InstalledAdminRoutes.Route("API-071","POST","/api/admin/service/integration/getConfigurationAlerts","com.aiagent.admin.api.targetsystem.IntegrationAlertController#getConfigurationAlerts","READ")));}
     @Bean static InstalledAdminRoutes targetSystemReads(){return new InstalledAdminRoutes(List.of(

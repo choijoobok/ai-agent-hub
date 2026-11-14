@@ -71,3 +71,12 @@ databaseChangeLog:
   - include:
       file: 024-target-system-messages.sql
       relativeToChangelogFile: true
+  - include:
+      file: 025-data-source.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 026-data-source-menu.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 027-data-source-alert-menu.sql
+      relativeToChangelogFile: true

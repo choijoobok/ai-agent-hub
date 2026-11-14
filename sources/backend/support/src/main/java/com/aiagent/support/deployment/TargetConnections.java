@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 /** YAML 전체 검증 뒤에만 공개하는 비밀 없는 시스템 메타와 정확 연결 참조다. 핫 리로드하지 않는다. */
 @Component
-public final class TargetConnections {
+public final class TargetConnections implements ConfigurationSnapshot {
     public record Test(String method,String path,int timeoutMs,Set<Integer> successStatuses) {
         public Test {
             if(!Set.of("GET","HEAD").contains(method)||timeoutMs<1||timeoutMs>60_000||successStatuses==null||successStatuses.isEmpty()||successStatuses.stream().anyMatch(s->s<200||s>299))throw unavailable();

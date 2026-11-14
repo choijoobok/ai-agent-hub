@@ -13,8 +13,8 @@ public class TargetCommandQueryService {
     public record Key(String commandKey) {}
     public record Result(String status,Object result) {}
     private final JdbcTemplate jdbc;private final ManagedAdmission admission;private final TargetSystemAccess access;
-    private final TargetAssetJournal journal;private final TargetCleanupService cleanup;private final ManagedCommandGuard guard;
-    public TargetCommandQueryService(DataSource source,ManagedAdmission admission,TargetSystemAccess access,TargetAssetJournal journal,TargetCleanupService cleanup,ManagedCommandGuard guard){jdbc=new JdbcTemplate(source);this.admission=admission;this.access=access;this.journal=journal;this.cleanup=cleanup;this.guard=guard;}
+    private final AssetJournal journal;private final TargetCleanupService cleanup;private final ManagedCommandGuard guard;
+    public TargetCommandQueryService(DataSource source,ManagedAdmission admission,TargetSystemAccess access,AssetJournal journal,TargetCleanupService cleanup,ManagedCommandGuard guard){jdbc=new JdbcTemplate(source);this.admission=admission;this.access=access;this.journal=journal;this.cleanup=cleanup;this.guard=guard;}
     public Result getResult(Key request){
         String key=ManagedCommand.requireKey(request.commandKey());String actor=admission.queryActor("API-009",key,"FEAT-001");
         access.require(ActionType.READ,ActionType.SAVE);

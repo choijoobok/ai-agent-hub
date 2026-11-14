@@ -8,39 +8,45 @@ apis:
   - { id: API-007, feature: FEAT-033, implementation: planned, method: POST, path: /api/admin/service/targetSystem/getHistory, action: READ, summary: "대상 시스템 변경 이력 목록", request: "body=SearchRequest<TargetSystemHistoryFilter>", response: "ApiResponse<PageResponse<TargetSystemHistoryRow>>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
   - { id: API-008, feature: FEAT-033, implementation: planned, method: POST, path: /api/admin/service/targetSystem/getHistoryOne, action: READ, summary: "대상 시스템 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_TARGET_SYSTEM_HISTORY }
   - { id: API-009, feature: FEAT-001, implementation: implemented, method: POST, path: /api/admin/service/targetSystem/getCommandResult, action: READ, summary: "대상 시스템 관리 명령 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>", source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/targetsystem/TargetSystemController.java#getCommandResult }
-  - { id: API-010, feature: FEAT-002, implementation: planned, method: POST, path: /api/admin/service/dataSource/getList, action: READ, summary: "데이터소스 목록", request: "body=SearchRequest<DataSourceFilter>", response: "ApiResponse<PageResponse<DataSourceRow>>" }
-  - { id: API-011, feature: FEAT-002, implementation: planned, method: POST, path: /api/admin/service/dataSource/getOne, action: READ, summary: "데이터소스 상세", request: "body=AssetDetailKey", response: "ApiResponse<DataSourceDetail>" }
+  - { id: API-010, feature: FEAT-002, implementation: implemented, method: POST, path: /api/admin/service/dataSource/getList, action: READ, summary: "데이터소스 목록", request: "body=SearchRequest<DataSourceFilter>", response: "ApiResponse<PageResponse<DataSourceRow>>" , source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getList }
+
+  - { id: API-011, feature: FEAT-002, implementation: implemented, method: POST, path: /api/admin/service/dataSource/getOne, action: READ, summary: "데이터소스 상세", request: "body=AssetDetailKey", response: "ApiResponse<DataSourceDetail>" , source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getOne }
+
   - id: API-012
     feature: FEAT-002
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
     path: "/api/admin/service/dataSource/getConnectionCandidates"
     action: "READ"
     summary: "현재 YAML 데이터소스 정확 연결/DBMS 진단"
     request: "body=SearchRequest<ConnectionFilter>"
     response: "ApiResponse<ConnectionCandidates>"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getConnectionCandidates
   - id: API-013
     feature: FEAT-002
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
     path: "/api/admin/service/dataSource/getReferences"
     action: "READ"
     summary: "데이터소스 사용 카탈로그 및 허용 사용처 조회"
     request: "body=SearchRequest<AssetDetailKey>"
     response: "ApiResponse<AssetReferencePage>"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getReferences
   - id: API-014
     feature: FEAT-002
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
     path: "/api/admin/service/dataSource/save"
     action: "SAVE"
     summary: "기존 데이터소스 수동 메타·그룹·가이드 전체 저장"
     request: "body=DataSourceSave"
     response: "ApiResponse<AssetMutationResult>"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#save
   - { id: API-016, feature: FEAT-033, implementation: planned, method: POST, path: /api/admin/service/dataSource/getHistory, action: READ, summary: "데이터소스 변경 이력 목록", request: "body=SearchRequest<DataSourceHistoryFilter>", response: "ApiResponse<PageResponse<DataSourceHistoryRow>>", history_menu: HUB_DATA_SOURCE_HISTORY }
   - { id: API-017, feature: FEAT-033, implementation: planned, method: POST, path: /api/admin/service/dataSource/getHistoryOne, action: READ, summary: "데이터소스 이력 세트 상세", request: "body=AssetHistoryKey", response: "ApiResponse<AssetHistoryDetail>", history_menu: HUB_DATA_SOURCE_HISTORY }
-  - { id: API-018, feature: FEAT-002, implementation: planned, method: POST, path: /api/admin/service/dataSource/getCommandResult, action: READ, summary: "데이터소스 관리 명령 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" }
-  - { id: API-062, feature: FEAT-002, implementation: planned, method: POST, path: /api/admin/service/dataSource/getTimezoneList, action: READ, summary: "데이터소스 시간대 선택 후보", request: "body={}", response: "ApiResponse<List<String>>", contract: "FEAT-002.timezone_contract. HUB_DATA_SOURCE READ로 조회하며 support.time.Timezones.candidates(calendar.zone())를 재사용한다. 배치 스케줄 메뉴 권한을 요구하지 않는다" }
+  - { id: API-018, feature: FEAT-002, implementation: implemented, method: POST, path: /api/admin/service/dataSource/getCommandResult, action: READ, summary: "데이터소스 관리 명령 결과 확인", request: "body=AssetCommandKey", response: "ApiResponse<AssetCommandResult>" , source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getCommandResult }
+
+  - { id: API-062, feature: FEAT-002, implementation: implemented, method: POST, path: /api/admin/service/dataSource/getTimezoneList, action: READ, summary: "데이터소스 시간대 선택 후보", request: "body={}", response: "ApiResponse<List<String>>", contract: "FEAT-002.timezone_contract. HUB_DATA_SOURCE READ로 조회하며 support.time.Timezones.candidates(calendar.zone())를 재사용한다. 배치 스케줄 메뉴 권한을 요구하지 않는다" , source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getTimezoneList }
 
   - id: API-070
     feature: FEAT-001
@@ -65,7 +71,7 @@ apis:
     source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/targetsystem/IntegrationAlertController.java#getConfigurationAlerts
   - id: API-072
     feature: FEAT-002
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
     path: "/api/admin/service/dataSource/getQueryGuides"
     action: "READ"
@@ -73,6 +79,7 @@ apis:
     request: "body=SearchRequest<DataQueryGuideFilter>"
     response: "ApiResponse<PageResponse<DataQueryGuideRow>>"
     contract: "admin 화면 READ 조회. agent는 FEAT-002.query_guide_read_contract의 현재 Portal 권한을 검사하는 별도 내부 공개 계약을 사용하며 이 관리자 REST를 직접 사용하지 않는다."
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getQueryGuides
   - id: API-073
     feature: "FEAT-001"
     path: "/api/admin/service/targetSystem/getConfigurationCleanupPreview"
@@ -100,8 +107,9 @@ apis:
     summary: "서버 설정 누락 데이터소스 정리 미리보기"
     request: "body=ConfigurationCleanupQuery(scope=DATASOURCE, 검색조건)"
     response: "ApiResponse<ConfigurationCleanupPreview>; 현재 READ+SAVE 검사"
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#getConfigurationCleanupPreview
   - id: API-076
     feature: "FEAT-002"
     path: "/api/admin/service/dataSource/deleteConfigurationMismatches"
@@ -109,5 +117,6 @@ apis:
     summary: "확정 누락 데이터소스 일괄 정리"
     request: "body=ConfigurationCleanupCommand"
     response: "ApiResponse<ConfigurationCleanupResult>"
-    implementation: "planned"
+    implementation: "implemented"
     method: "POST"
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/datasource/DataSourceController.java#deleteConfigurationMismatches

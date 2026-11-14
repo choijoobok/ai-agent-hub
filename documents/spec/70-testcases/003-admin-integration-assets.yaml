@@ -77,6 +77,8 @@ testcases:
       - "documents/screen/admin/hub/data-source/requirements.md#DS-23"
       - "documents/screen/admin/hub/data-source/requirements.md#DS-24"
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00110
     feature: FEAT-033
     usecase: UC-015
@@ -97,7 +99,7 @@ testcases:
     status: "planned"
     delivery_boundary: CR-049 A. 관리 화면의 상하 배치는 SLICE-001 브라우저 검증 완료. 별도 이력 메뉴를 포함한 상속·반출 통합 검증은 FEAT-033 소유 후속이다.
   - id: TC-00211
-    feature: FEAT-002
+    feature: FEAT-033
     usecase: UC-016
     screens:
       - SCR-002
@@ -114,6 +116,9 @@ testcases:
       - "documents/screen/admin/hub/data-source/requirements.md#DS-20"
       - "documents/screen/admin/hub/data-source/requirements.md#DS-21"
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+    delivery_boundary: 원 관리 화면 상하/현재 페이지 반출은 SLICE-002 생산 범위. SCR-041 상속 이력 검색/반출 통합은 FEAT-033 후속 소유다.
+
   - id: TC-00210
     feature: FEAT-002
     usecase: UC-016
@@ -127,6 +132,8 @@ testcases:
     verification: "계약/통합/E2E; 검색어 저장·첫 후보 자동 선택·실패 시 선택 삭제·배치 메뉴 권한 결합·서버 isKnown 검사 제거 시 실패"
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-16", "documents/screen/admin/hub/data-source/requirements.md#DS-17", "documents/screen/admin/hub/data-source/requirements.md#DS-18"]
     status: planned
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0011
     feature: FEAT-001
     usecase: UC-015
@@ -266,6 +273,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-01", "documents/screen/admin/hub/data-source/requirements.md#DS-15"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0022
     feature: FEAT-002
     usecase: UC-016
@@ -279,6 +288,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-02"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0023
     feature: FEAT-002
     usecase: UC-016
@@ -292,6 +303,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-03", "documents/screen/admin/hub/data-source/requirements.md#DS-04", "documents/screen/admin/hub/data-source/requirements.md#DS-05"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0024
     feature: FEAT-002
     usecase: UC-016
@@ -305,6 +318,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-07"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0025
     feature: FEAT-002
     usecase: UC-016
@@ -318,6 +333,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-07"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0026
     feature: FEAT-002
     usecase: UC-016
@@ -331,6 +348,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-08", "documents/screen/admin/hub/data-source/requirements.md#DS-09", "documents/screen/admin/hub/data-source/requirements.md#DS-22"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0027
     feature: FEAT-002
     usecase: UC-016
@@ -344,6 +363,8 @@ testcases:
     verification: "E2E/통합; 결과 조회의 현재 권한/소유 검사 제거 시 실패"
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-10"]
     status: planned
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0028
     feature: FEAT-002
     usecase: UC-016
@@ -360,6 +381,8 @@ testcases:
       - "documents/screen/admin/hub/data-source/requirements.md#DS-11"
       - "documents/screen/admin/hub/data-source/requirements.md#DS-12"
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-0029
     feature: FEAT-002
     usecase: UC-016
@@ -373,6 +396,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-13", "documents/screen/admin/hub/data-source/requirements.md#DS-14"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00213
     feature: FEAT-002
     usecase: UC-016
@@ -386,6 +411,8 @@ testcases:
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-24"]
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00214
     feature: FEAT-003
     usecase: UC-007
@@ -425,6 +452,8 @@ testcases:
     then: "여러 가이드는 DS 메타·그룹과 같은 전체 저장/이력. 별도 SQL 정의/버전·파라미터·검수/활성화/독립 저장 없음"
     verification: "계약·통합/E2E의 계획 시험. YAML 실패를 삭제/정상으로 처리·수동값 덮어쓰기·원천/권한 우회·미확정 코드 추정·부분 이력/현재값 합성을 허용하는 반례에서 실패해야 한다. 제품 구현은 후속이다."
     status: "planned"
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00319
     feature: FEAT-003
     usecase: UC-007
@@ -475,6 +504,8 @@ testcases:
     actor: ACT-004
     status: "planned"
     verification: "제품 구현 후 계약/통합/E2E. 수용 기준을 반전해 실패함을 확인한다."
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00219
     feature: FEAT-002
     usecase: UC-016
@@ -487,6 +518,8 @@ testcases:
     actor: ACT-004
     status: "planned"
     verification: "제품 구현 후 계약/통합/E2E. 수용 기준을 반전해 실패함을 확인한다."
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
+
   - id: TC-00220
     feature: FEAT-002
     usecase: UC-016
@@ -499,6 +532,7 @@ testcases:
     actor: ACT-004
     status: "planned"
     verification: "제품 구현 후 계약/통합/E2E. 수용 기준을 반전해 실패함을 확인한다."
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
 
   - id: TC-00221
     feature: FEAT-002
@@ -513,6 +547,7 @@ testcases:
     verification: "파서/최근 비교 열 재노출·불필요한 데이터소스별 비교 집계·수동 파서 입력 수락, DB/DW 전환 시 메모 삭제, 메모 필수화, 메모를 실행 설정/최신성 사실로 사용, 당시 이력을 현재 메모로 합성하면 실패한다. 목업은 조건부 편집/왕복 보존/원복/열 부재만 검증하고 저장·실제 무부작용은 제품 시험 후속이다"
     screen_cases: ["documents/screen/admin/hub/data-source/requirements.md#DS-28"]
     status: planned
+    verification_scope: FEAT-002.delivery_boundary의 관리 생산 범위. DataSourceLiveTest·DataSourceDefinitionTest·DataSourceMetadataQueryServiceTest·ExternalDataSourcesTest·실제 화면으로 검증하며 후속 실제 소비를 통과로 세지 않는다.
 
   - id: TC-00222
     feature: FEAT-003

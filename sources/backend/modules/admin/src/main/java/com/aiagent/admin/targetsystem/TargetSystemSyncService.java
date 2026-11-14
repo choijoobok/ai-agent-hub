@@ -1,7 +1,9 @@
 // @feat FEAT-001
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
+import com.aiagent.admin.shared.configuration.ConfigurationDiagnosisService;
 import com.aiagent.support.deployment.TargetConnections;
 import com.aiagent.support.time.BusinessCalendar;
 import java.sql.Timestamp;
@@ -15,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TargetSystemSyncService {
     private final JdbcTemplate jdbc;private final ManagedIds ids;private final ManagedLocks locks;private final BusinessCalendar clock;
-    private final TargetDeploymentService deployment;private final TargetSystemService owner;
-    public TargetSystemSyncService(DataSource source,ManagedIds ids,ManagedLocks locks,BusinessCalendar clock,TargetDeploymentService deployment,TargetSystemService owner){jdbc=new JdbcTemplate(source);this.ids=ids;this.locks=locks;this.clock=clock;this.deployment=deployment;this.owner=owner;}
+    private final ConfigurationDeploymentService deployment;private final TargetSystemService owner;private final ConfigurationDiagnosisService diagnoses;
+    public TargetSystemSyncService(DataSource source,ManagedIds ids,ManagedLocks locks,BusinessCalendar clock,ConfigurationDeploymentService deployment,TargetSystemService owner,ConfigurationDiagnosisService diagnoses){jdbc=new JdbcTemplate(source);this.ids=ids;this.locks=locks;this.clock=clock;this.deployment=deployment;this.owner=owner;this.diagnoses=diagnoses;}
     @Transactional public void synchronize(TargetConnections loaded) {
         deployment.requireWriter(loaded);
         if(deployment.ready(loaded))return;
@@ -54,26 +56,9 @@ public class TargetSystemSyncService {
         }
         deployment.markReady(loaded);
     }
-    private void diagnosis(TargetConnections loaded,String kind,String key,boolean missing,String basisKind,Map<String,Object> row,Timestamp at) {
-        var existing=jdbc.queryForList("SELECT DIAGNOSIS_ID FROM AI_ADMIN_CONFIG_DIAGNOSIS WHERE ENVIRONMENT_ID=? AND CONFIG_ID=? AND TARGET_KIND=? AND TARGET_KEY=?",Long.class,loaded.environment(),loaded.settingsId(),kind,key);
-        if(existing.size()>1)throw ManagedErrorCode.UNAVAILABLE.failure();
-        if(existing.isEmpty()) {
-            var basis=new TreeMap<String,Object>();basis.put("kind",basisKind);basis.put("key",key);
-            for(String name:List.of("TARGET_SYSTEM_ID","CONNECTION_RECORD_ID","SYSTEM_KEY","CONNECTION_ID","YAML_SYSTEM_NM","YAML_CONNECTION_NM","YAML_DESCRIPTION"))if(row.containsKey(name))basis.put(name,row.get(name));
-            String serialized=tools.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(basis);
-            jdbc.update("INSERT INTO AI_ADMIN_CONFIG_DIAGNOSIS(DIAGNOSIS_ID,ENVIRONMENT_ID,CONFIG_ID,TARGET_KIND,TARGET_KEY,MISMATCH_YN,SAFE_REASON,COMPARISON_BASIS,RULE_VERSION,CHECKED_DTM,REG_DTM,MOD_DTM) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",ids.next("AI_ADMIN_CONFIG_ID"),loaded.environment(),loaded.settingsId(),kind,key,missing?"Y":"N",missing?"MISSING":"MATCHED",serialized,"target-settings/v1",at,at,at);
-        }
-        var alerts=jdbc.queryForList("SELECT ALERT_ID,STATUS_CD FROM AI_ADMIN_CONFIG_ALERT WHERE ENVIRONMENT_ID=? AND CONFIG_ID=? AND TARGET_KIND=? AND TARGET_KEY=?",loaded.environment(),loaded.settingsId(),kind,key);
-        if(missing&&alerts.isEmpty()) {
-            long alert=ids.next("AI_ADMIN_CONFIG_ID");jdbc.update("INSERT INTO AI_ADMIN_CONFIG_ALERT(ALERT_ID,ENVIRONMENT_ID,TARGET_KIND,TARGET_KEY,CONFIG_ID,STATUS_CD,FIRST_SEEN_DTM,LAST_CHECKED_DTM,COVERAGE_CD,REG_DTM,MOD_DTM) VALUES (?,?,?,?,?,'OPEN',?,?,'PARTIAL',?,?)",alert,loaded.environment(),kind,key,loaded.settingsId(),at,at,at,at);
-            jdbc.update("INSERT INTO AI_ADMIN_CONFIG_ALERT_EVENT(EVENT_ID,ALERT_ID,EVENT_CD,CONFIG_ID,EVIDENCE,REG_DTM) VALUES (?,?,'OPEN',?,'MISSING',?)",ids.next("AI_ADMIN_CONFIG_ID"),alert,loaded.settingsId(),at);
-        }else if(!missing&&alerts.isEmpty()){
-            var previous=jdbc.queryForList("SELECT ALERT_ID FROM AI_ADMIN_CONFIG_ALERT WHERE ENVIRONMENT_ID=? AND TARGET_KIND=? AND TARGET_KEY=? AND CONFIG_ID<>? AND STATUS_CD='OPEN' ORDER BY LAST_CHECKED_DTM DESC LIMIT 1",Long.class,loaded.environment(),kind,key,loaded.settingsId());
-            if(!previous.isEmpty()){
-                long alert=ids.next("AI_ADMIN_CONFIG_ID");
-                jdbc.update("INSERT INTO AI_ADMIN_CONFIG_ALERT(ALERT_ID,ENVIRONMENT_ID,TARGET_KIND,TARGET_KEY,CONFIG_ID,STATUS_CD,FIRST_SEEN_DTM,LAST_CHECKED_DTM,RECOVERED_DTM,COVERAGE_CD,REG_DTM,MOD_DTM) VALUES (?,?,?,?,?,'RECOVERED',?,?,?,'PARTIAL',?,?)",alert,loaded.environment(),kind,key,loaded.settingsId(),at,at,at,at,at);
-                jdbc.update("INSERT INTO AI_ADMIN_CONFIG_ALERT_EVENT(EVENT_ID,ALERT_ID,PREVIOUS_ALERT_ID,EVENT_CD,CONFIG_ID,EVIDENCE,REG_DTM) VALUES (?,?,?,'RECOVERED',?,'VERIFIED_MATCH',?)",ids.next("AI_ADMIN_CONFIG_ID"),alert,previous.getFirst(),loaded.settingsId(),at);
-            }
-        }
+    private void diagnosis(TargetConnections loaded,String kind,String key,boolean missing,String basisKind,Map<String,Object> row,Timestamp at){
+        var basis=new TreeMap<String,Object>();basis.put("kind",basisKind);basis.put("key",key);
+        for(String name:List.of("TARGET_SYSTEM_ID","CONNECTION_RECORD_ID","SYSTEM_KEY","CONNECTION_ID","YAML_SYSTEM_NM","YAML_CONNECTION_NM","YAML_DESCRIPTION"))if(row.containsKey(name))basis.put(name,row.get(name));
+        diagnoses.record(loaded,kind,key,missing,basis,at);
     }
 }

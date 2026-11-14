@@ -1,6 +1,7 @@
 // @feat FEAT-001
 package com.aiagent.admin.managed;
 
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import static org.assertj.core.api.Assertions.*;
 import com.aiagent.admin.targetsystem.*;
 import com.aiagent.support.deployment.TargetConnections;
@@ -36,7 +37,7 @@ class TargetSystemLiveTest {
     @AfterAll void close(){if(f!=null)f.close();}
     @Test @Order(1) @DisplayName("TC-0012 TC-0013 TC-0014 TC-0015 TC-0016 TC-0017 TC-00114 TC-00120 TC-00121 TC-00123 TC-00125 TC-00126 기동·표시 소유·현재 권한·낡은 버전·쓰기 없는 조회")
     void syncAndOverride() throws Exception {
-        var loaded=f.bean(TargetConnections.class);var deployment=f.bean(TargetDeploymentService.class);var sync=f.bean(TargetSystemSyncService.class);
+        var loaded=f.bean(TargetConnections.class);var deployment=f.bean(ConfigurationDeploymentService.class);var sync=f.bean(TargetSystemSyncService.class);
         assertThatThrownBy(()->sync.synchronize(loaded)).isInstanceOf(RuntimeException.class);
         var old=oldSettings();previousBoot=old;deployment.stage(old);deployment.allow(old.environment(),old.bootId(),0,UUID.randomUUID(),"fixture-operator",false);sync.synchronize(old);
         deployment.allow(loaded.environment(),loaded.bootId(),1,UUID.randomUUID(),"fixture-operator",false);
@@ -96,7 +97,7 @@ class TargetSystemLiveTest {
     void cleanup()throws Exception{
         var jdbc=f.database();String parent=jdbc.queryForObject("SELECT TARGET_SYSTEM_ID FROM AI_ADMIN_TARGET_SYSTEM WHERE SYSTEM_KEY='orders'",String.class);
         var query=Map.of("scope","CONNECTION","parentId",parent,"conditions",List.of());
-        var deployment=f.bean(TargetDeploymentService.class);var current=f.bean(TargetConnections.class);
+        var deployment=f.bean(ConfigurationDeploymentService.class);var current=f.bean(TargetConnections.class);
         deployment.allow(previousBoot.environment(),previousBoot.bootId(),2,UUID.randomUUID(),"fixture-operator",true);
         assertThat(f.adminCall("targetSystem","getConfigurationCleanupPreview",query,200).path("executable").asBoolean()).isFalse();
         deployment.allow(current.environment(),current.bootId(),3,UUID.randomUUID(),"fixture-operator",false);
@@ -161,7 +162,7 @@ class TargetSystemLiveTest {
     }
     @Test @Order(3) @DisplayName("기동 재허용·원 운영 명령 재수신이 삭제 메타를 부활시키거나 현재 허용을 되돌리지 않는다")
     void deploymentReplay(){
-        var first=oldSettings();var second=oldSettings();var deployment=f.bean(TargetDeploymentService.class);var sync=f.bean(TargetSystemSyncService.class);
+        var first=oldSettings();var second=oldSettings();var deployment=f.bean(ConfigurationDeploymentService.class);var sync=f.bean(TargetSystemSyncService.class);
         deployment.stage(first);deployment.stage(second);UUID key=UUID.randomUUID();
         assertThat(deployment.allow(first.environment(),first.bootId(),4,key,"fixture-operator",false)).isEqualTo(5);sync.synchronize(first);
         assertThat(deployment.allow(second.environment(),second.bootId(),5,UUID.randomUUID(),"fixture-operator",false)).isEqualTo(6);sync.synchronize(second);

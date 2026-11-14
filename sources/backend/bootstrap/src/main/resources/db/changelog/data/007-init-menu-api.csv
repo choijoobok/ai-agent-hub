@@ -28,6 +28,17 @@ HUB_CHAT_HELP,/api/admin/service/chatHelp/getOne
 HUB_CHAT_HELP,/api/admin/service/chatHelp/getPreview
 HUB_CHAT_HELP,/api/admin/service/chatHelp/save
 HUB_CHAT_HELP,/api/admin/service/managementCommand/getResult
+HUB_DATA_SOURCE,/api/admin/service/dataSource/deleteConfigurationMismatches
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getCommandResult
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getConfigurationCleanupPreview
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getConnectionCandidates
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getList
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getOne
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getQueryGuides
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getReferences
+HUB_DATA_SOURCE,/api/admin/service/dataSource/getTimezoneList
+HUB_DATA_SOURCE,/api/admin/service/dataSource/save
+HUB_DATA_SOURCE,/api/admin/service/integration/getConfigurationAlerts
 HUB_KNOWLEDGE_TAG,/api/admin/service/managementCommand/getResult
 HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/getList
 HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/getOne

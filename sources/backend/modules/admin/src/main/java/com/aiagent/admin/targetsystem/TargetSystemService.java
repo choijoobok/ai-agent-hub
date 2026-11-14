@@ -1,6 +1,8 @@
 // @feat FEAT-001
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationCleanup;
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
 import com.aiagent.support.deployment.TargetConnections;
 import java.sql.Timestamp;
@@ -13,8 +15,8 @@ public class TargetSystemService implements ManagedAssetAdapter {
     static final String ROOT="AI_ADMIN_TARGET_SYSTEM",CHILD="AI_ADMIN_TARGET_SYSTEM_CONN";
     static final List<String> ROOT_COLUMNS=List.of("TARGET_SYSTEM_ID","SYSTEM_NM","DESCRIPTION","MANAGEMENT_VERSION","REG_ID","REG_DTM","MOD_ID","MOD_DTM","CHANGE_REASON","COMMAND_KEY","SYSTEM_KEY","YAML_SYSTEM_NM","YAML_DESCRIPTION","SYNC_CONFIG_ID","REG_SOURCE_CD","MOD_SOURCE_CD","ACCEPTED_DTM");
     static final List<String> CHILD_COLUMNS=List.of("TARGET_SYSTEM_ID","CONNECTION_ID","CONNECTION_NM","DESCRIPTION","YAML_CONNECTION_NM","YAML_DESCRIPTION","SYNC_CONFIG_ID","REG_ID","REG_DTM","MOD_ID","MOD_DTM","REG_SOURCE_CD","MOD_SOURCE_CD","CONNECTION_RECORD_ID");
-    private final JdbcTemplate jdbc;private final TypedHistoryStore history;private final TargetConnections loaded;private final TargetDeploymentService deployment;
-    public TargetSystemService(DataSource source,ManagedIds ids,TargetConnections loaded,TargetDeploymentService deployment) {
+    private final JdbcTemplate jdbc;private final TypedHistoryStore history;private final TargetConnections loaded;private final ConfigurationDeploymentService deployment;
+    public TargetSystemService(DataSource source,ManagedIds ids,TargetConnections loaded,ConfigurationDeploymentService deployment) {
         jdbc=new JdbcTemplate(source);this.loaded=loaded;this.deployment=deployment;
         history=new TypedHistoryStore(source,ids,kind(),"MANAGEMENT_VERSION",List.of(new TypedHistoryStore.Table(ROOT,"TARGET_SYSTEM_ID",ROOT_COLUMNS),new TypedHistoryStore.Table(CHILD,"TARGET_SYSTEM_ID",CHILD_COLUMNS)),rows->true,this::historyReferences);
     }
@@ -22,8 +24,8 @@ public class TargetSystemService implements ManagedAssetAdapter {
     public String feature(){return "FEAT-001";}public String kind(){return "TARGET_SYSTEM";}
     public String readPath(){return BASE+"/getList";}public String writePath(){return BASE+"/save";}
     public Set<String> scopes(){return Set.of("display","cleanup");}
-    public List<ManagedLocks.Key> locks(ManagedCommand command){return List.of(TargetDeploymentService.boundary(loaded.environment()));}
-    public Map<String,Object> normalize(ManagedCommand command){if(command.scope().equals("cleanup"))return TargetCleanup.normalize(command);if(command.targetId()==null)throw ManagedErrorCode.VALIDATION.failure();return TargetSystemDefinition.parse(command.values()).values();}
+    public List<ManagedLocks.Key> locks(ManagedCommand command){return List.of(ConfigurationDeploymentService.boundary(loaded.environment()));}
+    public Map<String,Object> normalize(ManagedCommand command){if(command.scope().equals("cleanup"))return ConfigurationCleanup.normalizeFor(command,Set.of("SYSTEM","CONNECTION"));if(command.targetId()==null)throw ManagedErrorCode.VALIDATION.failure();return TargetSystemDefinition.parse(command.values()).values();}
     public Current current(ManagedCommand command){var rows=jdbc.query("SELECT TARGET_SYSTEM_ID,MANAGEMENT_VERSION FROM "+ROOT+" WHERE TARGET_SYSTEM_ID=?",(r,n)->new Current(r.getString(1),r.getString(2)),ManagedCommand.positive(command.targetId()));return rows.isEmpty()?null:rows.getFirst();}
     public void validate(ManagedCommand command,Current before) {
         deployment.requireReady(loaded);var value=TargetSystemDefinition.parse(command.values());

@@ -115,7 +115,14 @@ features:
     screen: SCR-002
     roadmap: RM-P1
     title: 데이터소스 관리
-    design_status: draft
+    design_status: approved
+    implementation: implemented
+    delivery_boundary:
+      producer: SLICE-002는 YAML 안정 키/별칭/URL 도출 DBMS·기동 판정/경고, 수동 메타·그룹·가이드 전체 원자 저장/동형 이력, 명령 복구·확정 누락 정리와 공개 생산 포트를 구현한다.
+      dependency: SLICE-001/006/040/302의 완료 계약을 재사용한다. 카탈로그는 이 데이터소스의 후속 소비자이며 이번 구현의 선행 조건이 아니다.
+      followup: FEAT-003/JOB-003의 실제 구조 관측·비교, FEAT-033의 SCR-041 독립 이력/반출, agent/integration의 현재 객체 권한·파서/버전 검증·실제 SQL/턴 근거 연결은 각 소유 기능에서 검증한다. 미설치/실패를 빈 정상 또는 SQL 허용으로 바꾸지 않는다.
+      source_contract: sources/backend/core/src/main/java/com/aiagent/core/deployment/DataSourceMetadata.java
+
     entities:
       - ENT-002
       - ENT-004
@@ -170,7 +177,7 @@ features:
       - AUTHZ-010
       - AUTHZ-090
     pending:
-      - '@defer P3 integration_assets — 물리명·공개 실행 계약·SQL 통제/상한·설정 게시 경합·턴 근거 보존의 구현/시험은 후속이다.'
+      - '@defer FEAT-003/033/agent — delivery_boundary.followup의 실제 소비·비교·이력 화면 검증.'
     detail: REQ-603의 데이터소스 연결 참조·업무 메타데이터·상태를 관리한다. 연결 원천·비밀정보 제외·반영 시점·실행 차단과 동일 연결의 다중 DB/카탈로그·스키마와 객체 식별/권한 경계는 해당 카드가 정본이다. 단일 DB 스키마 필수 선택이나 별도 스키마 권한 관리 기능을 추가하지 않는다
     reqs:
       - REQ-103

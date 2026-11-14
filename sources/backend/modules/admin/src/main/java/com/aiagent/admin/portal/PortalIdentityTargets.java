@@ -7,6 +7,7 @@ import java.util.*;
 public interface PortalIdentityTargets {
     record Target(String targetId,String name,boolean available,String reason) {}
     record Candidates(String state,List<Target> rows) {public Candidates {rows=List.copyOf(rows);}}
+    default boolean supports(String kind){return true;}
     Candidates list(String kind);
     /** 화면 후보 페이지가 아니라 정확 ID의 현재 열람/변경/기술 유효성을 검사한다. */
     void requireWritable(String kind,String targetId);

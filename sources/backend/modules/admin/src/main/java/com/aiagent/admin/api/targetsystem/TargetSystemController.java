@@ -1,5 +1,6 @@
 // @feat FEAT-001
 package com.aiagent.admin.api.targetsystem;
+import com.aiagent.admin.shared.configuration.ConfigurationCleanup;
 import com.aiagent.admin.targetsystem.*;
 import com.aiagent.admin.managed.*;
 import com.aiagent.core.search.*;
@@ -28,9 +29,9 @@ public class TargetSystemController {
     @PostMapping("/getUsedApis") @Operation(summary="사용 API 연결 현황 조회")
     public ApiResponse<TargetReferenceService.Projection> getUsedApis(@RequestBody Key request){queries.getOne(request.id());return ok(references.read(request.id()));}
     @PostMapping("/getConfigurationCleanupPreview") @Operation(summary="설정 누락 시스템·연결 정리 미리보기")
-    public ApiResponse<TargetCleanup.Preview> getConfigurationCleanupPreview(@RequestBody TargetCleanup.Query request){return ok(cleanup.preview(request));}
+    public ApiResponse<ConfigurationCleanup.Preview> getConfigurationCleanupPreview(@RequestBody ConfigurationCleanup.Query request){return ok(cleanup.preview(request));}
     @PostMapping("/deleteConfigurationMismatches") @Operation(summary="확인한 설정 누락 항목 일괄 정리")
-    public ApiResponse<TargetCleanup.Result> deleteConfigurationMismatches(@RequestBody ManagedCommand request){return ok(cleanup.execute(request));}
+    public ApiResponse<ConfigurationCleanup.Result> deleteConfigurationMismatches(@RequestBody ManagedCommand request){return ok(cleanup.execute(request));}
     @PostMapping("/getCommandResult") @Operation(summary="대상 시스템 관리 명령 결과 확인")
     public ApiResponse<TargetCommandQueryService.Result> getCommandResult(@RequestBody TargetCommandQueryService.Key request){return ok(results.getResult(request));}
     private static <T> ApiResponse<T> ok(T value){return ApiResponse.success(value,TraceId.current());}

@@ -1,6 +1,7 @@
 // @feat FEAT-001 FEAT-302
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.ManagedLocks;
 import java.time.Clock;
 import java.util.*;
@@ -15,7 +16,7 @@ public final class TargetDeploymentTool {
         if(args.length!=2&&args.length!=7)throw new IllegalArgumentException("inspect environment 또는 allow environment bootId expectedVersion commandKey operator retainExisting 형식이 필요하다");
         var source=new DriverManagerDataSource(required("TARGET_DEPLOYMENT_JDBC"),required("TARGET_DEPLOYMENT_USER"),System.getenv().getOrDefault("TARGET_DEPLOYMENT_PASSWORD",""));
         if(!Objects.requireNonNull(source.getUrl()).startsWith("jdbc:postgresql:"))throw new IllegalArgumentException("PostgreSQL 운영 연결이 필요하다");
-        var service=new TargetDeploymentService(source,new ManagedLocks(source),Clock.systemUTC());
+        var service=new ConfigurationDeploymentService(source,new ManagedLocks(source),Clock.systemUTC());
         var tx=new TransactionTemplate(new DataSourceTransactionManager(source));
         Object result=tx.execute(status->{
             if(args.length==2&&args[0].equals("inspect"))return service.inspect(args[1]);

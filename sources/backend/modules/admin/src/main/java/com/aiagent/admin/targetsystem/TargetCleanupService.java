@@ -1,6 +1,8 @@
 // @feat FEAT-001 FEAT-040
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationCleanup;
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
 import com.aiagent.domain.authz.ActionType;
 import com.aiagent.support.deployment.TargetConnections;
@@ -12,7 +14,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
-import static com.aiagent.admin.targetsystem.TargetCleanup.*;
+import static com.aiagent.admin.shared.configuration.ConfigurationCleanup.*;
 
 /** 후보 전체를 고정하고 현재 권한·설정·참조를 같은 경계에서 재검사하는 원자 명령. */
 @Service
@@ -23,8 +25,8 @@ public class TargetCleanupService {
     private final TargetReferenceService references;
     private final TargetSystemAccess access;
     private final TargetConnections loaded;
-    private final TargetDeploymentService deployment;
-    private final TargetAssetJournal journal;
+    private final ConfigurationDeploymentService deployment;
+    private final AssetJournal journal;
     private final ManagedRegistry registry;
     private final ManagedAdmission admission;
     private final ManagedLocks locks;
@@ -33,7 +35,7 @@ public class TargetCleanupService {
     private final ManagedHistoryService history;
     private final Clock clock;
     public TargetCleanupService(DataSource source,TargetSystemQueryService queries,TargetSystemService owner,TargetReferenceService references,
-        TargetSystemAccess access,TargetConnections loaded,TargetDeploymentService deployment,TargetAssetJournal journal,ManagedRegistry registry,
+        TargetSystemAccess access,TargetConnections loaded,ConfigurationDeploymentService deployment,AssetJournal journal,ManagedRegistry registry,
         ManagedAdmission admission,ManagedLocks locks,ManagedCommandGuard guard,ManagedIds ids,ManagedHistoryService history,Clock clock){
         jdbc=new JdbcTemplate(source);this.queries=queries;this.owner=owner;this.references=references;this.access=access;this.loaded=loaded;
         this.deployment=deployment;this.journal=journal;this.registry=registry;this.admission=admission;this.locks=locks;this.guard=guard;
@@ -42,7 +44,7 @@ public class TargetCleanupService {
     @Transactional
     public Preview preview(Query query){
         access.require(ActionType.READ,ActionType.SAVE);
-        locks.ordered(List.of(TargetDeploymentService.boundary(loaded.environment())));
+        locks.ordered(List.of(ConfigurationDeploymentService.boundary(loaded.environment())));
         deployment.requireReady(loaded);
         var candidates=queries.cleanupCandidates(query);
         if(candidates.size()>10_000)throw ManagedErrorCode.VALIDATION.failure();
@@ -75,8 +77,8 @@ public class TargetCleanupService {
             if(!old.feature().equals(owner.feature())||!old.kind().equals(owner.kind())||!old.digestVersion().equals("managed/v1")||!old.digest().equals(digest))throw ManagedErrorCode.COMMAND_CONFLICT.failure();
             return result(old);
         }
-        var values=TargetCleanup.parse(input);
-        locks.ordered(List.of(TargetDeploymentService.boundary(loaded.environment())));
+        var values=ConfigurationCleanup.parse(input);
+        locks.ordered(List.of(ConfigurationDeploymentService.boundary(loaded.environment())));
         deployment.requireReady(loaded);
         var previews=jdbc.queryForList("SELECT * FROM AI_ADMIN_CLEANUP_PREVIEW WHERE PREVIEW_ID=?",values.previewToken());
         if(previews.size()!=1)throw ManagedErrorCode.REVISION_CONFLICT.failure();
@@ -129,7 +131,7 @@ public class TargetCleanupService {
         long next;try{next=Math.addExact(ManagedCommand.positive(previous),1);}catch(ArithmeticException failure){throw ManagedErrorCode.REVISION_CONFLICT.failure();}
         return new ManagedAssetAdapter.Stamp(input.commandKey(),actor,Long.toString(next),ids.next("AI_ADMIN_HISTORY_NO"),at,action,input.reason());
     }
-    private String fingerprint(Query query){long control=jdbc.queryForObject("SELECT CONTROL_VERSION FROM AI_ADMIN_TARGET_DEPLOYMENT WHERE ENVIRONMENT_ID=?",Long.class,loaded.environment());return TargetCleanup.digest(query,loaded.bootId().toString(),loaded.settingsId(),control);}
+    private String fingerprint(Query query){long control=jdbc.queryForObject("SELECT CONTROL_VERSION FROM AI_ADMIN_TARGET_DEPLOYMENT WHERE ENVIRONMENT_ID=?",Long.class,loaded.environment());return ConfigurationCleanup.digest(query,loaded.bootId().toString(),loaded.settingsId(),control);}
     /** 참조 없는 메타 제거로 점검 원인이 사라진 사실이다. 외부 접속 성공을 뜻하지 않는다. */
     private void resolveRemovedMetadata(Candidate candidate,Instant now){
         var target=candidate.target();

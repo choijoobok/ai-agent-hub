@@ -3,6 +3,16 @@ API_URL,API_NM,API_DESC,ACTION_CD
 /api/admin/service/chatHelp/getOne,채팅 안내 본문 조회,,READ
 /api/admin/service/chatHelp/getPreview,채팅 안내 안전 미리보기,,READ
 /api/admin/service/chatHelp/save,채팅 안내 본문 저장,,SAVE
+/api/admin/service/dataSource/deleteConfigurationMismatches,확정 누락 데이터소스 일괄 정리,,SAVE
+/api/admin/service/dataSource/getCommandResult,데이터소스 관리 명령 결과 확인,,READ
+/api/admin/service/dataSource/getConfigurationCleanupPreview,설정 누락 데이터소스 일괄 정리 미리보기,,READ
+/api/admin/service/dataSource/getConnectionCandidates,현재 데이터소스 정확 연결 진단,,READ
+/api/admin/service/dataSource/getList,데이터소스 목록 조회,,READ
+/api/admin/service/dataSource/getOne,데이터소스 전체 메타·그룹·가이드 조회,,READ
+/api/admin/service/dataSource/getQueryGuides,현재 데이터소스 데이터 조회 가이드 목록,,READ
+/api/admin/service/dataSource/getReferences,데이터소스 사용 카탈로그 조회,,READ
+/api/admin/service/dataSource/getTimezoneList,데이터소스 시간대 선택 목록,,READ
+/api/admin/service/dataSource/save,데이터소스 메타·그룹·가이드 전체 저장,,SAVE
 /api/admin/service/integration/getConfigurationAlerts,현재 허용 설정의 연결 경고 조회,,READ
 /api/admin/service/managementCommand/getResult,공통 관리 저장의 원 명령 결과 확인,,READ
 /api/admin/service/portalUser/getIdentityTargets,Portal 기술 신원 후보 조회,,READ

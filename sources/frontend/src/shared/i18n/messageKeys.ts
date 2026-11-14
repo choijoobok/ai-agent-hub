@@ -3455,4 +3455,62 @@ export const MSG = {
   TARGET_CLEAN_READY: 'target_system.clean_ready',
   /** 시스템과 연결은 서버 YAML에서 등록합니다. 행을 선택해 이름·설명을 보완하며, 접속 주소·인증 정보는 여기서 변경하지 않습니다. */
   TARGET_HELP: 'target_system.help',
+  /** 데이터소스 */
+  DS_TITLE: 'data_source.title',
+  /** 데이터소스 키 */
+  DS_KEY: 'data_source.key',
+  /** 별칭 */
+  DS_ALIAS: 'data_source.alias',
+  /** DBMS 종류 */
+  DS_DBMS: 'data_source.dbms',
+  /** DBMS 버전 */
+  DS_VERSION: 'data_source.version',
+  /** DB·DW 유형 */
+  DS_TYPE: 'data_source.type',
+  /** DW 동기화 방식 */
+  DS_SYNC_NOTE: 'data_source.sync_note',
+  /** 시각 체계 */
+  DS_TIMEZONE: 'data_source.timezone',
+  /** 데이터 기준 시각 정보 */
+  DS_BASIS: 'data_source.basis',
+  /** 데이터 조회 가이드 */
+  DS_GUIDES: 'data_source.guides',
+  /** 가이드 제목 */
+  DS_GUIDE_TITLE: 'data_source.guide_title',
+  /** 상세 설명 */
+  DS_GUIDE_BODY: 'data_source.guide_body',
+  /** 사용자 그룹 */
+  DS_GROUPS: 'data_source.groups',
+  /** 사용 스키마 카탈로그 */
+  DS_CATALOGS: 'data_source.catalogs',
+  /** 컬럼 불일치 */
+  DS_COLUMNS: 'data_source.columns',
+  /** 인덱스 불일치 */
+  DS_INDEXES: 'data_source.indexes',
+  /** 서버 설정 불일치 건 일괄 삭제 */
+  DS_CLEAN: 'data_source.clean',
+  /** 서버 설정에서 등록한 데이터소스의 업무 메타·그룹·가이드를 전체 저장합니다. 가이드는 조회 권한을 늘리지 않습니다. */
+  DS_HELP: 'data_source.help',
+  /** 카탈로그 구조 비교 결과를 아직 확인할 수 없습니다. 이전 결과나 0건으로 표시하지 않습니다. */
+  DS_COMPARE_PENDING: 'data_source.compare_pending',
+  /** 사용 카탈로그를 아직 확인할 수 없습니다. 참조 없음과 구분합니다. */
+  DS_CATALOG_PENDING: 'data_source.catalog_pending',
+  /** 가이드 추가 */
+  DS_GUIDE_ADD: 'data_source.guide_add',
+  /** 그룹 추가 */
+  DS_GROUP_ADD: 'data_source.group_add',
+  /** 데이터소스 전체 구성 저장 */
+  DS_SAVE: 'data_source.save',
+  /** 확인 필요 — SQL 사용 불가 */
+  DS_SQL_UNKNOWN: 'data_source.sql_unknown',
+  /** 적용 가능 그룹 선택 */
+  DS_GROUP_PICK: 'data_source.group_pick',
+  /** 현재 로드 상태 */
+  DS_LOADED: 'data_source.loaded',
+  /** 매핑 활성 여부 */
+  DS_GROUP_ACTIVE: 'data_source.group_active',
+  /** 별칭·연결·DBMS 종류는 서버 설정에서 관리합니다. DW 동기화 방식은 참고 메모입니다. */
+  DS_TECHNICAL_HELP: 'data_source.technical_help',
+  /** 미지정 */
+  DS_UNSPECIFIED: 'data_source.unspecified',
 } as const;

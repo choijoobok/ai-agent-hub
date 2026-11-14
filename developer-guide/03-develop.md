@@ -267,3 +267,24 @@ node .claude/skills/menu-doc/screens.mjs
 - 개발 표준 — [`aidd-guide/standard/INDEX.md`](../aidd-guide/standard/INDEX.md) ·
   Hub 전용 규약 [`hub-conventions.md`](../aidd-guide/standard/hub-conventions.md)
 - 슬라이스 규약 — [`aidd-guide/process/07-slice.md`](../aidd-guide/process/07-slice.md)
+
+### 데이터소스 관리 생산 계약
+
+`app.external-datasources.<고정키>.alias`와 `registry-key`는 외부 데이터소스의 읽기 전용 메타다.
+`registry-key`는 `app.deployment.connections`의 DATASOURCE 연결을 정확 참조한다. JDBC URL·계정·비밀은
+해당 배포 정의에만 두며 Hub 자체 `spring.datasource`를 외부 목록에 등록하지 않는다.
+
+`ExternalDataSources`는 전체 구조를 검증하고 URL에서 DBMS 종류를 도출한다. 기동은
+`ConfigurationDeploymentService`와 기존 `TargetDeploymentTool`의 보호된 inspect/allow 절차를 사용한다.
+데이터소스는 `datasource_<환경>` 공간과 독립 bootId를 쓴다. 새 기동은 같은 설정 지문이라도 명시 허용이 필요하다.
+별칭·기술 근거 변경은 전체 이력에 남고 동일 내용 재기동은 중복 이력을 만들지 않는다.
+
+카탈로그 소유자는 `DataSourceReferencePort`와 `DataSourceCatalogScope`를 구현한다. 참조 추가/제거와
+그룹 어휘 변경은 동일 DATA_SOURCE 부모 잠금을 사용한다. `DataSourceMetadata.readSelected`는 현재
+허용된 선택 카탈로그에서만 DS별 문맥/가이드를 한 번 제공하며 DW 참고 메모를 제외한다.
+실제 SQL 호출은 `requireSqlUsable`의 현재 연결/파서·버전/접근 검증과 소유 실행 통제를 함께 적용한다.
+포트 미설치·미상·부분 설치를 빈 정상으로 취급하지 않는다. SQL 실행·구조 비교·턴 근거는 후속 소유 범위다.
+
+변경 범위 실제 시험은 `:backend:bootstrap:managedStorageTest --tests com.aiagent.admin.managed.DataSourceLiveTest`다.
+`MANAGED_TEST_JDBC/USER/PASSWORD`의 전용 localhost `managed040_` DB만 사용하며 각 시험은 별도 스키마다.
+025~027 적용/롤백/재적용, 전체 저장·이력·명령·참조 보호를 검증한다. 화면 확인은 실제 프런트를 같은 Origin으로 연결한다.

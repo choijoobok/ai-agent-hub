@@ -37,11 +37,12 @@ public final class PortalDependencies {
     public void changed(String user,ManagedAssetAdapter.Stamp stamp){var provider=quota();if(provider!=null)provider.eligibilityChanged(user,stamp);}
     public void requireQuota(){quota();}
     public List<Map<String,Object>> extras(String user){var provider=quota();return provider==null?List.of():provider.extraTokens(user);}
+    private PortalIdentityTargets targetOwner(String kind){var owners=targets.orderedStream().filter(p->p.supports(kind)).toList();if(owners.size()>1)throw ManagedErrorCode.UNAVAILABLE.failure();return owners.isEmpty()?null:owners.getFirst();}
     public PortalIdentityTargets.Candidates targets(String kind) {
-        var provider=targets.getIfUnique();return provider==null?new PortalIdentityTargets.Candidates("NOT_CONNECTED",List.of()):provider.list(kind);
+        var provider=targetOwner(kind);return provider==null?new PortalIdentityTargets.Candidates("NOT_CONNECTED",List.of()):provider.list(kind);
     }
-    public void requireTarget(String kind,String id){var provider=targets.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();provider.requireWritable(kind,id);}
-    public List<com.aiagent.admin.managed.ManagedLocks.Key> targetLocks(String kind,List<String> ids){var provider=targets.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();return provider.locks(kind,ids);}
+    public void requireTarget(String kind,String id){var provider=targetOwner(kind);if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();provider.requireWritable(kind,id);}
+    public List<com.aiagent.admin.managed.ManagedLocks.Key> targetLocks(String kind,List<String> ids){var provider=targetOwner(kind);if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();return provider.locks(kind,ids);}
     public PortalExternalDirectory.Identity external(String source,String subject) {
         var provider=external.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();
         var identity=provider.verified(source,subject);

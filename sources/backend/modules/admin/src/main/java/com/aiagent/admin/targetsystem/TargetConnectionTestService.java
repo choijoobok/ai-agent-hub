@@ -1,6 +1,7 @@
 // @feat FEAT-001
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
 import com.aiagent.core.deployment.*;
 import com.aiagent.domain.authz.ActionType;
@@ -19,11 +20,11 @@ public class TargetConnectionTestService {
     public record Result(Instant checkedAt,String appliedSettingsId,String status,long elapsedMs,String reasonCode) {}
     private final JdbcTemplate jdbc;
     private final TargetConnections loaded;
-    private final TargetDeploymentService deployment;
+    private final ConfigurationDeploymentService deployment;
     private final ManagedLocks locks;
     private final TargetSystemAccess access;
     private final Clock clock;
-    public TargetConnectionTestService(DataSource source,TargetConnections loaded,TargetDeploymentService deployment,ManagedLocks locks,TargetSystemAccess access,Clock clock){
+    public TargetConnectionTestService(DataSource source,TargetConnections loaded,ConfigurationDeploymentService deployment,ManagedLocks locks,TargetSystemAccess access,Clock clock){
         jdbc=new JdbcTemplate(source);this.loaded=loaded;this.deployment=deployment;this.locks=locks;this.access=access;this.clock=clock;
     }
     @Transactional
@@ -32,7 +33,7 @@ public class TargetConnectionTestService {
         if(request==null||request.connectionId()==null||request.appliedSettingsId()==null)throw ManagedErrorCode.VALIDATION.failure();
         long id=ManagedCommand.positive(request.systemId());
         // 운영 허용 전환과 같은 경계: 진행 중인 시험을 지나 새 세대가 확정된다.
-        locks.ordered(List.of(TargetDeploymentService.boundary(loaded.environment()),new ManagedLocks.Key(3,"TARGET_SYSTEM",request.systemId())));
+        locks.ordered(List.of(ConfigurationDeploymentService.boundary(loaded.environment()),new ManagedLocks.Key(3,"TARGET_SYSTEM",request.systemId())));
         deployment.requireReady(loaded);
         if(!loaded.settingsId().equals(request.appliedSettingsId()))throw ManagedErrorCode.REVISION_CONFLICT.failure();
         var keys=jdbc.queryForList("SELECT SYSTEM_KEY FROM AI_ADMIN_TARGET_SYSTEM S JOIN AI_ADMIN_TARGET_SYSTEM_CONN C ON C.TARGET_SYSTEM_ID=S.TARGET_SYSTEM_ID WHERE S.TARGET_SYSTEM_ID=? AND C.CONNECTION_ID=?",String.class,id,request.connectionId());

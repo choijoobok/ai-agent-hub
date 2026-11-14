@@ -1,6 +1,7 @@
 // @feat FEAT-001 FEAT-005
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
 import com.aiagent.admin.portal.PortalIdentityTargets;
 import com.aiagent.domain.authz.ActionType;
@@ -14,9 +15,10 @@ import org.springframework.stereotype.Component;
 public class TargetIdentityTargets implements PortalIdentityTargets {
     private final JdbcTemplate jdbc;
     private final TargetConnections loaded;
-    private final TargetDeploymentService deployment;
+    private final ConfigurationDeploymentService deployment;
     private final TargetSystemAccess access;
-    public TargetIdentityTargets(DataSource source,TargetConnections loaded,TargetDeploymentService deployment,TargetSystemAccess access){jdbc=new JdbcTemplate(source);this.loaded=loaded;this.deployment=deployment;this.access=access;}
+    public TargetIdentityTargets(DataSource source,TargetConnections loaded,ConfigurationDeploymentService deployment,TargetSystemAccess access){jdbc=new JdbcTemplate(source);this.loaded=loaded;this.deployment=deployment;this.access=access;}
+    public boolean supports(String kind){return kind.equals("SYSTEM");}
     public Candidates list(String kind){
         if(!kind.equals("SYSTEM"))return new Candidates("NOT_CONNECTED",List.of());
         access.require(ActionType.READ);
@@ -35,7 +37,7 @@ public class TargetIdentityTargets implements PortalIdentityTargets {
     }
     public List<ManagedLocks.Key> locks(String kind,List<String> targets){
         if(!kind.equals("SYSTEM"))throw ManagedErrorCode.UNAVAILABLE.failure();
-        var keys=new ArrayList<ManagedLocks.Key>();keys.add(TargetDeploymentService.boundary(loaded.environment()));
+        var keys=new ArrayList<ManagedLocks.Key>();keys.add(ConfigurationDeploymentService.boundary(loaded.environment()));
         for(String id:targets){ManagedCommand.positive(id);keys.add(new ManagedLocks.Key(3,"TARGET_SYSTEM",id));}
         return keys;
     }

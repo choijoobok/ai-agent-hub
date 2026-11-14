@@ -1,8 +1,8 @@
-// @feat FEAT-001 FEAT-302
-package com.aiagent.admin.targetsystem;
+// @feat FEAT-001 FEAT-002 FEAT-302
+package com.aiagent.admin.shared.configuration;
 
 import com.aiagent.admin.managed.*;
-import com.aiagent.support.deployment.TargetConnections;
+import com.aiagent.core.deployment.ConfigurationSnapshot;
 import java.time.Clock;
 import java.sql.Timestamp;
 import java.util.*;
@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** 보호된 운영 호출만 허용 상태를 바꾼다. 기동 등록이나 같은 지문만으로 재가입하지 않는다. */
 @Service
-public class TargetDeploymentService {
+public class ConfigurationDeploymentService {
     private final JdbcTemplate jdbc;private final ManagedLocks locks;private final Clock clock;
-    public TargetDeploymentService(DataSource source,ManagedLocks locks,Clock clock){jdbc=new JdbcTemplate(source);this.locks=locks;this.clock=clock;}
-    static ManagedLocks.Key boundary(String environment){return new ManagedLocks.Key(1,"TARGET_CONFIGURATION",environment);}
-    @Transactional public void stage(TargetConnections loaded) {
+    public ConfigurationDeploymentService(DataSource source,ManagedLocks locks,Clock clock){jdbc=new JdbcTemplate(source);this.locks=locks;this.clock=clock;}
+    public static ManagedLocks.Key boundary(String environment){return new ManagedLocks.Key(1,"TARGET_CONFIGURATION",environment);}
+    @Transactional public void stage(ConfigurationSnapshot loaded) {
         locks.ordered(List.of(boundary(loaded.environment())));
         jdbc.update("INSERT INTO AI_ADMIN_TARGET_DEPLOYMENT(ENVIRONMENT_ID,CONTROL_VERSION,MOD_DTM) VALUES (?,0,?) ON CONFLICT DO NOTHING",loaded.environment(),Timestamp.from(clock.instant()));
         jdbc.update("INSERT INTO AI_ADMIN_TARGET_BOOT(BOOT_ID,ENVIRONMENT_ID,CONFIG_ID,ALLOWED_YN,READY_YN,REG_DTM) VALUES (?,?,?,'N','N',?) ON CONFLICT DO NOTHING",loaded.bootId().toString(),loaded.environment(),loaded.settingsId(),Timestamp.from(clock.instant()));
@@ -41,18 +41,18 @@ public class TargetDeploymentService {
         jdbc.update("INSERT INTO AI_ADMIN_TARGET_DEPLOYMENT_COMMAND(COMMAND_KEY,ENVIRONMENT_ID,REQUEST_DIGEST,RESULT_VERSION,OPERATOR_ID,RECORDED_DTM) VALUES (?,?,?,?,?,?)",command.toString(),environment,digest,next,operator,Timestamp.from(clock.instant()));
         return next;
     }
-    public boolean allowed(TargetConnections loaded) {
+    public boolean allowed(ConfigurationSnapshot loaded) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_TARGET_BOOT WHERE BOOT_ID=? AND ENVIRONMENT_ID=? AND CONFIG_ID=? AND ALLOWED_YN='Y'",Long.class,loaded.bootId().toString(),loaded.environment(),loaded.settingsId())==1;
     }
-    public boolean ready(TargetConnections loaded) {
+    public boolean ready(ConfigurationSnapshot loaded) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_TARGET_BOOT WHERE BOOT_ID=? AND ENVIRONMENT_ID=? AND CONFIG_ID=? AND ALLOWED_YN='Y' AND READY_YN='Y'",Long.class,loaded.bootId().toString(),loaded.environment(),loaded.settingsId())==1;
     }
-    void requireWriter(TargetConnections loaded) {
+    public void requireWriter(ConfigurationSnapshot loaded) {
         locks.ordered(List.of(boundary(loaded.environment())));
         if(!allowed(loaded)||jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_TARGET_DEPLOYMENT WHERE ENVIRONMENT_ID=? AND WRITER_BOOT_ID=?",Long.class,loaded.environment(),loaded.bootId().toString())!=1)throw ManagedErrorCode.UNAVAILABLE.failure();
     }
-    public void requireReady(TargetConnections loaded){if(!ready(loaded))throw ManagedErrorCode.UNAVAILABLE.failure();}
-    boolean synchronizedBefore(TargetConnections loaded){return jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_TARGET_BOOT WHERE ENVIRONMENT_ID=? AND CONFIG_ID=? AND READY_YN='Y'",Long.class,loaded.environment(),loaded.settingsId())>0;}
-    void markReady(TargetConnections loaded){requireWriter(loaded);jdbc.update("UPDATE AI_ADMIN_TARGET_BOOT SET READY_YN='Y' WHERE BOOT_ID=?",loaded.bootId().toString());}
+    public void requireReady(ConfigurationSnapshot loaded){if(!ready(loaded))throw ManagedErrorCode.UNAVAILABLE.failure();}
+    public boolean synchronizedBefore(ConfigurationSnapshot loaded){return jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_TARGET_BOOT WHERE ENVIRONMENT_ID=? AND CONFIG_ID=? AND READY_YN='Y'",Long.class,loaded.environment(),loaded.settingsId())>0;}
+    public void markReady(ConfigurationSnapshot loaded){requireWriter(loaded);jdbc.update("UPDATE AI_ADMIN_TARGET_BOOT SET READY_YN='Y' WHERE BOOT_ID=?",loaded.bootId().toString());}
     @Transactional(readOnly=true) public List<Map<String,Object>> inspect(String environment){return jdbc.queryForList("SELECT B.BOOT_ID,B.CONFIG_ID,B.ALLOWED_YN,B.READY_YN,B.REG_DTM,D.CONTROL_VERSION,D.WRITER_BOOT_ID FROM AI_ADMIN_TARGET_BOOT B JOIN AI_ADMIN_TARGET_DEPLOYMENT D ON D.ENVIRONMENT_ID=B.ENVIRONMENT_ID WHERE B.ENVIRONMENT_ID=? ORDER BY B.REG_DTM",environment);}
 }

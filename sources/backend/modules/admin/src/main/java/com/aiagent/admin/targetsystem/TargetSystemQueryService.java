@@ -1,7 +1,10 @@
 // @feat FEAT-001
 package com.aiagent.admin.targetsystem;
 
+import com.aiagent.admin.shared.configuration.ConfigurationCleanup;
+import com.aiagent.admin.shared.configuration.ConfigurationDeploymentService;
 import com.aiagent.admin.managed.*;
+import com.aiagent.admin.shared.configuration.ConfigurationDiagnosis;
 import com.aiagent.core.search.*;
 import com.aiagent.domain.authz.ActionType;
 import com.aiagent.domain.search.QueryDslBuilder;
@@ -18,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TargetSystemQueryService {
     static final PathBuilder<TargetSystem> S=new PathBuilder<>(TargetSystem.class,"targetSystem");
     static final PathBuilder<TargetConnection> C=new PathBuilder<>(TargetConnection.class,"targetConnection");
-    static final PathBuilder<TargetDiagnosis> D=new PathBuilder<>(TargetDiagnosis.class,"targetDiagnosis");
+    static final PathBuilder<ConfigurationDiagnosis> D=new PathBuilder<>(ConfigurationDiagnosis.class,"targetDiagnosis");
     public record Filter(String systemName,String systemKey,Boolean configurationMismatch) {}
     public record ConnectionFilter(String systemId,Boolean validOnly,String keyword) {}
     public record Override(String nameOverride,String descriptionOverride) {}
@@ -28,8 +31,8 @@ public class TargetSystemQueryService {
     public record ConnectionRow(String systemId,String connectionId,String connectionName,String description,Override metadataOverrides,
         String yamlName,String yamlDescription,Boolean configurationMismatch,String mismatchReason,String appliedSettingsId,Instant checkedAt,ConnectionDisplay currentDisplay,
         Boolean testConfigured,boolean testAllowed,String disabledReason,String regId,Instant regDtm,String modId,Instant modDtm) {}
-    private final JPAQueryFactory query;private final QueryDslBuilder builder;private final TargetConnections loaded;private final TargetDeploymentService deployment;private final TargetSystemAccess access;
-    public TargetSystemQueryService(JPAQueryFactory query,QueryDslBuilder builder,TargetConnections loaded,TargetDeploymentService deployment,TargetSystemAccess access){this.query=query;this.builder=builder;this.loaded=loaded;this.deployment=deployment;this.access=access;}
+    private final JPAQueryFactory query;private final QueryDslBuilder builder;private final TargetConnections loaded;private final ConfigurationDeploymentService deployment;private final TargetSystemAccess access;
+    public TargetSystemQueryService(JPAQueryFactory query,QueryDslBuilder builder,TargetConnections loaded,ConfigurationDeploymentService deployment,TargetSystemAccess access){this.query=query;this.builder=builder;this.loaded=loaded;this.deployment=deployment;this.access=access;}
     private StringExpression name(){return S.getString("nameOverride").coalesce(S.getString("yamlName"),S.getString("systemKey"));}
     private BooleanExpression ownDiagnosis(){return D.getString("environment").eq(loaded.environment()).and(D.getString("configId").eq(loaded.settingsId()));}
     private BooleanExpression missing(){
@@ -74,17 +77,17 @@ public class TargetSystemQueryService {
         var root=root(id);var children=query.selectFrom(C).where(C.getNumber("systemId",Long.class).eq(root.id)).orderBy(C.getString("connectionId").asc()).fetch();
         return row(root,children,diagnoses(List.of(root),children,deployment.ready(loaded)),true,access.allows(ActionType.EXECUTE));
     }
-    private Map<String,TargetDiagnosis> diagnoses(List<TargetSystem> roots,List<TargetConnection> children,boolean ready){
+    private Map<String,ConfigurationDiagnosis> diagnoses(List<TargetSystem> roots,List<TargetConnection> children,boolean ready){
         if(!ready||roots.isEmpty())return Map.of();
         var keys=new HashSet<String>();var parents=new HashMap<Long,String>();
         for(var root:roots){keys.add(root.systemKey);parents.put(root.id,root.systemKey);}
         for(var child:children)keys.add(parents.get(child.systemId)+"/"+child.connectionId);
-        var result=new HashMap<String,TargetDiagnosis>();
+        var result=new HashMap<String,ConfigurationDiagnosis>();
         for(var d:query.selectFrom(D).where(ownDiagnosis(),D.getString("key").in(keys)).fetch())
             if(result.putIfAbsent(d.kind+"/"+d.key,d)!=null)throw ManagedErrorCode.UNAVAILABLE.failure();
         return result;
     }
-    private Row row(TargetSystem root,List<TargetConnection> children,Map<String,TargetDiagnosis> diagnoses,boolean includeConnections,boolean execute){
+    private Row row(TargetSystem root,List<TargetConnection> children,Map<String,ConfigurationDiagnosis> diagnoses,boolean includeConnections,boolean execute){
         var d=diagnoses.get("SYSTEM/"+root.systemKey);
         var connections=children.stream().map(c->connection(root,c,diagnoses,execute)).toList();
         Boolean mismatch=d==null||d.mismatch==null?null:d.mismatch.equals("Y");
@@ -92,7 +95,7 @@ public class TargetSystemQueryService {
         else if(!Boolean.TRUE.equals(mismatch)&&connections.stream().anyMatch(c->c.configurationMismatch()==null))mismatch=null;
         return new Row(root.id.toString(),root.version.toString(),root.systemKey,display(root.nameOverride,root.yamlName,root.systemKey),display(root.descriptionOverride,root.yamlDescription,null),root.nameOverride,root.descriptionOverride,root.yamlName,root.yamlDescription,source(root.nameOverride,root.yamlName),source(root.descriptionOverride,root.yamlDescription),mismatch,mismatch==null?"UNKNOWN":mismatch?"MISSING":"MATCHED",d==null?"UNKNOWN":"Y".equals(d.mismatch)?"MISSING":"PRESENT",loaded.settingsId(),d==null?null:d.checkedAt,root.regId,root.regDtm,root.modId,root.modDtm,includeConnections?connections:List.of());
     }
-    private ConnectionRow connection(TargetSystem root,TargetConnection child,Map<String,TargetDiagnosis> diagnoses,boolean execute){
+    private ConnectionRow connection(TargetSystem root,TargetConnection child,Map<String,ConfigurationDiagnosis> diagnoses,boolean execute){
         var d=diagnoses.get("CONNECTION/"+root.systemKey+"/"+child.connectionId);Boolean mismatch=d==null||d.mismatch==null?null:d.mismatch.equals("Y");
         var system=loaded.systems().get(root.systemKey);var current=system==null?null:system.connections().get(child.connectionId);
         boolean available=Boolean.FALSE.equals(mismatch)&&current!=null;
@@ -113,7 +116,7 @@ public class TargetSystemQueryService {
         Long count=built.count(query).where(where).fetchOne();return built.respond(rows,count==null?0:count);
     }
     static String display(String override,String yaml,String fallback){return override!=null?override:yaml!=null?yaml:fallback;}
-    List<TargetCleanup.Candidate> cleanupCandidates(TargetCleanup.Query request){
+    List<ConfigurationCleanup.Candidate> cleanupCandidates(ConfigurationCleanup.Query request){
         var input=new SearchRequest<>(request.conditions(),List.of(),null,null);
         if(request.scope().equals("SYSTEM")){
             var built=builder.build(input,spec(true),PageMode.all);
@@ -121,7 +124,7 @@ public class TargetSystemQueryService {
             if(roots.size()>PageSpec.ALL_LIMIT)throw ManagedErrorCode.VALIDATION.failure();
             var diagnoses=diagnoses(roots,List.of(),true);
             return roots.stream().filter(s->{var d=diagnoses.get("SYSTEM/"+s.systemKey);return d!=null&&"Y".equals(d.mismatch);})
-                .map(s->new TargetCleanup.Candidate(new TargetCleanup.Confirmation(s.id.toString(),"SYSTEM",null,s.version.toString()),display(s.nameOverride,s.yamlName,s.systemKey),null,diagnoses.get("SYSTEM/"+s.systemKey).id.toString()))
+                .map(s->new ConfigurationCleanup.Candidate(new ConfigurationCleanup.Confirmation(s.id.toString(),"SYSTEM",null,s.version.toString()),display(s.nameOverride,s.yamlName,s.systemKey),null,diagnoses.get("SYSTEM/"+s.systemKey).id.toString()))
                 .sorted(Comparator.comparing(c->ManagedCommand.positive(c.target().id()))).toList();
         }
         var parent=root(request.parentId());
@@ -132,7 +135,7 @@ public class TargetSystemQueryService {
         if(children.size()>PageSpec.ALL_LIMIT)throw ManagedErrorCode.VALIDATION.failure();
         var diagnoses=diagnoses(List.of(parent),children,true);
         return children.stream().filter(c->{var d=diagnoses.get("CONNECTION/"+parent.systemKey+"/"+c.connectionId);return d!=null&&"Y".equals(d.mismatch);})
-            .map(c->new TargetCleanup.Candidate(new TargetCleanup.Confirmation(c.recordId.toString(),"CONNECTION",parent.id.toString(),parent.version.toString()),display(c.nameOverride,c.yamlName,c.connectionId),c.connectionId,diagnoses.get("CONNECTION/"+parent.systemKey+"/"+c.connectionId).id.toString()))
+            .map(c->new ConfigurationCleanup.Candidate(new ConfigurationCleanup.Confirmation(c.recordId.toString(),"CONNECTION",parent.id.toString(),parent.version.toString()),display(c.nameOverride,c.yamlName,c.connectionId),c.connectionId,diagnoses.get("CONNECTION/"+parent.systemKey+"/"+c.connectionId).id.toString()))
             .sorted(Comparator.comparing(c->ManagedCommand.positive(c.target().id()))).toList();
     }
     private static String source(String override,String yaml){return override!=null?"ADMIN":yaml!=null?"YAML":"KEY";}
