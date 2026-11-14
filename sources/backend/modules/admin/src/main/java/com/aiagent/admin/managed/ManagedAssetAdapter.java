@@ -9,6 +9,7 @@ public interface ManagedAssetAdapter {
     javax.sql.DataSource dataSource();
     record Current(String targetId,String revision) {}
     record Stamp(String commandKey,String actor,String revision,long historyNo,Instant at,String action,String reason) {}
+    default ManagedTargetKeys targetKeys() { return ManagedTargetKeys.DECIMAL; }
     String feature();
     String kind();
     String readPath();

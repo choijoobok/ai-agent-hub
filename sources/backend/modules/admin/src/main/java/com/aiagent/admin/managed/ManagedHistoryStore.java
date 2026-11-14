@@ -8,7 +8,7 @@ import java.util.*;
 public interface ManagedHistoryStore {
     javax.sql.DataSource dataSource();
     record Ref(String kind,String targetId,String revision) {
-        public Ref { Objects.requireNonNull(kind); ManagedCommand.positive(targetId); ManagedCommand.positive(revision); }
+        public Ref { Objects.requireNonNull(kind); ManagedTargetKeys.wire(targetId); ManagedCommand.positive(revision); }
     }
     record Event(Ref ref,long historyNo,Instant at,String action,Map<String,List<Map<String,Object>>> rows,List<Ref> references) {
         public Event { rows=Map.copyOf(rows); references=List.copyOf(references); }

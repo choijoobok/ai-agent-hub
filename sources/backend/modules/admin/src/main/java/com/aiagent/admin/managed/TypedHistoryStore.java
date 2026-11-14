@@ -18,6 +18,7 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
     }
     private static final List<String> ROOT_META=List.of("HIST_ID","HISTORY_NO","HIST_DTM","HIST_ACTION","HIST_ACTOR_ID","HIST_SOURCE_CD","HISTORY_COMMAND_KEY","RESULT_REVISION","BEFORE_HISTORY_NO","HIST_REASON","HIST_SUMMARY","SCHEMA_VERSION");
     private final String kind;
+    private final ManagedTargetKeys targetKeys;
     private final String revision;
     private final List<Table> tables;
     private final JdbcTemplate jdbc;
@@ -26,6 +27,12 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
     private final Function<Map<String,List<Map<String,Object>>>,List<Ref>> references;
     public TypedHistoryStore(DataSource source,ManagedIds ids,String kind,String revision,List<Table> tables,
             Predicate<Map<String,List<Map<String,Object>>>> complete,Function<Map<String,List<Map<String,Object>>>,List<Ref>> references) {
+        this(source,ids,kind,revision,tables,complete,references,ManagedTargetKeys.DECIMAL);
+    }
+    public TypedHistoryStore(DataSource source,ManagedIds ids,String kind,String revision,List<Table> tables,
+            Predicate<Map<String,List<Map<String,Object>>>> complete,Function<Map<String,List<Map<String,Object>>>,List<Ref>> references,
+            ManagedTargetKeys targetKeys) {
+        this.targetKeys=Objects.requireNonNull(targetKeys);
         this.jdbc=new JdbcTemplate(source); this.ids=ids; this.kind=kind; this.revision=identifier(revision);
         this.tables=List.copyOf(tables); this.complete=Objects.requireNonNull(complete); this.references=Objects.requireNonNull(references);
         if(tables.isEmpty()||!tables.getFirst().columns().contains(revision))throw new IllegalArgumentException("이력 부모와 리비전 열이 필요하다");
@@ -37,7 +44,11 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
     }
     public String kind() { return kind; }
     public DataSource dataSource() { return jdbc.getDataSource(); }
-    public List<ManagedLocks.Key> locks(Ref ref) { return List.of(new ManagedLocks.Key(3,kind,ref.targetId())); }
+    public List<ManagedLocks.Key> locks(Ref ref) { target(ref); return List.of(new ManagedLocks.Key(3,kind,ref.targetId())); }
+    private Object target(Ref ref) {
+        if(!kind.equals(ref.kind()))throw ManagedErrorCode.HISTORY_UNAVAILABLE.failure();
+        return targetKeys.bind(ref.targetId());
+    }
     private Map<String,List<Object>> columns(String table) {
         var result=new LinkedHashMap<String,List<Object>>();
         jdbc.query("SELECT column_name,udt_name,is_nullable,character_maximum_length,numeric_precision,numeric_scale FROM information_schema.columns WHERE table_schema=current_schema() AND table_name=?",r->{
@@ -49,6 +60,8 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
     private void validateShape() {
         for(int index=0;index<tables.size();index++) {
             var table=tables.get(index); var source=columns(table.name()); var history=columns(table.name()+"_HIST");
+            if(!source.containsKey(table.ownerKey())||!targetKeys.acceptsSqlType(source.get(table.ownerKey()).getFirst().toString()))
+                throw new IllegalStateException("이력 소유 키 정책과 물리 타입이 다르다: "+table.name());
             var expected=new HashSet<>(table.columns()); expected.addAll(index==0?ROOT_META:List.of("HIST_ID","HISTORY_NO"));
             if(!history.keySet().equals(expected))throw new IllegalStateException("전체 이력 열과 등록된 소유 열이 다르다: "+table.name());
             for(String column:table.columns()) if(!source.containsKey(column)||!Objects.equals(source.get(column),history.get(column)))
@@ -63,7 +76,7 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
         captureOrigin(targetId,stamp,"EXTERNAL");
     }
     private void captureOrigin(String targetId,ManagedAssetAdapter.Stamp stamp,String origin) {
-        long target=ManagedCommand.positive(targetId);
+        Object target=targetKeys.bind(targetId);
         var selected=new LinkedHashMap<String,List<Map<String,Object>>>();
         for(var table:tables)selected.put(table.name(),jdbc.queryForList("SELECT "+String.join(",",table.columns())+" FROM "+table.name()+" WHERE "+table.ownerKey()+"=?",target));
         if(selected.get(tables.getFirst().name()).size()!=1||!complete.test(selected))throw ManagedErrorCode.HISTORY_UNAVAILABLE.failure();
@@ -91,7 +104,7 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
     public Event exact(Ref ref) {
         if(!kind.equals(ref.kind()))throw ManagedErrorCode.HISTORY_UNAVAILABLE.failure();
         var root=tables.getFirst();
-        var found=jdbc.queryForList("SELECT HISTORY_NO FROM "+root.name()+"_HIST WHERE "+root.ownerKey()+"=? AND RESULT_REVISION=? AND HIST_ACTION<>'DELETE'",Long.class,Long.parseLong(ref.targetId()),Long.parseLong(ref.revision()));
+        var found=jdbc.queryForList("SELECT HISTORY_NO FROM "+root.name()+"_HIST WHERE "+root.ownerKey()+"=? AND RESULT_REVISION=? AND HIST_ACTION<>'DELETE'",Long.class,target(ref),Long.parseLong(ref.revision()));
         if(found.size()!=1)throw ManagedErrorCode.HISTORY_UNAVAILABLE.failure();
         return event(found.getFirst());
     }
@@ -103,12 +116,13 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
         var root=roots.getFirst();
         if(((Number)root.get("SCHEMA_VERSION")).intValue()!=1)throw ManagedErrorCode.HISTORY_UNAVAILABLE.failure();
         var ref=new Ref(kind,root.get(tables.getFirst().ownerKey()).toString(),root.get("RESULT_REVISION").toString());
+        target(ref);
         return new Event(ref,historyNo,((Timestamp)root.get("HIST_DTM")).toInstant(),root.get("HIST_ACTION").toString(),data,references.apply(data));
     }
     public boolean current(Event event) {
         if(event.action().equals("DELETE"))return false;
         var root=tables.getFirst();
-        return jdbc.queryForObject("SELECT COUNT(*) FROM "+root.name()+" WHERE "+root.ownerKey()+"=? AND "+revision+"=?",Long.class,Long.parseLong(event.ref().targetId()),Long.parseLong(event.ref().revision()))!=0;
+        return jdbc.queryForObject("SELECT COUNT(*) FROM "+root.name()+" WHERE "+root.ownerKey()+"=? AND "+revision+"=?",Long.class,target(event.ref()),Long.parseLong(event.ref().revision()))!=0;
     }
     public void purge(Event event) {
         for(var table:tables.reversed())jdbc.update("DELETE FROM "+table.name()+"_HIST WHERE HISTORY_NO=?",event.historyNo());

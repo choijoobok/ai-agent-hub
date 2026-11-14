@@ -9,7 +9,7 @@ public record ManagedCommand(String commandKey, String targetId, String expected
     public ManagedCommand {
         requireKey(commandKey);
         if ((targetId==null)!=(expectedRevision==null)) throw ManagedErrorCode.VALIDATION.failure();
-        if (targetId!=null) { positive(targetId); positive(expectedRevision); }
+        if (targetId!=null) { ManagedTargetKeys.wire(targetId); positive(expectedRevision); }
         if (scope==null || !scope.matches("[A-Za-z][A-Za-z0-9_-]{0,39}") || reason==null || reason.isBlank()
                 || reason.codePointCount(0,reason.length())>2000 || values==null) throw ManagedErrorCode.VALIDATION.failure();
         values=ManagedDigest.freezeMap(values);

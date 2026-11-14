@@ -60,7 +60,7 @@ public class ManagedCommandService {
             target=before.targetId(); owner.history().capture(target,stamp); owner.delete(input,before);
             if(owner.current(input)!=null)throw new IllegalStateException("삭제 뒤 현재 구성이 남았다");
         } else {
-            target=owner.apply(input,before,stamp); ManagedCommand.positive(target);
+            target=owner.apply(input,before,stamp); owner.targetKeys().bind(target);
             if(before!=null&&!before.targetId().equals(target))throw new IllegalStateException("기존 안정 ID를 변경할 수 없다");
             var written=owner.current(new ManagedCommand(input.commandKey(),target,stamp.revision(),input.scope(),input.values(),input.reason()));
             if(written==null||!written.targetId().equals(target)||!written.revision().equals(stamp.revision()))throw new IllegalStateException("소유 저장의 결과 판이 다르다");
@@ -71,6 +71,7 @@ public class ManagedCommandService {
         operation.journal().insert(entry); return result(entry,owner.history());
     }
     public static ManagedCommand normalize(ManagedAssetAdapter owner,ManagedCommand input) {
+        if(input.targetId()!=null)owner.targetKeys().bind(input.targetId());
         if(!owner.scopes().contains(input.scope()))throw ManagedErrorCode.VALIDATION.failure();
         return new ManagedCommand(input.commandKey(),input.targetId(),input.expectedRevision(),input.scope(),owner.normalize(input),input.reason());
     }
