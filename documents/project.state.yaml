@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-010 관리 화면/API·안전 표시·전체 이력·소비 보호 포트 구현을 fa58844d로 로컬 커밋했다. 기술 검증 완료, 사용자 G4 승인 대기. localhost3006/admin/hub/chat-help를 시험 관리자 로그인 상태로 열어 두었다. 후속 독립 이력 화면과 실제 Portal 표시/제출은 CR-047의 소유 범위에서 검증한다. 이번 커밋은 아직 푸시하지 않았다."
+  first: "2026-11-14 SLICE-010 G4 사용자 명시 승인 완료. 관리 생산·불변 이력·소비 포트 범위를 done으로 반영하고 미푸시 구현/검증 커밋과 함께 origin/main에 푸시한다. 다음 admin 슬라이스는 소유 G3·실제 선행 계약 준비 여부를 확인해 착수한다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1104,7 +1104,7 @@ open_questions:
 # ── 인지 부채 ──────────────────────────────────────────────────────
 # 사용자가 이해하지 못한 채 승인하는 것을 감지한다.
 cognitive_debt:
-  silent_approvals: 0
+  silent_approvals: 1
   # ↑ G0(2026-09-05)에서 1 이었다 — 역질문 둘에 답하지 않고 승인했기 때문이다.
   #   **같은 날 사용자가 셋 다 답해 0 으로 돌아왔다.** 부채가 갚아진 것이므로 지운다.
   #   답은 각자의 자리에 있다: 성공 기준은 charter 의 measurement_first,
@@ -2734,7 +2734,8 @@ slices:
       - TC-0107
     scope: 채팅 도움말·주의사항 관리
     stage: P4
-    status: in_progress
+    status: done
+    approved_at: "2026-11-14"
     started_at: "2026-11-14"
     depends_on:
       - SLICE-040
@@ -2756,7 +2757,9 @@ slices:
       logs: sources/build/slice010-keys-red.log·slice010-keys-unit.log·slice010-keys-live.log·slice010-keys-http-final.log 및 slice010 문서/품질 로그
       handoff: CR-046 선행 이후 관리 구현/검증은 implementation_review로 이어진다. 이전 전체 이력 화면 잔여 표기는 CR-047에서 SCR-069 소유 FEAT-033으로 정정했다.
     implementation_review:
-      status: awaiting_user_g4
+      status: approved
+      approved_at: "2026-11-14"
+      user_response: "승인함. 푸시하고 다음 작업 진행해줘."
       verified_at: "2026-11-14T15:56:00+09:00"
       source_commit: fa58844d
       incidental_fix: 8b55cbf3 — 기존 UserGroupStorageQueryService 읽기 전용 선언 누락을 별도 보완했다.
@@ -2800,7 +2803,7 @@ slices:
       followup:
         - FEAT-033 SCR-069 전체 이력 검색/반출은 TC-0333/0335/03311에서 검증한다.
         - FEAT-107·agent 실제 표시/제출 당시 정적 판·동적 전송 범위 검증은 TC-0104/0106의 후속 소유다.
-      acceptance: 직접 사용자 G4 승인 대기. 과거 약5시간 위임 승인으로 자동 완료 처리하지 않는다. 상태는 in_progress 유지.
+      acceptance: 2026-11-14 사용자 명시 G4 승인. 관리 생산·불변 이력·소비 포트 범위로 완료하며 FEAT-033 독립 이력 화면과 FEAT-107·agent 실제 소비 검증은 후속이다.
   - id: SLICE-013
     workstream: admin
     features:
@@ -2905,6 +2908,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-010, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-047 완료 범위 고유24개 통과/skip0. 기능12·규약12와 실제 브라우저 저장/안전 표시/확대창을 검증했다. 비영향 통과 결과를 재사용하며 전체 시험은 반복하지 않았다. 독립 이력 화면·실제 Portal 소비는 후속이다. 전체 수정 횟수는 미계측이다." }
   - { slice: SLICE-303, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-045 공통 완료 범위 고유16개/skip0 통과. 변경 계약6·실제DB3·의존7이며 조립 보완 후 영향9개만 재검사했다. 자산 원장/고객 마스킹/최종 소비 검증은 후속으로 명시한다. 반복 전체 횟수는 미계측이다." }
   - { slice: SLICE-005, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-044 완료 경계에서 신규14·영향 회귀3 고유17개/skip0 통과. 실제 DB 적용/복구·권한·현재 접근 경합·원자성·암호 재수신과 브라우저 양방향 소속 저장을 검증했다. 전체 수정/레드팀 반복 수는 미계측이며 계측하지 않은 값을0으로 만들지 않는다. 실제 세션·고객 인증/인사 수신·대상 후보·배정은 후속 소유 범위다." }
   - { slice: SLICE-042, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-043 기준 관리 완료 범위 고유13개 통과. 실제 DB·이력 rollback·미래 기준/안정 ID와 브라우저 저장/복사를 검증했다. 전체 수정 반복은 미계측이다. 사용자 연결 후속은005에서 검증 완료, 예정/확정 배정 경합은017/045에서 검증한다." }
