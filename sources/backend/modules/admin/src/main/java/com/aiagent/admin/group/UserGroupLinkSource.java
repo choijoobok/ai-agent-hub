@@ -16,6 +16,6 @@ public interface UserGroupLinkSource {
     }
     Source source();
     Projection read(long groupId);
-    /** 화면 필터/조회 권한으로 참조를 숨겨서는 안 된다. */
+    /** 선택한 그룹의 전체 참조만 검사한다. 화면 필터/조회 권한으로 비활성·숨김·정책 참조를 제외하지 않는다. */
     Reference references(long groupId);
 }

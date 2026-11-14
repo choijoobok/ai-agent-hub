@@ -28,14 +28,18 @@ export function UserGroupPage() {
   const [pending, setPending] = useState(commands.hasPending());
   const [groupId, setGroupId] = useState<string | null>(null);
   const [saved, setSaved] = useState(0);
+  const [references, setReferences] = useState<Record<string, UserGroupRow['useState']>>({});
+  const onReference = useCallback((id: string, state: UserGroupRow['useState']) => {
+    setReferences((before) => before[id] === state ? before : { ...before, [id]: state });
+  }, []);
   const columns = useMemo<ColumnDef<UserGroupRow>[]>(() => [
     { field: 'groupId', header: MSG.GROUP_ID, type: 'bigint', width: 150, sortable: true },
     { field: 'groupNm', header: MSG.GROUP_NAME, type: 'text', width: 180, sortable: true, required: true, editable: !pending, maxLength: 100 },
     { field: 'description', header: MSG.GROUP_DESCRIPTION, type: 'text', editor: 'largeText', width: 300, required: true, editable: !pending },
     { field: 'useState', header: MSG.GROUP_STATE, type: 'text', width: 130,
-      derive: (row) => label(row.useState === 'USED' ? MSG.GROUP_USED : row.useState === 'UNUSED' ? MSG.GROUP_UNUSED : MSG.GROUP_UNKNOWN) },
+      derive: (row) => label(references[row.groupId ?? ''] === 'USED' ? MSG.GROUP_USED : references[row.groupId ?? ''] === 'UNUSED' ? MSG.GROUP_UNUSED : MSG.GROUP_UNKNOWN) },
     ...auditColumns<UserGroupRow>({ sortable: true }),
-  ], [pending]);
+  ], [pending, references]);
   const api = useMemo<GridApi<UserGroupRow>>(() => ({ read: pending ? undefined : { url: GROUP_ENDPOINTS.getList, emptyNotice: true },
     save: { url: GROUP_ENDPOINTS.save, reloadAfter: false, perRow: { after: 'keepFailed' },
       validate: { grid: (rows) => reason.trim() || commands.hasPending() ? [] : rows.filter((row) => row.state !== null).map((row) => ({ rowId: row.id, message: label(MSG.GROUP_REASON_REQUIRED) })) },
@@ -45,7 +49,10 @@ export function UserGroupPage() {
       },
       onSuccess: () => { setGroupId(null); setSaved((value) => value + 1); },
     } }), [commands, reason, pending]);
-  const collect = useCallback(() => Promise.resolve(search.current?.collect() ?? []), []);
+  const collect = useCallback(() => {
+    setGroupId(null); setReferences({});
+    return Promise.resolve(search.current?.collect() ?? []);
+  }, []);
   const master = useGridController<UserGroupRow>({ menuCd: MENU_CD, columns, api, params: collect,
     addRow: { defaults: () => ({ groupId: null, groupNm: '', description: '', revision: null, useState: 'UNKNOWN' }),
       canAdd: () => pending ? { ok: false, message: label(MSG.GROUP_PENDING) } : true },
@@ -72,8 +79,8 @@ export function UserGroupPage() {
     <div style={{ flex: 1, minHeight: 0 }}><SplitPane storageKey="user-group"
       first={(collapsed, expand) => <DataGrid<UserGroupRow> title={MSG.GROUP_TITLE} menuCd={MENU_CD} gridId="master" controller={master}
         onSelect={select} collapsed={collapsed} onExpand={expand} excel={{ pageOnly: true }}
-        deletable={{ enabled: (row) => !pending && (row.state === 'C' || row.data.useState === 'UNUSED'),
-          reason: (row) => row.data.useState !== 'UNUSED' && row.state !== 'C' ? label(MSG.GROUP_DELETE_UNKNOWN) : null }} />}
-      second={() => <GroupLinksPanel groupId={groupId} />} /></div>
+        deletable={{ enabled: (row) => !pending && (row.state === 'C' || row.state === 'D' || references[row.data.groupId ?? ''] === 'UNUSED'),
+          reason: (row) => references[row.data.groupId ?? ''] !== 'UNUSED' && row.state !== 'C' ? label(MSG.GROUP_DELETE_UNKNOWN) : null }} />}
+      second={() => <GroupLinksPanel groupId={groupId} onReference={onReference} />} /></div>
   </FillColumn>;
 }

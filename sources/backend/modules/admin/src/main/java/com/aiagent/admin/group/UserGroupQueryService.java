@@ -26,20 +26,23 @@ public class UserGroupQueryService {
     private final QueryDslBuilder builder;
     private final UserGroupLinks links;
     public UserGroupQueryService(JPAQueryFactory query,QueryDslBuilder builder,UserGroupLinks links){this.query=query;this.builder=builder;this.links=links;}
-    private Row row(UserGroup group) {
+    private Row row(UserGroup group,String state) {
         return new Row(group.groupId.toString(),group.groupNm,group.description,group.revision.toString(),group.acceptedDtm,group.changeReason,
-                group.regId,group.regDtm,group.modId,group.modDtm,links.useState(group.groupId));
+                group.regId,group.regDtm,group.modId,group.modDtm,state);
     }
     public PageResponse<Row> getList(SearchRequest<Void> request) {
         var built=builder.build(request,SPEC,PageMode.offset);
-        var rows=built.apply(query.select(G)).fetch().stream().map(this::row).toList();
+        // 마스터 목록에서는 참조를 조회하지 않는다. 선택 후 하단 조회에서 확인된 행만 삭제를 연다.
+        var rows=built.apply(query.select(G)).fetch().stream().map(group->row(group,"UNKNOWN")).toList();
         Long count=built.count(query).fetchOne();return built.respond(rows,count==null?0:count);
     }
     public Row getOne(String id) {
         var found=query.selectFrom(G).where(G.getNumber("groupId",Long.class).eq(ManagedCommand.positive(id))).fetchOne();
-        if(found==null)throw ManagedErrorCode.REFERENCE_CONFLICT.failure();return row(found);
+        if(found==null)throw ManagedErrorCode.REFERENCE_CONFLICT.failure();return row(found,links.useState(found.groupId));
     }
     public UserGroupLinkSource.Projection projection(String id,UserGroupLinkSource.Source source) {
-        getOne(id);return links.read(source,Long.parseLong(id));
+        var found=query.selectFrom(G).where(G.getNumber("groupId",Long.class).eq(ManagedCommand.positive(id))).fetchOne();
+        if(found==null)throw ManagedErrorCode.REFERENCE_CONFLICT.failure();
+        return links.read(source,Long.parseLong(id));
     }
 }

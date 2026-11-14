@@ -16,6 +16,9 @@ type Send = typeof post;
 export function fetchGroupProjection(targetId: string, scope: GroupScope): Promise<GroupProjection> {
   return post(scope === 'membership' ? GROUP_ENDPOINTS.getMembers : GROUP_ENDPOINTS.getAssets, { targetId, scope });
 }
+export function fetchGroup(targetId: string): Promise<UserGroupRow> {
+  return post(GROUP_ENDPOINTS.getOne, { targetId });
+}
 
 /** 원 명령을 탭 저장소에 먼저 보존한다. 행마다 독립 요청이므로 앞 행 성공은 뒤 행 실패로 되돌리지 않는다. */
 export class UserGroupCommands {

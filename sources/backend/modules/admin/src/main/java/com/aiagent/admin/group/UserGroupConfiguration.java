@@ -12,7 +12,9 @@ import org.springframework.orm.jpa.SharedEntityManagerCreator;
 
 @Configuration
 public class UserGroupConfiguration {
-    @Bean UserGroupLinks userGroupLinks(ObjectProvider<UserGroupLinkSource> sources){return new UserGroupLinks(sources.orderedStream().toList());}
+    @Bean UserGroupLinks userGroupLinks(ObjectProvider<UserGroupLinkSource> sources,UserGroupStorageQueryService storage){
+        return new UserGroupLinks(sources.orderedStream().toList(),storage::uninstalled);
+    }
     @Bean UserGroupService userGroupService(DataSource source,EntityManagerFactory emf,ManagedIds ids,ManagedLocks locks,UserGroupLinks links) {
         return new UserGroupService(source,SharedEntityManagerCreator.createSharedEntityManager(emf),ids,locks,links);
     }
