@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-007 G4 승인, 후속 권장 조인 관계 관리 계약 확인
+  workstream: admin         # SLICE-011 G4 승인, 후속 업무 API 등록 계약 확인
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-011          # 권장 조인 관계의 관리 저장·후속 SQL 소비 경계 확인
+  slice: SLICE-004          # 업무 API 등록·필드/응답/연결 통제의 선행 의존 확인
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -2838,16 +2838,17 @@ slices:
       checked_at: "2026-11-14"
       changes: [CR-057]
       result: 사용자가 두 권장안을 승인했다. 같은 활성 자료형 코드·검수된 기본키/유일키 전체 쌍을 기준으로 기존 CATALOG의 관계 영역/전체 HIST/권한/원 명령을 구현한다.
-      next_action: 구현·필수 검증을 완료했다. 현재 관리 범위의 G4 사용자 수락을 기다린다.
+      next_action: 2026-11-15 현재 관리 범위의 사용자 G4 승인을 반영했다. 승인된 구현을 푸시한 뒤 SLICE-004를 진행한다.
     stage: P4
-    status: in_progress
+    status: done
+    approved_at: "2026-11-15"
     depends_on:
       - SLICE-003
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
     delivery:
-      status: self_verified_pending_g4
+      status: approved
       implementation_commit: 094deea2
       changes: [CR-057]
       scope: 같은 데이터소스의 양끝점·전체 컬럼 쌍·역할/설명과 검수, 카탈로그 소유 전체 관계 저장·정확 외부 판·양쪽 역조회·실제 관리 화면.
@@ -2856,7 +2857,7 @@ slices:
         backend: 고유6개 통과/skip0. 새 단위2·실제 PostgreSQL 관계3·기존 카탈로그 전체 저장 영향1. 마지막 검수 감사/과거 이름 검색·컬럼 감사 보완 뒤 fullSave1개, 유일키 전체/부분 집합과 자기조인1개만 재검증했다. PRIMARY 전체 검수는 fullSave, UNIQUE 전체/부분은 validationAndSelfJoin의 실제 저장으로 구별해 확인했다.
         frontend: 고유13개 통과/skip0. 관계 workspace2·원 명령 복구1·화면5와 기존 CatalogPage5. 삭제 취소 캐시·후보 지연 응답·저장 버튼 보완 뒤 화면5개만 재실행했다. 최종 컬럼 선언 변경은 타입·lint로 확인하고 비영향 행동 시험 결과를 재사용했다.
         migration: 039의 관계명/감사18컬럼 Liquibase 적용·rollback·재적용, 041 메뉴·API 권한·메시지의 실제 DB 적용·rollback·재적용 통과. 041은 전용 시험 스키마의 트랜잭션 종료 시 초기 상태로 복구했다.
-        browser: 새 메뉴와 실제 권한 시드로 로그인→관계 조회/선택→이름 변경·사유 저장→재조회·전체 쌍 유지, 좌우 후보 팝업/취소·연관 지식 미연결/탭 복귀를 확인했다. 브라우저 오류0, sources/build/slice011/relation-review.png. 사용자 수락은 별도 대기다.
+        browser: 새 메뉴와 실제 권한 시드로 로그인→관계 조회/선택→이름 변경·사유 저장→재조회·전체 쌍 유지, 좌우 후보 팝업/취소·연관 지식 미연결/탭 복귀를 확인했다. 브라우저 오류0, sources/build/slice011/relation-review.png. 2026-11-15 사용자가 이번 관리 범위를 명시 수락했다.
         checks: 하네스18·meta 위반0·trace 오류0/후속경고72·품질 중복2.38%/삼킴0/미태깅0. 도메인245엔티티/117테이블/1348컬럼/61changelog 일치, 시드/타입/lint 통과. doc-gen ID1630 누락0·깨진링크0, 화면 요건/목업과 HTML499/27/9장 구조·자산 검사 통과.
         independent_review: 읽기 전용 리뷰3건을 모두 수정하고 주 에이전트가 통합·관련 시험으로 확인했다. 실제 SQL/모델/연결 지식 소비를 관리 시험의 통과에 포함하지 않는다.
         evidence:
@@ -2882,18 +2883,22 @@ slices:
         - risk: 외부 테이블이 바뀐 뒤 과거 판의 표시 이름으로 관계를 찾을 수 없다.
           resolution: 조회 검색도 정확한 외부 HIST 판을 사용한다. 실제 객체 이름 정정 후 옛 이름 검색·판 유지 시험을 통과했다.
       g4:
-        status: pending_user_approval
-        technical_exit_criteria: 관리 생산 범위 기술9/9 충족. pending_rechecks 없음, 사용자 확인1/1은 대기. 후속 소비는 SLICE-048의 planned TC로 분리한다.
+        status: approved
+        approved_at: "2026-11-15"
+        approval_basis: explicit_user_approval
+        user_response: "현재 설계대로 진행하고, 유일키 검수 편집과 실제 SQL·모델 소비는 후속으로 남겨줘. 이번 범위로 SLICE-011 G4 승인해. 승인 상태 반영하고 푸시한 뒤 다음 슬라이스 이어서 진행해줘."
+        technical_exit_criteria: 관리 생산 범위 기술9/9와 사용자 수락1/1 충족. pending_rechecks 없음. 후속 소비는 SLICE-048의 planned TC로 분리한다.
         unresolved_assumptions: 현재 관리 범위 미결 전제 없음.
         decision_card:
           - 같은 활성 자료형 코드만 연결하며 지원 범위를 넓히는 비용은 중간이다.
           - 검수된 기본키·유일키의 전체 컬럼으로 유일성을 확인한다. 완화 시 잘못된 연결을 재검수해야 하므로 비용은 높다.
           - 관계 변경은 소유 카탈로그의 전체 관계·이력으로 남긴다. 소유/저장 단위 변경 비용은 높다.
           - 실제 SQL·모델·지식 연결은 후속에서 수락한다. 현재 관리 정보는 그대로 재사용한다.
-        reverse_question: 유일키는 이미 검수 완료된 정보만 사용하고 신규 유일키 검수 편집은 후속으로 남기는 현재 범위가 맞는지 확인한다.
-        next_action: 사용자 G4 승인 시 승인 상태를 반영한다. 이번 구현은 아직 푸시하지 않았으며 푸시는 요청 시 수행한다.
+        reverse_question: 사용자가 현재 설계 유지와 유일키 검수 편집·실제 SQL/모델 소비의 후속 분리를 명시 답변했다. JOIN 유형을 관계에 고정 저장하지 않고 질문의 포함 범위로 판단하는 기존 설계를 유지한다.
+        next_action: 사용자 요청으로 승인 상태와 구현을 푸시한 뒤 SLICE-004 업무 API 등록·필드/응답/연결 통제를 진행한다.
     followup_verification:
       actual_consumers: SLICE-048
+      unique_key_review_editing: "@defer ? 유일키 검수 편집은 후속 카탈로그 설계·구현에서 다룬다. 현재는 이미 검수된 전체 키만 사용한다."
   - id: SLICE-048
     workstream: admin
     features: [FEAT-011]
@@ -3252,7 +3257,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
-  - { slice: SLICE-011, measured_at: "2026-11-15", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "CR-057 관리 생산 범위 고유19개(백엔드6·프론트13)/skip0와 실제 화면 저장 검증. 독립 리뷰3건과 실제 화면의 후보 지연/삭제 버튼 표시를 보완했고 해당 시험만 재실행했다. 전체 수정 반복 수는 미계측으로 둔다. 039/041 적용·rollback·재적용 통과. 비영향 통과 근거 재사용, 실제 SQL/모델/지식 소비와 같은 세트는 SLICE-048 후속이며 이번 중요 반례0건에 포함하지 않는다. G4 사용자 수락 대기." }
+  - { slice: SLICE-011, measured_at: "2026-11-15", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "CR-057 관리 생산 범위 고유19개(백엔드6·프론트13)/skip0와 실제 화면 저장 검증. 독립 리뷰3건과 실제 화면의 후보 지연/삭제 버튼 표시를 보완했고 해당 시험만 재실행했다. 전체 수정 반복 수는 미계측으로 둔다. 039/041 적용·rollback·재적용 통과. 비영향 통과 근거 재사용, 실제 SQL/모델/지식 소비와 같은 세트는 SLICE-048 후속이며 이번 중요 반례0건에 포함하지 않는다. 2026-11-15 G4 사용자 명시 승인 완료." }
   - { slice: SLICE-003, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 2, redteam_fixes: null, note: "CR-054/055 생산 관리 범위 고유20개 통과/skip0와 실제 화면. 전체 수정/검토 반복 횟수는 미계측이다. 원천 식별·이력 복합 참조·입력 보존·SAVE 통합/그룹 예외 반례를 보완했다. DB 환경 변수 오타와 Vite sandbox EPERM은 실행 설정 보정 뒤 해당 검사만 재실행했다. 비영향 통과 근거 재사용, 배치/SQL·마스킹/품질 소비 TC9건은 후속으로 유지하며 이번0건에 포함하지 않는다. 2026-11-14 해당 범위 G4 사용자 명시 승인 완료." }
   - { slice: SLICE-007, measured_at: "2026-11-14", fix_rounds: 1, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 0, note: "CR-056 현재 공급 범위 고유14개 통과/skip0. 최초 RED2(백엔드)/1(프런트)는 test-first 근거다. 구현 후 선택 시험 모두 통과했고 새 migration의 파서 지원 표기/물리 타입과 lint 단언식을 한 보완 묶음으로 수정했다. 타입 검사 캐시 쓰기 EPERM은 동일 검사 권한 보정 후 통과. 중요 반례3종을 실제 검증했고 독립 검토 잔여 중요 지적0. 비영향003 근거 재사용, 실제 SQL/마스킹은 이 범위0건에 포함하지 않는다. 2026-11-14 해당 범위와 과거 등록정보 공란 처리 G4 명시 승인 완료." }
 
