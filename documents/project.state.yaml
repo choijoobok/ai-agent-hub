@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-010 관리 구현 검증; 사용자 G4 승인 대기
+  workstream: admin         # SLICE-010 승인/푸시 완료; SLICE-024 선행 구현·완료 경계 확인
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-010          # 채팅 도움말·주의사항 관리
+  slice: SLICE-024          # 지식 검색 태그·동의어 관리
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-010 G4 사용자 명시 승인 완료. 관리 생산·불변 이력·소비 포트 범위를 done으로 반영하고 미푸시 구현/검증 커밋과 함께 origin/main에 푸시한다. 다음 admin 슬라이스는 소유 G3·실제 선행 계약 준비 여부를 확인해 착수한다."
+  first: "2026-11-14 SLICE-010 G4 승인 및 origin/main 푸시 완료(9c831286). SLICE-024 기존 정규화·중복 규칙을 먼저 구현하고 관련 단위3건 통과. CR-048의 관리 생산/후속 지식·검색 완료 경계 A/B/C 사용자 판정 대기. 답변 전 해당 계약/DB/API/화면 변경은 진행하지 않는다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 46    # CR-047 도움말 관리/안전 표시·후속 소비 경계
+  CR: 47    # CR-048 태그 관리/후속 소비 완료 경계 제안(판정 대기)
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2834,13 +2834,26 @@ slices:
       - TC-0244
       - TC-0243
     scope: 태그·동의어 정규화와 직접 연결
-    stage: P3
-    status: todo
+    stage: P4
+    status: in_progress
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-040
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_entry:
+      reviewed_at: "2026-11-14"
+      approval_basis: SLICE-010 승인·푸시·다음 작업 진행 지시. admin G3 승인과040 완료 확인.
+      scope_pending: CR-048 A/B/C 사용자 판정 대기. 기존 정규화 규칙만 선행 구현하며 후속 소비와 완료 경계는 아직 변경하지 않는다.
+      next_candidate: 015는 agent 소스 기반 용도 후보와 실제 모델 어댑터 계약 미구현으로 즉시 실제 검증 불가. 독립 관리 구현 가능한024를 다음으로 선택했다.
+    implementation_progress:
+      scope: SearchTagText의 NFKC·Unicode 앞뒤 공백·ASCII 소문자화, 입력200/정규화400 코드포인트 제한, 같은 부모 대표/동의어 중복 차단. 서로 다른 태그 동의어 일치는 허용한다.
+      tests: 미구현 클래스/메서드 컴파일 실패 확인 후 구현. SearchTagTextTest 고유3건 통과/skip0. 전체 백엔드/프런트/DB 시험은 실행하지 않았다.
+      static: "품질 중복2.55%·삼킴0·미태깅0, 하네스18·meta 위반0. trace 오류1/기존 경고72: 아직 구현하지 않은 정상 저장 TC-0244가 현재 슬라이스의 필수 결손이다. 단위시험으로 전체 저장 완료를 주장하지 않으며 G4 청구 전 실제 저장 시험으로 닫는다."
+      status: partial_not_g4_ready
+      next: 완료 경계 판정 후 소유 저장·권한·이력·삭제 참조·화면과 필수 DB/API/브라우저 시험으로 이어간다.
+      evidence: sources/build/slice024-text-red.log·slice024-duplicate-red.log·slice024-text-final.log·slice024-unicode-final.log·slice024-quality.log
   - id: SLICE-023
     workstream: admin
     features:
