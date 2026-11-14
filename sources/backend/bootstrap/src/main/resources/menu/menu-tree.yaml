@@ -210,3 +210,8 @@ menus:
   - code: HUB_CHAT_HELP
     parent: HUB_KNOWLEDGE
     url: /admin/hub/chat-help
+  # @feat FEAT-024
+  - code: HUB_KNOWLEDGE_TAG
+    parent: HUB_KNOWLEDGE
+    url: /admin/hub/knowledge-tag
+    export: true

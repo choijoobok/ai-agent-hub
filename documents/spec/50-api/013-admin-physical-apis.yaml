@@ -252,7 +252,8 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-006.physical_contract.screens.SCR-006; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
   - id: API-110
     feature: FEAT-024
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/searchtag/SearchTagController.java#getList
     method: POST
     path: /api/admin/service/searchTag/getList
     action: READ
@@ -262,7 +263,8 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
   - id: API-111
     feature: FEAT-024
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/searchtag/SearchTagController.java#getOne
     method: POST
     path: /api/admin/service/searchTag/getOne
     action: READ
@@ -272,7 +274,8 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
   - id: API-112
     feature: FEAT-024
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/searchtag/SearchTagController.java#save
     method: POST
     path: /api/admin/service/searchTag/save
     action: SAVE
@@ -282,7 +285,8 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010
   - id: API-113
     feature: FEAT-024
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/searchtag/SearchTagController.java#remove
     method: POST
     path: /api/admin/service/searchTag/remove
     action: SAVE
@@ -292,7 +296,8 @@ apis:
     contract: FEAT-040.physical_transport; FEAT-024.physical_contract.screens.SCR-010; 현재 사용/참조와 부모 기대 판 검사 후 직전 전체 DELETE 이력, 설정 동기화 자산의 일반삭제는 이 경로에 없다.
   - id: API-114
     feature: FEAT-024
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/admin/src/main/java/com/aiagent/admin/api/searchtag/SearchTagController.java#getReferences
     method: POST
     path: /api/admin/service/searchTag/getReferences
     action: READ

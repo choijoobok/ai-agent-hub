@@ -3347,4 +3347,42 @@ export const MSG = {
   CHAT_HELP_SAVED: 'chat_help.saved',
   /** 표시 정책 */
   CHAT_HELP_POLICY: 'chat_help.policy',
+  /** 태그 ID */
+  SEARCH_TAG_ID: 'search_tag.tag_id',
+  /** 지식 검색 태그·동의어 */
+  SEARCH_TAG_TITLE: 'search_tag.title',
+  /** 검색 텍스트 */
+  SEARCH_TAG_TEXT: 'search_tag.text',
+  /** 사용 여부 */
+  SEARCH_TAG_USE: 'search_tag.use',
+  /** 동의어 */
+  SEARCH_TAG_SYNONYMS: 'search_tag.synonyms',
+  /** 연결 지식 */
+  SEARCH_TAG_REFERENCES: 'search_tag.references',
+  /** 설명 */
+  SEARCH_TAG_DESCRIPTION: 'search_tag.description',
+  /** 지식 ID */
+  SEARCH_TAG_KNOWLEDGE_ID: 'search_tag.knowledge_id',
+  /** 지식명 */
+  SEARCH_TAG_KNOWLEDGE_NAME: 'search_tag.knowledge_name',
+  /** 지식 리비전 */
+  SEARCH_TAG_REVISION: 'search_tag.revision',
+  /** 매핑 활성 여부 */
+  SEARCH_TAG_MAPPING: 'search_tag.mapping',
+  /** 태그를 선택하면 상세를 조회합니다. */
+  SEARCH_TAG_SELECT: 'search_tag.select',
+  /** 지식 연결 기능이 아직 연결되지 않았습니다. */
+  SEARCH_TAG_NOT_CONNECTED: 'search_tag.not_connected',
+  /** 참조를 확인할 수 없어 삭제할 수 없습니다. */
+  SEARCH_TAG_UNAVAILABLE: 'search_tag.unavailable',
+  /** 연결 지식을 조회할 권한이 없습니다. */
+  SEARCH_TAG_FORBIDDEN: 'search_tag.forbidden',
+  /** 상세를 조회하고 동의어·지식 연결이 없는지 확인해 주세요. */
+  SEARCH_TAG_DELETE_BLOCKED: 'search_tag.delete_blocked',
+  /** 태그가 변경되었습니다. 다시 조회해 주세요. */
+  SEARCH_TAG_STALE: 'search_tag.stale',
+  /** 상세를 조회하고 있습니다. */
+  SEARCH_TAG_LOADING: 'search_tag.loading',
+  /** 상세를 조회하지 못했습니다. 다시 조회해 주세요. */
+  SEARCH_TAG_FAILED: 'search_tag.failed',
 } as const;

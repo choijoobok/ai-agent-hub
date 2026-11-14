@@ -330,7 +330,7 @@ entities:
   - id: ENT-218
     name: 지식 검색 태그 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_SEARCH_TAG_HIST
     features:
@@ -341,7 +341,11 @@ entities:
       - REQ-601
     term: TRM-042
     domain: 업무 지식
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/014-search-tag.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/searchtag/SearchTagService.java
     attributes:
       - name: 안정 태그 번호
         physical_name: TAG_ID
@@ -544,7 +548,7 @@ entities:
         - name: IX_SEARCH_TAG_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_SEARCH_TAG_HIST_LOOKUP ON AI_ADMIN_SEARCH_TAG_HIST (TAG_ID, HISTORY_NO)
+          definition: (TAG_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-132
@@ -561,7 +565,7 @@ entities:
   - id: ENT-219
     name: 태그 동의어 전체 변경 이력
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_TAG_SYNONYM_HIST
     features:
@@ -572,7 +576,11 @@ entities:
       - REQ-601
     term: TRM-042
     domain: 업무 지식
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/014-search-tag.sql
+      - sources/backend/modules/admin/src/main/java/com/aiagent/admin/searchtag/SearchTagService.java
     attributes:
       - name: 안정 동의어 번호
         physical_name: SYNONYM_ID
@@ -643,7 +651,7 @@ entities:
         - name: IX_TAG_SYNONYM_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_TAG_SYNONYM_HIST_LOOKUP ON AI_ADMIN_TAG_SYNONYM_HIST (SYNONYM_ID, HISTORY_NO)
+          definition: (SYNONYM_ID, HISTORY_NO)
     history_storage:
       mode: immutable_snapshot
       source: ENT-133

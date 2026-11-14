@@ -1,0 +1,5 @@
+--liquibase formatted sql
+-- @feat FEAT-024
+--changeset codex:admin-017-search-tag-sequences
+INSERT INTO SYS_SEQUENCE(SEQ_NAME,NEXT_VAL) VALUES ('AI_ADMIN_SEARCH_TAG',1),('AI_ADMIN_TAG_SYNONYM',1);
+--rollback DELETE FROM SYS_SEQUENCE WHERE SEQ_NAME IN ('AI_ADMIN_SEARCH_TAG','AI_ADMIN_TAG_SYNONYM');

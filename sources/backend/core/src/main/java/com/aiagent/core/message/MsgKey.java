@@ -924,4 +924,6 @@ public final class MsgKey {
     /** 외부 사건을 처리할 수 없습니다. 원천과 처리 결과를 확인해 주세요. */
     public static final String ERR_SOURCE_CHANGE = "err.sourceChange";
     private MsgKey() {}
+    /** 태그 표현·동의어 입력 또는 중복을 확인해 주세요. */
+    public static final String ERR_SEARCH_TAG_INVALID = "err.searchTag.invalid";
 }

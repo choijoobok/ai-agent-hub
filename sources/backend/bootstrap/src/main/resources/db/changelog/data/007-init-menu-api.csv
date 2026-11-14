@@ -28,6 +28,12 @@ HUB_CHAT_HELP,/api/admin/service/chatHelp/getOne
 HUB_CHAT_HELP,/api/admin/service/chatHelp/getPreview
 HUB_CHAT_HELP,/api/admin/service/chatHelp/save
 HUB_CHAT_HELP,/api/admin/service/managementCommand/getResult
+HUB_KNOWLEDGE_TAG,/api/admin/service/managementCommand/getResult
+HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/getList
+HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/getOne
+HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/getReferences
+HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/remove
+HUB_KNOWLEDGE_TAG,/api/admin/service/searchTag/save
 HUB_PORTAL_USER,/api/admin/service/managementCommand/getResult
 HUB_PORTAL_USER,/api/admin/service/portalUser/getIdentityTargets
 HUB_PORTAL_USER,/api/admin/service/portalUser/getList

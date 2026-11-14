@@ -130,8 +130,15 @@ testcases:
     given: 정규화 중복이 없는 대표어/동의어 편집본과 현재 권한·기대 판
     when: 태그 소유 전체 구성을 사유·원 키로 저장
     then: 표시 원문과 정규 검색값·활성 상태를 보존하며 현재값/전체 HIST/원 결과가 일치한다. 연결된 지식 본문·판·매핑은 바뀌지 않는다.
-    verification: SLICE-024의 실제 저장/재조회와 정규 검색 연결 시험.
-    status: planned
+    verification: CR-048 A의 정의 관리 범위는 SearchTagLiveTest의 실제 DB/HTTP·현재/전체 이력·재수신·권한·삭제·소비 보호 시험으로 확인한다. 정규화/중복 경계는 SearchTagTextTest·SearchTagDefinitionTest로 확인한다.
+    verification_boundary:
+      implemented: 정의 저장/조회·동의어 포함 관리자 검색·원문 보존·정규화 중복·OFF의 소비 후보 제외·정확 과거 판·지식 매핑 저장과 삭제의 공통 잠금 포트.
+      followup: 실제 지식 본문/판/매핑의 불변과 agent 복수 태그 검색·검색 경로 OFF 반영은 FEAT-014·agent 구현에서 실증한다. 현재 시험을 실제 지식/검색 통합 통과로 세지 않는다.
+    sources:
+      - sources/backend/bootstrap/src/test/java/com/aiagent/admin/managed/SearchTagLiveTest.java
+      - sources/backend/modules/admin/src/test/java/com/aiagent/admin/searchtag/SearchTagTextTest.java
+      - sources/backend/modules/admin/src/test/java/com/aiagent/admin/searchtag/SearchTagDefinitionTest.java
+    status: implemented
   - id: TC-0421
     feature: FEAT-042
     usecase: UC-039
@@ -210,8 +217,15 @@ testcases:
     given: 대표 WMS와 공백·전각·대소문자 표현, 동일 부모 동의어
     when: 중복 저장과 검색 후 태그 OFF/표현 변경
     then: 정규화동일 대표/동의어 중복 거부, 원문보존. 다른태그동의어일치는복수검색. 연결지식본문/판/매핑불변이며OFF검색경로만제외.
-    verification: 소유 구현 슬라이스의 DB/API 계약 시험 계획. 해당 차단/잠금/소유 검사를 제거한 변형에서 실패해야 한다. 설계 정합 검사 통과와 제품 시험 실행을 구분한다.
-    status: planned
+    verification: CR-048 A의 정의 관리 범위는 SearchTagLiveTest의 실제 DB/HTTP·현재/전체 이력·재수신·권한·삭제·소비 보호 시험으로 확인한다. 정규화/중복 경계는 SearchTagTextTest·SearchTagDefinitionTest로 확인한다.
+    verification_boundary:
+      implemented: 정의 저장/조회·동의어 포함 관리자 검색·원문 보존·정규화 중복·OFF의 소비 후보 제외·정확 과거 판·지식 매핑 저장과 삭제의 공통 잠금 포트.
+      followup: 실제 지식 본문/판/매핑의 불변과 agent 복수 태그 검색·검색 경로 OFF 반영은 FEAT-014·agent 구현에서 실증한다. 현재 시험을 실제 지식/검색 통합 통과로 세지 않는다.
+    sources:
+      - sources/backend/bootstrap/src/test/java/com/aiagent/admin/managed/SearchTagLiveTest.java
+      - sources/backend/modules/admin/src/test/java/com/aiagent/admin/searchtag/SearchTagTextTest.java
+      - sources/backend/modules/admin/src/test/java/com/aiagent/admin/searchtag/SearchTagDefinitionTest.java
+    status: implemented
   - id: TC-04011
     feature: FEAT-040
     usecase: UC-006

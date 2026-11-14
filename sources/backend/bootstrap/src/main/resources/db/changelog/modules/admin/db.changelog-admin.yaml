@@ -38,3 +38,15 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/013-chat-help-menu.sql
       relativeToChangelogFile: false
+  - include:
+      file: 014-search-tag.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 015-search-tag-menu.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 016-search-tag-authority.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 017-search-tag-sequences.sql
+      relativeToChangelogFile: true

@@ -365,6 +365,7 @@ err.sample.tag-required,BACK,"태그 행의 필수 — 태그명과 정렬순서
 err.sample.tag-sort-duplicated,BACK,"태그의 정렬순서가 겹친다 — playbook/INDEX.md. 순서가 값이라서 막는다. 같은 SORT_NO 가 둘이면 읽는 순서가 정해지지 않고, 사용자에게는 고치지도 않았는데 조회할 때마다 태그가 뒤바뀐다 로 보인다 — 그 증상을 없애려고 둔 컬럼이 그 증상을 만들게 된다. DB 의 유일 제약이 아니라 서비스가 막는다. 제약을 걸면 ①의 전량 교체가 같은 트랜잭션 안에서 옛 행과 새 행이 겹치는 순간에 걸리고(지웠다 넣는다), 그 실패는 사용자가 읽을 수 없는 문구로만 답한다. /"
 err.sample.tag-too-many,BACK,"한 주문의 태그가 상한을 넘었다 &mdash; 48 &sect;8 의 결정(2026-09-02). 문구가 숫자를 그대로 적는다. 태그가 너무 많습니다 만으로는 몇 개를 빼야 하는지 알 수 없고, 사용자는 하나 지우고 저장하기를 반복한다 &mdash; 56 &sect;3.3 이 건수를 먼저 알려준다 로 정한 것과 같은 이유다. #ERR_SAMPLE_RANGE_TOO_WIDE 가 31일 을 적은 것과 같은 자리이며, 응답 문구는 SYS_MESSAGE 에서 오므로 인자를 끼울 통로가 없다 (BusinessException 은 서버 언어의 로그 문구만 나른다). 저장 둘이 이 문구를 쓴다. &#9312;은 배열의 개수로 &#9316;은 행의 개수로 걸리는데, 사용자에게 사실은 하나다 &mdash; 이 주문에 태그가 몇 개까지 다. 갈라 쓰면 같은 사실이 두 문구로 설명된다. /"
 err.searchCond.limit,BACK,한 화면에 저장할 수 있는 조회조건 수를 넘겼다.
+err.searchTag.invalid,BACK,태그 표현·동의어 입력 또는 중복을 확인해 주세요.
 err.session.evicted,BACK,다른 곳의 로그인에 밀려 이 세션이 끝났다 — 유휴 만료와 뜻이 다르다(backend/security.md).
 err.sourceChange,BACK,외부 사건을 처리할 수 없습니다. 원천과 처리 결과를 확인해 주세요.
 err.unauthenticated,BACK,세션이 없거나 만료됐다. 프론트가 로그인 화면으로 돌린다.
@@ -1188,6 +1189,25 @@ searchCond.title,FRONT,목록을 여는 버튼의 글자 — 이 버튼 하나�
 searchForm.active,FRONT,접힌 채로 조건이 걸려 있을 때 — `{count}`.
 searchForm.hide,FRONT,검색 폼을 접는다.
 searchForm.show,FRONT,접힌 폼을 펼친다.
+search_tag.delete_blocked,FRONT,상세를 조회하고 동의어·지식 연결이 없는지 확인해 주세요.
+search_tag.description,FRONT,설명
+search_tag.failed,FRONT,상세를 조회하지 못했습니다. 다시 조회해 주세요.
+search_tag.forbidden,FRONT,연결 지식을 조회할 권한이 없습니다.
+search_tag.knowledge_id,FRONT,지식 ID
+search_tag.knowledge_name,FRONT,지식명
+search_tag.loading,FRONT,상세를 조회하고 있습니다.
+search_tag.mapping,FRONT,매핑 활성 여부
+search_tag.not_connected,FRONT,지식 연결 기능이 아직 연결되지 않았습니다.
+search_tag.references,FRONT,연결 지식
+search_tag.revision,FRONT,지식 리비전
+search_tag.select,FRONT,태그를 선택하면 상세를 조회합니다.
+search_tag.stale,FRONT,태그가 변경되었습니다. 다시 조회해 주세요.
+search_tag.synonyms,FRONT,동의어
+search_tag.tag_id,FRONT,태그 ID
+search_tag.text,FRONT,검색 텍스트
+search_tag.title,FRONT,지식 검색 태그·동의어
+search_tag.unavailable,FRONT,참조를 확인할 수 없어 삭제할 수 없습니다.
+search_tag.use,FRONT,사용 여부
 segment.dirty.content,NONE,미저장인 채로 다른 모드로 옮기려 할 때의 본문. 탭 닫기 문구를 쓰지 않는다. 저기는 *닫으면 잃는다* 인데 여기서는 화면이 남아 있다 — 같은 말을 쓰면 사용자는 탭이 닫히는 줄 알고 멈춘다. 잃는 것은 같으므로 제목은 함께 쓴다. /
 session.authzChanged,FRONT,권한 변경으로 탭이 닫혔을 때의 토스트 — `{tabs}` 는 닫힌 탭 제목 목록.
 session.expiry.body,FRONT,그 본문 — `{minutes}`.

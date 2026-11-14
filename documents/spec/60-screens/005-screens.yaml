@@ -272,13 +272,15 @@ screens:
     menu_parent: "HUB_KNOWLEDGE"
     target_doc: "documents/screen/admin/hub/knowledge-tag/requirements.md"
     screen_role: "management"
-    design_status: "screen_draft"
-    menu_contract: "현재 요구 기준의 목업 검토용 메뉴/경로안. 화면 합의 후 구현 시 선언·시드에 반영한다."
+    design_status: "implemented"
+    menu_contract: "menu-tree.yaml·생성 시드·015~017 신규 마이그레이션으로 READ/SAVE/EXPORT를 설치한다."
     history_policy:
       kind: "independent"
       rule: "REQ-601.change_history. 최종 적용 관리 구성의 원 화면 상속 이력 메뉴를 둔다."
     history_view: "SCR-047"
     direct_management: "REQ-601.direct_management. 변경은 소수의 업무 전문가·관리자에게 부여한 해당 메뉴/대상/액션의 현재 유효 권한으로 직접 저장한다. 별도 관리자 요청·기술 검토 완료·최종 승인·반려·전결 또는 승인 사용 설정을 두지 않는다. 필수 입력·참조·현재 권한·기대 버전 검증과 변경 전후 전체 이력·행위자·시각·사유를 같은 성공 단위로 보존한다."
+    implementation_boundary: "CR-048 A. 태그·소유 동의어 정의와 현재값/전체 이력·참조 확인/소비 포트를 구현한다. 연결 지식 탭은 미연결/실패/권한 부족/정상 0건을 구별하며 실제 지식 매핑·검색은 FEAT-014·agent, 독립 이력 조회는 FEAT-033에서 검증한다."
+    source: "sources/frontend/src/modules/admin/features/searchtag/pages/SearchTagPage.tsx"
   - id: SCR-011
     workstream: admin
     module: "admin"
