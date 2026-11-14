@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: integration   # integration G3 승인, 다음 SLICE-301
+  workstream: integration   # integration G3 승인, 다음 SLICE-302
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-301          # Portal 실제 로그인·세션 연결
+  slice: SLICE-302          # 배포 연결/비밀·설정 공개 포트
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -1813,7 +1813,7 @@ slices:
         - SLICE-006의 사용자 소속 조회/참조/양방향 편집과 비활성 소속도 포함한 삭제 보호를 실제 원장으로 검증했다. 자산 참조는 각 소유 기능 후속이다.
         - SLICE-042의 실제 사용자 수·효력/미래 예약·명시 이전 및 새 등급 clientKey 대상 적용을 연결했다. 배정 경합은045 후속이다.
       followup:
-        - "@defer SLICE-301 — 실제 LOCAL 로그인·세션과 보안 사건 생산 저장을 연결한다."
+        - "SLICE-301에서 실제 LOCAL 로그인·JDBC/Redis 세션과 보안 사건 생산 저장의 연결 검증을 완료했다."
         - "@defer SLICE-305/306 — 실제 인사 사건 수신·고객 SSO 검증을 연결한다. TC-0054 생산 수신 검증은305가 소유한다."
         - "@defer SLICE-001/002/205 — 대상 후보와 실행 신원/토큰을 소유 기능에서 연결한다."
         - "@defer SLICE-017/045/018 — 예정 배정·확정 배정·추가 쿼터의 실제 연계를 검증한다."
@@ -1851,8 +1851,10 @@ slices:
       - TC-30114
       - TC-30115
     scope: Portal 실제 LOCAL·물리 세션/속성/증거/보안 사건·만료 정리·외부 수락 대역·복구/전환 검증
-    stage: P3
-    status: todo
+    stage: P4
+    status: done
+    started_at: "2026-11-14"
+    approved_at: "2026-11-14"
     depends_on:
       - SLICE-308
       - SLICE-520
@@ -1861,6 +1863,61 @@ slices:
     entry_conditions:
       - integration G3와 Portal 세션 물리/감사 저장·정리·배포/전환 계약 완성. 외부 어댑터 대역은 테스트 조립에서만 사용한다.
     verification: 명시 TC와 SLICE-307이 주 소유한 TC-30118/30119/30120의 실제 Portal 소비 회귀를 검증한다. 공통 대역 검증을 실제 LOCAL 원장/자격·부분 확정 복구 완료로 대신하지 않는다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: 0ec967b2
+      implemented: Portal 제품 모듈·정확6개 인증 API와 독립 LOCAL 세션을005의 실제 원장에 연결했다. 공통 조립 루트의 ADMIN/PORTAL 단일 필터·JDBC/Redis 선택과 영역별 만료를 적용했다. 자격·사건 확정 후 세션 회전 실패는 새 비밀번호 재로그인으로 복구한다. 외부 challenge/증거 단회 수락 공개 포트·전용 보안 사건·만료 정리와5개 테이블/2개 migration을 추가했다.
+      source_refs:
+        - sources/backend/modules/portal/src/main/java/com/aiagent/portal/
+        - sources/backend/core/src/main/java/com/aiagent/core/security/portal/PortalAccounts.java
+        - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/AuthSessionConfiguration.java
+        - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/PortalAccountConfiguration.java
+        - sources/backend/api/src/main/java/com/aiagent/api/auth/v2/SessionRuntime.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/
+      verification:
+        test_first: 실제 Portal getCsrf 경로가403인 RED를 확인한 뒤 연결했다. SQL 판독기의 명명된 테이블 내부 제약 미지원도 반례 RED 후 기존 ALTER 경로와 공통화했다.
+        backend: 공통 runtime13·assembly2·Portal 계약2·모듈 의존7 및 실제 PostgreSQL/HTTP7·Redis 선택1의 고유32개/skip0 통과. 실제 원장 LOCAL/제한/암호 회전·영역 독립·교차 CSRF·감사 장애503와 rollback·새 자격 확정 후 세션/응답 실패·두 Boot 노드 동시 로그인과 재시작·만료/청소·Portal migration 복구/재적용을 검증했다. 외부 시험 검증기에서 issuer/nonce/browser/기한/동시 단회 수락과 청소 후 재생을 검증했다.
+        reused: 비영향 SLICE-308의 Redis 장애/세대/flush·공통 쿠키/Origin/proof 계약과 SLICE-520의 관리자 인증 전문 수집 제외, SLICE-005의 관리자 자격 초기화 일회 전달·현재 상태 잠금 결과를 재사용했다. 전체 check·프론트·Redis 전수 회귀는 반복하지 않았다.
+        browser: localhost3006 검토 서버를 최신 코드로 재기동하고 시험 ADMIN 계정으로 로그인·기존 Portal 이용자 조회1건을 확인했다. 제품 Portal 인증 UI는 FEAT-128 소유이므로 이번 서버 기능에 임시 로그인 화면/우회 경로를 만들지 않았다.
+        production_boundary: JDBC와 기존6379 Redis를 별도 시험 스키마/키로 검증했으며 원 Redis 데이터는 지우지 않았다. 고객 외부 검증기·실SSO·정확 콜백과 고객 APM/프록시·운영 배포 인수는 후속이며 시험 대역 통과로 완료 처리하지 않는다.
+        static: 품질 중복2.64%·삼킴0·미태깅0. domain ENT238/테이블65/컬럼610/changelog29 일치와 판독기 반례 통과. doc-gen413개·ID1621·장문17879 누락0/깨진링크0. HTML492/21/9장 구조/자산 문제0. 하네스18개 일치·meta 위반0·추적성 오류0/후속경고 유지·diff 통과. API시드99/111 유지·메시지1393 재생성.
+        evidence:
+          - sources/build/slice301-red.log
+          - sources/build/slice301-contracts.log
+          - sources/build/slice301-final-live.log
+          - sources/build/slice301-redis.log
+          - sources/build/slice301-parser-green.log
+          - sources/build/slice301-domain.log
+          - sources/build/slice301-doccheck.log
+      redteam:
+        - risk: 관리자와 Portal ID가 같으면 세션/CSRF/주체가 섞이거나 현재 비활성 계정이 기존 세션으로 수락될 수 있다.
+          resolution: 정확 API 카탈로그·영역별 쿠키/생산자·005 현재 원장 보호와 세대 재검사를 적용했다. 같은 admin 문자열의 독립 로그인/로그아웃·ADMIN 유지와 비활성화 후401을 실제 HTTP로 확인했다.
+        - risk: 비밀번호 확정 후 세션 저장 또는 응답 전달 실패가 발생하면 사용자는 이전 암호를 쓰거나 같은 변경을 다시 보낼 수 있다.
+          resolution: Portal 전용 커밋 후 회전 경계를 추가하고 실패는 PASSWORD_CHANGED_REAUTH_REQUIRED로 안내한다. 새 암호/사건1건 보존·구 세대401·새 암호 재로그인과 자동 보상/재전송 없음을 확인했다.
+        - risk: 외부 증거 재생이나 시험 검증기 제품 설치로 미등록 신원이 수락되거나 LOCAL로 하향될 수 있다.
+          resolution: issuer/audience/source/기간 및 브라우저·nonce 결합, challenge 잠금·증거 UNIQUE·단회 수락을 적용했다. 시험 검증기는 전용 프로파일만 허용하고 EXTERNAL 검증기 누락 기동을 거부한다. 고객 프로토콜306은 별도 인수한다.
+        - risk: 필수 보안 사건 장애가 실패횟수·자격만 남기거나 청소가 다른 영역 기록을 지울 수 있다.
+          resolution: 같은 DB 트랜잭션의 안전한 사건 append와 서버 실행 키 중복 방지를 적용했다. 감사 장애 rollback/503·Portal 전용 만료 청소·ADMIN/사건 보존을 검증했다.
+      resolved_followup:
+        - SLICE-005의 실제 LOCAL 자격/현재 접근 공개 포트와 생산 보안 사건 저장을 연결했다. SLICE-307 소유TC-30118/30119/30120의 실제 Portal 소비를 추가 검증했다.
+      followup:
+        - "@defer SLICE-306 — 고객 프로토콜/서명키/정확 콜백·실SSO와 같은 수락 반례를 검증한다."
+        - "@defer FEAT-128 — Portal 제품 로그인·본인 비밀번호·세션 안내 화면을 구현하고 사용자 수락을 받는다."
+        - "@defer SLICE-303/017/045 — 현재 자산 그룹/쿼터 조건과 실제 업무 API를 소유 기능에서 연결한다."
+        - "@defer P6 — 고객 APM/프록시의 비밀 수집 제외·백업/복구·실배포/외부 인증 활성화 인수를 검증한다."
+      g4:
+        status: approved
+        approved_at: "2026-11-14"
+        approval_basis: delegated_progress
+        technical_exit_criteria: 승인된 서버 인증 완료 경계9/9 충족. 사용자 부재 중 권장안으로 계속 구현·커밋·푸시하라는 명시 위임에 따라 기술 완료를 기록한다.
+        user_screen_acceptance: not_applicable_server_slice
+        unresolved_assumptions: 서버 LOCAL/외부 수락 기반 완료를 막는 전제 없음. 고객 SSO와 제품 UI는 원 소유 후속 범위다.
+        decision_card:
+          - 관리자와 Portal 로그인은 서로 독립이며 같은 ID라도 자격과 접속을 공유하지 않는다. 변경 비용은 높다.
+          - 본인 비밀번호가 저장된 뒤 접속 재발급이 실패하면 새 비밀번호로 다시 로그인한다. 이전 암호로 되돌리지 않는다. 변경 비용은 높다.
+          - 외부 인증은 등록 신원만 수락하고 실패를 자체 로그인으로 우회하지 않는다. 고객 연결은 별도 검수한다. 변경 비용은 높다.
+          - 보안 사건을 남길 수 없으면 해당 인증 변경도 성공시키지 않는다. 일반 로그에는 인증 원문을 남기지 않는다. 변경 비용은 중간이다.
+        reverse_question: 복귀 후 비밀번호 변경 후 재로그인 안내와 고객 SSO 도입 순서를 함께 검토한다. 위임 작업은 해당 응답을 기다리지 않고 계속한다.
   - id: SLICE-302
     workstream: integration
     features:
