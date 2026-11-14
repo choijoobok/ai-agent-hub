@@ -2733,15 +2733,36 @@ slices:
         next_action: 사용자 요청에 따라 승인 상태와 구현을 푸시한 뒤 SLICE-007의 기존 그룹/예외 저장과 후속 정책 조회·마스킹 계약 경계를 확인한다.
     followup_verification:
       boundary: "FEAT-003.delivery_boundary 및 CR-054. JOB-003의 빈/입력/잠금/한도/물리 모델은 65-batches/003-schema-comparison.yaml의 P3 후속이며 이번 카탈로그 생산 수락으로 승인하지 않는다. SQL/마스킹 적용과 품질 근거 소비도 각 소유 구현에서 검증한다."
-      batch_design_pending: [TC-00214, TC-00215, TC-00217, TC-00222, TC-00223, TC-00312]
-      consumer_pending: [TC-0038, TC-00314, TC-00315]
+      batch_design_pending: SLICE-046
+      consumer_pending: SLICE-047
+  - id: SLICE-046
+    workstream: admin
+    features: [FEAT-002, FEAT-003]
+    testcases: [TC-00214, TC-00215, TC-00217, TC-00222, TC-00223, TC-00312]
+    scope: 기존 JOB-003 카탈로그 구조 비교 배치의 후속 설계·구현·수락
+    stage: P3
+    status: todo
+    depends_on: [SLICE-003]
+    entry_conditions:
+      - 65-batches/003-schema-comparison.yaml의 입력·빈·잠금·한도·물리 모델과 소유 변경 설계를 확정한 뒤 구현한다.
+    verification: SLICE-003 G4에서 사용자가 명시적으로 후속으로 남긴 비교 시험이다. 기존 기능의 검증 책임만 분리하며 자동 비교 구현 완료로 세지 않는다.
+  - id: SLICE-047
+    workstream: admin
+    features: [FEAT-003, FEAT-007]
+    testcases: [TC-0038, TC-00314, TC-00315, TC-0071]
+    scope: 카탈로그 원천 코드 조회·품질 근거·마스킹의 실제 소비 수락
+    stage: P3
+    status: todo
+    depends_on: [SLICE-003, SLICE-007]
+    entry_conditions:
+      - 각 agent/integration/admin-operations 소유 소비 설계·구현을 먼저 완료하고 카탈로그 제공 계약과 실제 연결을 검증한다.
+    verification: SLICE-003의 관리 저장 시험과 구별한다. SQL 안전 바인딩·품질 근거 정확 판·복수 그룹과 마스킹 실제 소비를 소유 구현과 함께 확인한다.
   - id: SLICE-007
     workstream: admin
     features:
       - FEAT-007
     testcases:
       - TC-0073
-      - TC-0071
       - TC-0072
     scope: 카탈로그 그룹 매핑
     stage: P3
