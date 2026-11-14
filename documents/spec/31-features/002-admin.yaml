@@ -768,7 +768,7 @@ features:
     roadmap: RM-P1
     title: 권장 조인 경로 관리
     design_status: draft
-    implementation_preparation: SLICE-011의 저장 입력·번호/소유·정확 참조·권한 재사용은 50-api FEAT-011.implementation_transport에서 구체화한다. OQ-040/041의 자료형·검수 기준 확정 전 해당 제품 변경을 시작하지 않는다. 실제 SQL/모델 소비는 기존 relation_read_contract의 소유 후속이다.
+    implementation_preparation: SLICE-011의 저장 입력·번호/소유·정확 참조·권한 재사용은 50-api FEAT-011.implementation_transport에서 구체화한다. 2026-11-14 사용자가 같은 활성 자료형 코드·검수된 기본키/유일키 전체 쌍 대조를 승인해 해당 제품 구현을 시작한다. 실제 SQL/모델 소비는 기존 relation_read_contract의 소유 후속이다.
     entities:
       - ENT-006
       - ENT-008
@@ -779,6 +779,7 @@ features:
       - ENT-057
       - ENT-079
     apis:
+      - API-604
       - API-022
       - API-023
       - API-024

@@ -172,3 +172,14 @@ apis:
     request: "body={}"
     response: "ApiResponse<CatalogOptions>"
     contract: "dataSources/timezones/maskingTypes/maskingState 입력 후보를 제공한다. 객체·키/관계 후보의 확장은 후속 소비 기능에 남긴다."
+
+  - id: API-604
+    feature: FEAT-011
+    implementation: planned
+    method: POST
+    path: /api/admin/service/catalog/getRelationList
+    action: READ
+    summary: 테이블 관계 관리 목록
+    request: body=SearchRequest<CatalogRelationFilter>; params=dataSourceId?/keyword?/catalogId?
+    response: ApiResponse<PageResponse<CatalogRelationRow>>
+    contract: FEAT-011.implementation_transport.reads. HUB_CATALOG READ 범위에서 같은 정본 관계·소유 판·양끝점/역할을 조회하며 Portal 이용 권한을 부여하지 않는다. 관계별 상세 편집은 API-020의 소유 전체 relations를 확보한다.
