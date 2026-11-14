@@ -48,6 +48,18 @@ function column(def, source) {
   return { name: upper(m[1]), type: parts[0].trim().toLowerCase().replace(/\s+/g, ' '), nullable, default: parts[1]?.trim() ?? null };
 }
 
+function constraint(table, name, definition, source) {
+  if (!/^(PRIMARY KEY|UNIQUE|FOREIGN KEY|CHECK)\s*\(/i.test(definition)) fail(source, '지원하지 않는 테이블 제약');
+  if (table.constraints.some((c) => c.name === upper(name))) fail(source, `중복 제약 ${name}`);
+  table.constraints.push({ name: upper(name), definition });
+  const pk = definition.match(/^PRIMARY KEY\s*\(([^)]+)\)/i);
+  if (pk) for (const name of pk[1].split(',').map((v) => upper(v.trim()))) {
+    const a = table.attributes.find((v) => v.name === name);
+    if (!a) fail(source, `PK 컬럼 없음 ${name}`);
+    a.nullable = false;
+  }
+}
+
 export function applySql(tables, sql, source, provenance = [source], change = null) {
   const record = (t) => {
     t.sources = [...new Set([...t.sources, ...provenance])];
@@ -69,20 +81,19 @@ export function applySql(tables, sql, source, provenance = [source], change = nu
     if ((m = statement.match(new RegExp(`^CREATE TABLE (${ident})\\s*\\(([\\s\\S]*)\\)$`, 'i')))) {
       const name = upper(m[1]);
       if (tables.has(name)) fail(source, `중복 테이블 ${name}`);
-      const attrs = splitSql(m[2], ',').map((v) => column(v, source));
+      const definitions = splitSql(m[2], ',');
+      const attrs = definitions.filter((v) => !/^CONSTRAINT\s/i.test(v)).map((v) => column(v, source));
       if (new Set(attrs.map((a) => a.name)).size !== attrs.length) fail(source, `중복 컬럼 ${name}`);
-      tables.set(name, record({ name, attributes: attrs, constraints: [], indexes: [], sources: [], changesets: [] }));
+      const table = { name, attributes: attrs, constraints: [], indexes: [], sources: [], changesets: [] };
+      for (const def of definitions.filter((v) => /^CONSTRAINT\s/i.test(v))) {
+        const named = def.match(new RegExp(`^CONSTRAINT (${ident})\\s+([\\s\\S]+)$`, 'i'));
+        if (!named) fail(source, '지원하지 않는 테이블 제약');
+        constraint(table, named[1], named[2].trim(), source);
+      }
+      tables.set(name, record(table));
     } else if ((m = statement.match(new RegExp(`^ALTER TABLE (?:ONLY )?(${ident})\\s+ADD CONSTRAINT (${ident})\\s+([\\s\\S]+)$`, 'i')))) {
       const t = touch(m[1]), definition = m[3].trim();
-      if (!/^(PRIMARY KEY|UNIQUE|FOREIGN KEY|CHECK)\s*\(/i.test(definition)) fail(source, '지원하지 않는 테이블 제약');
-      if (t.constraints.some((c) => c.name === upper(m[2]))) fail(source, `중복 제약 ${m[2]}`);
-      t.constraints.push({ name: upper(m[2]), definition });
-      const pk = definition.match(/^PRIMARY KEY\s*\(([^)]+)\)/i);
-      if (pk) for (const name of pk[1].split(',').map((v) => upper(v.trim()))) {
-        const a = t.attributes.find((v) => v.name === name);
-        if (!a) fail(source, `PK 컬럼 없음 ${name}`);
-        a.nullable = false;
-      }
+      constraint(t, m[2], definition, source);
     } else if ((m = statement.match(new RegExp(`^CREATE (UNIQUE )?INDEX (${ident}) ON (${ident}) (?:USING ([a-z]+) )?(\\([\\s\\S]+)$`, 'i')))) {
       const t = touch(m[3]);
       if (t.indexes.some((x) => x.name === upper(m[2]))) fail(source, `중복 인덱스 ${m[2]}`);

@@ -13,6 +13,14 @@ const root = resolve(repo, 'build/schema-fixtures');
 mkdirSync(root, { recursive: true });
 const fixture = mkdtempSync(join(root, 'case-'));
 try {
+  const inline = new Map();
+  applySql(inline, "CREATE TABLE named (id bigint, kind text, CONSTRAINT pk_named PRIMARY KEY (id), CONSTRAINT uq_named UNIQUE (kind), CONSTRAINT ck_named CHECK (kind IN ('A','B')), CONSTRAINT fk_named FOREIGN KEY (id) REFERENCES named (id) ON DELETE CASCADE);", 'inline.sql');
+  assert.equal(inline.get('NAMED').attributes.length, 2);
+  assert.equal(inline.get('NAMED').attributes[0].nullable, false);
+  assert.deepEqual(inline.get('NAMED').constraints.map(c => c.name), ['PK_NAMED', 'UQ_NAMED', 'CK_NAMED', 'FK_NAMED']);
+  assert.throws(() => applySql(new Map(), 'CREATE TABLE bad (id bigint, CONSTRAINT p PRIMARY KEY (missing));', 'bad.sql'), /PK 컬럼 없음/);
+  assert.throws(() => applySql(new Map(), 'CREATE TABLE bad (id bigint, CONSTRAINT u UNIQUE (id), CONSTRAINT u UNIQUE (id));', 'bad.sql'), /중복 제약/);
+  assert.throws(() => applySql(new Map(), 'CREATE TABLE bad (id bigint, CONSTRAINT e EXCLUDE USING gist (id WITH =));', 'bad.sql'), /지원하지 않는 테이블 제약/);
   const sql = `--liquibase formatted sql
 --changeset test:one
 CREATE TABLE parent (a bigint NOT NULL, b bigint NOT NULL);
