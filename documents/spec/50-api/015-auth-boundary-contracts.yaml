@@ -13,7 +13,7 @@ feature_contracts:
       ownership: integration은 공통 경로 해석/카탈로그·생성 규칙·정확 핸들러/원천 수신·local sample 예외, system은 실제 관리자101경로/프런트 소비·DB API/메뉴 연결을 소유한다. 두 영향 G3 뒤 SLICE-308 G4는 새 카탈로그 capability의 독립 fixture 검증까지이며 현재 제품 parser/seed를 새 경로 전용으로 활성화하지 않는다. SLICE-520에서 공통 분류기/생성기와 실제 system/sample endpoint·호출자·DB 연결을 같은 cutover로 활성화한다. 308 완료조건에520 실제전환을 넣어 순환시키지 않으며 새/구 혼합 제품을 배포하지 않는다. 계획 admin/portal/agent API는 각 소유 구현 때 목표 경로로 시작한다.
       verification: TC-30129·TC-50117. 실제 HTTP의 모든 현재 핸들러 method/path·영역/계층/CSRF/제한 세션·동적 progress 소유 검사, 구 경로 거부, 실제 DB 권한 연결/rollback·시드 일치·sample local/제품 제외를 검증한다. 307 v1/308 저장소 시험 통과와 이 경로 전환 완료는 별개다.
     design_status: 기존 v1/JDBC 동결·SLICE-307 G4 승인 사실은 유지한다. CR-036의 provider 독립 v2와 CR-038 경로 계약은 integration 영향 G3에서 동결됐으며 system 소비 변경 상세도 소유 영향 G3에서 승인됐다. 구현/검증은 SLICE-308부터 계획 순서로 진행한다. 현재 목표 저장/발급/관리 참조는 session_store_v2가 정본이고 승인 상태/일자는 project.state.yaml을 따른다.
-    implementation: 기존 v1 core/security·api/auth/boundary 조립은 SLICE-307 완료다. CR-036 v2 공통 조립·DB 수락 원장·선택 provider는 SLICE-308, 실제 관리자 소비는 SLICE-520, Portal 물리 원장/자격·외부 인증은 SLICE-301/306이다.
+    implementation: 공통307/308·관리자520과 Portal301의 서버 수락을 구현했다. bootstrap AuthSessionConfiguration이 두 영역을 단일 v2 필터에 연결하고 PortalAccounts 중립 계약으로 admin 원장을 호출한다. LOCAL 실제 자격·회전 복구와 외부 증거 수락의 시험 조립을 검증하며 고객 실제 인증은306이다.
     decision: ADR-046
     change: CR-033
     reqs:
@@ -111,20 +111,20 @@ feature_contracts:
       - ENT-256
     portal_session_storage:
       implementation: Portal 제품 어댑터와 integration 공통 v2 조립이 소유한다. JDBC 표준 분리 테이블과 Redis 선택 provider는 session_store_v2를 따른다. 기존 v1은 JDBC로 검증했으며 Redis 실증은 후속이다.
-      attributes: PORTAL_SECURITY_CONTEXT(최소 안정 ID·인증 수준·모드), PORTAL_CREDENTIAL_VERSION, PORTAL_CSRF, PORTAL_BROWSER_BIND, schemaVersion만 허용한다. principal index는 PORTAL:<ID>, 익명은 null이다. 비밀번호/원 외부 증거/역할·그룹 입력을 저장하지 않는다.
+      attributes: v2의 고정 AUTH_V2_PAYLOAD와 AUTH_GRANT_ID/AUTH_GENERATION/AUTH_EPOCH 및 schemaVersion, PORTAL_SECURITY_CONTEXT(안정 ID·인증 수준·모드), PORTAL_CREDENTIAL_VERSION, PORTAL_CSRF만 저장한다. 브라우저 바인딩은 익명 grant의 현재 세대/epoch와 난수의 지문으로 challenge에 저장한다. principal index는 PORTAL:<ID>, 익명은 null이다. 비밀번호/원 외부 증거/역할·그룹 입력을 저장하지 않는다.
       defaults: 설계 초기값은 현 ADMIN의 30분 유휴 만료·동시 세션1·신규 로그인 허용 후 기존 세션 종료 정책을 영역별 설정으로 분리 재사용한다. Portal 익명 문맥은10분, 외부 challenge는최대5분이며 증거 만료가 더 빠르면 그 값을 쓴다. 각 값/설정은 integration G3 승인 대상이며 운영 설정은 제품 화면에서 편집하지 않는다.
-      config: app.auth.portal.session.timeout/max-sessions/prevent-login, anonymous-timeout, external.challenge-timeout을 계획한다. timeout은 양수, max-sessions>=1, challenge<=anonymous-timeout을 검증한다. 기존 spring.session/app.security는 ADMIN으로 해석하며 Portal에 묵시 합성하지 않는다. 유효 스토어/네임스페이스/TTL·설정 버전만 비밀 없이 기동 로그로 확인한다.
+      config: app.auth.portal.session.timeout/max-sessions/prevent-login, app.auth.portal.anonymous-timeout, app.auth.portal.external.challenge-timeout을 구현했다. app.auth.session.domains.portal.enabled는 PORTAL_AUTH_ENABLED 환경변수로 선택하며 기본 true다. app.portal.auth-mode=LOCAL|EXTERNAL이고 미설치 검증기 또는 기존 원장과 다른 모드 전환은 기동 거부한다. timeout은 양수, max-sessions>=1, challenge<=anonymous-timeout을 검증한다. 기존 spring.session/app.security는 ADMIN으로 해석하며 Portal에 묵시 합성하지 않는다. 유효 스토어/네임스페이스/TTL·설정 버전만 비밀 없이 기동 로그로 확인한다.
       transactions: Spring Session JDBC 기본 REQUIRES_NEW를 인증 원장과 원자적이라고 가정하지 않는다. Portal 인증 조립은 같은 PostgreSQL DataSource/TransactionManager의 REQUIRED TransactionOperations를 명시 주입하고 성공 세션을 응답 전 명시 flush한다. filter의 뒤늦은 저장에 성공 커밋을 맡기지 않는다. 일반 조회의 최종 접근시각 갱신은 별도 짧은 트랜잭션일 수 있으나 인증 성공/회전/증거 소비 경계를 바꾸지 않는다.
       admission: admin 공개 인증 포트가 LOCAL 로그인은 처음부터 Portal 정책 배타 보호(실패 잠금 변경 포함), EXTERNAL 수락은 정책 공유 보호 → 안정 사용자 행 → 자격 행(LOCAL) 순으로 잠근다. 한 요청 안에서 정책 공유→배타 승격을 하지 않는다. 그 안에서 Portal principal index를 조회해 한도를 적용하고 새 세션 저장/기존 종료/성공 사건을 함께 확정한다. 서로 다른 영역의 principal/세션은 조회하지 않는다.
       rotation: 로그인 성공은 익명 세션을 폐기하고 새 인증 ID/CSRF를 발급한다. 암호 변경은 credential DB+이력+사건을 먼저 확정하고 새 자격세대 세션으로 회전한다. 회전 실패 시 이전 세대는 다음 보호 요청에서401이며 API-304는 PASSWORD_CHANGED_REAUTH_REQUIRED와 재로그인 경로를 반환한다. 원 암호 변경 요청을 자동 재전송하지 않는다.
       concurrency: provider 공통 비교자는 DB grant의 현재 generation/epoch다. JDBC 안에서는 기존 PRIMARY_ID+expected SESSION_ID 부모행 CAS를 함께 유지하고 표준 세션 테이블에 generation 열을 추가하지 않는다. Redis 세대/revision CAS와 복구 수락은 session_store_v2.redis를 따른다.
       expiry: DB의 UTC 현재시각과 EXPIRY_TIME으로 매 수락을 검사하고 청소 지연을 유효 기간 연장으로 해석하지 않는다. heartbeat는 유효 세션만 연장하며 만료/종료한 세션을 부활시키지 않는다. 만료 시 Portal 쿠키/문맥만 정리한다.
-      restart: 동일 호환 버전의 다른 노드/재시작에서 복구한다. 역직렬화/버전 불일치는401 재로그인, DB 불가는503이다. 로컬 메모리 세션으로 자동 폴백하지 않는다. 인증 세션 만료는 대화·턴/기록 삭제나 자동 업무 재실행이 아니다.
+      restart: 동일 호환 버전의 다른 노드/재시작에서 복구한다.301의 실제 두 노드 수락/재시작 시험이 Portal 소비를 검증한다. 역직렬화/버전 불일치는401 재로그인, DB 불가는503이다. 로컬 메모리 세션으로 자동 폴백하지 않는다. 인증 세션 만료는 대화·턴/기록 삭제나 자동 업무 재실행이 아니다.
       cleanup: FEAT-301의 내부 만료 정리가 만료 세션/속성과 challenge/증거를 별도 짧은 청크 트랜잭션으로 정리한다. 기본 매분·1000행, 중단/다중노드 반복 실행은 같은 만료 조건으로 안전하다. 정리 전에 만료 검사로 접근을 막는다.
       reference: 'Spring Session 공식 JDBC 구성: https://docs.spring.io/spring-session/reference/configuration/jdbc.html — 표준 스키마·테이블 분리·트랜잭션 설정의 근거. 프로젝트 잠금 버전으로 실제 조립/반례를 소유 G3 뒤 재검증한다.'
       principal_index: portal 소유 인증 세션 어댑터가 허용한 PORTAL_SECURITY_CONTEXT의 안정 ID로 PORTAL:<ID> 인덱스를 명시 생성한다. 표준 Spring Security 속성 키를 임의 추론한다고 가정하지 않는다. 익명은 null, 인증/회전 저장 때 PRINCIPAL_NAME을 같은 트랜잭션으로 반영하고 종료/만료는 해당 행/인덱스를 함께 제거한다. 설정 시 전용 principal resolver/index writer를 주입하고 두 노드 findByPrincipalName 실조회로 검증한다.
     auth_transactions:
-      local_login: CSRF/Origin/모드 검증 → 공개 인증 포트의 정책 배타/사용자/자격 보호 → 비밀번호·계정 조건 검증 → 실패횟수/잠금 또는 성공 해제와 필수 결과 사건. 정상 실패는 횟수/사건 커밋 후 트랜잭션 밖에서401로 변환한다. 실패 사건 저장 자체가 실패하면 횟수/잠금도 같은 트랜잭션에서 롤백하고503이며 인증/자동 재전송은 없다. 성공은 새 세션/기존 종료까지 확정한 뒤 쿠키와 응답을 보낸다.
+      local_login: 미등록·잠금·중지·틀린 암호는 같은401/안전 오류로 반환하고 유효 길이의 입력은 각 경우 한 번 해시 비교한다. CSRF/Origin/모드 검증 → 공개 인증 포트의 정책 배타/사용자/자격 보호 → 비밀번호·계정 조건 검증 → 실패횟수/잠금 또는 성공 해제와 필수 결과 사건. 정상 실패는 횟수/사건 커밋 후 트랜잭션 밖에서401로 변환한다. 실패 사건 저장 자체가 실패하면 횟수/잠금도 같은 트랜잭션에서 롤백하고503이며 인증/자동 재전송은 없다. 성공은 새 세션/기존 종료까지 확정한 뒤 쿠키와 응답을 보낸다.
       external_login: 검증 어댑터의 네트워크/서명 검증은 DB 보호 밖에서 수행한다. 이어 challenge 보호 → Portal 정책/사용자 보호 → 만료/원천/브라우저/현재 계정 재검사 → 증거 UNIQUE INSERT·challenge 소비·새 세션/기존 종료·성공 사건을 한 트랜잭션으로 확정한다. 충돌409·장애503에 과거 증거를 새 로그인으로 자동 재전송하지 않는다.
       password_change: admin 자격 포트가 현재 암호·정책·credentialVersion을 검사하고 새해시/ENT-251/세대+1/PORTAL PASSWORD_CHANGED 사건을 같은 트랜잭션으로 확정한다. 사건은 portal 소유 공개 sink 포트를 호출하며 모듈 Repository를 역참조하지 않는다. 그 후 세션 회전 실패는 확정된 비밀번호를 롤백했다고 안내하지 않는다.
       logout: 해당 Portal 세션 삭제+LOGOUT 사건을 짧은 트랜잭션으로 확정한다. DB 실패면503으로 서버 종료 완료를 주장하지 않는다. 브라우저 쿠키는 해당 영역만 만료할 수 있다. 이미 만료된 세션 요청은401이며 상대 영역에는 영향이 없다.
@@ -139,7 +139,7 @@ feature_contracts:
       customer_boundary: 정확 프로토콜·콜백 method/path·issuer/audience·키/신뢰 저장/회전·PKCE 또는 동등 바인딩·외부 logout은 고객 어댑터 설계에서 정한다. 미설정 EXTERNAL 기동/활성은 거부한다. 선행 시험 대역을 운영 verifier 빈으로 등록할 수 없게 조립 검사를 둔다.
     auth_audit:
       destination: ENT-256의 Portal 전용 보안 사건이다. system SYS_LO_LOGIN/ACCESS는 ADMIN 현재 소유를 유지하고 Portal ID를 USER_ID에 대입하지 않는다. 향후 감사 UI는 공개 조회 계약으로 연결하며 지금 만들지 않는다.
-      append: EVENT_KEY는 서버가 한 요청 실행을 시작할 때 생성해 내부 append 호출에 전달하는 UUID·UNIQUE, AUTH_EVENT_ID는 SYS_SEQUENCE다. 같은 실행 안의 append 재시도만 같은 키를 유지한다. 별도 HTTP 재요청은 별도 인증 시도/새 사건이며 이전 키를 알아낸다고 가정하지 않는다. 외부 증거 중복은 ENT-255, 자격 변경은 기대 credentialVersion으로 별도 차단한다. DB 확정 불명에 인증 명령을 자동 반복하지 않는다. 사건키에 비밀을 넣지 않는다.
+      append: EVENT_KEY는 서버가 요청 실행을 시작할 때 생성한 UUID와 안전한 사건 종류/주체/결과로 결정하는 UUID·UNIQUE, AUTH_EVENT_ID는 SYS_SEQUENCE다. 같은 실행 안의 append 재시도만 같은 키를 유지한다. 별도 HTTP 재요청은 별도 인증 시도/새 사건이며 이전 키를 알아낸다고 가정하지 않는다. 외부 증거 중복은 ENT-255, 자격 변경은 기대 credentialVersion으로 별도 차단한다. DB 확정 불명에 인증 명령을 자동 반복하지 않는다. 사건키에 비밀을 넣지 않는다.
       retention: 인증 로그의 기존 정책과 같은365일을 Portal 초기 보존값으로 제안한다. 자동 파기는 아카이브/고객 보존 정책·복구 검수 전 비활성으로 둔다. FEAT-301의 내부 만료 정리는 보안 사건을 삭제하지 않으며 소유 후속 파기 작업에서 보존 종료/조사 보호·아카이브 확인 뒤 청크 파기한다. 이 활성화는 고객 운영 인수 조건이다.
       access: 추가/조사 읽기/파기 권한을 분리한다. 선행 관리 화면 CRUD/전체 HIST·인증 API에 사건 원장을 노출하지 않는다. 로그와 백업은 같은 접근/암호화 운영 정책을 적용한다.
     migration_detail:

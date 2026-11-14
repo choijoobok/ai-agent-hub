@@ -125,7 +125,18 @@ SLICE-308의 공개 설치점은 `SessionV2Assembly.create`와 `verifyInstallati
 서블릿 fixture의 `verifyFilterInstallation`만으로 실제 MVC 등록 대조를 완료했다고 하지 않는다.
 관리조회 준비는 정확 operation의 `Preflight`에서 입력을 읽고 `SessionInspectionPort.prepare`로 만들며,
 같은 본문을 controller가 재독한 뒤 `Scope.inspectionFor`로 대상 일치를 재검사한다.
-Redis 네트워크를 소유 guard 안에서 호출하지 않는다. 실제 system 설치/경로·화면 활성화는 SLICE-520에서 한다.
+Redis 네트워크를 소유 guard 안에서 호출하지 않는다. 실제 system 소비는520, Portal 소비는301에 연결됐다.
+`bootstrap/config/AuthSessionConfiguration`이 영역별 카탈로그·생산자·보호를 단일 필터에 조립한다.
+Portal이 admin 내부를 import하지 않도록 `core/security/portal/PortalAccounts`와 bootstrap 어댑터를 사용한다.
+`Scope.stageCommittedRotation`은 Portal 본인 자격 변경의 단회 증거를 소비하고 첫 커밋 뒤 새 보호 트랜잭션에서 회전한다.
+ADMIN 원자 변경에 이 경로를 사용하지 않는다. 외부 `PortalExternalAuthService.verify`는 DB 밖,
+`accept`는 challenge→Portal 정책→현재 원장→증거/사건/수락 원장 순서다. 반환 후 `runtime.finish`와 단일 쿠키 writer를 호출한다.
+고객 콜백을 새로 연결할 때 정확 카탈로그/Origin 또는 프로토콜 동등 검증을 함께 검수하며 우회 인증 엔드포인트를 만들지 않는다.
+
+Portal 실제 인증 시험은 전용 `MANAGED_TEST_JDBC`/`MANAGED_TEST_USER`/`MANAGED_TEST_PASSWORD`로
+`:backend:bootstrap:managedStorageTest --tests '*PortalSessionLiveTest' --tests '*PortalExternalSessionLiveTest'`를 실행한다.
+LOCAL은 실제 자격/DB/HTTP·두 노드이며 EXTERNAL의 provider는 테스트 클래스패스에만 있다.
+제품 인증 UI/고객 실SSO 수락은 이 시험 결과로 대체하지 않는다.
 
 일상 수정은 관련 단위/계약 시험부터 실행하고, DB/Redis/HTTP 계약이 바뀔 때만 해당 실환경 시험을 실행한다.
 비영향 통과 결과는 재사용하고 공통 배선 변경의 최종 전체 회귀는 한 번만 한다.

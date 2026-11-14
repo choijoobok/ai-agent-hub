@@ -86,7 +86,7 @@ class UserGroupLiveTest {
     }
     @Test @DisplayName("TC-00611 그룹 정의·이력·연결 경계") @Order(5) void groupMigrationRollbackAndReapply() throws Exception {
         try(var connection=f.bean(DataSource.class).getConnection();var migration=new Liquibase("db/changelog/db.changelog-master.yaml",new ClassLoaderResourceAccessor(),new JdbcConnection(connection))) {
-            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE filename LIKE 'db/changelog/modules/admin/%' AND orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-004-user-group')",Integer.class);
+            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-004-user-group')",Integer.class);
             migration.rollback(count,"");
             try(var r=connection.createStatement().executeQuery("SELECT to_regclass('ai_admin_user_group')")){r.next();assertThat(r.getString(1)).isNull();}
             migration.update(new Contexts());

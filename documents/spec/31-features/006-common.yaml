@@ -20,7 +20,13 @@ features:
       system: 관리자 로그인/세션·관리 API 권한 및 회수 변경은 FEAT-501/502/503과 system 소유 G3를 따른다.
       admin: Portal 원장·자체 인증정보와 이용 조건의 저장/공개 제공은 FEAT-005/006과 admin 소유 G3를 따른다.
       portal_ui: 제품 로그인/비밀번호/세션 안내 UI는 FEAT-128/portal 후행이다. 선행 시험은 서버의 실제 인증 경로를 사용하며 개발 전용 인증 우회 엔드포인트를 만들지 않는다.
-    pending: '@defer 소유 P4/P5 — integration G3에서 동결한 인증 조립/물리 저장·만료/감사/증거·복구를 구현하고 실제 시험한다. 승인 범위·승인일은 project.state.yaml의 integration.P3_design을 따른다. 고객별 IF-010 어댑터는 SLICE-306에서 완성한다. 제품 FEAT-128 화면은 후행이다.'
+    implementation: partial
+    sources:
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/
+      - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/AuthSessionConfiguration.java
+      - sources/backend/bootstrap/src/main/java/com/aiagent/bootstrap/config/PortalAccountConfiguration.java
+      - sources/backend/core/src/main/java/com/aiagent/core/security/portal/PortalAccounts.java
+    pending: '@defer SLICE-306/FEAT-128 — LOCAL 실제 원장·JDBC/Redis 세션/복구·외부 증거 수락 공개 포트는301에서 구현했다. 고객 프로토콜/정확 콜백·실SSO는306, 제품 인증 UI는128 후속이다. 외부 시험 검증기 통과를 고객 인증 완료로 표시하지 않는다.'
     traces_to:
       - ARCH-050
       - AUTHZ-090

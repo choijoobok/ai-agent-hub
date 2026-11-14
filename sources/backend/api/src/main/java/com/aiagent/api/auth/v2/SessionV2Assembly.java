@@ -18,11 +18,13 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import jakarta.servlet.ServletContext;
 import org.springframework.session.SessionRepository;
 
-/** 제품 bootstrap이 같은 artifact의 기동 설정을 소비하는 공개 설치점. 제품 활성화는520이다. */
+/** 제품 bootstrap이 같은 artifact의 기동 설정을 소비하는 공개 설치점. ADMIN·PORTAL은 각각520·301에서 연결한다. */
 public final class SessionV2Assembly {
-    public record Configuration(Provider provider,Map<AuthDomain,Settings> domains,String origin,boolean localHttp,Duration timeout){
+    public record Configuration(Provider provider,Map<AuthDomain,Settings> domains,String origin,boolean localHttp,Duration timeout,Map<AuthDomain,Duration> timeouts,Map<AuthDomain,Duration> anonymousTimeouts){
+        public Configuration(Provider provider,Map<AuthDomain,Settings> domains,String origin,boolean localHttp,Duration timeout){this(provider,domains,origin,localHttp,timeout,domains.keySet().stream().collect(java.util.stream.Collectors.toMap(d->d,d->timeout)),domains.keySet().stream().collect(java.util.stream.Collectors.toMap(d->d,d->Duration.ofMinutes(10))));}
         public Configuration {
-            domains=Map.copyOf(domains);Objects.requireNonNull(provider);Objects.requireNonNull(timeout);
+            domains=Map.copyOf(domains);Objects.requireNonNull(provider);Objects.requireNonNull(timeout);timeouts=Map.copyOf(timeouts);anonymousTimeouts=Map.copyOf(anonymousTimeouts);
+            if(!timeouts.keySet().equals(domains.keySet())||!anonymousTimeouts.keySet().equals(domains.keySet())||java.util.stream.Stream.concat(timeouts.values().stream(),anonymousTimeouts.values().stream()).anyMatch(v->v.isNegative()||v.isZero()))throw new IllegalArgumentException("영역별 세션 만료 설정이 필요하다");
             URI uri=URI.create(origin);
             if(domains.isEmpty()||timeout.isNegative()||timeout.isZero()||uri.getHost()==null||uri.getUserInfo()!=null||uri.getQuery()!=null||uri.getFragment()!=null||!uri.getPath().isEmpty()
                     ||!("https".equals(uri.getScheme())||localHttp&&"http".equals(uri.getScheme()))||domains.values().stream().anyMatch(setting->setting.provider()!=provider||setting.storeInstance()==null||setting.storeInstance().isBlank()))
@@ -36,7 +38,13 @@ public final class SessionV2Assembly {
                 String prefix="app.auth.session.domains."+domain.name().toLowerCase(Locale.ROOT)+".";
                 if(environment.getProperty(prefix+"enabled",Boolean.class,domain==AuthDomain.ADMIN))domains.put(domain,new Settings(selected,UUID.fromString(required(environment,prefix+"epoch","app.auth.session.epoch")),required(environment,prefix+"store-instance","app.auth.session.store-instance")));
             }
-            return new Configuration(selected,domains,required(environment,"app.auth.session.origin",null),environment.getProperty("app.auth.session.local-http",Boolean.class,false),Duration.ofMinutes(environment.getProperty("app.auth.session.timeout-minutes",Long.class,30L)));
+            Duration timeout=Duration.ofMinutes(environment.getProperty("app.auth.session.timeout-minutes",Long.class,30L));
+            Map<AuthDomain,Duration> timeouts=new EnumMap<>(AuthDomain.class),anonymous=new EnumMap<>(AuthDomain.class);
+            for(AuthDomain domain:domains.keySet()) {
+                timeouts.put(domain,domain==AuthDomain.PORTAL?environment.getProperty("app.auth.portal.session.timeout",Duration.class,Duration.ofMinutes(30)):timeout);
+                anonymous.put(domain,domain==AuthDomain.PORTAL?environment.getProperty("app.auth.portal.anonymous-timeout",Duration.class,Duration.ofMinutes(10)):Duration.ofMinutes(10));
+            }
+            return new Configuration(selected,domains,required(environment,"app.auth.session.origin",null),environment.getProperty("app.auth.session.local-http",Boolean.class,false),timeout,timeouts,anonymous);
         }
         private static String required(Environment environment,String key,String fallback){String value=environment.getProperty(key);if(value==null&&fallback!=null)value=environment.getProperty(fallback);if(value==null||value.isBlank())throw new IllegalArgumentException("인증 기동 설정이 필요하다: "+key);return value;}
     }
@@ -54,7 +62,7 @@ public final class SessionV2Assembly {
             case JDBC->new JdbcSessionStore(source,manager,configuration.domains().keySet());
             case REDIS->new RedisSessionStore(Objects.requireNonNull(redis,"Redis 연결 조립이 필요하다"));
         };
-        var runtime=new SessionRuntime(new JdbcSessionAdmissionLedger(source,manager),store,new SessionTransactions(source,manager),configuration.domains(),authority,configuration.timeout());
+        var runtime=new SessionRuntime(new JdbcSessionAdmissionLedger(source,manager),store,new SessionTransactions(source,manager),configuration.domains(),authority,configuration.timeouts(),configuration.anonymousTimeouts());
         return new SessionV2Assembly(runtime,new SessionV2Filter(runtime,catalog,configuration,producers,responses,preflights),catalog);
     }
     public SessionRuntime runtime(){return runtime;}

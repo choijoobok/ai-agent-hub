@@ -19,6 +19,16 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.core.io.FileSystemResource;
 
 class SessionRuntimeTest {
+    @Test @DisplayName("TC-30119 ADMIN은 Portal 자격 선확정 회전을 선택할 수 없다")
+    void administratorCannotSelectPortalCommitBoundary() {
+        var old=login(anonymous(),AuthLevel.AUTHENTICATED,new SessionRuntime.SlotPolicy(false,1,false));
+        var change=scope(Capability.PASSWORD_CHANGE,old.cookie);
+        assertThatThrownBy(()->runtime.execute(change,()->{
+            jdbc.update("UPDATE CREDENTIAL_FIXTURE SET PWD='forbidden'");
+            change.stageCommittedRotation(producer.rotation(change.exchange(),old.ref,identity(AuthLevel.AUTHENTICATED),ledger.now().plusSeconds(60)),new SessionRuntime.SlotPolicy(false,1,false));return null;
+        })).isInstanceOf(Failure.class);
+        assertThat(jdbc.queryForObject("SELECT PWD FROM CREDENTIAL_FIXTURE",String.class)).isEqualTo("before");
+    }
     @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
     @DisplayName("TC-30122/27 회전은기존인증주체에고정되고익명승격/타주체교체를거부한다")
     void rotationCannotChangePrincipalOrPromoteAnonymous(boolean anonymous){

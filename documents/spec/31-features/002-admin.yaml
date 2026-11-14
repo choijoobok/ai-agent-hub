@@ -513,7 +513,7 @@ features:
     title: Portal 이용자 관리
     design_status: approved
     implementation: partial
-    delivery: CR-044. 독립 원장·자격/현재 접근 공개 포트·관리 화면과006/042 실제 연결 완료. 실제 세션301, 외부 원천305/306, 기술 대상001/002, 배정017/045·추가018은 원 소유 연결 후 검증한다.
+    delivery: CR-044. 독립 원장·자격/현재 접근 공개 포트·관리 화면과006/042 실제 연결 완료. 실제 세션·보안 사건301 연결 완료. 외부 원천305/306, 기술 대상001/002, 배정017/045·추가018은 원 소유 연결 후 검증한다.
     sources:
       - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/
       - sources/frontend/src/modules/admin/features/portaluser/

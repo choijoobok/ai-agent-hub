@@ -22,6 +22,13 @@ package com.aiagent.core.message;
  */
 public final class MsgKey {
 
+    /** Portal 배포 인증 모드에서 허용하지 않는 인증 동작. */
+    public static final String ERR_PORTAL_AUTH_MODE = "err.portal.authMode";
+    /** Portal 본인 비밀번호 변경 정책 위반. */
+    public static final String ERR_PORTAL_PASSWORD_POLICY = "err.portal.passwordPolicy";
+    /** 외부 인증 요청 또는 증거의 중복 소비. */
+    public static final String ERR_PORTAL_AUTH_EVIDENCE_USED = "err.portal.authEvidenceUsed";
+
     /** 외부 퇴직 사건의 관리자 알림 제목. */
     public static final String NOTI_PORTAL_RETIRED = "noti.portal.retired";
     /** 외부 조직 이동 사건의 관리자 알림 제목. */

@@ -49,6 +49,12 @@ public class PortalAccountService {
     }
     private boolean restricted(PortalCredentials.Credential credential,Instant now){int days=configs.get(AuthPasswordProps.class).expireDays();return credential.mustChange()||days>0&&!now.isBefore(credential.changed().plusSeconds(days*86400L));}
     private Map<String,Object> root(long id){var rows=jdbc.queryForList("SELECT * FROM AI_ADMIN_PORTAL_USER WHERE PORTAL_USER_ID=? FOR UPDATE",id);return rows.isEmpty()?null:rows.getFirst();}
+    /** 모드 전환은 기존 원장을 묵시 변환하지 않고 별도 검수된 이행을 요구한다. */
+    @Transactional(readOnly=true)
+    public void verifyDeploymentMode() {
+        if(jdbc.queryForObject("SELECT COUNT(*) FROM AI_ADMIN_PORTAL_USER WHERE AUTH_MODE_CD<>?",Long.class,mode)>0)
+            throw new IllegalStateException("기존 Portal 원장과 다른 인증 모드로 자동 전환할 수 없다");
+    }
     /** 실패도 정상 결과로 반환해 호출자 REQUIRED 트랜잭션이 실패횟수와 감사 사건을 확정할 수 있다. */
     @Transactional
     public Verification verifyLocalCredentials(String loginId,String password) {
@@ -57,11 +63,13 @@ public class PortalAccountService {
         var ids=loginId==null?List.<Long>of():jdbc.queryForList("SELECT PORTAL_USER_ID FROM AI_ADMIN_PORTAL_USER WHERE LOGIN_ID=?",Long.class,loginId.strip());
         if(ids.size()!=1){if(bounded(password))credentials.encoder.matches(password,dummyHash);return rejected(null,reason,now);}
         long id=ids.getFirst();principal=new PrincipalRef(AuthDomain.PORTAL,Long.toString(id));var user=root(id);
-        if(!"LOCAL".equals(user.get("AUTH_MODE_CD"))||!eligible(user,now))return rejected(principal,"ACCOUNT_UNAVAILABLE",now);
-        var credential=credentials.require(id);var login=configs.get(AuthLoginProps.class);
+        if(!"LOCAL".equals(user.get("AUTH_MODE_CD"))){if(bounded(password))credentials.encoder.matches(password,dummyHash);return rejected(principal,"ACCOUNT_UNAVAILABLE",now);}
+        var credential=credentials.require(id);boolean matches=bounded(password)&&credentials.encoder.matches(password,credential.hash());
+        if(!eligible(user,now))return rejected(principal,"ACCOUNT_UNAVAILABLE",now);
+        var login=configs.get(AuthLoginProps.class);
         if(credential.locked()&&login.lockReleaseMinutes()>0&&credential.lockedAt()!=null&&!now.isBefore(credential.lockedAt().plusSeconds(login.lockReleaseMinutes()*60L))) {credentials.unlock(id);credential=credentials.require(id);}
         if(credential.locked())return rejected(principal,"LOCKED",now);
-        if(!bounded(password)||!credentials.encoder.matches(password,credential.hash())) {
+        if(!matches) {
             int failures=Math.addExact(credential.failures(),1);boolean locked=login.failLimit()>0&&failures>=login.failLimit();
             jdbc.update("UPDATE AI_ADMIN_PORTAL_CREDENTIAL SET FAILED_COUNT=?,LOCKED_YN=?,LOCKED_DTM=? WHERE PORTAL_USER_ID=?",failures,locked?"Y":"N",locked?Timestamp.from(now):null,id);
             return rejected(principal,"REJECTED",now);

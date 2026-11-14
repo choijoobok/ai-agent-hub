@@ -41,6 +41,7 @@ class LayerDependencyTest {
         assertThat(classes.stream().map(c -> c.getName()))
                 .contains(
                         BASE + ".core.domain.BaseAuditEntity",
+                        BASE + ".portal.api.auth.PortalAuthController",
                         BASE + ".system.api.auth.AuthController");
     }
 
@@ -98,6 +99,14 @@ class LayerDependencyTest {
         slices().matching(BASE + ".(*)..")
                 .should().beFreeOfCycles()
                 .allowEmptyShould(true)
+                .check(classes);
+    }
+
+    @Test
+    @DisplayName("Portal 은 다른 제품 모듈을 참조하지 않는다")
+    void portalDoesNotDependOnOtherProductModules() {
+        noClasses().that().resideInAPackage(BASE + ".portal..")
+                .should().dependOnClassesThat().resideInAnyPackage(BASE + ".admin..",BASE + ".system..",BASE + ".agent..",BASE + ".bootstrap..")
                 .check(classes);
     }
 }

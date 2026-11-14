@@ -83,6 +83,9 @@ app:
     auth-mode: ${PORTAL_AUTH_MODE:LOCAL}
   auth:
     session:
+      domains:
+        portal:
+          enabled: ${PORTAL_AUTH_ENABLED:true}
       provider: ${AUTH_SESSION_PROVIDER:jdbc}
       origin: ${AUTH_ORIGIN}
       epoch: ${AUTH_SESSION_EPOCH}

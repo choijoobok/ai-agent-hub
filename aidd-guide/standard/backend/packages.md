@@ -24,6 +24,7 @@ sources/backend/
 ├── api/              HTTP·Security·필터·예외·세션 경계
 ├── modules/system/   system 업무 API·DTO·도메인
 ├── modules/admin/    관리 저장·전체 이력·결과 확인 공통 기반
+├── modules/portal/   Portal 서버 인증·세션·보안 사건
 ├── modules/sample/   통째로 제거 가능한 참조 구현 API·DTO·도메인
 └── bootstrap/        조립 루트 — main · application.yml · Liquibase · 프론트 임베드
 ```
@@ -36,8 +37,9 @@ sources/backend/
 | `api` | `core` · `support` · `domain` |
 | `modules/system` | `api` |
 | `modules/admin` | `api` |
+| `modules/portal` | `api` |
 | `modules/sample` | `api` |
-| `bootstrap` | `api` · `modules/system` · `modules/admin` (+ **local 변형일 때만** `modules/sample`) |
+| `bootstrap` | `api` · `modules/system` · `modules/admin` · `modules/portal` (+ **local 변형일 때만** `modules/sample`) |
 
 이 표는 **현재 Gradle 직접 의존**이다. `api`가 이행 전 `domain`을 공개하므로 system·sample도 그 타입을 간접 가시성으로 쓸 수 있다. 새 모듈이 다른 제품 모듈 내부를 참조하는 것은 금지하며,
 `LayerDependencyTest`와 `SampleIsolationTest`가 역방향·샘플 누출을 막는다.
@@ -47,6 +49,8 @@ sources/backend/
 `core`나 `support`로 옮기지 않는다. 제품 업무는 `modules/{모듈}`로 이행한다.
 
 공유 인증 입력·결과와 순수 Java 포트는 `core/security`, Servlet·Security·JDBC 세션 조립은 `api/auth/boundary`, 업무 계정·권한 판정은 소유 모듈에 둔다. `bootstrap`에서 연결하며 중립 포트에 프레임워크 타입을 노출하지 않는다.
+
+현재 v2 인증 조립은 `bootstrap/config/AuthSessionConfiguration`이 ADMIN/PORTAL 카탈로그와 소유 보호를 하나의 필터에 연결한다. `core/security/portal/PortalAccounts`를 통해 Portal이 admin 원장 공개 서비스를 소비하며 제품 모듈끼리 Gradle 의존을 추가하지 않는다. Portal 자격 변경은 먼저 확정하고 같은 요청의 후속 회전이 실패하면 재로그인을 요구한다. ADMIN의 기존 원자 경계와 혼동하지 않는다.
 
 > 포트/어댑터를 전면 도입하지 않는다. 교체할 락·엑셀·스토리지는 `support`, 공유 인증 계약은 `core`로 분리한다(AGENTS.md §1).
 
@@ -154,8 +158,6 @@ POST /api/system/service/code/saveGroup
 
 ## 4. 트랜잭션 — 모양이 셋이다
 
-**서비스가 무엇인가에 따라 다르다.**
-
 | 서비스 | 클래스 레벨 | 메서드 레벨 |
 |---|---|---|
 | **순수 조회** (`*QueryService`) | `@Transactional(readOnly = true)` | **없음** |
@@ -185,15 +187,13 @@ POST /api/system/service/code/saveGroup
 | `RestrictedSessionPathTest` | 세션 제한 경로 |
 | `ApiOperationSummaryTest` | API 요약 |
 
-전부 `sources/backend/bootstrap/src/test/java/com/aiagent/architecture/` 에 있고
-`./gradlew check -PskipFrontend` 가 돌린다.
+`sources/backend/bootstrap/src/test/java/com/aiagent/architecture/`에서 변경 관련 검사를 선택한다.
 
 **샘플은 local 전용으로 통째로 분리한다** — **local 변형**(`-Pprofile=local`, 또는 명시한
 `-PincludeSample=true`)일 때만 `modules/sample`과 프런트 라우트·시드·sample 기준선을 조립한다. product에는 외부 주소
 `/sample/**`·`/api/service/sample/**`도 없다. 공통·제품 코드는 샘플을 참조하지 않는다.
 
 ## 관련
-
 - [persistence.md](./persistence.md) — JPA / QueryDSL / MyBatis 경계
 - [api.md](./api.md) — 경로·응답·액션 판정
 - [INDEX.md](./INDEX.md) — 백엔드 카테고리 진입

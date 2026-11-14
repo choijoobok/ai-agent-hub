@@ -49,6 +49,7 @@ include(
     "backend:api",
     "backend:modules:system",
     "backend:modules:admin",
+    "backend:modules:portal",
     "backend:bootstrap",
 )
 

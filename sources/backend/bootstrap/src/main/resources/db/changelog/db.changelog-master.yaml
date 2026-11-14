@@ -8,3 +8,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/modules/admin/db.changelog-admin.yaml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/portal/db.changelog-portal.yaml
+      relativeToChangelogFile: false

@@ -58,11 +58,12 @@ tasks.processResources {
 }
 
 dependencies {
-    testImplementation("org.springframework.data:spring-data-redis")
+    implementation("org.springframework.data:spring-data-redis")
     testImplementation("org.springframework.data:spring-data-jpa")
     implementation(project(":backend:api"))
     implementation(project(":backend:modules:system"))
     implementation(project(":backend:modules:admin"))
+    implementation(project(":backend:modules:portal"))
     if (includeSample) {
         implementation(project(":backend:modules:sample"))
     }
@@ -982,6 +983,7 @@ fun Project.apiSeedTask(name: String, verify: Boolean) =
             add(":backend:api")
             add(":backend:modules:system")
             add(":backend:modules:admin")
+            add(":backend:modules:portal")
             if (includeSample) {
                 add(":backend:modules:sample")
             }

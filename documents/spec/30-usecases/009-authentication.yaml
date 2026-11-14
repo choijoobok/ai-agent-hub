@@ -2,7 +2,7 @@ usecases:
   - id: UC-045
     name: Portal 별도 인증 세션으로 접속하고 종료한다
     workstream: integration
-    design_status: draft
+    design_status: approved
     reqs:
       - REQ-616
       - REQ-103

@@ -77,7 +77,7 @@ class QuotaGradeLiveTest {
     @Test @Order(4) @DisplayName("TC-0421 등급 기준 신규 마이그레이션 왕복")
     void migrationRollbackAndReapply() throws Exception {
         try(var connection=f.bean(DataSource.class).getConnection();var migration=new Liquibase("db/changelog/db.changelog-master.yaml",new ClassLoaderResourceAccessor(),new JdbcConnection(connection))) {
-            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE filename LIKE 'db/changelog/modules/admin/%' AND orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-007-quota-grade')",Integer.class);
+            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-007-quota-grade')",Integer.class);
             migration.rollback(count,"");
             try(var r=connection.createStatement().executeQuery("SELECT to_regclass('ai_admin_quota_grade_set')")){r.next();assertThat(r.getString(1)).isNull();}
             migration.update(new Contexts());

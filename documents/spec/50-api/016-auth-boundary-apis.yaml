@@ -1,7 +1,8 @@
 apis:
   - id: API-301
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#getCsrf
     method: GET
     path: /api/portal/public/auth/getCsrf
     action: PUBLIC
@@ -20,7 +21,8 @@ apis:
       '503': 원천/세션/필수 사건 저장 불가
   - id: API-302
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#login
     method: POST
     path: /api/portal/public/auth/login
     action: PUBLIC
@@ -39,7 +41,8 @@ apis:
       '503': 원천/세션/필수 사건 저장 불가
   - id: API-303
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#getMe
     method: GET
     path: /api/portal/common/auth/getMe
     action: AUTHENTICATED
@@ -61,7 +64,8 @@ apis:
       - AUTHENTICATED
   - id: API-304
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#changePassword
     method: POST
     path: /api/portal/common/auth/changePassword
     action: AUTHENTICATED
@@ -84,7 +88,8 @@ apis:
       - AUTHENTICATED
   - id: API-305
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#logout
     method: POST
     path: /api/portal/common/auth/logout
     action: AUTHENTICATED
@@ -106,7 +111,8 @@ apis:
       - AUTHENTICATED
   - id: API-306
     feature: FEAT-301
-    implementation: planned
+    implementation: implemented
+    source_contract: sources/backend/modules/portal/src/main/java/com/aiagent/portal/api/auth/PortalAuthController.java#heartbeat
     method: POST
     path: /api/portal/common/auth/heartbeat
     action: AUTHENTICATED

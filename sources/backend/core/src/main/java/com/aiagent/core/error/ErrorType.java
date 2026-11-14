@@ -22,6 +22,9 @@ public enum ErrorType {
      */
     CONFLICT(409),
 
+    /** 인증 모드 또는 비밀번호 정책의 의미 검증 실패. */
+    UNPROCESSABLE_ENTITY(422),
+
     /** 그 밖. 스택트레이스를 응답에 담지 않는다 — {@code traceId} 만 준다(backend/security.md). */
     INTERNAL_ERROR(500),
 

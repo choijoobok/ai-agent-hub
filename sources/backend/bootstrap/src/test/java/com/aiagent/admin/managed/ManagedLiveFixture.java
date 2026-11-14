@@ -45,15 +45,17 @@ final class ManagedLiveFixture implements AutoCloseable {
     ManagedLiveFixture(Class<?>... extra) throws Exception {
         this("LOCAL",extra);
     }
-    ManagedLiveFixture(String portalMode,Class<?>... extra) throws Exception {
+    ManagedLiveFixture(String portalMode,Class<?>... extra) throws Exception {this(portalMode,false,extra);}
+    ManagedLiveFixture(String portalMode,boolean portalEnabled,Class<?>... extra) throws Exception {this(portalMode,portalEnabled,"jdbc",extra);}
+    ManagedLiveFixture(String portalMode,boolean portalEnabled,String provider,Class<?>... extra) throws Exception {
         url=System.getenv("MANAGED_TEST_JDBC"); user=System.getenv("MANAGED_TEST_USER"); password=System.getenv().getOrDefault("MANAGED_TEST_PASSWORD","");
         if(url==null||!url.matches("jdbc:postgresql://127[.]0[.]0[.]1:[0-9]+/managed040_[A-Za-z0-9_]+"))throw new IllegalStateException("전용 localhost managed040_ 시험 DB가 필요하다");
         String schema="managed040_"+UUID.randomUUID().toString().replace("-","");
         new JdbcTemplate(new DriverManagerDataSource(url,user,password)).execute("CREATE SCHEMA "+schema);
         var sources=new ArrayList<Class<?>>(List.of(AiAgentApplication.class,ManagedLiveConfiguration.class));sources.addAll(List.of(extra));
-        app=new SpringApplication(sources.toArray(Class<?>[]::new)).run("--spring.profiles.active=system-auth-test,managed-test","--app.portal.auth-mode="+portalMode,
-                "--server.port=0","--spring.datasource.url="+url+"?currentSchema="+schema,"--spring.datasource.username="+user,"--spring.datasource.password="+password,
-                "--app.auth.session.origin="+ORIGIN,"--app.auth.session.local-http=true","--app.auth.session.provider=jdbc",
+        app=new SpringApplication(sources.toArray(Class<?>[]::new)).run("--spring.profiles.active=system-auth-test,managed-test"+(portalEnabled?",portal-auth-test":""),"--app.portal.auth-mode="+portalMode,
+                "--app.auth.session.domains.portal.enabled="+portalEnabled,"--server.port=0","--spring.datasource.url="+url+"?currentSchema="+schema,"--spring.datasource.username="+user,"--spring.datasource.password="+password,
+                "--app.auth.session.origin="+ORIGIN,"--app.auth.session.local-http=true","--app.auth.session.provider="+provider,
                 "--app.auth.session.epoch="+UUID.randomUUID(),"--app.auth.session.store-instance=managed040-test","--app.admin.history.retention-days=1",
                 "--app.security.concurrent-session.max-sessions=4","--app.logging.sql.enabled=false","--logging.level.root=WARN");
         port=app.getEnvironment().getRequiredProperty("local.server.port",Integer.class);
@@ -69,6 +71,14 @@ final class ManagedLiveFixture implements AutoCloseable {
         jdbc.update("INSERT INTO sys_role_menu_auth(role_id,menu_cd,action_cd) VALUES ('READER040','USER_MGMT','READ')");
         jdbc.update("INSERT INTO sys_user_role(user_id,role_id) VALUES ('reader040','READER040')");
         administrators=List.of(login("admin"),login("admin"));
+    }
+    ConfigurableApplicationContext portalPeer() {
+        var env=app.getEnvironment();
+        return new SpringApplication(AiAgentApplication.class).run("--spring.profiles.active=system-auth-test,portal-auth-test","--server.port=0",
+            "--spring.datasource.url="+env.getRequiredProperty("spring.datasource.url"),"--spring.datasource.username="+user,"--spring.datasource.password="+password,
+            "--app.auth.session.origin="+ORIGIN,"--app.auth.session.local-http=true","--app.auth.session.provider=jdbc","--app.auth.session.domains.portal.enabled=true",
+            "--app.auth.session.epoch="+env.getRequiredProperty("app.auth.session.epoch"),"--app.auth.session.store-instance=managed040-test","--app.portal.auth-mode=LOCAL",
+            "--app.security.concurrent-session.max-sessions=4","--app.logging.sql.enabled=false","--logging.level.root=WARN");
     }
     public void close(){app.close();}
     JdbcTemplate database(){return jdbc;}
@@ -107,13 +117,15 @@ final class ManagedLiveFixture implements AutoCloseable {
         data(reader.call("POST","/api/admin/service/userGroup/save",command),403);
     }
     final class Browser {
+        int endpoint=port;
         final Map<String,String> cookies=new HashMap<>();
         HttpResponse<String> call(String method,String path,Object body) throws Exception {
-            var request=HttpRequest.newBuilder(URI.create("http://127.0.0.1:"+port+path)).timeout(Duration.ofSeconds(15));
+            var request=HttpRequest.newBuilder(URI.create("http://127.0.0.1:"+endpoint+path)).timeout(Duration.ofSeconds(15));
             if(!cookies.isEmpty())request.header("Cookie",cookies.entrySet().stream().map(e->e.getKey()+"="+e.getValue()).collect(java.util.stream.Collectors.joining("; ")));
             if(!method.equals("GET")) {
                 request.header("Origin",ORIGIN);
-                if(cookies.containsKey("AIHUB_ADMIN_CSRF"))request.header("X-AIHUB-ADMIN-CSRF",cookies.get("AIHUB_ADMIN_CSRF"));
+                String realm=path.startsWith("/api/portal/")?"PORTAL":"ADMIN";
+                if(cookies.containsKey("AIHUB_"+realm+"_CSRF"))request.header("X-AIHUB-"+realm+"-CSRF",cookies.get("AIHUB_"+realm+"_CSRF"));
             }
             if(body!=null)request.header("Content-Type","application/json");
             var response=http.send(request.method(method,body==null?HttpRequest.BodyPublishers.noBody():HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body))).build(),HttpResponse.BodyHandlers.ofString());
@@ -121,7 +133,7 @@ final class ManagedLiveFixture implements AutoCloseable {
             return response;
         }
     }
-    private Browser login(String id) throws Exception {
+    Browser login(String id) throws Exception {
         var browser=new Browser();data(browser.call("GET","/api/system/public/auth/getCsrf",null),200);
         data(browser.call("POST","/api/system/public/auth/login",Map.of("loginId",id,"password",PASSWORD)),200);return browser;
     }

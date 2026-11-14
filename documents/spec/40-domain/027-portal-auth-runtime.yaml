@@ -3,7 +3,7 @@ entities:
     name: Portal 인증 세션
     module: portal
     workstream: integration
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_SESSION
     features:
@@ -71,15 +71,15 @@ entities:
           definition: PRIMARY KEY (PRIMARY_ID)
       indexes:
         - name: UX_PORTAL_SESSION_ID
-          definition: CREATE UNIQUE INDEX UX_PORTAL_SESSION_ID ON AI_PORTAL_SESSION (SESSION_ID)
+          definition: (SESSION_ID)
           unique: true
           method: btree
         - name: IX_PORTAL_SESSION_EXPIRY
-          definition: CREATE INDEX IX_PORTAL_SESSION_EXPIRY ON AI_PORTAL_SESSION (EXPIRY_TIME)
+          definition: (EXPIRY_TIME)
           unique: false
           method: btree
         - name: IX_PORTAL_SESSION_PRINCIPAL
-          definition: CREATE INDEX IX_PORTAL_SESSION_PRINCIPAL ON AI_PORTAL_SESSION (PRINCIPAL_NAME)
+          definition: (PRINCIPAL_NAME)
           unique: false
           method: btree
     history_storage:
@@ -89,12 +89,16 @@ entities:
     rules:
       - Spring Session PostgreSQL 표준 스키마에서 테이블/인덱스 이름만 분리한다. 제품 DDL은 라이브러리 스크립트와 대조해 새 Liquibase로 생성하며 자동 초기화는 금지한다.
       - 인증 원장/채팅 세션과 별개다. SYS_USER/AI_ADMIN_PORTAL_USER FK를 두지 않고 현재 계정은 공개 포트로 검사한다. 속성 직렬화 허용 목록과 원자 저장은 FEAT-301.portal_session_storage.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/001-authentication.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/auth/
   - id: ENT-253
     name: Portal 인증 세션 속성
     module: portal
     workstream: integration
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_SESSION_ATTRIBUTES
     features:
@@ -143,12 +147,16 @@ entities:
     rules:
       - 형식은 Spring Session과 동일하다. 계정 비밀번호·해시·외부 토큰·어설션·업무 요청 본문·역할/그룹 원장은 저장 금지.
       - 세션/CSRF 문맥은 운영 비밀이며 일반 조회·백업 열람 권한을 분리한다. 세션 객체의 serialVersionUID와 배포 호환 버전을 관리한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/001-authentication.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/auth/
   - id: ENT-254
     name: 외부 로그인 요청 문맥
     module: portal
     workstream: integration
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_LOGIN_CHALLENGE
     features:
@@ -234,7 +242,7 @@ entities:
           definition: CHECK (EXPIRES_DTM > CREATED_DTM)
       indexes:
         - name: IX_PORTAL_LOGIN_EXPIRY
-          definition: CREATE INDEX IX_PORTAL_LOGIN_EXPIRY ON AI_PORTAL_LOGIN_CHALLENGE (EXPIRES_DTM)
+          definition: (EXPIRES_DTM)
           unique: false
           method: btree
     history_storage:
@@ -244,12 +252,16 @@ entities:
     rules:
       - 원 state/nonce·인증 코드/토큰은 기록하지 않는다. 프로토콜 비밀의 보관이 필요한 어댑터는 고객 계약에서 암호화·파기·키를 별도 검수하며 이 테이블에 원문을 추가하지 않는다.
       - 동일 트랜잭션에서 소비 시각·증거·인증 세션·성공 사건을 확정한다. 미소비도 기한이 지나면 거부한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/001-authentication.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/auth/
   - id: ENT-255
     name: 소비한 외부 인증 증거
     module: portal
     workstream: integration
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_AUTH_EVIDENCE
     features:
@@ -315,7 +327,7 @@ entities:
           definition: CHECK (EXPIRES_DTM > CONSUMED_DTM)
       indexes:
         - name: IX_PORTAL_EVIDENCE_EXPIRY
-          definition: CREATE INDEX IX_PORTAL_EVIDENCE_EXPIRY ON AI_PORTAL_AUTH_EVIDENCE (EXPIRES_DTM)
+          definition: (EXPIRES_DTM)
           unique: false
           method: btree
     history_storage:
@@ -325,12 +337,16 @@ entities:
     rules:
       - 증거 원문/서명키를 저장하지 않는다. 동일 원천+증거 중복 삽입은409이며 새 세션을 만들지 않는다.
       - 주체/요청 문맥은 일회 소비 시 서버에서 검증한다. 청소 순서와 운영 계정 수명을 묶는 FK는 두지 않는다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/001-authentication.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/auth/
   - id: ENT-256
     name: Portal 인증 보안 사건
     module: portal
     workstream: integration
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_PORTAL_AUTH_EVENT
     features:
@@ -416,11 +432,11 @@ entities:
           definition: CHECK (AUTH_MODE IN ('LOCAL','EXTERNAL'))
       indexes:
         - name: IX_PORTAL_AUTH_EVENT_TIME
-          definition: CREATE INDEX IX_PORTAL_AUTH_EVENT_TIME ON AI_PORTAL_AUTH_EVENT (OCCURRED_DTM)
+          definition: (OCCURRED_DTM)
           unique: false
           method: btree
         - name: IX_PORTAL_AUTH_EVENT_USER
-          definition: CREATE INDEX IX_PORTAL_AUTH_EVENT_USER ON AI_PORTAL_AUTH_EVENT (PORTAL_USER_ID, OCCURRED_DTM)
+          definition: (PORTAL_USER_ID, OCCURRED_DTM)
           unique: false
           method: btree
     history_storage:
@@ -431,4 +447,8 @@ entities:
       - Portal 영역 전용이며 ADMIN 참조를 넣지 않는다. 계정 삭제에 연쇄 삭제되지 않도록 FK를 두지 않고 사건 당시 안정 ID만 유지한다.
       - 원 로그인 입력/비밀번호/해시/쿠키/CSRF/state/nonce/외부 토큰·업무 본문/IP/UA는 기록하지 않는다. 안전한 코드/상관 ID만 허용한다.
       - 긍정 인증·암호 변경은 업무 확정 트랜잭션에 append한다. 현재 요청 일반 로그의 비동기/REQUIRES_NEW 성공을 이 원장 확정으로 보지 않는다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/001-authentication.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/portal/db.changelog-portal.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+      - sources/backend/modules/portal/src/main/java/com/aiagent/portal/auth/

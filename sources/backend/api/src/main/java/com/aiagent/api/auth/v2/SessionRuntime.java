@@ -32,15 +32,18 @@ public final class SessionRuntime implements SessionInspectionPort {
     private final SessionTransactions transactions;
     private final Map<AuthDomain,Settings> selected;
     private final SessionAuthority authority;
-    private final Duration timeout;
+    private final Map<AuthDomain,Duration> timeouts,anonymousTimeouts;
     private final SecureRandom random=new SecureRandom();
     public SessionRuntime(SessionAdmissionLedger ledger,SessionStoreAdapter store,SessionTransactions transactions,Settings selected,Set<AuthDomain> enabled,AuthorityBinding authority,Duration timeout){
         this(ledger,store,transactions,enabled.stream().collect(java.util.stream.Collectors.toMap(domain->domain,domain->selected)),authority,timeout);
     }
     public SessionRuntime(SessionAdmissionLedger ledger,SessionStoreAdapter store,SessionTransactions transactions,Map<AuthDomain,Settings> selected,AuthorityBinding authority,Duration timeout){
+        this(ledger,store,transactions,selected,authority,selected.keySet().stream().collect(java.util.stream.Collectors.toMap(d->d,d->timeout)),selected.keySet().stream().collect(java.util.stream.Collectors.toMap(d->d,d->Duration.ofMinutes(10))));
+    }
+    public SessionRuntime(SessionAdmissionLedger ledger,SessionStoreAdapter store,SessionTransactions transactions,Map<AuthDomain,Settings> selected,AuthorityBinding authority,Map<AuthDomain,Duration> timeouts,Map<AuthDomain,Duration> anonymousTimeouts){
         this.ledger=Objects.requireNonNull(ledger);this.store=Objects.requireNonNull(store);this.transactions=Objects.requireNonNull(transactions);this.selected=Map.copyOf(selected);
-        if(!transactions.boundTo(authority.source(),authority.manager())||timeout.isNegative()||timeout.isZero()||selected.isEmpty())throw new IllegalArgumentException("소유 보호와 세션은 같은 REQUIRED DB 조립이어야 한다");
-        this.authority=authority.authority();this.timeout=timeout;
+        if(!transactions.boundTo(authority.source(),authority.manager())||selected.isEmpty()||!timeouts.keySet().equals(selected.keySet())||!anonymousTimeouts.keySet().equals(selected.keySet())||java.util.stream.Stream.concat(timeouts.values().stream(),anonymousTimeouts.values().stream()).anyMatch(t->t.isZero()||t.isNegative()))throw new IllegalArgumentException("소유 보호와 세션은 같은 REQUIRED DB 조립이어야 한다");
+        this.authority=authority.authority();this.timeouts=Map.copyOf(timeouts);this.anonymousTimeouts=Map.copyOf(anonymousTimeouts);
         selected.forEach((domain,settings)->{if(settings.provider()!=store.provider())throw new IllegalArgumentException("선택 저장소 종류가 다르다");checkSettings(domain,false);});store.verifyAvailable();
     }
     private void checkSettings(AuthDomain domain,boolean lock){if(!Objects.equals(selected.get(domain),ledger.settings(domain,lock)))throw new Failure(Outcome.UNAVAILABLE);}
@@ -84,7 +87,7 @@ public final class SessionRuntime implements SessionInspectionPort {
             authority.protect(context(scope,scope.loaded==null?null:scope.loaded.payload().identity(),scope.grant==null?null:scope.grant.ref()),scope.operation.exclusive(),()->{
                 transactions.attach(scope.request);if(++calls[0]!=1)throw new IllegalStateException("소유 보호 callback은 한 번만 실행한다");scope.protectedNow=true;
                 try{lockRequests(scope);if(scope.grant!=null)scope.grant=current(scope,false);
-                    result[0]=command.get();if(scope.publication==null&&scope.grant!=null&&!scope.publicRead&&!scope.logout)touch(scope);
+                    result[0]=command.get();if(scope.publication==null&&scope.rotation==null&&scope.grant!=null&&!scope.publicRead&&!scope.logout)touch(scope);
                 }finally{scope.protectedNow=false;}
             });if(calls[0]!=1)throw new IllegalStateException("소유 보호 callback이 실행되지 않았다");
             @SuppressWarnings("unchecked") T value=(T)result[0];return value;
@@ -110,7 +113,7 @@ public final class SessionRuntime implements SessionInspectionPort {
     }
     private void touch(Scope scope){
         Grant old=scope.grant;Instant now=ledger.now();if(!old.current(now))throw new Failure(Outcome.INVALID_SESSION);boolean first=old.level()!=AuthLevel.ANONYMOUS&&!scope.operation.path().contains("/public/");
-        Instant accessed=now.isAfter(old.lastAccessAt())?now:old.lastAccessAt();Instant proposed=accessed.plus(old.level()==AuthLevel.ANONYMOUS?Duration.ofMinutes(10):timeout);Instant expiry=proposed.isAfter(old.expiresAt())?proposed:old.expiresAt();
+        Instant accessed=now.isAfter(old.lastAccessAt())?now:old.lastAccessAt();Instant proposed=accessed.plus(old.level()==AuthLevel.ANONYMOUS?anonymousTimeouts.get(scope.request.domain()):timeouts.get(scope.request.domain()));Instant expiry=proposed.isAfter(old.expiresAt())?proposed:old.expiresAt();
         Grant changed=copy(old,old.ref(),old.status(),old.cookieHash(),old.managementRef(),old.subjectId(),old.level(),old.authenticatedAt(),accessed,expiry,old.publishDeadline(),first&&old.firstUsedAt()==null?now:old.firstUsedAt(),old.confirmDeadline(),old.terminalAt());
         if(scope.request.state()==SessionExchange.State.OPEN)scope.request.mutation();if(!ledger.replace(old,changed))throw new Failure(Outcome.INVALID_SESSION);scope.grant=changed;
         if(store.provider()==Provider.JDBC)checkFlush(scope,store.updateExisting(scope.loaded,scope.delta==null?scope.loaded.payload():scope.delta,changed.expiresAt()));else scope.flush=true;
@@ -129,20 +132,24 @@ public final class SessionRuntime implements SessionInspectionPort {
         if(proof.kind()==SessionAdmissionsV2.Kind.ROTATION&&(scope.loaded==null||scope.loaded.payload().identity()==null
                 ||proof.identity()==null||!scope.loaded.payload().identity().principal().equals(proof.identity().principal())))throw new Failure(Outcome.INVALID_SESSION);
         if(!Objects.equals(proof.entry(),scope.grant==null?null:scope.grant.ref())||!proof.consume(scope.request,now))throw new Failure(Outcome.INVALID_SESSION);
-        Identity identity=normalized(proof.identity());var ref=new Ref(scope.request.domain(),proof.kind()==SessionAdmissionsV2.Kind.ROTATION?scope.grant.ref().grantId():ledger.nextId(),proof.kind()==SessionAdmissionsV2.Kind.ROTATION?scope.grant.ref().generation()+1:1,selected.get(scope.request.domain()).epoch());
+        publishAccepted(scope,normalized(proof.identity()),proof.kind(),policy);
+    }
+    private void publishAccepted(Scope scope,Identity identity,SessionAdmissionsV2.Kind kind,SlotPolicy policy) {
+        requireProtected(scope);Instant now=ledger.now();
+        var ref=new Ref(scope.request.domain(),kind==SessionAdmissionsV2.Kind.ROTATION?scope.grant.ref().grantId():ledger.nextId(),kind==SessionAdmissionsV2.Kind.ROTATION?scope.grant.ref().generation()+1:1,selected.get(scope.request.domain()).epoch());
         int[] calls={0};authority.protect(context(scope,identity,ref),true,()->{
             transactions.attach(scope.request);if(++calls[0]!=1)throw new IllegalStateException("발급 보호 callback은 한 번만 실행한다");checkSettings(scope.request.domain(),true);
             if(scope.grant!=null)scope.grant=current(scope,true);
             if(identity!=null){
                 var slots=ledger.principal(identity.principal(),true).stream().filter(grant->scope.grant==null||!grant.ref().equals(scope.grant.ref())).filter(grant->grant.reservesSlot(now)).sorted(Comparator.comparing(Grant::lastAccessAt).thenComparing(Grant::createdAt)).toList();
                 if(policy.enabled()&&slots.size()>=policy.maximum()){if(policy.preventLogin())throw new Failure(Outcome.INVALID_SESSION);slots.stream().limit(slots.size()-policy.maximum()+1L).forEach(this::revoke);}
-                if(proof.kind()==SessionAdmissionsV2.Kind.ROTATION)slots.stream().filter(grant->grant.status()==Status.PENDING).forEach(this::revoke);
+                if(kind==SessionAdmissionsV2.Kind.ROTATION)slots.stream().filter(grant->grant.status()==Status.PENDING).forEach(this::revoke);
             }
             scope.request.mutation();String cookie=nonce();var payload=new Payload(ref,identity,new Secret(nonce()),identity==null?null:identity.displayName(),identity==null?null:identity.locale(),Set.of());
-            Instant expiry=now.plus(identity==null?Duration.ofMinutes(10):timeout);boolean redis=store.provider()==Provider.REDIS;
-            Grant grant=new Grant(ref,store.provider(),hash(scope.request.domain(),cookie),nonce(),identity==null?null:identity.principal().subjectId(),identity==null?AuthLevel.ANONYMOUS:identity.authLevel(),redis?Status.PENDING:Status.ACTIVE,identity==null?null:identity.authenticatedAt(),scope.grant!=null&&proof.kind()==SessionAdmissionsV2.Kind.ROTATION?scope.grant.createdAt():now,now,expiry,redis?now.plusSeconds(60):null,null,identity==null||redis?null:now.plusSeconds(60),null);
+            Instant expiry=now.plus(identity==null?anonymousTimeouts.get(scope.request.domain()):timeouts.get(scope.request.domain()));boolean redis=store.provider()==Provider.REDIS;
+            Grant grant=new Grant(ref,store.provider(),hash(scope.request.domain(),cookie),nonce(),identity==null?null:identity.principal().subjectId(),identity==null?AuthLevel.ANONYMOUS:identity.authLevel(),redis?Status.PENDING:Status.ACTIVE,identity==null?null:identity.authenticatedAt(),scope.grant!=null&&kind==SessionAdmissionsV2.Kind.ROTATION?scope.grant.createdAt():now,now,expiry,redis?now.plusSeconds(60):null,null,identity==null||redis?null:now.plusSeconds(60),null);
             if(scope.grant!=null){if(store.provider()==Provider.JDBC)store.delete(scope.loaded);
-                if(proof.kind()==SessionAdmissionsV2.Kind.ROTATION){if(!ledger.replace(scope.grant,grant))throw new Failure(Outcome.INVALID_SESSION);}else{revoke(scope.grant);ledger.insert(grant);}
+                if(kind==SessionAdmissionsV2.Kind.ROTATION){if(!ledger.replace(scope.grant,grant))throw new Failure(Outcome.INVALID_SESSION);}else{revoke(scope.grant);ledger.insert(grant);}
             }else ledger.insert(grant);
             if(!redis)scope.loaded=store.create(payload,expiry);scope.grant=grant;scope.publication=payload;scope.issue=new CookieIssue(scope.request,cookie,payload.csrf());
         });if(calls[0]!=1)throw new IllegalStateException("발급 보호 callback이 실행되지 않았다");
@@ -150,6 +157,7 @@ public final class SessionRuntime implements SessionInspectionPort {
     public Outcome finish(Scope scope){
         SessionTransactions.requireOutsideTransaction();if(scope.finished)throw new IllegalStateException("요청 완료는 한 번만 수행한다");scope.finished=true;
         if(scope.request.state()!=SessionExchange.State.DB_COMMITTED){scope.request.close();return Outcome.APPLIED;}
+        if(scope.rotation!=null)return finishCommittedRotation(scope);
         try{
             if(scope.publication!=null&&store.provider()==Provider.REDIS){
                 scope.loaded=store.create(scope.publication,scope.grant.expiresAt());var continuation=new SessionExchange(scope.request.domain(),scope.request.traceId(),scope.request.capability());
@@ -175,6 +183,25 @@ public final class SessionRuntime implements SessionInspectionPort {
             }if(failure instanceof Failure boundary)throw boundary;throw new Failure(Outcome.UNAVAILABLE);
         }
     }
+    /** Portal 자격의 첫 커밋은 세션 회전 장애로 되감지 않는다. 새 DB 시도는 같은 원 요청에만 결합한다. */
+    private Outcome finishCommittedRotation(Scope original) {
+        original.request.close();var plan=original.rotation;
+        var next=new Scope(new SessionExchange(AuthDomain.PORTAL,original.request.traceId(),Capability.PASSWORD_CHANGE),original.operation,original.cookie);
+        next.loaded=original.loaded;next.grant=original.grant;next.executed=true;original.continuation=next;
+        try {
+            transactions.required(next.request,()->{
+                int[] calls={0};authority.protect(context(next,plan.identity(),next.grant.ref()),true,()->{
+                    if(++calls[0]!=1)throw new IllegalStateException("확정 자격 회전은 한 번만 실행한다");
+                    next.protectedNow=true;
+                    try {lockRequests(next);next.grant=current(next,true);publishAccepted(next,plan.identity(),SessionAdmissionsV2.Kind.ROTATION,plan.policy());}
+                    finally {next.protectedNow=false;}
+                });if(calls[0]!=1)throw new IllegalStateException("확정 자격 회전 보호가 실행되지 않았다");return null;
+            });
+            if(next.request.state()!=SessionExchange.State.DB_COMMITTED)throw new Failure(Outcome.REAUTH_REQUIRED);
+            return finish(next);
+        } catch(RuntimeException failure){next.request.close();throw new Failure(Outcome.REAUTH_REQUIRED);}
+    }
+    private record RotationPlan(Identity identity,SlotPolicy policy) {}
     private void cleanup(Scope scope){for(Stored stored:scope.cleanup){try{if(store.provider()==Provider.JDBC)transactions.required(()->store.delete(stored));else store.delete(stored);}catch(RuntimeException failure){scope.cleanupFailures++;org.slf4j.LoggerFactory.getLogger(SessionRuntime.class).warn("회수된 세션 payload 정리를 완료하지 못했다");}}}
     private record Inspection(SessionRuntime owner,PrincipalRef principal,List<Ref> candidates,Map<Ref,Stored> payloads) implements Plan {}
     public Plan prepare(PrincipalRef principal){
@@ -182,6 +209,8 @@ public final class SessionRuntime implements SessionInspectionPort {
         var grants=ledger.principal(principal,false);Map<Ref,Stored> payloads=new HashMap<>();for(Grant grant:grants)if(grant.current(ledger.now()))store.load(grant.ref(),principal).ifPresent(stored->{validatePayload(grant,stored);payloads.put(grant.ref(),stored);});return new Inspection(this,principal,grants.stream().map(Grant::ref).toList(),Map.copyOf(payloads));
     }
     public final class Scope implements SessionInspectionPort.Authorized {
+        private RotationPlan rotation;
+        private Scope continuation;
         private final SessionExchange request;private final ModuleApiCatalog.Operation operation;private final String cookie;
         private Grant grant;private Stored loaded;private Payload publication,delta;private CookieIssue issue;private Inspection inspection;
         private boolean executed,protectedNow,finished,flush,publicRead,logout,managementRevocation,invalidated;private int cleanupFailures;
@@ -191,7 +220,7 @@ public final class SessionRuntime implements SessionInspectionPort {
         public SessionExchange exchange(){return request;}
         public void bindInspection(Plan plan){SessionTransactions.requireOutsideTransaction();if(executed||inspection!=null||!(plan instanceof Inspection candidate)||candidate.owner!=SessionRuntime.this||candidate.principal.domain()!=request.domain())throw new IllegalStateException("현재 요청의 서버 조회계획을 실행 전에 한 번만 결합한다");inspection=candidate;}
         public Plan inspectionFor(PrincipalRef target){if(inspection==null||!inspection.principal.equals(target))throw new com.aiagent.api.auth.boundary.AuthBoundaryAssembly.Rejected(403);return inspection;}
-        public Optional<Snapshot> current(){return grant==null?Optional.empty():Optional.of(new Snapshot(grant.ref(),publication!=null?publication.identity():loaded.payload().identity(),grant.createdAt(),grant.lastAccessAt(),grant.expiresAt(),grant.managementRef()));}
+        public Optional<Snapshot> current(){if(continuation!=null)return continuation.current();return grant==null?Optional.empty():Optional.of(new Snapshot(grant.ref(),publication!=null?publication.identity():loaded.payload().identity(),grant.createdAt(),grant.lastAccessAt(),grant.expiresAt(),grant.managementRef()));}
         public boolean matchesCsrf(String token){return loaded!=null&&loaded.payload().csrf().matches(token);}
         public int cleanupFailures(){return cleanupFailures;}
         public void updateSnapshot(String displayName,String locale,Set<String> authorities){requireProtected(this);if(loaded==null||publicRead)throw new Failure(Outcome.INVALID_SESSION);var identity=loaded.payload().identity();var changed=identity==null?null:new Identity(identity.principal(),identity.authLevel(),identity.authMode(),identity.credentialVersion(),identity.authenticatedAt(),displayName,locale);delta=new Payload(loaded.payload().ref(),changed,loaded.payload().csrf(),displayName,locale,authorities);}
@@ -199,6 +228,16 @@ public final class SessionRuntime implements SessionInspectionPort {
             if(grant==null)publish(SessionAdmissionsV2.anonymous(request,ledger.now().plusSeconds(60)),new SlotPolicy(false,1,false));else{request.mutation();issue=new CookieIssue(request,cookie,loaded.payload().csrf());}
         }
         public void publish(SessionAdmissionsV2.Proof proof,SlotPolicy policy){SessionRuntime.this.publish(this,proof,policy);}
+        /** 소유 자격 검증 생산자의 현재 회전 증거를 첫 DB 시도에서만 소비한다. */
+        public void stageCommittedRotation(SessionAdmissionsV2.Proof proof,SlotPolicy policy) {
+            requireProtected(this);
+            if(request.domain()!=AuthDomain.PORTAL||request.capability()!=Capability.PASSWORD_CHANGE||!operation.exclusive()||rotation!=null||publication!=null||grant==null||loaded==null||loaded.payload().identity()==null
+                ||proof.kind()!=SessionAdmissionsV2.Kind.ROTATION||!grant.ref().equals(proof.entry())||proof.identity()==null
+                ||!loaded.payload().identity().principal().equals(proof.identity().principal())||!"LOCAL".equals(proof.identity().authMode())
+                ||proof.identity().credentialVersion()==null||Objects.equals(loaded.payload().identity().credentialVersion(),proof.identity().credentialVersion())
+                ||proof.identity().authLevel()!=AuthLevel.AUTHENTICATED||!proof.consume(request,ledger.now()))throw new Failure(Outcome.INVALID_SESSION);
+            rotation=new RotationPlan(normalized(proof.identity()),Objects.requireNonNull(policy));request.mutation();
+        }
         public void credentialsChanged(SessionAdmissionsV2.CredentialChange proof) {
             requireProtected(this);
             if (!operation.exclusive() || !proof.consume(request, ledger.now())) throw new Failure(Outcome.INVALID_SESSION);
@@ -215,7 +254,7 @@ public final class SessionRuntime implements SessionInspectionPort {
             if (request.state() == SessionExchange.State.OPEN) request.mutation();
         }
         public void logout(){requireProtected(this);if(request.capability()!=Capability.LOGOUT||grant==null)throw new Failure(Outcome.INVALID_SESSION);request.mutation();SessionRuntime.this.revoke(grant);cleanup.add(loaded);logout=true;issue=CookieIssue.expiration(request);}
-        public void emitCookies(CookieSink sink){if(issue==null)throw new IllegalStateException("발급 증거가 없다");issue.emit(request,sink);}
+        public void emitCookies(CookieSink sink){if(continuation!=null){continuation.emitCookies(sink);return;}if(issue==null)throw new IllegalStateException("발급 증거가 없다");issue.emit(request,sink);}
         private Inspection inspection(Plan plan){requireProtected(this);if(inspection==null||plan!=inspection||request.domain()!=AuthDomain.ADMIN||operation.requiredAction()==null)throw new Failure(Outcome.INVALID_SESSION);return inspection;}
         public List<View> inspect(Plan plan){
             var inspected=inspection(plan);if(!operation.requiredAction().equals("READ"))throw new Failure(Outcome.INVALID_SESSION);List<View> views=new ArrayList<>();

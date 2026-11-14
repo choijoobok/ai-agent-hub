@@ -41,8 +41,8 @@ testcases:
     given: 별도 LOCAL Portal 계정·초기 임시 비밀번호
     when: 공개 CSRF 준비→login→강제변경→getMe→logout
     then: 제한 세션에서 업무는거부, 변경 뒤 자기세션만 회전, 예전쿠키401, ADMIN 세션은유지. 대역이 아닌 실제 검증 경로를 사용한다.
-    status: planned
-    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+    status: implemented
+    verification: 실제 PostgreSQL/HTTP PortalSessionLiveTest.independentLocalLifecycle에서 LOCAL 임시 자격→제한 로그인→암호 변경·CSRF/쿠키 회전→이전 세션401→로그아웃과 ADMIN 유지 검증. Redis 선택의 같은 흐름은 redisLocalLifecycle에서 별도 실행한다.
   - id: TC-3015
     feature: FEAT-301
     usecase: UC-045
@@ -52,8 +52,8 @@ testcases:
     given: 두 영역 같은 브라우저 로그인
     when: 상대쿠키/CSRF, 외부Origin, //host·인코딩된 상대경로를 각각 제출
     then: 영역혼동/CSRF 거부, 외부/상대영역으로 복귀하지 않음. public/common 포괄허용 변이는 실패.
-    status: planned
-    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+    status: implemented
+    verification: PortalSessionLiveTest의 교차 CSRF/ADMIN 쿠키 반례와 PortalAuthContractTest의 안전한 반환 경로·알 수 없는 신원 필드 거부를 검증했다. 정확 Origin·공통 경로 deny-default는 SLICE-308/520의 비영향 계약 시험을 재사용한다.
   - id: TC-3016
     feature: FEAT-301
     usecase: UC-045
@@ -63,8 +63,8 @@ testcases:
     given: LOCAL 로그인 검증과 admin reset/본인 변경 동시 진행
     when: 세대 변경을 앞뒤로 확정하고 세션 저장 실패·응답 유실 발생
     then: 낡은 세대 세션은 다음 요청401. 암호변경 성공+세션실패는 재로그인 회복, 같은 관리 reset키로 새 비밀 생성/재노출 금지.
-    status: planned
-    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+    status: implemented
+    verification: PortalSessionLiveTest.passwordCommitSurvivesRotationFailure/committedRotationDeliveryFailure에서 실제 자격 커밋 뒤 세션 INSERT 실패·응답 writer 실패를 주입하고 새 암호 재로그인·구 세대401·사건1건을 확인했다. 관리자 reset의 일회 전달·현재 세대는 SLICE-005 실제 원장 시험을 재사용한다.
   - id: TC-3017
     feature: FEAT-301
     usecase: UC-045
@@ -74,8 +74,8 @@ testcases:
     given: 검증 외부 source+subject 및 미등록/만료/재생/issuer불일치 증거
     when: 서버 어댑터로 수락 시도와 EXTERNAL장애/검증기미설정
     then: 정상 등록 주체만 해석, 나머지 이용 불가. 이메일병합·LOCAL자동전환·테스트검증기의 제품조립은 실패. 실SSO 통과는 별도 기록한다.
-    status: planned
-    verification: SLICE-301에서 검증 어댑터 대역과 실제 DB/서버의 신원 수락 경계·재생 거부·하향 금지를 먼저 시험한다. SLICE-306에서는 같은 수락 반례를 고객 실제 어댑터/콜백·서명키·실SSO로 다시 검증하고 별도 결과를 남긴다. 규칙을 반대로 구현한 변이에서 실패해야 하며 대역 통과를 실SSO 완료로 세지 않는다.
+    status: implemented
+    verification: PortalExternalSessionLiveTest에서 시험 전용 검증 어댑터와 실제 PostgreSQL/공통 runtime·HTTP로 등록 신원 수락·issuer/nonce/browser/만료/재생 거부 및 LOCAL 하향 금지를 확인했다. PortalAuthContractTest는 검증기 누락/제품 환경의 시험 검증기 기동 거부를 확인한다. 고객 실제 서명·콜백·SSO는 SLICE-306 후속이다.
   - id: TC-3018
     feature: FEAT-301
     usecase: UC-045
@@ -85,5 +85,5 @@ testcases:
     given: 계정/권한/세션 저장소 각각 실패
     when: 보호 요청/로그인/암호변경을 수행하고 로그/HIST/응답 조사
     then: 503/부분성공 없음, 낡은권한폴백없음, 비밀번호/해시/쿠키/외부토큰원문0. 이미확정된 암호변경은 오류로 롤백된것처럼 표시하지 않음.
-    status: planned
-    verification: 소유 G3 뒤 실제 DB/서버 경계 시험. 규칙을 반대로 구현한 변이에서 실패해야 하며 이 명세 작성은 실행 통과가 아니다.
+    status: implemented
+    verification: PortalSessionLiveTest에서 필수 감사 DB 장애의503·실패횟수 rollback, 자격 확정 후 세션 실패의 PASSWORD_CHANGED_REAUTH_REQUIRED·새 암호 회복을 확인했다. 인증 DTO/proof의 안전한 표현·일반접속 Portal 행0도 확인하며 고객 APM/프록시 로그는 배포 인수에서 재검사한다.

@@ -146,7 +146,7 @@ class PortalUserLiveTest {
     @Test @Order(5) @DisplayName("TC-0051 Portal 신규 마이그레이션 왕복")
     void migrationRoundTrip() throws Exception {
         try(var connection=f.bean(DataSource.class).getConnection();var migration=new liquibase.Liquibase("db/changelog/db.changelog-master.yaml",new liquibase.resource.ClassLoaderResourceAccessor(),new liquibase.database.jvm.JdbcConnection(connection))) {
-            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE filename LIKE 'db/changelog/modules/admin/%' AND orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-009-portal-user')",Integer.class);
+            int count=f.database().queryForObject("SELECT COUNT(*) FROM databasechangelog WHERE orderexecuted >= (SELECT orderexecuted FROM databasechangelog WHERE id='admin-009-portal-user')",Integer.class);
             migration.rollback(count,"");
             try(var result=connection.createStatement().executeQuery("SELECT to_regclass('ai_admin_portal_user'),to_regclass('ai_admin_user_group')")){result.next();assertThat(result.getString(1)).isNull();assertThat(result.getString(2)).isNotNull();}
             migration.update(new liquibase.Contexts());

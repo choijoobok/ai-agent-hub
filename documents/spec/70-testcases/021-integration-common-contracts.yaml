@@ -9,7 +9,7 @@ testcases:
     when: API-301/601 반복 호출·동시 탭
     then: sessionId/주체/인증 수준/현재 CSRF 보존, 부재/만료만 새 익명 생성, 저장 실패/commit 전 쿠키0
     status: implemented
-    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
+    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 소비는 SLICE-520, Portal 확정 자격/복구는 SLICE-301의 PortalSessionLiveTest에서 추가 검증했다. 공통 대역과 실제 원장 결과는 구분하며 고객SSO는 SLICE-306 후속이다.
   - id: TC-30119
     feature: FEAT-301
     usecase: UC-045
@@ -20,7 +20,7 @@ testcases:
     when: ADMIN/PORTAL 암호 변경 후 회전
     then: 잘못된 증거는 세션 쓰기0, 정당한 증거만1회 소비. v1/JDBC ADMIN 전체 롤백/Portal 확정 자격 재로그인 복구 구분. v2 Redis ADMIN은 DB확정 뒤 새 발행실패를 새 암호 재로그인으로 복구하며 TC-30123·TC-50115에서 별도 검증. 성공 회전 뒤 새 세션+이전 CSRF는403, 새 CSRF만 허용
     status: implemented
-    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
+    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 소비는 SLICE-520, Portal 확정 자격/복구는 SLICE-301의 PortalSessionLiveTest에서 추가 검증했다. 공통 대역과 실제 원장 결과는 구분하며 고객SSO는 SLICE-306 후속이다.
   - id: TC-30120
     feature: FEAT-301
     usecase: UC-045
@@ -31,7 +31,7 @@ testcases:
     when: rollback/commit UNKNOWN/commit 후 연결 단절·직접 invalidate 경로 주입
     then: rollback/UNKNOWN 신규 쿠키0·후행 flush0. commit 뒤 응답 실패는 DB 보상/명령 자동 재실행0, 다음 정상 인증으로 복구
     status: implemented
-    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 자격/권한 소비는 SLICE-520, Portal 확정 자격/복구·고객SSO는 SLICE-301/306의 후속 검증이며 공통 생산자 대역 시험으로 대신하지 않는다.
+    verification: SLICE-307 소유 공통 계약은 core SessionContractTest와 api SessionBoundaryTest의 실제 HTTP/PostgreSQL·JPA/동시 트랜잭션 시험으로 검증한다. 실행 결과·G4 상태는 project.state.yaml이다. 실제 ADMIN 소비는 SLICE-520, Portal 확정 자격/복구는 SLICE-301의 PortalSessionLiveTest에서 추가 검증했다. 공통 대역과 실제 원장 결과는 구분하며 고객SSO는 SLICE-306 후속이다.
   - id: TC-3021
     feature: FEAT-302
     usecase: UC-046

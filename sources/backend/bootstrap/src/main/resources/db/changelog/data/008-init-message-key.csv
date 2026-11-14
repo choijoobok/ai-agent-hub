@@ -292,6 +292,9 @@ err.notice.popup-period,BACK,팝업을 켰는데 팝업 기간이 비었다 — 
 err.notice.popup-range,BACK,"팝업 기간이 게시 기간을 벗어났다 — screen/admin/system/notice/requirements.md. 이 검증이 없으면 목록에 없는 공지가 팝업으로 뜬다. 팝업의 ""공지 N건 더 있음"" 링크가 알림 모달의 공지 탭을 여는데 그 탭은 게시 기간을 보므로, 눌러도 그 공지가 없다 — 팝업이 도달 보장 장치라는 전제가 거기서 깨진다. /"
 err.notice.required,BACK,제목·본문·게시 시작이 비었다 — 셀 단위 오류로 돌려준다(frontend/grid.md).
 err.password-change-required,BACK,제한 세션. 비밀번호를 바꾸면 풀리므로 이것만 문구가 다르다.
+err.portal.authEvidenceUsed,BACK,외부 인증 요청 또는 증거의 중복 소비.
+err.portal.authMode,BACK,Portal 배포 인증 모드에서 허용하지 않는 인증 동작.
+err.portal.passwordPolicy,BACK,Portal 본인 비밀번호 변경 정책 위반.
 err.query.cursor-sort-arity,BACK,커서형에 정렬 컬럼이 둘 이상 왔다 — 기준점이 성립하려면 정렬 키가 하나여야 한다.
 err.query.invalid-cursor,BACK,커서를 읽을 수 없다. 조용히 첫 장으로 떨어뜨리면 데이터가 없다 로 읽힌다.
 err.query.not-sortable,BACK,.sortable() 이 없는 필드로 정렬을 요청했다. 파생·긴 텍스트가 그렇다.

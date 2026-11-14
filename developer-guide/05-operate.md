@@ -130,11 +130,13 @@ L·R·S(점유 유지·갱신 주기·스위퍼 주기)는 **실행 제한·운�
 v2 공통 설치는 같은 artifact에서 `app.auth.session.provider=jdbc|redis`를 읽는다(기본 `jdbc`).
 `app.auth.session.epoch`와 `app.auth.session.store-instance`는 필수이며 서버의 정확 Origin도
 `app.auth.session.origin`으로 지정한다. HTTP는 명시적 `local-http=true`인 개발 환경만 허용한다.
-현재 제품은 ADMIN만 설치한다. Portal 활성화는 소유 구현 전 기동 오류로 거부한다.
+현재 제품은 ADMIN과 Portal을 설치한다. `PORTAL_AUTH_ENABLED=false`는 Portal 인증 경로 수락을 닫는다.
+`PORTAL_AUTH_MODE=LOCAL`이 기본이며 EXTERNAL은 설치된 고객 검증기와 해당 원장 모드를 요구한다.
+기존 원장과 다른 모드로 자동 전환하거나 장애 때 LOCAL로 돌아가지 않는다.
 영역별 `domains.<admin|portal>.epoch/store-instance`는 global 값을 덮어쓸 수 있다.
 각 노드는 DB 설정판과 불일치하면 기동/수락을 거부하며 기동 자체가 epoch를 바꾸지 않는다.
 실제 ADMIN 설치는 SLICE-520이며 공통 조립만의 시험과 제품 HTTP 시험을 구별한다.
-빈 원장의 최초 ADMIN 설정판만 자동 초기화하며 기존 설정판을 덮어쓰지 않는다.
+각 영역의 원장이 비었을 때만 최초 설정판을 초기화하며 기존 설정판을 덮어쓰지 않는다.
 
 운영 도구는 `sources/`의 `./gradlew.bat :backend:api:authSessionStore`다.
 연결은 `AUTH_SESSION_JDBC`, `AUTH_SESSION_USER`, `AUTH_SESSION_PASSWORD` 환경변수만 받는다.
@@ -157,7 +159,16 @@ JDBC→Redis→JDBC 되돌림도 새 epoch와 전체 재로그인이 필요하�
 DB/Redis 과거 백업 복구 때는 외부 수락을 계속 닫고 구 artifact/구 설정 노드를 재개하지 않는다.
 복구 후 두 영역 새 epoch/구 grant 회수→모든 노드 일치→재로그인을 마친 뒤 수락한다.
 v1 바이너리로 돌아가는 절차는 v2 provider 전환과 다르므로 기존 세션 정리/별도 검증 없이 실행하지 않는다.
-cleanup은 주기적으로 반복하여 청크를 비우며, 실제 공통 스케줄 소비 설치는 후속 system 구현에서 한다.
+공통 grant cleanup은 운영 도구로 반복한다. Portal의 만료 세션/속성과 외부 challenge/증거는
+`PortalSessionCleanup`이 매분 각1000행씩 별도 짧은 트랜잭션으로 정리한다. 보안 사건은 정리하지 않는다.
+Portal 보안 사건은 `AI_PORTAL_AUTH_EVENT`에 저장하며365일 초기 보존 정책의 자동 파기는 고객 아카이브/복구 검수 전 비활성이다.
+
+Portal 세션 기본값은30분, 동시 접속1개와 새 로그인 허용이다. `app.auth.portal.session.timeout`·
+`max-sessions`·`prevent-login`으로 별도 설정한다. 익명은 `app.auth.portal.anonymous-timeout` 기본10분,
+외부 challenge는 `app.auth.portal.external.challenge-timeout` 기본5분이며 익명 기간과5분을 넘을 수 없다.
+Portal 암호 변경 뒤 `PASSWORD_CHANGED_REAUTH_REQUIRED`이면 새 암호로 다시 로그인한다.
+이 결과는 암호 변경 취소가 아니며 원 POST를 자동 재전송하지 않는다. 운영 DB의 인증 표를 DROP해 복구하지 않는다.
+제품 Portal 로그인 화면과 실제 고객 SSO 콜백은 후속 소유 기능이며 서버 인증 API 개통과 구분한다.
 
 ## 관련
 

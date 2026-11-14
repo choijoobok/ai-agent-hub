@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/modules/portal/001-authentication.sql
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/modules/portal/002-authentication-messages.sql
+      relativeToChangelogFile: false
