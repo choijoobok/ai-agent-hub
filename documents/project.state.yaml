@@ -14,11 +14,11 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: integration   # integration G3 승인, 다음 SLICE-303
+  workstream: integration   # integration G3 승인, 다음 SLICE-305
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
-  slice: SLICE-303          # 현재 Portal 그룹/자산 정책 판정
+  slice: SLICE-305          # 현재 Portal 그룹/자산 정책 판정
   blocked_by: []
   delegated_progress:
     authorized_at: "2026-11-14T09:32:00+09:00"
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 43    # CR-044 Portal 원장과 후속 연결 완료 경계·기간 정정
+  CR: 44    # CR-045 공통 판정과 후속 자산/고객 마스킹 연결
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -1999,14 +1999,60 @@ slices:
       - TC-3034
       - TC-3035
     scope: 현재 Portal 그룹/자산 정책 공통 판정
-    stage: P3
-    status: todo
+    stage: P4
+    status: done
+    approved_at: "2026-11-14"
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-005
       - SLICE-006
     entry_conditions:
       - integration G3와 소유 공개 계약/필수 생산 포트 준비. UI 없는 공통 기능에 새 화면 승인을 요구하지 않는다. 실제 연동/원천 시험은 대역과 구분한다.
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      source_commit: a8f03fbd
+      implemented: 현재 계정/소속/등급의 실제 원장을 공유 보호 아래 읽어 순수 그룹 판정·제한 콜백과 스칼라 필드 투영을 조립했다. 그룹 합집합과 필수 자산 관문 AND, 등록 상속/예외·필드 정보 유형/유틸 버전과 낮은 마스킹 순위, 추가 관문·미설치/장애 폐쇄를 구현했다. 별도 HTTP/화면/DB 테이블은 없다.
+      source_refs:
+        - sources/backend/core/src/main/java/com/aiagent/core/access/
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/portal/PortalDataAccess.java
+        - sources/backend/bootstrap/src/test/java/com/aiagent/admin/managed/GroupAccessLiveTest.java
+        - developer-guide/03-develop.md
+      verification:
+        test_first: GroupAccessTest 공개 타입 부재의 컴파일 RED를 확인한 뒤 구현했다.
+        backend: 변경 순수 계약6·실제 PostgreSQL3·모듈 의존7의 고유16개/skip0 통과. 실제 관리자 HTTP로 Portal 계정/소속/등급을 준비하고 실제 원장 판정·현재 소속 회수·수락 rollback·정책 수락/회수 양 순서의 경합과 효과1건을 확인했다. 자산 정책은 합성 DB 소유 포트다.
+        safety: 미등록 경로·중첩/지원 밖 값·다른 주체/자산/내용판/목적/정책판·다른 스레드/콜백 종료·변환 실패에 빈 MISMATCH이며 원문 대체0이다. 보관한 Decision을 받아 새 Use를 만드는 공개 함수를 없애고 원천 조립자가 새 Snapshot을 판정하도록 했다.
+        scope: 최종 조립 경계 변경 후 공통6·실제DB3만 재검사했다. 모듈 의존7은 비영향 결과를 재사용했다. 전체 check/프론트/인증 전수·Redis를 반복하지 않았다. DB 스키마와 HTTP/화면 변경이 없어 migration/browser 시험은 해당 없음이다.
+        static: 중복2.6%·삼킴0·미태깅0. 공통물37개/문서 결손0·하네스18개 일치·meta 위반0·trace 오류0/후속경고72. doc-gen413개·ID1621·장문17896 누락0/깨진링크0·HTML492/21/9장 구조/자산 검사·diff 통과.
+        evidence:
+          - sources/build/slice303-red.log
+          - sources/build/slice303-final-contracts.log
+          - sources/build/slice303-final-live.log
+          - sources/build/slice303-quality.log
+          - sources/build/slice303-doccheck.log
+      redteam:
+        - risk: 하나의 그룹 허용으로 상위 자산이나 다른 참조 자산까지 우회하거나 미등록 원천 필드가 공개될 수 있다.
+          resolution: 독립 Gate 전부와 소속 교집합, 상위 밖 예외/필수 참조 필드·미등록 경로의 폐쇄를 반례로 확인했다. 데이터소스 어휘 제약과 런타임 관문은 CR-045로 구분했다.
+        - risk: 단일 그룹의 마스킹 예외가 필드 정보 유형을 바꾸거나 과거 허용/다른 목적의 결정을 재사용할 수 있다.
+          resolution: 필드 MaskDomain을 명시하고 같은 유형/버전·등록 순위만 허용했다. 새 Snapshot 판정과 콜백 수명/스레드·binding 전부 대조, 실패 시 빈 투영을 검증했다.
+        - risk: 소속/정책 회수와 실행 수락이 교차하거나 필수 추가 관문이 없는데 그룹 ALLOW만으로 실행될 수 있다.
+          resolution: 동일 PortalPolicy 공유/배타 보호의 실제 두 트랜잭션 양 순서와 미설치 관문의 효과0을 확인했다. 외부 I/O는 보호 밖 실행 계약이며 후속 단일 전송/최종 공개 소비에서 재검증한다.
+      followup:
+        - "@defer 자산 소유 SLICE-001/002/003/004/011/020 — 실제 정책 원장/참조·보호 쓰기·신원/마스킹 유틸·경로 정규화와 최종 직렬화를 연결해 검증한다. 공통 대역 검증을 해당 구현 완료로 표시하지 않는다."
+        - "@defer agent/Portal 소비 — 현재 행 스코프·동의·승인·점유/단일 전송·최종 공개의 소유 관문을 연결한다. 고객 마스킹 처리표는 고객 합의 후 코드/기대 결과로 검수한다."
+      g4:
+        status: approved
+        approved_at: "2026-11-14"
+        approval_basis: delegated_progress
+        technical_exit_criteria: CR-045 완료 경계의 기술 기준9/9 충족. 부재 중 권장안 결정·후속 구현·각 완료 커밋/푸시의 사용자 명시 위임에 따른 기술 G4다.
+        user_screen_acceptance: not_applicable_server_slice
+        unresolved_assumptions: 현재 공통 범위의 미결 전제 없음. 고객 마스킹/자산 생산 연결은 후속 소유 기능으로 구분한다.
+        decision_card:
+          - 그룹 허용은 합치되 필요한 자산 관문은 각각 통과한다. 관리자 역할로 업무자료를 열지 않는다. 변경 비용은 높다.
+          - 현재 정책 확인에 실패하면 닫고 과거 허용을 재사용하지 않는다. 변경 비용은 높다.
+          - 마스킹은 고객 합의한 구현만 연결하며 아직 없는 규칙은 원문으로 대신하지 않는다. 변경 비용은 중간이다.
+          - 이번 완료는 공통 판정과 연결 경계다. 실제 자산 화면과 최종 응답은 소유 구현에서 검수한다. 변경 비용은 낮다.
+        reverse_question: 복귀 후 실제 자산 연결 순서와 고객 마스킹 요건 확보 담당을 검토한다. 위임 구현은 응답을 기다리지 않고 계속한다.
   - id: SLICE-521
     workstream: system
     features:
@@ -2691,6 +2737,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-303, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-045 공통 완료 범위 고유16개/skip0 통과. 변경 계약6·실제DB3·의존7이며 조립 보완 후 영향9개만 재검사했다. 자산 원장/고객 마스킹/최종 소비 검증은 후속으로 명시한다. 반복 전체 횟수는 미계측이다." }
   - { slice: SLICE-005, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-044 완료 경계에서 신규14·영향 회귀3 고유17개/skip0 통과. 실제 DB 적용/복구·권한·현재 접근 경합·원자성·암호 재수신과 브라우저 양방향 소속 저장을 검증했다. 전체 수정/레드팀 반복 수는 미계측이며 계측하지 않은 값을0으로 만들지 않는다. 실제 세션·고객 인증/인사 수신·대상 후보·배정은 후속 소유 범위다." }
   - { slice: SLICE-042, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-043 기준 관리 완료 범위 고유13개 통과. 실제 DB·이력 rollback·미래 기준/안정 ID와 브라우저 저장/복사를 검증했다. 전체 수정 반복은 미계측이다. 사용자 연결 후속은005에서 검증 완료, 예정/확정 배정 경합은017/045에서 검증한다." }
   - { slice: SLICE-006, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: 3, note: "CR-040으로006/005 순환 완료 경계를 분리했다. 전체 수정 반복 횟수는 계측하지 않았다. HIST 원자성·미확정 재시도·참조 미확인 보호와 실제 화면 CSRF 누락을 검증/보완했다. 현재 범위 자동29개 통과, 후속 소속·자산 실제 연결은 소유 슬라이스에 배정한다." }
