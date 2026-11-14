@@ -56,7 +56,7 @@ public class ManagedHistoryService {
         consumer(use).requireActive(use.key(),use.purpose());
         register(use,roots);
     }
-    void protectManagedRecord(Event event) {
+    public void protectManagedRecord(Event event) {
         if(event.references().isEmpty())return;
         var use=managedUse(event.historyNo()); locks.consumer(use.lockKey()); register(use,event.references());
     }

@@ -10,4 +10,6 @@ public interface PortalIdentityTargets {
     Candidates list(String kind);
     /** 화면 후보 페이지가 아니라 정확 ID의 현재 열람/변경/기술 유효성을 검사한다. */
     void requireWritable(String kind,String targetId);
+    /** 신원 저장 전에 대상의 소유 경계를 함께 잠근다. 삭제/설정 전환과 참조 추가를 직렬화한다. */
+    default List<com.aiagent.admin.managed.ManagedLocks.Key> locks(String kind,List<String> targetIds){return List.of();}
 }

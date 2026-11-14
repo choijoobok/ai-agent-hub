@@ -368,6 +368,8 @@ export interface ColumnDef<T> {
    * 셀을 만들지 않으려고, 어댑터가 `onClick` 없는 `link` 를 보통 텍스트로 그린다.
    */
   onClick?: (row: T) => void;
+  /** 행의 실행 조건이 충족되지 않으면 링크를 비활성화한다. 현재 서버 권한 검사는 별도다. */
+  clickEnabled?: (row: T) => boolean;
   /**
    * 이 <b>칸</b>을 더블 클릭했을 때 — screen/admin/system/log/access/requirements.md.
    *

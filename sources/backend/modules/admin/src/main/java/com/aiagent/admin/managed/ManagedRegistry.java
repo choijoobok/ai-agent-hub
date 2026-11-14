@@ -9,7 +9,11 @@ public final class ManagedRegistry {
     private final Map<String,Operation> operations;
     private final Map<String,ManagedAssetAdapter> owners;
     private final List<ManagedJournal> journals;
+    private final List<ManagedResultRoute> resultRoutes;
     public ManagedRegistry(javax.sql.DataSource source,List<Operation> declarations,List<ManagedJournal> journals) {
+        this(source,declarations,journals,List.of());
+    }
+    public ManagedRegistry(javax.sql.DataSource source,List<Operation> declarations,List<ManagedJournal> journals,List<ManagedResultRoute> resultRoutes) {
         var ops=new LinkedHashMap<String,Operation>(); var assets=new LinkedHashMap<String,ManagedAssetAdapter>();
         var stores=new HashMap<String,ManagedJournal>();
         for(var store:journals)if(store.dataSource()!=source||stores.putIfAbsent(store.name(),store)!=null)throw new IllegalStateException("명령 원장 DB/이름이 일치하지 않는다");
@@ -23,8 +27,11 @@ public final class ManagedRegistry {
             var old=assets.putIfAbsent(op.owner().kind(),op.owner());
             if(old!=null&&old!=op.owner())throw new IllegalStateException("같은 자산 종류의 소유자가 중복됐다");
         }
-        operations=Map.copyOf(ops); owners=Map.copyOf(assets); this.journals=List.copyOf(journals);
+        var resultIds=new HashSet<String>();
+        for(var route:resultRoutes)if(route.id().equals("API-082")||ops.containsKey(route.id())||!resultIds.add(route.id())||!paths.add(route.path()))throw new IllegalStateException("관리 결과 조회 경로가 중복됐다");
+        operations=Map.copyOf(ops); owners=Map.copyOf(assets); this.journals=List.copyOf(journals);this.resultRoutes=List.copyOf(resultRoutes);
     }
+    public List<ManagedResultRoute> resultRoutes(){return resultRoutes;}
     public Collection<Operation> operations() { return operations.values(); }
     public Operation operation(String id) { var op=operations.get(id); if(op==null)throw ManagedErrorCode.VALIDATION.failure();return op; }
     public Optional<Operation> path(String path) { return operations.values().stream().filter(op->op.path().equals(path)).findFirst(); }

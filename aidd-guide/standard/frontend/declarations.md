@@ -85,6 +85,7 @@ tags: [frontend, grid, column, searchform, vocabulary, reference]
 | `listModal` | 없다 | 배열 편집 창 |
 | `viewer` | 없다 | 장문 보기(`nclob`) |
 | `onClick` · `onDoubleClick` | 없다 | 셀 클릭 |
+| `clickEnabled` | 항상 허용 | 링크 렌더러의 행별 실행 조건. false이면 비활성 표시하고 클릭을 전달하지 않는다. 서버의 현재 권한·조건 재검사는 유지한다. |
 
 ## 2. `SearchField` — 15 키
 

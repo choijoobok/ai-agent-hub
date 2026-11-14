@@ -1059,6 +1059,9 @@ entities:
         physical_name: API_ID
         pk: false
         description: 안정 식별자
+      - name: API 종류
+        physical_name: API_KIND_CD
+        description: ADR-051 공통 API 종류. 현재 REST_JSON만 지원하며 후속 종류는 같은 API_ID와 종류별 자식/전체 이력을 사용한다.
       - name: DRAFT/ACTIVE/DISABLED/RETIRED
         physical_name: LIFECYCLE_CD
         description: DRAFT/ACTIVE/DISABLED/RETIRED
@@ -1161,6 +1164,10 @@ entities:
           type: bigint
           nullable: false
           default: null
+        - name: API_KIND_CD
+          type: character varying(40)
+          nullable: false
+          default: "'REST_JSON'"
         - name: LIFECYCLE_CD
           type: character varying(40)
           nullable: false

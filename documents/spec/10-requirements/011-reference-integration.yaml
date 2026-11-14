@@ -661,6 +661,16 @@ requirements:
       fixed: "시스템/연결 식별자·소속 시스템·Base URL·인증 방식/비밀 참조·공통 헤더·접속 테스트 구성은 YAML 전용이다. UI/API 저장 입력에 포함하면 거부한다. 식별자 대소문자/공백을 임의 정규화하거나 다른 대상에 재사용하지 않는다."
       editable: "시스템명·연결명·설명은 YAML에 있으면 기본 표시값으로 사용하고 DB 재정의가 있으면 우선한다. 재정의 null은 YAML 기본값 사용이며 이름 재정의는 비공백이다. 설명 빈 문자열은 명시적 공란으로 null과 구분한다. 이름이 모두 없으면 식별자로 표시한다."
       boundary: "화면에서 임의 신규·삭제·허용 연결 추가/제거·기본 연결·별도 시스템 사용 스위치는 제공하지 않는다. 확정 누락 건 정리는 configuration_cleanup의 별도 명령이다. 신원 매핑은 Portal 사용자 관리에서 설정하며 접속 인증 자격증명과 구분한다. 시스템에 사용자 그룹 매핑을 두지 않는다."
+    yaml_binding:
+      namespace: "app.deployment.target-systems.<systemKey>.{name,description,connections}. 각 connections.<connectionId>는 registry-key로 기존 app.deployment.connections의 BUSINESS_API 정의를 정확 참조한다. endpoint/authentication/principal/secret-property/headers는 공통 정의 한 곳에만 둔다. 한 registry-key를 여러 소속에 중복 연결하지 않는다."
+      connection: "name/description은 선택 기본 표시 메타, invoker-bean은 필수 등록 공통 인터페이스 빈이다. options는 connect-timeout-ms/request-timeout-ms/max-response-bytes/api-key-header만 허용한다. public-path-segments는 표시 가능한 정적 경로 조각 집합이다. 알 수 없는 옵션/잘못된 소속/지원 불가는 전체 정의 검증 실패다."
+      defaults: "options 미지정은 연결1000ms/전체10000ms/응답1048576바이트다. 명시 옵션은 연결1..60000ms, 전체는 연결 이상..86400000ms, 응답1..10485760바이트로 제한한다. 업무 실행의 더 작은 남은 시간/전송 한도는 실행 소유자가 추가 제한한다. API_KEY에는 보호된 api-key-header, BASIC에는 유효 principal이 필요하다. 최초 restJsonInvoker는 NONE/BASIC/BEARER/API_KEY와 REST_JSON을 지원한다. EXTERNAL/SAP는 지원하는 후속 빈 없이는 열지 않는다."
+      safe_test: "test는 선택이다. method=GET/HEAD, path=등록 Base URL 아래 정적 상대 경로, timeout-ms=1..60000, success-statuses=명시2xx 집합만 받는다. 요청자 URL/헤더/본문을 받지 않고 응답 원문은 표시·기록하지 않는다. 리다이렉트/업무 재시도 없음."
+      snapshot: "기동의 최종 우선순위 적용 설정을 불변으로 고정한다. 전체 정의와 선택 연결의 비밀 소비 검증 후 공개하며 settingsId에는 명시 안전 표시 대상/인증 종류·소속·표시 기본값·빈 이름·옵션·안전 테스트를 넣고 원 비밀/계정/비밀 참조 값을 제외한다. 부트 UUID와 settingsId를 구분한다. 상세 사용 예는 developer-guide/04-release.md를 따른다."
+    invoker_extension:
+      decision: "CR-050 B·ADR-051. 연결별 invoker-bean으로 등록된 공통 호출 인터페이스 구현 빈을 명시한다. 일반 REST_JSON을 먼저 지원하고 SAP OData 빈/전용 설정은 후속이다. 빈 누락·잘못된 타입·미지원 옵션을 기본 구현으로 대체하지 않는다."
+      ownership: "YAML은 연결 소속·유틸·비밀 참조·전송 한계·안전 테스트를 소유한다. UI는 읽기 전용 지원/검증 상태만 표시하고 유틸명/옵션을 저장 입력으로 받지 않는다. 권한·승인·감사·전체 제한·재시도는 실행 소유의 공통 경계를 유지한다."
+      followup: "@defer SAP OData — ADR-051. 서비스별 토큰/쿠키·자료형·페이지·일괄 호출의 실제 지원은 후속 검수하며 등록 빈 존재나 GET/HEAD 접속 성공을 업무 연동 완료로 표시하지 않는다."
     configuration_diagnosis: "REQ-601.configuration_diagnosis. 기동 동기화·대상별 DB 저장·비밀 제외 지문·조회/호출 재사용은 공통 계약을 따른다. 대상 시스템 상단은 자기 정의와 자식 판정의 집계, API는 선택한 연결 판정만 사용한다."
     synchronization:
       load: "프로파일/설정 우선순위가 적용된 현재 환경의 전체 YAML 스냅샷을 먼저 검증한다. 필수 기술값·중복 키·소속/테스트 계약 검증 실패는 부분 반영하거나 전 항목 삭제로 해석하지 않는다."

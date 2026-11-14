@@ -1,7 +1,7 @@
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import type { ReactElement } from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { CELL_ICONS, cellIcon } from '@/shared/grid/cellIcons';
 import { toColDefs } from '@/shared/grid/columnDefs';
 import type { GridRow } from '@/shared/grid/rows';
@@ -63,6 +63,20 @@ describe('progress · icon 렌더러', () => {
       { value: 'FAIL', text: '실패' },
     ],
   };
+
+  it('행의 실행 조건이 거짓이면 링크를 비활성화하고 클릭을 전달하지 않는다', () => {
+    const clicked = vi.fn();
+    const def = build({ field: 'stat', header: 'h', type: 'text', renderer: 'link', onClick: clicked, clickEnabled: (row) => row.stat === 'READY' });
+    const renderer = def.cellRenderer as (params: ICellRendererParams<GridRow<Row>>) => ReactElement;
+    const drawRow = (stat: string) => renderer({ value: '실행', data: { id: '1', state: null, original: null, data: { stat, rate: 0 } } } as ICellRendererParams<GridRow<Row>>);
+    const view = render(drawRow('UNKNOWN'));
+    expect(screen.getByText('실행').getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(screen.getByText('실행'));
+    expect(clicked).not.toHaveBeenCalled();
+    view.rerender(drawRow('READY'));
+    fireEvent.click(screen.getByText('실행'));
+    expect(clicked).toHaveBeenCalledOnce();
+  });
 
   it('아이콘 칸에는 읽는 이름이 붙는다 — 아이콘만 남으면 흑백 인쇄에서 읽히지 않는다', () => {
     draw(build(iconColumn), 'DONE');

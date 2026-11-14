@@ -3385,4 +3385,74 @@ export const MSG = {
   SEARCH_TAG_LOADING: 'search_tag.loading',
   /** 상세를 조회하지 못했습니다. 다시 조회해 주세요. */
   SEARCH_TAG_FAILED: 'search_tag.failed',
+  /** 대상 시스템 */
+  TARGET_TITLE: 'target_system.title',
+  /** 대상 번호 */
+  TARGET_ID: 'target_system.id',
+  /** 시스템 식별자 */
+  TARGET_KEY: 'target_system.key',
+  /** 시스템명 */
+  TARGET_NAME: 'target_system.name',
+  /** 설명 */
+  TARGET_DESCRIPTION: 'target_system.description',
+  /** 서버 설정 불일치 */
+  TARGET_MISMATCH: 'target_system.mismatch',
+  /** 불일치 */
+  TARGET_MISSING: 'target_system.missing',
+  /** 일치 */
+  TARGET_MATCHED: 'target_system.matched',
+  /** 연결 식별자 */
+  TARGET_CONNECTION_KEY: 'target_system.connection_key',
+  /** 연결명 */
+  TARGET_CONNECTION_NAME: 'target_system.connection_name',
+  /** 현재 접속 주소 */
+  TARGET_URL: 'target_system.url',
+  /** 인증 방식 */
+  TARGET_AUTH: 'target_system.auth',
+  /** 연결 테스트 */
+  TARGET_TEST: 'target_system.test',
+  /** API 번호 */
+  TARGET_API_ID: 'target_system.api_id',
+  /** API명 */
+  TARGET_API_NAME: 'target_system.api_name',
+  /** API 종류 */
+  TARGET_API_KIND: 'target_system.api_kind',
+  /** 대상 시스템 요청을 처리하지 못했습니다. */
+  TARGET_FAILED: 'target_system.failed',
+  /** 기준 정보가 변경되었습니다. 다시 조회해 주세요. */
+  TARGET_STALE: 'target_system.stale',
+  /** 미저장 변경·권한·현재 연결 및 테스트 설정을 확인해 주세요. */
+  TARGET_TEST_BLOCKED: 'target_system.test_blocked',
+  /** 설정한 연결 테스트에 성공했습니다. 업무 API 검증 결과와는 별개입니다. */
+  TARGET_TEST_SUCCESS: 'target_system.test_success',
+  /** 연결 테스트에 성공하지 못했습니다. 설정과 대상 응답을 확인해 주세요. */
+  TARGET_TEST_FAILED: 'target_system.test_failed',
+  /** 원 명령 결과 확인 */
+  TARGET_RESULT: 'target_system.result',
+  /** 누락 시스템 일괄 정리 */
+  TARGET_CLEAN_SYSTEM: 'target_system.clean_system',
+  /** 누락 연결 일괄 정리 */
+  TARGET_CLEAN_CONNECTION: 'target_system.clean_connection',
+  /** 표시 보완을 YAML 기본값으로 복원 */
+  TARGET_RESET: 'target_system.reset',
+  /** 연결 정보 */
+  TARGET_CONNECTIONS: 'target_system.connections',
+  /** 사용 API 정보 */
+  TARGET_APIS: 'target_system.apis',
+  /** 업무 API 관리 기능이 아직 연결되지 않았습니다. */
+  TARGET_NOT_CONNECTED: 'target_system.not_connected',
+  /** 대상 시스템 전체 표시 보완 저장 */
+  TARGET_SAVE: 'target_system.save',
+  /** 설정 누락 항목 일괄 정리 확인 */
+  TARGET_CLEAN_CONFIRM: 'target_system.clean_confirm',
+  /** 현재 조회조건 전체에서 누락이 확인된 항목입니다. 참조가 남거나 확인할 수 없으면 전체 정리를 차단합니다. */
+  TARGET_CLEAN_HELP: 'target_system.clean_help',
+  /** 정리 가능 여부 */
+  TARGET_CLEAN_STATE: 'target_system.clean_state',
+  /** 차단 — 참조 또는 배포 근거 확인 필요 */
+  TARGET_CLEAN_BLOCKED: 'target_system.clean_blocked',
+  /** 정리 가능 */
+  TARGET_CLEAN_READY: 'target_system.clean_ready',
+  /** 시스템과 연결은 서버 YAML에서 등록합니다. 행을 선택해 이름·설명을 보완하며, 접속 주소·인증 정보는 여기서 변경하지 않습니다. */
+  TARGET_HELP: 'target_system.help',
 } as const;

@@ -25,9 +25,12 @@ public class ManagedRetentionService {
         if(found.isEmpty())return false;
         var entry=found.get();
         if(entry.recordedAt()==null||!entry.recordedAt().isBefore(calendar.now().minus(retention)))return false;
-        if(entry.historyNo()!=null) {
-            var store=registry.owner(entry.kind()).history();
-            var event=store.event(entry.historyNo()); locks.ordered(store.locks(event.ref())); locks.history(event.historyNo());
+        var numbers=registry.journals().stream().filter(j->j.find(key).isPresent()).flatMap(j->j.histories(entry).stream()).distinct().sorted().toList();
+        var store=registry.owner(entry.kind()).history();
+        var events=numbers.stream().map(store::event).toList();
+        locks.ordered(events.stream().flatMap(event->store.locks(event.ref()).stream()).toList());
+        for(var event:events) {
+            locks.history(event.historyNo());
             if(store.current(event)||history.protectedHistory(event.historyNo()))return false;
         }
         guard.expire(entry);

@@ -215,3 +215,10 @@ menus:
     parent: HUB_KNOWLEDGE
     url: /admin/hub/knowledge-tag
     export: true
+  # @feat FEAT-001
+  - code: HUB_INTEGRATION
+    parent: HUB
+  - code: HUB_TARGET_SYSTEM
+    parent: HUB_INTEGRATION
+    url: /admin/hub/target-system
+    export: true

@@ -6,7 +6,7 @@ entities:
     domain: 운영 진단
     module: admin
     design_stage: physical
-    implementation: planned
+    implementation: implemented
     features:
       - FEAT-001
       - FEAT-002
@@ -80,7 +80,7 @@ entities:
           nullable: false
           default: null
         - name: TARGET_KEY
-          type: character varying(200)
+          type: character varying(201)
           nullable: false
           default: null
         - name: CONFIG_ID
@@ -133,7 +133,10 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: not_management_history
     delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
@@ -144,7 +147,7 @@ entities:
     domain: 운영 진단
     module: admin
     design_stage: physical
-    implementation: planned
+    implementation: implemented
     features:
       - FEAT-001
       - FEAT-002
@@ -230,7 +233,10 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: not_management_history
     delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.
@@ -240,7 +246,7 @@ entities:
     domain: 운영 진단
     module: admin
     design_stage: physical
-    implementation: planned
+    implementation: implemented
     features:
       - FEAT-001
       - FEAT-002
@@ -331,7 +337,7 @@ entities:
           nullable: false
           default: null
         - name: TARGET_KEY
-          type: character varying(200)
+          type: character varying(201)
           nullable: false
           default: null
         - name: MISMATCH_YN
@@ -379,10 +385,13 @@ entities:
         - name: IX_CONFIG_DIAGNOSIS_1
           unique: false
           method: btree
-          definition: CREATE INDEX IX_CONFIG_DIAGNOSIS_1 ON AI_ADMIN_CONFIG_DIAGNOSIS (ENVIRONMENT_ID, CONFIG_ID, TARGET_KIND, TARGET_KEY, CHECKED_DTM)
+          definition: (ENVIRONMENT_ID, CONFIG_ID, TARGET_KIND, TARGET_KEY, CHECKED_DTM)
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: not_management_history
     delete_policy: conventions.foundation_physical.deletion 및 소유 요구의 참조 보호를 따른다. 불변 업무/관측 기록은 보존 종료·소비 보호 해제 후 별도 파기하며 관리 화면에서 일반 삭제하지 않는다.

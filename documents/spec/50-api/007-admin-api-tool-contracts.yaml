@@ -11,6 +11,7 @@ feature_contracts:
     knowledge_mapping_boundary: REQ-303.reference_mapping. 지식의 외부 안정 ID 연결과 기술적 정확 참조를 구분한다. 외부 리비전 상승만으로 지식 매핑을 동기화/거부하지 않고 필수 SQL/API/참조 무결성만 검사한다. 대상 안정 ID/종류·표시명·적용 리비전·연결 경로·현재 참조 여부를 현재 열람 권한 안에서 조회한다. 연결 지식 본문/사용 설명 자동 수집·업무 의미 영향 판단/보완 작업은 제공하지 않는다.
     response_rule: 현재 항목·선택한 전체 내용 판·후보 검수·공동 오픈 시점·현재 호출 조건을 구분한다. 저장/검수 성공으로 호출 가능을 확정하지 않는다. 현재 연결 검사는 주소/인증값을 제외한 관측이며 예약/실행 허가가 아니다
     identity_verification: REQ-609.identity_verification·IF-009. 선택 연결의 검수된 신원 계약을 참조하고 신원 필요 Boolean 편집/수락은 제공하지 않는다. 내부 발급과 대상 시스템용 검증·소비 API는 관리 CRUD와 별도 인증/권한 경계이며 물리 URL/DTO는 후속 상세 설계한다. 토큰 원문/해시·대상 신원 확인 응답은 관리 응답/전체 이력에 포함하지 않는다.
+    api_extension: REQ-608.api_extension·ADR-051. BusinessApiRow/Detail/RevisionDetail의 apiKind는 마스터 API_KIND_CD다. 현재 생성은 REST_JSON으로 서버 고정하며 저장 입력의 임의 종류/종류 변경은 거부한다. 후속 전용 화면도 같은 API_ID·전체 구성/이력과 공통 연결 조회를 사용한다.
     composition_contract:
       scope: 현재 업무 내용·전체 소유 관리 자식·접근 그룹은 같은 전체 구성이다. 현재값과 성공 적용 HIST에 동형 매핑하며 외부 소유 관측/비밀은 제외한다.
       identity: 신규 필드는 clientKey(UUID)로 임시 연결하고 서버가 ENT-029를 배정한다. 같은 저장 안의 값/코드명/대응/출처는 전체 clientKey 집합을 먼저 해석한다. 기존 FIELD_ID의 API 소유는 고정이다. 판 안의 referenceNo/bindingNo/checkNo/valueNo 등은 양의 순번이며 해당 판 안에서만 의미가 있다. 코드 항목은 이 순번과 별개인 안정 itemId를 사용하고 이름/값/정렬이 바뀌어도 유지한다. 신규 항목의 valueClientKey는 같은 전체 저장에서 먼저 해석해 결과 판정 참조와 HIST에 함께 보존한다. 다른 후보의 신규 필드를 참조하려면 먼저 저장해 실제 ID를 받는다

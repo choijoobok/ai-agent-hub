@@ -41,6 +41,7 @@ public final class PortalDependencies {
         var provider=targets.getIfUnique();return provider==null?new PortalIdentityTargets.Candidates("NOT_CONNECTED",List.of()):provider.list(kind);
     }
     public void requireTarget(String kind,String id){var provider=targets.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();provider.requireWritable(kind,id);}
+    public List<com.aiagent.admin.managed.ManagedLocks.Key> targetLocks(String kind,List<String> ids){var provider=targets.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();return provider.locks(kind,ids);}
     public PortalExternalDirectory.Identity external(String source,String subject) {
         var provider=external.getIfUnique();if(provider==null)throw ManagedErrorCode.UNAVAILABLE.failure();
         var identity=provider.verified(source,subject);

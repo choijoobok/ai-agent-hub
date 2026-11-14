@@ -50,3 +50,24 @@ databaseChangeLog:
   - include:
       file: 017-search-tag-sequences.sql
       relativeToChangelogFile: true
+  - include:
+      file: 018-target-system.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 019-target-deployment.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 020-target-system-menu.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 021-target-system-execute.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 022-target-system-cleanup.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 023-target-deployment-command.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 024-target-system-messages.sql
+      relativeToChangelogFile: true

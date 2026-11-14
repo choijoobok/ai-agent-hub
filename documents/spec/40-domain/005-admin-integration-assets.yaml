@@ -1,4 +1,4 @@
-# 영역: admin 연동 자산 — 대상 시스템·데이터소스 물리 설계 초안 (미구현)
+# 영역: admin 연동 자산 — 대상 시스템 구현, 데이터소스 후속 설계
 entities:
   - id: ENT-001
     configuration_cleanup: REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다.
@@ -6,7 +6,7 @@ entities:
     term: TRM-040
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_TARGET_SYSTEM
     features:
@@ -97,7 +97,7 @@ entities:
       - REQ-601.business_rules
       - ARCH-028.api_connection_resolution
       - UC-015
-    storage_contract: REQ-604.synchronization과 FEAT-001의 기존 대상 표시 보완 저장. 동기화는 전체 검증된 설정에서 메타만 갱신하고 관리자 재정의는 보존한다. 구성 제거 행은 보존한다. 현재 물리 설계는 미구현 초안이며 추가/수정 actor 종류와 nullable 관리자 참조를 구분한다.
+    storage_contract: REQ-604.synchronization과 FEAT-001의 기존 대상 표시 보완 저장. 동기화는 전체 검증된 설정에서 메타만 갱신하고 관리자 재정의는 보존한다. 구성 제거 행은 보존한다. SLICE-001에서 구현했으며 CONFIG_SYNC와 ADMIN 출처·nullable 관리자 참조를 구분한다.
     physical:
       attributes:
         - name: TARGET_SYSTEM_ID
@@ -117,7 +117,7 @@ entities:
           nullable: false
           default: '1'
         - name: REG_ID
-          type: character varying(30)
+          type: character varying(50)
           nullable: true
           default: null
         - name: REG_DTM
@@ -125,7 +125,7 @@ entities:
           nullable: false
           default: null
         - name: MOD_ID
-          type: character varying(30)
+          type: character varying(50)
           nullable: true
           default: null
         - name: MOD_DTM
@@ -176,7 +176,10 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: full_owned_snapshot
       parent: root
@@ -407,7 +410,7 @@ entities:
     term: TRM-040
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_TARGET_SYSTEM_HIST
     features:
@@ -567,7 +570,7 @@ entities:
           nullable: false
           default: null
         - name: REG_ID
-          type: character varying(30)
+          type: character varying(50)
           nullable: true
           default: null
         - name: REG_DTM
@@ -575,7 +578,7 @@ entities:
           nullable: false
           default: null
         - name: MOD_ID
-          type: character varying(30)
+          type: character varying(50)
           nullable: true
           default: null
         - name: MOD_DTM
@@ -681,8 +684,11 @@ entities:
         - name: IX_TARGET_SYSTEM_HIST_LOOKUP
           unique: false
           method: btree
-          definition: CREATE INDEX IX_TARGET_SYSTEM_HIST_LOOKUP ON AI_ADMIN_TARGET_SYSTEM_HIST (TARGET_SYSTEM_ID, HISTORY_NO)
-    sources: []
+          definition: (TARGET_SYSTEM_ID, HISTORY_NO)
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: immutable_snapshot
       source: ENT-001

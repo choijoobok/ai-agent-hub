@@ -7,7 +7,7 @@
 - **이 데이터를 누가 쓰나**: API 관리, Portal 사용자 신원 매핑, agent 및 저장된 워크플로우 실행 전 검사. 계정 매핑은 접속 자격증명이나 API 권한을 대신하지 않는다.
 - **바꾸면 어디가 흔들리나**: YAML에서 제거된 시스템/연결은 DB 참조를 보존하지만 현재 호출은 차단한다. REQ-601.asset_availability의 관리자 경고·현재 유효성 검사에 연결한다.
 
-> 2026-11-01 사용자 승인 설계다. 제품 화면·서버·시드는 아직 미구현이다. system 환경설정의 YAML 기본값과 DB 보완값 분리 원칙을 사용하되, 그 기존 구현이 기동 DB 동기화나 DB 잔재 노출을 이미 제공한다고 보지 않는다.
+> 2026-11-14 SLICE-001 구현과 대조했다. CR-049 A의 생산 기능·연결 포트 및 CR-050 B의 연결별 호출 유틸 구조를 반영했다. 업무 API·워크플로우·대시보드·독립 이력 화면의 실제 소비와 SAP OData는 후속이다. 목업의 API/이력 예시는 최종 설계이며 현재 연결 완료를 뜻하지 않는다.
 
 ## 관련 요구사항
 
@@ -24,18 +24,20 @@
 | 화면 / 기능 / 유즈케이스 | SCR-001 / FEAT-001 / UC-015·UC-001·UC-002·UC-006 |
 | 페이지 경로 | /admin/hub/target-system |
 | 메뉴코드 / 상위 메뉴 | HUB_TARGET_SYSTEM / HUB_INTEGRATION |
-| 프론트 폴더 | sources/frontend/src/modules/admin/features/targetsystem/ — 예정 |
-| 백엔드 패키지 | admin 소유. 세부 패키지는 화면 합의/G3에서 확정 |
+| 프론트 폴더 | sources/frontend/src/modules/admin/features/targetsystem/ |
+| 백엔드 패키지 | com.aiagent.admin.targetsystem / com.aiagent.admin.api.targetsystem |
 | 화면 유형 | 마스터-디테일(상하) — 상단과 하단 두 탭·가운데 스플리터 |
 | 처리 유형 | 기존 대상의 표시 보완값 수정. 일반 신규·삭제 없음. 확정 누락 건 일괄 정리 제공 |
 | 쓰는 액션 | READ · SAVE · EXECUTE(접속 테스트) · EXPORT |
-| 페이징 | 시스템·연결·사용 API 목록 offset |
-| 문서 상태 | 사용자 승인 방향 반영 — 화면 검토/G3·제품 구현 별도 |
+| 페이징 | 시스템 목록 offset; 선택 연결 전체 상세; 사용 API는 활성 탭의 연결 포트 조회 |
+| 문서 상태 | 생산 기능 구현·직접 화면 검증 완료, G4 사용자 승인 대기 |
 
 ## 1. 화면 구성
 
 조회조건 → 대상 시스템 목록 → 가운데 스플리터 → 연결 정보·사용 API 정보 두 탭이다. 상단과 연결 정보의 이름·설명만 셀 편집하며, 기술 정의의 임의 신규·삭제는 제공하지 않으며 서버 설정에서 누락이 확정된 기존 메타는 전용 일괄 삭제로 정리한다. 대상 시스템 자체의 수동 사용 여부와 기본 연결은 두지 않는다. API의 명시적 연결 선택과 자산 수동 사용 여부는 각 소유 화면에서 관리한다.
 상태별 버튼: 허용 목록
+
+실제 저장은 상단 버튼이 소유한다. YAML 기본값 복원은 부모·연결 전체의 재정의 값을 null로 만든 편집이며 저장 전까지 DB에 반영하지 않는다. 정리 미리보기는 상단 SearchForm에 적용한 조회조건 전체 또는 선택 부모의 전체 연결을 대상으로 한다. 그리드 표시 열/로컬 필터·현재 페이지로 후보를 제한하지 않는다.
 목록 연동: 시스템 식별자
 
 ### 그리드 선택
@@ -50,19 +52,19 @@
 
 | 영역 | 종류 | 관리 대상·목적 | 작업 설명 | 버튼 | 조회 방식 | 저장 범위 |
 |---|---|---|---|---|---|---|
-| 대상 시스템 목록 | 목록 | API 제공 시스템과 사용자 신원 매핑의 공통 기준 | DB에 보존된 시스템까지 조회하고 이름·설명을 보완한다. | 조회·저장·서버 설정 불일치 건 일괄 삭제 | 진입/명시 조회; 자동 선택 없음. 초기 목업만 한 대상 선택 예시 | 선택 시스템과 연결 표시 보완값 전체. YAML 소유 기술값 제외 |
-| 연결 정보 | 탭 | 선택 시스템의 현재 YAML 연결과 DB 잔재 | 이름·설명 보완, 안전한 현재 주소/auth 확인, 행의 접속 테스트 실행 | 조회·저장·서버 설정 불일치 건 일괄 삭제 | 등록된 상단 행 선택 시 자동. 탭 왕복은 입력·선택 유지 | 상단과 같은 저장 단위. 테스트는 저장과 독립된 EXECUTE |
-| 사용 API 정보 | 탭 | 이 시스템·연결을 명시 참조하는 API | API 식별자·이름과 연결을 읽고 원 소유 API 화면에서 정정한다. | 조회 | 상단 선택 시 현재 권한 범위 조회 | 조회 전용. API 감사값을 표시하며 여기서 수정하지 않음 |
+| 대상 시스템 목록 | 목록 | API 제공 시스템과 사용자 신원 매핑의 공통 기준 | DB에 보존된 시스템까지 조회하고 이름·설명을 보완한다. | 조회·저장·누락 시스템 일괄 정리 | 진입/명시 조회; 자동 선택 없음. 초기 목업만 한 대상 선택 예시 | 선택 시스템과 연결 표시 보완값 전체. YAML 소유 기술값 제외 |
+| 연결 정보 | 탭 | 선택 시스템의 현재 YAML 연결과 DB 잔재 | 이름·설명 보완, 안전한 현재 주소/auth 확인, 행의 접속 테스트 실행 | 조회·누락 연결 일괄 정리 | 등록된 상단 행 선택 시 자동. 탭 왕복은 입력·선택 유지 | 상단과 같은 저장 단위. 테스트는 저장과 독립된 EXECUTE |
+| 사용 API 정보 | 탭 | 이 시스템·연결을 명시 참조하는 API | API 식별자·이름과 연결을 읽고 원 소유 API 화면에서 정정한다. | 조회 | 활성 탭에서 현재 권한 범위 조회; 미설치 제공자는 NOT_CONNECTED 안내 | 조회 전용. API 감사값을 표시하며 여기서 수정하지 않음 |
 
 ### 1-2. 목업 상태
 
 | 그림 키 | 상태 | 상세 영역 | 안내 | 허용 버튼 | 편집 | 예시 변경 | 선택 대상 | 비활성 버튼 |
 |---|---|---|---|---|---|---|---|---|
-| main | 현재 설정과 보완 정보 | 연결 정보 | YAML 기술 정의와 관리자 보완값을 구분합니다. 누락된 정의를 사용하는 호출만 차단하고 같은 시스템의 다른 유효 연결은 유지합니다. | 조회·저장·서버 설정 불일치 건 일괄 삭제·접속 테스트·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 없음 |
-| api | 사용 API 조회 | 사용 API 정보 | API는 대상 시스템과 실제 연결 식별자를 필수로 선택합니다. 시스템 기본 연결은 없습니다. | 조회·저장·서버 설정 불일치 건 일괄 삭제·접속 테스트·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 없음 |
+| main | 현재 설정과 보완 정보 | 연결 정보 | YAML 기술 정의와 관리자 보완값을 구분합니다. 누락된 정의를 사용하는 호출만 차단하고 같은 시스템의 다른 유효 연결은 유지합니다. | 조회·저장·누락 시스템 일괄 정리·접속 테스트·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 없음 |
+| api | 사용 API 조회 | 사용 API 정보 | API는 대상 시스템과 실제 연결 식별자를 필수로 선택합니다. 시스템 기본 연결은 없습니다. | 조회·저장·누락 시스템 일괄 정리·접속 테스트·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 없음 |
 | readonly | 보완 저장 권한 없음·테스트 허용 | 연결 정보 | 이름·설명은 읽기 전용입니다. EXECUTE 권한과 유효한 테스트 설정이 있는 연결은 시험할 수 있습니다. | 조회·접속 테스트·엑셀 다운로드 | 잠금 | 없음 | SYS-ORDER | 없음 |
-| no-test-permission | 테스트 권한 없음 | 연결 정보 | 설정이 있어도 현재 EXECUTE 권한이 없으면 테스트할 수 없습니다. | 조회·저장·서버 설정 불일치 건 일괄 삭제·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 접속 테스트 |
-| missing | YAML에서 제거된 시스템 | 연결 정보 | DB의 시스템·연결·사용 API·신원 참조는 보존합니다. 이전 주소/auth를 현재값으로 사용하거나 다른 연결로 대체하지 않습니다. | 조회·저장·서버 설정 불일치 건 일괄 삭제·엑셀 다운로드 | 가능 | 없음 | SYS-LEGACY | 접속 테스트 |
+| no-test-permission | 테스트 권한 없음 | 연결 정보 | 설정이 있어도 현재 EXECUTE 권한이 없으면 테스트할 수 없습니다. | 조회·저장·누락 시스템 일괄 정리·엑셀 다운로드 | 가능 | 없음 | SYS-ORDER | 접속 테스트 |
+| missing | YAML에서 제거된 시스템 | 연결 정보 | DB의 시스템·연결·사용 API·신원 참조는 보존합니다. 이전 주소/auth를 현재값으로 사용하거나 다른 연결로 대체하지 않습니다. | 조회·저장·누락 시스템 일괄 정리·엑셀 다운로드 | 가능 | 없음 | SYS-LEGACY | 접속 테스트 |
 | unknown | 현재 설정 확인 불가 | 연결 정보 | 조회/로드 실패는 YAML 삭제가 아닙니다. 불일치는 확인 필요로 표시하고 이전 주소/auth를 비웁니다. | 조회 | 잠금 | 서버 설정 불일치=확인 필요;Base URL=—;인증 방식=— | SYS-ORDER | 접속 테스트 |
 | conflict | 기준 버전 충돌 | 연결 정보 | YAML 동기화 또는 다른 보완 수정이 먼저 반영됐습니다. 입력을 보존하고 현재값과 비교하세요. | 조회 | 잠금 | 없음 | SYS-ORDER | 접속 테스트 |
 | saving | 보완값 저장 중 | 연결 정보 | 같은 저장의 결과를 기다립니다. 새로운 테스트·편집·저장을 시작하지 않습니다. | 없음 | 잠금 | 없음 | SYS-ORDER | 접속 테스트 |
@@ -111,7 +113,7 @@
 
 | 서버 설정 불일치 일괄 삭제 | 값(JSON) |
 |---|---|
-| 설정 | {"action":"서버 설정 불일치 건 일괄 삭제","scopes":[{"completeCurrent":true,"safeDeployment":true,"permission":true,"deploymentEvidence":"허용 구세대 없음·실행/대기 참조 없음·배출 확인","previewState":"정상","executionState":"정상","configurationVersion":"cfg-1","diagnosisVersion":"diag-1","referenceVersion":"ref-1","area":"대상 시스템 목록","kind":"SYSTEM","key":"시스템 식별자","name":"시스템명","parent":null,"filters":[{"label":"시스템명","field":"name","match":"contains"},{"label":"서버 설정 불일치","field":"mismatch","match":"eq"}],"records":[{"id":"SYS-ORDER","name":"주문 시스템","kind":"SYSTEM","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-FINANCE","name":"회계 시스템","kind":"SYSTEM","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-LEGACY","name":"이전 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":["이전 시스템 조회 API(404)"]},{"id":"SYS-RETIRED","name":"정리 완료 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-ARCHIVE","name":"정리 완료 보관 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-UNKNOWN","name":"확인 필요 시스템","kind":"SYSTEM","definition":"UNKNOWN","reason":"확인 필요","mismatch":"확인 필요","parent":null,"version":"2","confirmed":false,"permission":true,"references":[]}]},{"completeCurrent":true,"safeDeployment":true,"permission":true,"deploymentEvidence":"허용 구세대 없음·실행/대기 참조 없음·배출 확인","previewState":"정상","executionState":"정상","configurationVersion":"cfg-1","diagnosisVersion":"diag-1","referenceVersion":"ref-1","area":"연결 정보","kind":"CONNECTION","key":"연결 식별자","name":"연결명","parent":"시스템 식별자","filters":[],"records":[{"id":"ORDER-PUBLIC","name":"주문 공개 조회","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"ORDER-AUTH","name":"주문 인증 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":["주문 처리 API(202)"]},{"id":"ORDER-REPORT","name":"ORDER-REPORT","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"FINANCE-API","name":"회계 조회","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-FINANCE","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"LEGACY-API","name":"이전 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-LEGACY","version":"2","confirmed":true,"permission":true,"references":["이전 시스템 조회 API(404)"]},{"id":"RETIRED-API","name":"정리 완료 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-RETIRED","version":"2","confirmed":true,"permission":true,"references":[]}]}]} |
+| 설정 | {"action":"누락 시스템 일괄 정리","scopes":[{"completeCurrent":true,"safeDeployment":true,"permission":true,"deploymentEvidence":"허용 구세대 없음·실행/대기 참조 없음·배출 확인","previewState":"정상","executionState":"정상","configurationVersion":"cfg-1","diagnosisVersion":"diag-1","referenceVersion":"ref-1","area":"대상 시스템 목록","kind":"SYSTEM","key":"시스템 식별자","name":"시스템명","parent":null,"filters":[{"label":"시스템명","field":"name","match":"contains"},{"label":"서버 설정 불일치","field":"mismatch","match":"eq"}],"records":[{"id":"SYS-ORDER","name":"주문 시스템","kind":"SYSTEM","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-FINANCE","name":"회계 시스템","kind":"SYSTEM","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-LEGACY","name":"이전 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":["이전 시스템 조회 API(404)"]},{"id":"SYS-RETIRED","name":"정리 완료 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-ARCHIVE","name":"정리 완료 보관 시스템","kind":"SYSTEM","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":null,"version":"2","confirmed":true,"permission":true,"references":[]},{"id":"SYS-UNKNOWN","name":"확인 필요 시스템","kind":"SYSTEM","definition":"UNKNOWN","reason":"확인 필요","mismatch":"확인 필요","parent":null,"version":"2","confirmed":false,"permission":true,"references":[]}]},{"completeCurrent":true,"safeDeployment":true,"permission":true,"deploymentEvidence":"허용 구세대 없음·실행/대기 참조 없음·배출 확인","previewState":"정상","executionState":"정상","configurationVersion":"cfg-1","diagnosisVersion":"diag-1","referenceVersion":"ref-1","area":"연결 정보","kind":"CONNECTION","key":"연결 식별자","name":"연결명","parent":"시스템 식별자","filters":[],"records":[{"id":"ORDER-PUBLIC","name":"주문 공개 조회","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"ORDER-AUTH","name":"주문 인증 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":["주문 처리 API(202)"]},{"id":"ORDER-REPORT","name":"ORDER-REPORT","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-ORDER","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"FINANCE-API","name":"회계 조회","kind":"CONNECTION","definition":"PRESENT","reason":"현재 정의 있음","mismatch":"일치","parent":"SYS-FINANCE","version":"2","confirmed":true,"permission":true,"references":[]},{"id":"LEGACY-API","name":"이전 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-LEGACY","version":"2","confirmed":true,"permission":true,"references":["이전 시스템 조회 API(404)"]},{"id":"RETIRED-API","name":"정리 완료 연결","kind":"CONNECTION","definition":"MISSING","reason":"현재 YAML에 정확 정의 없음","mismatch":"불일치","parent":"SYS-RETIRED","version":"2","confirmed":true,"permission":true,"references":[]}]}]} |
 
 ## 2. 조회조건
 
@@ -128,39 +130,42 @@ DB의 시스템·연결 메타데이터를 기준으로 조회해 YAML 제거 �
 
 ## 4. 컬럼
 
-감사 컬럼은 공통 규칙에 따라 네 개를 기본 표시한다. 사용 API 정보의 감사값은 API 원본 등록/수정 기준이며 연결 이름의 감사와 혼합하지 않는다.
+시스템과 연결의 감사 컬럼은 공통 네 컬럼을 기본 표시한다. 사용 API는 현재 연결 포트의 번호·이름·종류·연결 식별자·사용 여부를 제공하며 원 API 감사 확장은 FEAT-004 소비 연결 때 확인한다.
 
-서버 설정 불일치는 상·하단 모두 읽기 전용 배지다. 서버의 true는 `불일치`, false는 `일치`, null/UNKNOWN은 `확인 필요`로 표시한다. 아래 예시의 상태명은 표시값이며 Boolean API 계약을 변경하지 않는다. 설정 스위치·행 편집기로 바꾸지 않는다. system 시스템 설정의 상태 배지 표시 패턴을 따르되, 그 화면의 `변경됨`은 DB 재정의 행의 존재를 뜻하므로 이 화면의 YAML 정의 누락 판정과 혼동하지 않는다.
+서버 설정 불일치는 상·하단 모두 읽기 전용 상태 문구다. 서버의 true는 `불일치`, false는 `일치`, null/UNKNOWN은 `확인 필요`로 표시한다. 아래 예시의 상태명은 표시값이며 Boolean API 계약을 변경하지 않는다. 설정 스위치·행 편집기로 바꾸지 않는다. system 시스템 설정의 상태 표시 원칙을 따르되, 그 화면의 `변경됨`은 DB 재정의 행의 존재를 뜻하므로 이 화면의 YAML 정의 누락 판정과 혼동하지 않는다.
 
 ### 4-1. 대상 시스템 목록
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 기본 표시 | 액션 조건 | 비활성 안내 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 시스템 식별자 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | systemId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | YAML의 불변 키. DB 내부 키·다른 시스템에 재사용 금지 | SYS-ORDER | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
-| 시스템명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | systemName | 텍스트 | 150/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | 재정의 이름은 비공백. null은 YAML 기본값 복원 | — | DB 재정의 우선, 없으면 YAML 기본값, 둘 다 없으면 시스템 식별자 | 주문 시스템 | 기본 표시 | — | — | string | text | text | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
-| 설명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | description | 셀 위 텍스트영역 | 280/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | null=YAML 기본값 복원, 빈 문자열=명시적 공란. 입력 보존 | — | 관리자 보완 설명. YAML 기본값과 관리자 재정의의 소유를 분리 | 주문 업무 설명 | 기본 표시 | — | — | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
-| 서버 설정 불일치 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | configurationMismatch | 배지 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 시스템/연결 YAML 제거 또는 현재 정의 차이를 알려 주는 파생값. 미상은 확인 필요 | 불일치 | 기본 표시 | — | — | string | text | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장 판정 참조 | 기동/비교 대상 변경 때 판정 저장 후 조회 | REQ-601.asset_availability·REQ-604.yaml_authority의 누락/충돌/확인 불가 판정 | ENT-098의 버전별 저장 판정 참조. 상단 집계만 조회 계산하며 관리 HIST 복사 없음 | — |
+| 시스템 식별자 | MSG.TARGET_KEY | SYSTEM_KEY | systemKey | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | YAML의 불변 키. DB 내부 키·다른 시스템에 재사용 금지 | SYS-ORDER | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
+| 시스템명 | MSG.TARGET_NAME | SYSTEM_NM / YAML_SYSTEM_NM | systemName | 텍스트 | 150/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | 재정의 이름은 비공백. null은 YAML 기본값 복원 | — | DB 재정의 우선, 없으면 YAML 기본값, 둘 다 없으면 시스템 식별자 | 주문 시스템 | 기본 표시 | — | — | string | text | text | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
+| 설명 | MSG.TARGET_DESCRIPTION | DESCRIPTION / YAML_DESCRIPTION | description | 셀 위 텍스트영역 | 280/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | null=YAML 기본값 복원, 빈 문자열=명시적 공란. 입력 보존 | — | 관리자 보완 설명. YAML 기본값과 관리자 재정의의 소유를 분리 | 주문 업무 설명 | 기본 표시 | — | — | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
+| 서버 설정 불일치 | MSG.TARGET_MISMATCH | ENT-098 저장 판정의 현재 집계 | configurationMismatch | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 시스템/연결 YAML 제거 또는 현재 정의 차이를 알려 주는 파생값. 미상은 확인 필요 | 불일치 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장 판정 참조 | 기동/비교 대상 변경 때 판정 저장 후 조회 | REQ-601.asset_availability·REQ-604.yaml_authority의 누락/충돌/확인 불가 판정 | ENT-098의 버전별 저장 판정 참조. 상단 집계만 조회 계산하며 관리 HIST 복사 없음 | — |
+| 내부 번호 | MSG.TARGET_ID | TARGET_SYSTEM_ID | id | 조회 | 120/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | DB의 안정 숫자 키; 전송은 문자열 | 1 | 기본 숨김 | — | — | string | bigint | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | DB 서버 생성 | 동기화 또는 표시 보완 저장 성공 | DB의 안정 숫자 키; 전송은 문자열 | DB 저장값 조회 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
+| 적용 버전 | MSG.CHAT_HELP_REVISION | MANAGEMENT_VERSION | version | 조회 | 100/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 저장 시 기대 버전과 대조 | 1 | 기본 표시 | — | — | string | bigint | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | DB 서버 생성 | 동기화 또는 표시 보완 저장 성공 | 저장 시 기대 버전과 대조 | DB 저장값 조회 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
 
 ### 4-2. 연결 정보
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 기본 표시 | 액션 조건 | 비활성 안내 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 연결 식별자 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | connectionId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | YAML의 정확한 연결 키. 소속 시스템과 함께 불변 참조 | ORDER-PUBLIC | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
-| 연결명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | connectionName | 텍스트 | 150/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | 재정의 비공백, null=기본값 복원 | — | DB 재정의→YAML 기본값→식별자 순으로 표시 | 주문 공개 조회 | 기본 표시 | — | — | string | text | text | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
-| Base URL | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | display.displayBaseUrl | 장문 뷰어 | 280/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 로드 정의에서 비밀 없는 안전한 주소만 표시. 누락/확인 불가면 비움 | https://order.example.com/public | 기본 표시 | — | — | string | text | 없음 | 없음 | largeText | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 현재 로드 YAML 연결 정의 | 기동/설정 배포 후 정확 연결 조회 시 | REQ-604.connection_display: 해당 연결 키의 안전한 현재 주소/인증 방식. 누락/판별 실패는 이전 기술값으로 대체 금지 | 화면 비저장 투영. 표시 보완 저장/HIST에 기술값·비밀을 복제하지 않음 | — |
-| 인증 방식 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | display.authenticationType | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 채택한 방식 명칭만 표시. 인증값·토큰·헤더 값은 없음 | 인증 없음 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 현재 로드 YAML 연결 정의 | 기동/설정 배포 후 정확 연결 조회 시 | REQ-604.connection_display: 해당 연결 키의 안전한 현재 주소/인증 방식. 누락/판별 실패는 이전 기술값으로 대체 금지 | 화면 비저장 투영. 표시 보완 저장/HIST에 기술값·비밀을 복제하지 않음 | — |
-| 설명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | description | 셀 위 텍스트영역 | 240/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | null=YAML 기본값 복원, 빈 문자열=명시적 공란 | — | 현재 연결의 보완 설명. YAML 기술값은 편집하지 않음 | 조회 전용 연결 | 기본 표시 | — | — | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
-| 서버 설정 불일치 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | configurationMismatch | 배지 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 정확한 YAML 연결 또는 부모 시스템의 현재 누락을 구분하고 미상은 확인 필요 | 일치 | 기본 표시 | — | — | string | text | 없음 | badge | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장 판정 참조 | 기동/비교 대상 변경 때 판정 저장 후 조회 | REQ-601.asset_availability·REQ-604.yaml_authority의 누락/충돌/확인 불가 판정 | ENT-098의 버전별 저장 판정 참조. 상단 집계만 조회 계산하며 관리 HIST 복사 없음 | — |
-| 접속 테스트 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | connectionTest | 버튼 액션 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 EXECUTE 권한·유효 연결·YAML 테스트 설정을 모두 만족하면 한 행만 시험한다. 목업은 정적 예시 | 접속 테스트 | 기본 표시 | 테스트 설정=Y&&연결 유효=Y&&테스트 권한=Y | 테스트 설정 없음·YAML 연결 누락·현재 EXECUTE 권한 없음·상태 확인 불가 중 하나이면 실행 불가 | string | text | 없음 | link | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 관리자 실행 명령/서버 결과 | 해당 연결의 명시 EXECUTE 후 결과 확인 | API-070의 현재 정확 YAML 연결/설정 버전으로 최소 테스트. 조회만으로 실행하지 않음 | 화면 명령 셀 비저장, 실행/진단 근거는 해당 API 소유 계약 | — |
+| 연결 식별자 | MSG.TARGET_CONNECTION_KEY | CONNECTION_ID | connectionId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | YAML의 정확한 연결 키. 소속 시스템과 함께 불변 참조 | ORDER-PUBLIC | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
+| 연결명 | MSG.TARGET_CONNECTION_NAME | CONNECTION_NM / YAML_CONNECTION_NM | connectionName | 텍스트 | 150/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | 재정의 비공백, null=기본값 복원 | — | DB 재정의→YAML 기본값→식별자 순으로 표시 | 주문 공개 조회 | 기본 표시 | — | — | string | text | text | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
+| 현재 접속 주소 | MSG.TARGET_URL | 비저장 안전 투영 | currentDisplay | 조회 | 280/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 로드 정의에서 비밀 없는 안전한 주소만 표시. 누락/확인 불가면 비움 | https://order.example.com/public | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 현재 로드 YAML 연결 정의 | 기동/설정 배포 후 정확 연결 조회 시 | REQ-604.connection_display: 해당 연결 키의 안전한 현재 주소/인증 방식. 누락/판별 실패는 이전 기술값으로 대체 금지 | 화면 비저장 투영. 표시 보완 저장/HIST에 기술값·비밀을 복제하지 않음 | — |
+| 인증 방식 | MSG.TARGET_AUTH | 비저장 안전 투영 | authenticationType | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 채택한 방식 명칭만 표시. 인증값·토큰·헤더 값은 없음 | 인증 없음 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 현재 로드 YAML 연결 정의 | 기동/설정 배포 후 정확 연결 조회 시 | REQ-604.connection_display: 해당 연결 키의 안전한 현재 주소/인증 방식. 누락/판별 실패는 이전 기술값으로 대체 금지 | 화면 비저장 투영. 표시 보완 저장/HIST에 기술값·비밀을 복제하지 않음 | — |
+| 설명 | MSG.TARGET_DESCRIPTION | DESCRIPTION / YAML_DESCRIPTION | description | 셀 위 텍스트영역 | 240/좌 | 저장 시 | 가능 | 현재 권한으로 조회한 소유 정본 | null=YAML 기본값 복원, 빈 문자열=명시적 공란 | — | 현재 연결의 보완 설명. YAML 기술값은 편집하지 않음 | 조회 전용 연결 | 기본 표시 | — | — | string | text | largeText | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 저장 시 | 가능 | 사용자 입력 | 로컬 입력 후 전체 저장 성공 시 | 현재 권한으로 조회한 소유 정본 | 소유 구성에 저장 | — |
+| 서버 설정 불일치 | MSG.TARGET_MISMATCH | ENT-098 저장 판정의 현재 집계 | configurationMismatch | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 정확한 YAML 연결 또는 부모 시스템의 현재 누락을 구분하고 미상은 확인 필요 | 일치 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장 판정 참조 | 기동/비교 대상 변경 때 판정 저장 후 조회 | REQ-601.asset_availability·REQ-604.yaml_authority의 누락/충돌/확인 불가 판정 | ENT-098의 버전별 저장 판정 참조. 상단 집계만 조회 계산하며 관리 HIST 복사 없음 | — |
+| 접속 테스트 | MSG.TARGET_TEST | 비저장 실행 | testAllowed | 버튼 액션 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 EXECUTE 권한·유효 연결·YAML 테스트 설정을 모두 만족하면 한 행만 시험한다. 목업은 정적 예시 | 접속 테스트 | 기본 표시 | 테스트 설정=Y&&연결 유효=Y&&테스트 권한=Y | 테스트 설정 없음·YAML 연결 누락·현재 EXECUTE 권한 없음·상태 확인 불가 중 하나이면 실행 불가 | string | text | 없음 | link | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | 관리자 실행 명령/서버 결과 | 해당 연결의 명시 EXECUTE 후 결과 확인 | API-070의 현재 정확 YAML 연결/설정 버전으로 최소 테스트. 조회만으로 실행하지 않음 | 화면 명령 셀 비저장, 실행/진단 근거는 해당 API 소유 계약 | — |
 
 ### 4-3. 사용 API 정보
 
 | 컬럼 | 라벨 키 | DB 컬럼 | 필드명 | 입력방식 | 폭/정렬 | 필수 | 편집 | 선택 출처 | 검증 | 합계 | 설명 | 예시 | 기본 표시 | 액션 조건 | 비활성 안내 | 값 자료형 | 그리드 타입 | 에디터 | 렌더러 | 뷰어 | 신규 필수 | 신규 편집 | 조회 필수 | 조회 편집 | 값 원천 | 생성·갱신 | 참조·계산식 | 저장 방식 | 추가 속성 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| API 식별자 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | apiId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 이 시스템의 연결을 명시 참조하는 API 원본 키; REQ-601.surrogate_identifier의 숫자 식별자 참조(문자열 전송) | 201 | 기본 표시 | — | — | string | bigint | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정 — 물리 설계 후속; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
-| API명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | apiName | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | API 관리에서 관리하는 이름 | 주문 조회 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정 — 물리 설계 후속; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
-| 연결 식별자 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | connectionId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 각 API에 저장한 명시적 연결 참조. 기본 연결 방식 없음 | ORDER-PUBLIC | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
-| 연결명 | 미정 — 구현 시 MSG 등록 | 미정 — 물리 설계 후속 | connectionName | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 현재 권한으로 표시 가능한 연결의 유효 표시 이름 | 주문 공개 조회 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 미정 — 물리 설계 후속; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
+| API 식별자 | MSG.TARGET_API_ID | 후속 ENT-011.API_ID | id | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 이 시스템의 연결을 명시 참조하는 API 원본 키; REQ-601.surrogate_identifier의 숫자 식별자 참조(문자열 전송) | 201 | 기본 표시 | — | — | string | bigint | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 소유 ENT 물리 계약 참조; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
+| API명 | MSG.TARGET_API_NAME | 후속 ENT-011.API_NM | name | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | API 관리에서 관리하는 이름 | 주문 조회 | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 소유 ENT 물리 계약 참조; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
+| 연결 식별자 | MSG.TARGET_CONNECTION_KEY | CONNECTION_ID | connectionId | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 각 API에 저장한 명시적 연결 참조. 기본 연결 방식 없음 | ORDER-PUBLIC | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | YAML 기술 정의의 불변 키 | 기동/검증된 YAML 동기화 시 식별/참조 등록, 이후 조회 | REQ-604.yaml_authority: 정확 시스템/연결 키. YAML 누락 시 DB 참조와 잔재를 보존하며 실제 호출에는 현재 로드 정의 사용 | 동기화한 식별/DB 참조는 보존. 현재 기술 유효성은 YAML 대조 투영 | — |
+| API 종류 | MSG.TARGET_API_KIND | 후속 ENT-011.API_KIND_CD | apiKind | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 공통 API 마스터의 종류 | REST_JSON | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 소유 ENT 물리 계약 참조; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
+| 사용 여부 | MSG.SEARCH_TAG_USE | 후속 ENT-011.USE_YN | useYn | 조회 | 150/좌 | 입력 대상 아님 | 읽기전용 | 현재 권한으로 조회한 소유 정본 | 현재 대상·기준 버전·서버 기록 계약 검사 | — | 원 API의 사용 설정 조회 | Y | 기본 표시 | — | — | string | text | 없음 | 없음 | 없음 | 해당 없음(신규 미제공) | 해당 없음(신규 미제공) | 입력 대상 아님 | 불가 | DB 저장값 조회 | 조회/대상 변경 시 원천에서 갱신 | 소유 ENT 물리 계약 참조; 현재 권한으로 조회한 소유 정본 | 소유 정본의 저장값 | — |
 
 ### 4-4. 편집·비노출 저장값
 
@@ -173,7 +178,9 @@ DB의 시스템·연결 메타데이터를 기준으로 조회해 YAML 제거 �
 | 조회 | READ | 현재 조회 권한 | 현재 조건/선택 대상 | 목록 또는 선택 시스템의 연결·사용 API를 조회. 미저장 입력 확인 |
 | 저장 | SAVE | 보완 변경 권한·기대 버전 일치 | 선택 시스템과 연결의 표시 보완값 전체 | 기술 정의를 제외하고 관리자 보완과 전후 이력을 원자 저장 |
 | 접속 테스트 | EXECUTE | 행의 유효 연결·YAML 테스트 설정·현재 권한 | 한 연결, 저장과 독립 | 현재 서버 정의의 GET/HEAD 확인용 요청. timeout/성공 기준 적용. 목업은 외부 호출 없이 예시 결과 창 |
-| 서버 설정 불일치 건 일괄 삭제 | SAVE | 현재 READ+SAVE·미저장/진행 명령 없음 | 상단 조회조건 전체 또는 선택 시스템의 연결 전체 | 서버 미리보기로 확정 누락·참조·배포 근거 확인 |
+| 누락 시스템 일괄 정리 | SAVE | 현재 READ+SAVE·미저장/진행 명령 없음 | 상단 조회조건 전체 | 서버 미리보기로 확정 누락·참조·배포 근거 확인 |
+| 누락 연결 일괄 정리 | SAVE | 현재 READ+SAVE·선택 시스템·미저장/진행 명령 없음 | 선택 시스템의 전체 연결 | 부모 존속·소유 연결만 정리 |
+| 표시 보완을 YAML 기본값으로 복원 | SAVE | 현재 READ+SAVE·상세 로드 완료·진행 명령 없음 | 선택 시스템과 전체 연결 | 재정의를 null로 만든 편집, 저장 전 DB 미반영 |
 | 일괄 삭제 실행 | SAVE | 삭제 가능 후보 존재·새 비공백 사유·명시 확인 | 미리보기 전체 집합 원자 처리 | 현재 권한/후보/버전/참조/배포 재검증 후 정리·이력 |
 | 취소 | READ | 일괄 삭제 확인창 열림 | 확인창만 닫기 | 목록·편집값·이력 변경 없음 |
 | 엑셀 다운로드 | EXPORT | READ·EXPORT 및 동일 대상 열람 범위 | 현재 그리드의 허용 표시 열/범위 | 안전한 표시 정보만 반출. 숨긴 열·비밀값 자동 포함 없음 |
@@ -207,7 +214,7 @@ DB의 시스템·연결 메타데이터를 기준으로 조회해 YAML 제거 �
 
 화면 목록/상세 응답을 그대로 모델에 전달하지 않는다. 기존 관리 값을 사용하고 입력 분류용 컬럼·탭을 추가하지 않는다. 실제 조합·전송과 최종 JSON/CLI·API 계약은 업무 지식 관리·전체 흐름 합의 뒤 소유 작업흐름에서 구체화한다. 아래 검수는 설계 대조이며 목업에서 LLM 호출을 시연하거나 제품 실행 검증을 완료한 것으로 표시하지 않는다.
 
-### 6-5. 서버 설정 불일치 건 일괄 삭제
+### 6-5. 누락 시스템 일괄 정리
 
 정본은 REQ-601.configuration_cleanup이다. 현재 조회조건 전체의 정확 정의 누락(MISSING)만 미리보기로 확인한다. 현재 페이지나 선택 행만을 삭제 범위로 삼지 않는다. 시스템 목록의 집계 불일치·속성 차이·접속 실패·확인 필요는 삭제 근거가 아니다.
 
@@ -290,3 +297,9 @@ HUB_TARGET_SYSTEM READ/SAVE/EXECUTE/EXPORT의 계획이며 실제 시드 변경�
 |---|---|
 | 2026-11-05 | 기존 관리 항목의 프롬프트 입력 분류·해석 가이드·제공 조건을 REQ-610에 연결하고 설계 검수 사례를 추가했다. 화면 조작과 최종 통신 포맷은 변경하지 않는다. |
 | 2026-11-01 | YAML 정본·DB 보완 분리, 신규/삭제·기본 연결 철회, 두 탭과 행 접속 테스트·연결 오류 경고 연계 반영. |
+
+### SLICE-001 실제 검증과 후속 경계
+
+- 2026-11-14 전용 검토 서버에서 시험 계정 로그인, 시스템 선택·연결 조회, 표시명 저장(버전 증가), YAML 기본값 복원, HEAD 시험 성공·시각/소요 표시, API 미연결 안내, 빈 정리 미리보기 실행 차단을 확인했다.
+- DB 시험은 원자 동기화·권한 분리·재수신·누락 정리 전체 롤백·참조 보호·Portal 실제 신원 저장·Liquibase 적용/복구를 검증한다. 정확 범위와 로그는 project.state.yaml의 SLICE-001에 기록한다.
+- CR-049 A에 따라 실제 API·워크플로우·대시보드·별도 이력 화면의 소비 검증은 해당 소유 슬라이스에 남긴다. SAP 확장 정본은 ADR-051이다.

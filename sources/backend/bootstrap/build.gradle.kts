@@ -1433,3 +1433,10 @@ tasks.register("checkSeeds") {
 }
 
 tasks.named("check") { dependsOn("checkSeeds") }
+
+tasks.register<JavaExec>("targetDeployment") {
+    group = "application"
+    description = "정확 기동을 조회·허용하는 대상 연결 운영 도구"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.aiagent.admin.targetsystem.TargetDeploymentTool")
+}

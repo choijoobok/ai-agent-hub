@@ -12,7 +12,13 @@ features:
     screen: SCR-001
     roadmap: RM-P1
     title: 대상 시스템 설정 조회·표시 보완
-    design_status: draft
+    design_status: approved
+    implementation: implemented
+    invoker_extension: REQ-604.invoker_extension·CR-050 B·ADR-051. 연결별 등록 유틸 선택/검증을 구현하고 SAP OData는 후속으로 유지한다.
+    delivery_boundary:
+      decision: CR-049 A 사용자 승인.
+      producer: YAML 동기화·표시 보완·안전한 연결 표시/테스트·저장 진단/경고·확정 누락 정리·전체 이력·소유 연결 포트를 구현한다.
+      followup: FEAT-004/118 실제 업무 API·워크플로우 사용, FEAT-510 대시보드 및 FEAT-033 독립 이력 화면 검수는 후속 소유에 남긴다. 기존 FEAT-005 신원 참조는 실제 연결한다.
     entities:
       - ENT-001
       - ENT-003
@@ -25,6 +31,9 @@ features:
       - ENT-168
       - ENT-169
       - ENT-170
+      - ENT-532
+      - ENT-533
+      - ENT-534
     apis:
       - API-001
       - API-002
@@ -40,7 +49,7 @@ features:
     operation_boundary: 각 원 소유 전체 구성은 현재 변경 권한·기대 버전·기술 참조 검증으로 직접 저장하고 현재값/전체 이력을 원자 반영한다. 별도 관리자 요청/승인·전결·지식 영향 검토 작업은 없다. 소유별 기술 계약/쿼터 효력 경계는 유지한다.
     inputs:
       - '기동 동기화: 현재 환경의 검증된 전체 YAML 시스템/연결 정의와 불변 적용 설정 세대'
-      - '관리자 변경: 기존 대상 id/expectedVersion과 시스템·연결 이름/설명 재정의 전체. 기술 정의·기본 연결·새 대상 생성/삭제는 받지 않음'
+      - '관리자 변경: 기존 대상 targetId/expectedRevision과 시스템·연결 이름/설명 재정의 전체. 기술 정의·기본 연결·새 대상 생성/삭제는 받지 않음'
     outputs:
       - 기존 시스템/연결 및 YAML 미존재 DB 잔재·표시 재정의·안전한 현재 연결 표시·사용 API·감사
       - API-070 테스트 결과와 API-071 권한 범위의 원인별 현재 경고·영향/점검 범위
@@ -49,7 +58,7 @@ features:
       sync: REQ-604.synchronization. YAML 소유 키/메타와 REQ-601.configuration_diagnosis의 ENT-098 판정 묶음을 원자 확정하며 제거 행/참조·관리자 재정의는 보존한다. 이전 세대 노드/동시 관리자 입력을 보호하고 동일 내용은 버전/이력을 늘리지 않는다.
       change: 기존 id/version의 관리자 표시 보완값만 직접 저장한다. 전체 구성 이력에 비밀 없는 원본 메타/보완값을 보존하고 기술 주소/인증 원문은 복제하지 않는다.
       references: 사용 API 목록은 API/명시 연결 ID와 표시명을 읽기 전용으로 조회한다. 신원·워크플로우 등 기술 참조는 REQ-601.configuration_alerts의 ID 기반 영향 추적에 연결한다.
-      consumption: 현재 허용된 컬럼의 groupCode/detailDescription·메타데이터와 데이터소스 가이드를 중복 없이 제공한다. groupCode가 있으면 데이터소스 가이드의 공통 코드 조회 SQL 패턴에 그 값을 안전하게 바인딩해 허용된 원천을 읽고 코드명을 확인한다. groupCode=null이면 조회를 강제하지 않으며 상세 설명에 명확히 기재한 값/의미를 LLM이 해석한다. 설명에 없는 값·모호한 뜻·현재 동적 코드명을 지어내지 않고 필요한 경우 질문/허용된 읽기 조회로 확인한다. 가이드/설명은 권한·실행 명령이 아니며 SQL·객체/컬럼·행·신원·마스킹·read-only·상한 검사는 유지한다.
+      consumption: 현재 정확 시스템/연결·기동 허용과 참조 잠금 포트를 제공한다. Portal 신원 저장은 실제 연결했으며 업무 API 실행·워크플로우 소비는 CR-049 경계에 따라 소유 기능에서 검증한다.
       test: YAML 안전 테스트 구성·현재 정의·READ/EXECUTE 권한을 재검사하고 한정된 GET/HEAD 요청 결과를 비밀 없이 반환한다. SAVE와 별개다.
       alerts: REQ-601.configuration_alerts의 현재 원인 묶음/해소·범위와 ENT-094/095를 소유하며 system dashboard는 admin 공개 조회의 소비자다.
     public_contract_needs:
@@ -81,7 +90,7 @@ features:
       - ARCH-028.deployment_contract
       - AUTHZ-090
     pending:
-      - '@defer P3 integration_assets — 실제 YAML 바인딩/서버 동기화·설정 세대 조정·API070/071·참조 제공자·MSG/동시성 구현은 화면 합의와 G3 뒤 수행한다. 현재 소스 구현 완료를 뜻하지 않는다.'
+      - '@defer FEAT-004/118/510/033 — 업무 API·워크플로우·대시보드·독립 이력 화면 실제 소비 검증. SAP OData는 ADR-051의 후속 설계 체크리스트를 따른다.'
     detail: REQ-604의 YAML 정본 대상 시스템/연결 조회·표시 보완·연결 테스트와 REQ-601.configuration_alerts 경고를 소유한다. Portal 계정 매핑의 시스템 기준을 제공한다.
     reqs:
       - REQ-105

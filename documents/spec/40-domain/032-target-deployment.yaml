@@ -1,0 +1,227 @@
+entities:
+  - id: ENT-532
+    name: 대상 연결 배포 허용
+    module: admin
+    implementation: implemented
+    delete_policy: 설치 수명 동안 운영 허용·기동·명령 재수신 근거를 보존한다. 일반 화면 삭제와 연쇄 삭제는 없으며 운영 보존 정책 확정 전 자동 파기를 하지 않는다.
+    design_stage: physical
+    table: AI_ADMIN_TARGET_DEPLOYMENT
+    features: [FEAT-001, FEAT-302]
+    reqs: [REQ-601, REQ-604]
+    term: TRM-263
+    domain: 연동 자산
+    description: ARCH-028의 정확 기동 허용과 메타 작성 세대 보호. 실제 전역 작업 배출의 완료 증명이 아니며 재기동은 허용을 승계하지 않는다.
+    attributes:
+      - name: ENVIRONMENT_ID
+        physical_name: ENVIRONMENT_ID
+        pk: true
+        description: ENVIRONMENT_ID
+      - name: CONTROL_VERSION
+        physical_name: CONTROL_VERSION
+        pk: false
+        description: CONTROL_VERSION
+      - name: WRITER_BOOT_ID
+        physical_name: WRITER_BOOT_ID
+        pk: false
+        description: WRITER_BOOT_ID
+      - name: LAST_COMMAND_KEY
+        physical_name: LAST_COMMAND_KEY
+        pk: false
+        description: LAST_COMMAND_KEY
+      - name: LAST_COMMAND_DIGEST
+        physical_name: LAST_COMMAND_DIGEST
+        pk: false
+        description: LAST_COMMAND_DIGEST
+      - name: MOD_ID
+        physical_name: MOD_ID
+        pk: false
+        description: MOD_ID
+      - name: MOD_DTM
+        physical_name: MOD_DTM
+        pk: false
+        description: MOD_DTM
+    physical:
+      attributes:
+        - name: ENVIRONMENT_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: CONTROL_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: WRITER_BOOT_ID
+          type: character(36)
+          nullable: true
+          default: null
+        - name: LAST_COMMAND_KEY
+          type: character(36)
+          nullable: true
+          default: null
+        - name: LAST_COMMAND_DIGEST
+          type: character(64)
+          nullable: true
+          default: null
+        - name: MOD_ID
+          type: character varying(100)
+          nullable: true
+          default: null
+        - name: MOD_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TARGET_DEPLOYMENT
+          definition: "PRIMARY KEY (ENVIRONMENT_ID)"
+      indexes: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/019-target-deployment.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+  - id: ENT-533
+    name: 대상 연결 기동 검증
+    module: admin
+    implementation: implemented
+    delete_policy: 설치 수명 동안 운영 허용·기동·명령 재수신 근거를 보존한다. 일반 화면 삭제와 연쇄 삭제는 없으며 운영 보존 정책 확정 전 자동 파기를 하지 않는다.
+    design_stage: physical
+    table: AI_ADMIN_TARGET_BOOT
+    features: [FEAT-001, FEAT-302]
+    reqs: [REQ-601, REQ-604]
+    term: TRM-263
+    domain: 연동 자산
+    description: ARCH-028의 정확 기동 허용과 메타 작성 세대 보호. 실제 전역 작업 배출의 완료 증명이 아니며 재기동은 허용을 승계하지 않는다.
+    attributes:
+      - name: BOOT_ID
+        physical_name: BOOT_ID
+        pk: true
+        description: BOOT_ID
+      - name: ENVIRONMENT_ID
+        physical_name: ENVIRONMENT_ID
+        pk: false
+        description: ENVIRONMENT_ID
+      - name: CONFIG_ID
+        physical_name: CONFIG_ID
+        pk: false
+        description: CONFIG_ID
+      - name: ALLOWED_YN
+        physical_name: ALLOWED_YN
+        pk: false
+        description: ALLOWED_YN
+      - name: READY_YN
+        physical_name: READY_YN
+        pk: false
+        description: READY_YN
+      - name: REG_DTM
+        physical_name: REG_DTM
+        pk: false
+        description: REG_DTM
+    physical:
+      attributes:
+        - name: BOOT_ID
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ENVIRONMENT_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: CONFIG_ID
+          type: character(64)
+          nullable: false
+          default: null
+        - name: ALLOWED_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: READY_YN
+          type: character(1)
+          nullable: false
+          default: null
+        - name: REG_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TARGET_BOOT
+          definition: "PRIMARY KEY (BOOT_ID)"
+        - name: FK_TARGET_BOOT_ENV
+          definition: "FOREIGN KEY (ENVIRONMENT_ID) REFERENCES AI_ADMIN_TARGET_DEPLOYMENT (ENVIRONMENT_ID) ON DELETE RESTRICT"
+        - name: CK_TARGET_BOOT_FLAGS
+          definition: "CHECK (ALLOWED_YN IN ('Y','N') AND READY_YN IN ('Y','N'))"
+      indexes: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/019-target-deployment.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
+  - id: ENT-534
+    name: 대상 연결 배포 명령 결과
+    module: admin
+    implementation: implemented
+    delete_policy: 설치 수명 동안 운영 허용·기동·명령 재수신 근거를 보존한다. 일반 화면 삭제와 연쇄 삭제는 없으며 운영 보존 정책 확정 전 자동 파기를 하지 않는다.
+    design_stage: physical
+    table: AI_ADMIN_TARGET_DEPLOYMENT_COMMAND
+    features: [FEAT-001, FEAT-302]
+    reqs: [REQ-601, REQ-604]
+    term: TRM-263
+    domain: 연동 자산
+    description: 후속 운영 명령 이후에도 원 명령 결과를 재생하며 현재 허용 상태를 되돌리지 않는 운영 원장. 비밀과 기술 설정은 보관하지 않는다.
+    attributes:
+      - name: 운영 명령 키
+        physical_name: COMMAND_KEY
+        pk: true
+        description: 운영 명령 키
+      - name: 환경
+        physical_name: ENVIRONMENT_ID
+        pk: false
+        description: 환경
+      - name: 비밀 없는 명령 지문
+        physical_name: REQUEST_DIGEST
+        pk: false
+        description: 비밀 없는 명령 지문
+      - name: 원 명령 반영 제어 버전
+        physical_name: RESULT_VERSION
+        pk: false
+        description: 원 명령 반영 제어 버전
+      - name: 운영 주체
+        physical_name: OPERATOR_ID
+        pk: false
+        description: 운영 주체
+      - name: 명령 반영 시각
+        physical_name: RECORDED_DTM
+        pk: false
+        description: 명령 반영 시각
+    physical:
+      comment: null
+      attributes:
+        - name: COMMAND_KEY
+          type: character(36)
+          nullable: false
+          default: null
+        - name: ENVIRONMENT_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: REQUEST_DIGEST
+          type: character(64)
+          nullable: false
+          default: null
+        - name: RESULT_VERSION
+          type: bigint
+          nullable: false
+          default: null
+        - name: OPERATOR_ID
+          type: character varying(100)
+          nullable: false
+          default: null
+        - name: RECORDED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
+      constraints:
+        - name: PK_TARGET_DEPLOYMENT_COMMAND
+          definition: PRIMARY KEY (COMMAND_KEY)
+      indexes: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/023-target-deployment-command.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml

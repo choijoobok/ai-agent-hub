@@ -20,7 +20,7 @@ public final class ManagedAdmission implements UnaryOperator<SessionAuthority> {
     public SessionAuthority apply(SessionAuthority delegate) {
         return (context,exclusive,command)->{
             var input=request.get();
-            boolean managed=context.operationId().equals("API-082")||registry.operations().stream().anyMatch(op->op.id().equals(context.operationId()));
+            boolean managed=context.operationId().equals("API-082")||registry.operations().stream().anyMatch(op->op.id().equals(context.operationId()))||registry.resultRoutes().stream().anyMatch(route->route.id().equals(context.operationId()));
             // 인증 런타임의 불가 세션 회수는 원 업무 callback을 실행하지 않는 별도 보호다.
             if(!managed||context.principal()==null) { delegate.protect(context,exclusive,command); return; }
             if(input==null||!context.operationId().equals(input.operationId())||context.domain()!=AuthDomain.ADMIN)
@@ -47,7 +47,10 @@ public final class ManagedAdmission implements UnaryOperator<SessionAuthority> {
         return proof.actor();
     }
     public String queryActor(String key,String feature) {
-        var proof=proof("API-082",key);
+        return queryActor("API-082",key,feature);
+    }
+    public String queryActor(String operationId,String key,String feature) {
+        var proof=proof(operationId,key);
         if(!java.util.Objects.equals(feature,proof.input().ownerFeature()))throw ManagedErrorCode.FORBIDDEN.failure();
         return proof.actor();
     }

@@ -75,6 +75,10 @@ public final class TypedHistoryStore implements ManagedHistoryStore {
         if(!kind.equals("PORTAL_USER")||stamp.actor()!=null||!stamp.action().equals("CHANGE"))throw ManagedErrorCode.VALIDATION.failure();
         captureOrigin(targetId,stamp,"EXTERNAL");
     }
+    public void captureConfiguration(String targetId,ManagedAssetAdapter.Stamp stamp) {
+        if(!Set.of("TARGET_SYSTEM","DATA_SOURCE").contains(kind)||stamp.actor()!=null||!Set.of("CREATE","CHANGE").contains(stamp.action()))throw ManagedErrorCode.VALIDATION.failure();
+        captureOrigin(targetId,stamp,"CONFIG_SYNC");
+    }
     private void captureOrigin(String targetId,ManagedAssetAdapter.Stamp stamp,String origin) {
         Object target=targetKeys.bind(targetId);
         var selected=new LinkedHashMap<String,List<Map<String,Object>>>();

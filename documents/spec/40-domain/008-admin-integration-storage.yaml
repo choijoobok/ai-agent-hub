@@ -1,13 +1,13 @@
 # 첫 물리 묶음의 집합·명령 처리 — 제품 구현 전 설계 초안
 entities:
   - id: ENT-017
-    cleanup_mapping_pending: '@defer P3 — 정리 뒤 같은 부모/연결 키 재등장의 새 내부 식별/세대와 참조 계약을 물리 매핑에 확정한다. 현재 TARGET_SYSTEM_ID+CONNECTION_ID 복합키만으로 재등장 구분이 완료됐다고 보지 않는다. 같은 키의 다른 시스템 소속은 별도 대상이다.'
+    cleanup_mapping: CONNECTION_RECORD_ID는 재등록 시 새 번호다. 정리에서 정확 내부 ID를 확인하고 부모+CONNECTION_ID의 소속을 대조한다. 같은 지문 재기동은 제거 메타를 부활시키지 않는다. 후속 API/워크플로우 제공자는 현재/대기 참조와 정확 내부 ID 검사를 연결한다.
     configuration_cleanup: REQ-601.configuration_cleanup. 낡은 세대 재기동의 부활 금지, 새 유효 배포에서 같은 의미 키 재등장은 새 내부 ID로 등록하며 과거 권한/참조를 복원하지 않는다.
     name: 대상 시스템 연결 메타와 표시 보완
     term: TRM-261
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_TARGET_SYSTEM_CONN
     features:
@@ -140,7 +140,10 @@ entities:
     description: YAML 소유 연결 식별/소속과 비밀 없는 이름·설명 기본값/관리자 재정의. 현재 URL·인증 비밀 사본이 아니다.
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: full_owned_snapshot
       parent: ENT-001
@@ -255,7 +258,7 @@ entities:
     term: TRM-263
     domain: 연동 자산
     module: admin
-    implementation: planned
+    implementation: implemented
     design_stage: physical
     table: AI_ADMIN_ASSET_COMMAND
     features:
@@ -264,6 +267,9 @@ entities:
     reqs:
       - REQ-601
     attributes:
+      - name: 명령 기록 시각
+        physical_name: RECORDED_DTM
+        description: NO_CHANGE를 포함한 원 명령의 보존 기산 시각. 실제 반영 시각과 구분한다.
       - name: 명령 식별자
         physical_name: COMMAND_KEY
         pk: true
@@ -316,12 +322,16 @@ entities:
     delete_policy: 현재 자산 삭제에 연쇄 삭제하지 않는다. 아래 보존/재수신 경계가 확정되기 전 파기 기능을 활성화하지 않는다
     physical:
       attributes:
+        - name: RECORDED_DTM
+          type: timestamp with time zone
+          nullable: false
+          default: null
         - name: COMMAND_KEY
           type: character(36)
           nullable: false
           default: null
         - name: ACTOR_ID
-          type: character varying(30)
+          type: character varying(50)
           nullable: false
           default: null
         - name: REQUEST_DIGEST
@@ -374,6 +384,9 @@ entities:
       indexes: []
     identifier_generation: 단일 내부 대리 BIGINT PK는 SYS_SEQUENCE/JPA TABLE. 자연/복합 키·UUID는 발급 대상이 아니다. BIGINT는 API 십진 문자열이다.
     physical_validation: 형식·열거값·필수 조건·금액 유한성·현재 권한/참조는 소유 API와 함께 검증한다. DB 제약은 그 검증을 대신하지 않는다. 제품 Liquibase는 소유 G3 뒤 작성한다.
-    sources: []
+    sources:
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/018-target-system.sql
+      - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/db.changelog-admin.yaml
+      - sources/backend/bootstrap/src/main/resources/db/changelog/db.changelog-master.yaml
     history_storage:
       mode: not_management_history

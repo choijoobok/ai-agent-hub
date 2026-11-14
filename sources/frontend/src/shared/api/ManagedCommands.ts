@@ -12,6 +12,7 @@ type Send = typeof post;
 interface Contract<T> {
   feature: string; getResult: string; save: string; remove: string;
   field: string; changedMessage: string; pendingMessage: string;
+  resultBody?: (commandKey: string) => Record<string, unknown>;
   encode: (row: GridRow<T>, reason: string) => Omit<ManagedCommand, 'commandKey'>;
 }
 
@@ -38,7 +39,7 @@ export class ManagedCommands<T> {
       try {
         if (entry) {
           // 결과를 먼저 확인한다. 사용자가 고친 입력을 원 키에 붙이거나 새 키로 자동 재전송하지 않는다.
-          const checked = await this.send<{ status: string }>(this.contract.getResult, { commandKey: entry.command.commandKey, ownerFeature: this.contract.feature });
+          const checked = await this.send<{ status: string }>(this.contract.getResult, this.contract.resultBody?.(entry.command.commandKey) ?? { commandKey: entry.command.commandKey, ownerFeature: this.contract.feature });
           if (checked.status === 'APPLIED') {
             this.pending.delete(row.id); this.persist(); report.done += 1; continue;
           }

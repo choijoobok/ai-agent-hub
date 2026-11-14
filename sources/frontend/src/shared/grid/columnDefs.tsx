@@ -774,10 +774,12 @@ function applyRenderer<T>(
       if (!onClick || !row || text === '') return <span>{text}</span>;
       return (
         <Typography.Link
+          disabled={column.clickEnabled ? !column.clickEnabled(row.data) : false}
+          aria-disabled={column.clickEnabled ? !column.clickEnabled(row.data) : undefined}
           onClick={(event) => {
             // 판이 같은 클릭으로 행 선택·편집 진입을 함께 처리한다 — 링크만 눌린다.
             event.stopPropagation();
-            onClick(row.data);
+            if (!column.clickEnabled || column.clickEnabled(row.data)) onClick(row.data);
           }}
         >
           {text}

@@ -32,7 +32,7 @@ class PortalUserLiveTest {
             public DataSource dataSource(){return source;}
             public void record(Event event){if(failAudit)throw new IllegalStateException("시험 보안 감사 장애");new JdbcTemplate(source).update("INSERT INTO fx_portal_security VALUES (?,?,?)",event.kind().name(),event.result(),event.principal()==null?null:event.principal().subjectId());}
         };}
-        @Bean PortalIdentityTargets portalTestTargets(){return new PortalIdentityTargets() {
+        @Bean @org.springframework.context.annotation.Primary PortalIdentityTargets portalTestTargets(){return new PortalIdentityTargets() {
             public Candidates list(String kind){return new Candidates("READY",List.of(new Target("700001","시험 업무 대상",true,"")));}
             public void requireWritable(String kind,String id){if(!id.equals("700001"))throw ManagedErrorCode.FORBIDDEN.failure();}
         };}

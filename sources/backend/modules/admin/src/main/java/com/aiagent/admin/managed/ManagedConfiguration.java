@@ -23,8 +23,8 @@ public class ManagedConfiguration {
     @Bean public ManagedIds managedIds(DataSource source,PlatformTransactionManager manager) { return new ManagedIds(source,manager); }
     @Bean public JdbcManagedJournal managedJournal(DataSource source) { return new JdbcManagedJournal(source); }
     @Bean public ManagedCommandGuard managedCommandGuard(DataSource source) { return new ManagedCommandGuard(source); }
-    @Bean public ManagedRegistry managedRegistry(DataSource source,ObjectProvider<ManagedRegistry.Operation> operations,ObjectProvider<ManagedJournal> journals) {
-        return new ManagedRegistry(source,operations.orderedStream().toList(),journals.orderedStream().toList());
+    @Bean public ManagedRegistry managedRegistry(DataSource source,ObjectProvider<ManagedRegistry.Operation> operations,ObjectProvider<ManagedJournal> journals,ObjectProvider<ManagedResultRoute> results) {
+        return new ManagedRegistry(source,operations.orderedStream().toList(),journals.orderedStream().toList(),results.orderedStream().toList());
     }
     @Bean public ManagedAdmission managedAdmission(ManagedLocks locks,ManagedRegistry registry) { return new ManagedAdmission(locks,registry); }
     @Bean("administratorAuthorityDecorator") public UnaryOperator<SessionAuthority> administratorAuthorityDecorator(ManagedAdmission admission) { return delegate->admission.apply(delegate); }
@@ -52,6 +52,7 @@ public class ManagedConfiguration {
         routes.add(new InstalledAdminRoutes.Route("API-082","POST",ManagedRequestFilter.RESULT_PATH,
                 "com.aiagent.admin.api.management.ManagementCommandController#getResult","READ"));
         for(var op:registry.operations())routes.add(new InstalledAdminRoutes.Route(op.id(),"POST",op.path(),op.handler(),"SAVE"));
+        for(var route:registry.resultRoutes())routes.add(new InstalledAdminRoutes.Route(route.id(),"POST",route.path(),route.handler(),"READ"));
         return new InstalledAdminRoutes(routes);
     }
 }

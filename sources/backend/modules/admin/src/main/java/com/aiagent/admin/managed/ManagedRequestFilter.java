@@ -22,7 +22,8 @@ public final class ManagedRequestFilter implements Filter {
     }
     @Override public void doFilter(ServletRequest raw,ServletResponse response,FilterChain chain) throws IOException,ServletException {
         var request=(HttpServletRequest)raw; var operation=registry.path(request.getRequestURI());
-        boolean query=request.getRequestURI().equals(RESULT_PATH);
+        var resultRoute=registry.resultRoutes().stream().filter(route->route.path().equals(request.getRequestURI())).findFirst();
+        boolean query=request.getRequestURI().equals(RESULT_PATH)||resultRoute.isPresent();
         if(!request.getMethod().equals("POST")||(!query&&operation.isEmpty())) { chain.doFilter(raw,response);return; }
         Replay replay;
         try {
@@ -30,9 +31,16 @@ public final class ManagedRequestFilter implements Filter {
             @SuppressWarnings("unchecked") Map<String,Object> body=mapper.readValue(replay.body,Map.class);
             if(body==null)throw ManagedErrorCode.VALIDATION.failure();
             if(query) {
-                if(!body.keySet().equals(Set.of("commandKey","ownerFeature"))||!(body.get("ownerFeature") instanceof String feature)||!feature.matches("FEAT-[0-9]+"))throw ManagedErrorCode.VALIDATION.failure();
+                String feature;
+                if(resultRoute.isPresent()){
+                    if(!body.keySet().equals(Set.of("commandKey")))throw ManagedErrorCode.VALIDATION.failure();
+                    feature=resultRoute.get().feature();
+                } else {
+                    if(!body.keySet().equals(Set.of("commandKey","ownerFeature"))||!(body.get("ownerFeature") instanceof String value)||!value.matches("FEAT-[0-9]+"))throw ManagedErrorCode.VALIDATION.failure();
+                    feature=value;
+                }
                 var key=ManagedCommand.requireKey((String)body.get("commandKey"));
-                admission.bind(new ManagedAdmission.Prepared("API-082",key,null,feature));
+                admission.bind(new ManagedAdmission.Prepared(resultRoute.map(ManagedResultRoute::id).orElse("API-082"),key,null,feature));
             } else {
                 if(!body.keySet().equals(Set.of("commandKey","targetId","expectedRevision","scope","values","reason")))throw ManagedErrorCode.VALIDATION.failure();
                 var input=mapper.convertValue(body,ManagedCommand.class);

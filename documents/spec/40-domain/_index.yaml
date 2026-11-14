@@ -63,3 +63,4 @@ spec_set:
     - 029-model-call-usage.yaml
     - 030-external-change-support.yaml
     - 031-auth-session-admission.yaml
+    - 032-target-deployment.yaml

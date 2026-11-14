@@ -14,4 +14,5 @@ public interface ManagedJournal {
     void insert(Entry entry);
     void delete(String key);
     boolean references(long historyNo);
+    default List<Long> histories(Entry entry){return entry.historyNo()==null?List.of():List.of(entry.historyNo());}
 }

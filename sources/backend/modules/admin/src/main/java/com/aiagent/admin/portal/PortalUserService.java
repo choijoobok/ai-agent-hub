@@ -40,6 +40,7 @@ public class PortalUserService implements ManagedAssetAdapter {
     public List<ManagedLocks.Key> locks(ManagedCommand command) {
         locks.ordered(List.of(QuotaGradeGuard.boundary()));
         var keys=new ArrayList<ManagedLocks.Key>();keys.add(new ManagedLocks.Key(1,"QUOTA_MONTH",today().toString().substring(0,7)));keys.add(PortalPolicy.KEY);
+        if(command.scope().equals("identitySystem")||command.scope().equals("identityDataSource"))keys.addAll(dependencies.targetLocks(identityKind(command.scope()),PortalDefinition.rows(command.values(),"identities").stream().map(row->(String)row.get("targetId")).toList()));
         if(command.targetId()!=null)keys.add(PortalPolicy.user(command.targetId()));
         if(command.scope().equals("memberships"))for(var row:PortalDefinition.rows(command.values(),"memberships"))keys.add(new ManagedLocks.Key(3,"USER_GROUP",(String)row.get("groupId")));
         if(command.scope().equals("grades"))for(var row:PortalDefinition.rows(command.values(),"grades")) {

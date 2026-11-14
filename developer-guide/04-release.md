@@ -250,3 +250,62 @@ NONE은 명시 검수한 무인증 연결만 사용한다. 비밀/인증 헤더�
 - 인도 단계 절차 — [`aidd-guide/phase/P6-deliver.md`](../aidd-guide/phase/P6-deliver.md)
 - 사용자 메뉴얼 확인·캡처 치환 — `/manual-site` 스킬
 - 설계·사용자·운영 오프라인 제출본 만들기 — `/deliverable-site` 스킬
+
+
+### 대상 시스템과 연결별 호출 유틸
+
+CR-050 B·[ADR-051](../documents/decisions/ADR-051-연결별-호출유틸과-API-공통자산-확장.md)을 따른다. 공통 연결 정의와 시스템 소속/호출 옵션을 `registry-key`로 연결한다. 아래는 스키마 예시이며 `.invalid` 주소에 접속 성공을 기대하지 않는다. 실제 업무 실행/고객 공동 검수는 후속 소유 기능에서 수행한다.
+
+```yaml
+app:
+  deployment:
+    id: example-release
+    connections:
+      order-http:
+        kind: BUSINESS_API
+        display-name: 주문 API
+        endpoint: https://orders.invalid/api
+        authentication: NONE
+    target-systems:
+      orders:
+        name: 주문 시스템
+        description: 일반 REST JSON 연결 예시
+        connections:
+          main:
+            registry-key: order-http
+            name: 기본 연결
+            invoker-bean: restJsonInvoker
+            public-path-segments: [api]
+            options:
+              connect-timeout-ms: 1000
+              request-timeout-ms: 10000
+              max-response-bytes: 1048576
+            test:
+              method: HEAD
+              path: /health
+              timeout-ms: 2000
+              success-statuses: [200, 204]
+```
+
+인증이 필요한 연결은 앞 절의 보호된 `secret-property`를 사용한다. BASIC은 `principal`, API_KEY는 호출 옵션 `api-key-header`도 지정한다. Authorization·Cookie·토큰은 일반 `headers`에 넣지 않는다. 테스트 미제공 서비스는 `test` 블록을 생략한다. 등록되지 않은 빈·알 수 없는 옵션·잘못된 URL/소속·비밀 오류를 기본 구현이나 빈 정상 목록으로 대체하지 않는다.
+
+`restJsonInvoker`는 JDK HTTP 클라이언트를 사용하는 공통 인터페이스 구현이다. 후속 유틸은 같은 인터페이스를 구현해 WebClient나 전용 SDK를 내부에서 사용할 수 있다. 현재 OData 처리 빈은 없으며 빈 이름만 SAP용으로 적어 지원을 활성화할 수 없다. 응답 상한·시간 제한·리다이렉트 미추적을 유지하며 SAP 전용 확장 조건은 ADR-051에서 확인한다.
+
+
+#### 대상 시스템 기동 허용 절차
+
+Liquibase가 서버 기동 때 `018-target-system.sql`부터 `024-target-system-messages.sql`까지의 미적용 변경을 반영한다. 적용된 파일은 고치지 않고 후속 체인지셋을 추가한다. DB 테이블 생성과 YAML 메타 동기화는 별개이며, 메타 동기화는 아래의 정확 기동 허용 뒤 수행한다.
+
+1. 보호된 운영 실행 환경에 `TARGET_DEPLOYMENT_JDBC`(실제 스키마 포함), `TARGET_DEPLOYMENT_USER`, `TARGET_DEPLOYMENT_PASSWORD`를 설정한다. 비밀번호는 명령 인자나 로그에 넣지 않는다.
+2. 서버를 기동하고 `sources/`에서 아래 조회를 실행한다. 환경 값은 `app.secrets.environment`와 같아야 한다.
+3. 이번 배포의 정확 BOOT_ID·CONFIG_ID와 CONTROL_VERSION을 대조한 뒤 새 UUID 명령키로 허용한다. 같은 설정 지문인 재기동도 새 BOOT_ID이며 자동 승계하지 않는다.
+4. 다시 조회해 허용된 기동의 READY_YN=Y를 확인한다. 준비 전에는 시험·표시 저장·정리를 열지 않는다. 허용 명령만 성공하고 동기화가 실패하면 로그를 조사하며 다른 기동의 준비 값을 대신 쓰지 않는다.
+
+```powershell
+.\gradlew.bat :backend:bootstrap:targetDeployment '--args=inspect customer-prod' -PskipFrontend
+.\gradlew.bat :backend:bootstrap:targetDeployment '--args=allow customer-prod <boot-uuid> <control-version> <command-uuid> <operator-id> false' -PskipFrontend
+```
+
+마지막 `false`는 기존 기동의 허용을 끝내고 이번 기동을 메타 작성자로 지정한다. 구·신 기동 공존을 운영 검수한 경우에만 `true`를 사용한다. 응답 유실은 같은 명령키·같은 인자로 확인하며, 과거 명령 재수신이 최신 허용 상태를 되돌리지 않는다. 일반 관리자 화면에는 이 운영 권한을 노출하지 않는다.
+
+이 경계는 대상 연결의 시험·동기화·참조 쓰기·정리를 직렬화한다. 전역 agent/큐의 작업 배출 완료를 대신하지 않으며 해당 실행 기능은 후속 통합 때 같은 배포 경계와 진행 참조 제공자를 연결해야 한다. 미설치 소비자의 영향 건수는 0이 아니라 미확인으로 표시한다.

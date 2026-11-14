@@ -46,6 +46,16 @@ HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getList
 HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/getOne
 HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/remove
 HUB_QUOTA_GRADE,/api/admin/service/quotaGrade/save
+HUB_TARGET_SYSTEM,/api/admin/service/integration/getConfigurationAlerts
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/deleteConfigurationMismatches
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getCommandResult
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getConfigurationCleanupPreview
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getConnections
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getList
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getOne
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/getUsedApis
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/save
+HUB_TARGET_SYSTEM,/api/admin/service/targetSystem/testConnection
 HUB_USER_GROUP,/api/admin/service/managementCommand/getResult
 HUB_USER_GROUP,/api/admin/service/userGroup/getAssets
 HUB_USER_GROUP,/api/admin/service/userGroup/getList
