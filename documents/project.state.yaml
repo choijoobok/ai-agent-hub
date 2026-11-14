@@ -14,7 +14,7 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-001 G4 승인·SLICE-002 설계/선행 조건 확인
+  workstream: admin         # SLICE-002 구현 검증·G4 사용자 승인 대기
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-001 G4 사용자 명시 승인. 기동 시 전체 동기화·누락 판정, 조회는 저장 결과 표시, 명시 정리 시 참조 검증/삭제의 현재 방식을 유지한다. 승인 상태와 구현을 푸시한 뒤 SLICE-002 데이터소스 관리의 설계/선행 조건을 대조하고 구현한다. 변경 범위 필수 검증 후 G4 사용자 승인을 요청한다."
+  first: "2026-11-14 SLICE-002 데이터소스 관리의 생산 구현·변경 범위 검증과 G4 사용자 수락을 진행한다. 승인 뒤 SLICE-003 카탈로그의 실제 현재 권한/참조·관측/비교/SQL 소비 계약 연결을 검토한다. 후속 소비를 이번 구현 완료로 표시하지 않는다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 49    # CR-050 B 승인: 연결별 호출 유틸·공통 API 종류, SAP 후속
+  CR: 52    # CR-051~053 시간대/시험 소유·정리 버튼 위치 정정
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 51    # CR-050 B와 후속 SAP 확장 경계
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2554,7 +2554,6 @@ slices:
       - TC-0068
       - TC-00610
       - TC-00212
-      - TC-00211
       - TC-00210
       - TC-0021
       - TC-0022
@@ -2578,14 +2577,78 @@ slices:
       - TC-00224
       - TC-00225
     scope: 데이터소스 메타/가이드·참조/연결·저장 이력
-    stage: P3
-    status: todo
+    stage: P4
+    status: self_verified
+    started_at: "2026-11-14"
     depends_on:
       - SLICE-001
       - SLICE-006
     entry_conditions:
       - 소유 G3와 해당 화면 요건/목업 승인 뒤 구현한다. 필요한 생산 계약/구현의 실제 검증을 대역 통과와 구별한다.
-    verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
+    verification: 변경된 중요한 정상/예외·현재 권한·정합성·원자성·재수신과 공개 생산 포트의 대표 반례를 검증한다. 후속 실제 소비와 사용자 수락은 별도다.
+    implementation_review:
+      reviewed_at: "2026-11-14"
+      status: self_verified
+      implemented: YAML 데이터소스 안정 키/별칭·URL 도출 DBMS 동기화, 수동 메타/전체 그룹/가이드·동형 전체 이력·원 결과의 원자 저장, 현재 권한·버전 충돌·응답 유실 복구, 정확 누락 전체 범위 정리와 경고, 그룹 삭제/Portal DATA_SOURCE 신원 실제 저장/비활성 참조 보호·현재 카탈로그 기반 내부 가이드 포트를 구현했다.
+      dependency_boundary: SLICE-001/006/040/302 완료 계약을 재사용한다. SLICE-003 카탈로그·JOB-003 비교와 agent SQL 실행은 후속 소비자이며 선행 대기 조건이 아니다. 미설치/부분 설치/실패는 현재 미상으로 구분하고 SQL 사용을 허용하지 않는다.
+      source_commit: e23d1b29
+      source_refs:
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/datasource/
+        - sources/backend/modules/admin/src/main/java/com/aiagent/admin/shared/configuration/
+        - sources/backend/core/src/main/java/com/aiagent/core/deployment/DataSourceMetadata.java
+        - sources/backend/support/src/main/java/com/aiagent/support/deployment/ExternalDataSources.java
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/025-data-source.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/026-data-source-menu.sql
+        - sources/backend/bootstrap/src/main/resources/db/changelog/modules/admin/027-data-source-alert-menu.sql
+        - sources/frontend/src/modules/admin/features/datasource/
+      tests:
+        unique_passed: 25
+        skipped: 0
+        selected: 입력/현재 카탈로그 문맥3·YAML 로더1·실제 DS DB4·프런트 명령2·영향 대상 시스템3·구조/서비스 규약12.
+        policy: current.verification_policy와 test-design §0의 변경 범위 필수 시험만 선택한다. 전체 백엔드/프런트/Redis 시험을 반복하지 않는다.
+        test_first: DataSourceDefinitionTest의 미구현 컴파일 실패를 sources/build/slice002/red.log에서 확인한 뒤 구현했다.
+        actual_database: DataSourceLiveTest는 전용 PostgreSQL·제품 HTTP/인증·별도 스키마에서 전체 저장/이력/재수신·권한/낡은 버전·참조/하위 그룹 축소·HIST와 기동 동기화 실패의 전체 롤백·누락 정리/경고/원 결과·같은 지문 재기동 부활 차단을 확인한다.
+        migration: 신규025~027을 전용 빈 스키마에 적용·3개 rollback·재적용한다. 기존 사용자 DB/기존 검토 스키마의 초기화나 롤백은 하지 않는다.
+        reuse: 최종 본문 공백/들여쓰기 보존은 실패 반례 후 입력/문맥3개를 다시 확인했다. DB/프런트 필드 매핑·공통 규약은 비영향 결과를 재사용한다. TypedHistoryStore/ManagedCommands의 공통 복수 자식·독립 행 부분 성공·원 명령 보호는 기존040/006 근거를 재사용한다. 공통 기동/원장/진단 이동은 TargetSystemLiveTest의 3개 관련 시험만 다시 실행한다.
+        evidence:
+          - sources/build/slice002/final.log
+          - sources/build/slice002/producer-final.log
+          - sources/build/slice002/cleanup-final.log
+          - sources/build/slice002/admin-final.log
+          - sources/build/slice002/front.log
+          - sources/build/slice002/typecheck.log
+          - sources/build/slice002/eslint.log
+          - sources/build/slice002/quality.log
+          - sources/build/slice002/domain.log
+      static: 타입/변경 파일 ESLint 오류0, quality 중복2.44%·삼킴0·미태깅0. 하네스18개 일치·meta 위반0·trace 오류0/기존 후속 경고72. 도메인241/활성94테이블980컬럼48changelog 일치. 생성416문서·ID1625/장문18212 누락0·깨진링크0, 최종HTML495/25/9장 구조/자산 검사 통과. 샘플 포함 기준으로 generateSeeds/checkSeeds 일치.
+      gate_check:
+        checklist: process/04-gates G4의 기술/제시10항목 충족. 사용자 수락은 대기이며 승인 상태로 바꾸지 않는다.
+        pending_rechecks: 범위 항목 없음.
+        testcases: FEAT-002.delivery_boundary의 생산 범위를 위25개 필수 시험과 실제 화면으로 검증했다. TC-00211의 독립 이력 화면은 CR-052에 따라 기존 FEAT-033 소유에 배정했다.
+        counterexamples: 기술값/불완전 자식/시간대·클라이언트 소유 변조 거부, 현재 권한403·기준판409, 그룹 참조/PRESENT/UNKNOWN 차단, 본값·전체HIST·명령/경고의 실패 롤백, 원 명령 재수신·구 기동 부활 금지·새 배포 새 ID, 실제 Portal DATA_SOURCE 비활성 신원 참조 보호, 내부 가이드의 현재 범위·판 변경 거부.
+        assumptions: 이번 생산 범위 미해결 가정0. 후속 실제 SQL/카탈로그/이력 UI 검증은 완료로 세지 않는다.
+      browser:
+        layout_followup: CR-053 사용자 지시로 누락 정리 버튼을 상단 그리드 저장 바로 오른쪽으로 이동하고 요건/목업/매뉴얼에 반영했다. 실제 화면의 동일 줄·저장 오른쪽 배치와 가이드 삭제 열 표시를 확인했으며 타입/변경 파일 ESLint를 통과했다.
+        result: 격리 검토 스키마의 실제 로그인·가이드 추가/편집·공백 사유 차단·전체 저장 후 재조회·탭 왕복 보존·빈 정리 확인 비활성화를 확인했다. JS 오류0이다.
+        review_url: http://127.0.0.1:18040/admin/hub/data-source
+        backend_port: 59003
+        screenshot: sources/build/slice002/review-guide.jpg
+        isolation: 전용 managed040_ 스키마의 시험 admin 계정만 사용한다. 사용자 localhost3006/18006 및 기존 관리자 비밀번호는 변경하지 않았다.
+      redteam:
+        - 위험: 새 설정 세대의 연결 근거가 바뀌었는데 alias/DBMS만 비교하면 현재 관리행의 동기화 근거/이력이 낡는다. SYNC_CONFIG_ID 차이도 실제 변경으로 처리하고 동기화 이력 실패 시 전체 롤백을 확인한다.
+        - 위험: 미설치·부분 설치·실패를 참조0건으로 취급하면 사용자 신원/카탈로그가 참조하는 데이터소스를 정리한다. 소유 테이블 완전성·PRESENT/UNKNOWN 차단·전체 후보 재검사와 같은 부모 잠금으로 보호한다.
+        - 위험: 가이드나 적용 가능 그룹을 실제 조회 권한으로 사용하면 미허용 SQL을 보낸다. 현재 선택 카탈로그 검증 포트와 정확 DS 판정/연결·필수 SQL 지원 검사를 분리하고 미설치·미상·범위 변조를 거부한다. 실제 원천 실행/턴 근거는 후속 소유 검증이다.
+        - 위험: Portal 소비자의 DATA_SOURCE와 생산 어댑터의 DATASOURCE가 달라 저장이 막히거나 비활성 신원 참조를 놓칠 수 있었다. 실제 Portal 신원 저장의503 실패를 먼저 재현한 뒤 소비자 종류/DB 제약에 맞췄고 비활성 신원도 PRESENT로 검증했다.
+        - 위험: 가이드 본문 trim으로 SQL 예시의 들여쓰기를 잃거나 조회 조립 중 판이 바뀌어 다른 판의 가이드를 반환한다. 원문 공백/줄바꿈 반례를 먼저 실패시킨 뒤 보존했고 응답 직전 같은 관리 리비전을 재검증해 혼합 편집본을 거부한다.
+      unresolved_slice_assumptions: []
+      followup:
+        - FEAT-003은 DataSourceReferencePort·DataSourceCatalogScope를 실제 현재 권한/카탈로그·그룹 참조에 연결하고 동일 DS 부모 잠금을 지킨다. 공개 테이블/컬럼·교차 DB 이름 해석·현재 관측/파서 지원을 실연결 시험한다.
+        - FEAT-003/JOB-003은 컬럼/인덱스 구조 비교 결과·요약과 취소/중복/부분 확인을 제공한다. 현재 확인 불가를 0건/정상으로 바꾸지 않는다.
+        - agent/integration은 실제 SQL·동적 코드/참조 선조회·가이드 적용 판/턴 근거 및 신규/예약/재시도/재개 직전 현재 검사를 검증한다. 관리 생산 포트 대역 통과를 실행 완료로 세지 않는다.
+        - FEAT-033은 TC-00211의 SCR-041 상속 이력 검색·반출 통합을 검증한다. SLICE-002는 현재/전체 HIST 생산과 원 관리 화면만 수락 대상으로 둔다.
+        - FEAT-510은 API-071 DATA_SOURCE 원인·null 영향 건수·PARTIAL/FAILED를 현재 권한 범위로 표시하고 실제 대시보드 연결을 검증한다.
+      acceptance: G4 사용자 명시 승인 대기. 소유 생산 범위 검증 후 승인/보류/재작업을 요청한다. 푸시는 요청받지 않았다.
+
   - id: SLICE-003
     workstream: admin
     features:
@@ -3020,6 +3083,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-002, measured_at: "2026-11-14", fix_rounds: 7, unverified_rules: 0, quality_fails: 0, spec_defects: 2, redteam_fixes: 3, note: "소유 생산 범위 필수25개/skip0·실제 화면. 원문 공백 보존·Portal 종류/비활성 신원 참조·조회 판 혼합 반례를 보완했다. 전체 시험 확대 없이 관련 시험만 재실행하고 비영향 결과를 재사용한다. 실제 카탈로그/SQL·독립 이력/대시보드 소비는 후속 소유다." }
   - { slice: SLICE-024, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-048 A 완료 범위 고유22건/skip0. 기능10·규약12 및 실제 브라우저 저장/상세 삭제 보호/미저장 보존을 검증했다. 전체 반복은 미계측이며 비영향 시험은 재사용했다. 실제 지식 연결·agent 검색은 후속이며2026-11-14 사용자 G4 명시 승인 완료." }
   - { slice: SLICE-010, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-047 완료 범위 고유24개 통과/skip0. 기능12·규약12와 실제 브라우저 저장/안전 표시/확대창을 검증했다. 비영향 통과 결과를 재사용하며 전체 시험은 반복하지 않았다. 독립 이력 화면·실제 Portal 소비는 후속이다. 전체 수정 횟수는 미계측이다." }
   - { slice: SLICE-303, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-045 공통 완료 범위 고유16개/skip0 통과. 변경 계약6·실제DB3·의존7이며 조립 보완 후 영향9개만 재검사했다. 자산 원장/고객 마스킹/최종 소비 검증은 후속으로 명시한다. 반복 전체 횟수는 미계측이다." }
