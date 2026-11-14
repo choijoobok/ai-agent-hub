@@ -14,7 +14,7 @@ project:
 current:
   phase: P1                  # P0~P6 — **방법론 단계**. P0 는 2026-09-05 승인됐다
   roadmap: RM-P1             # RM-P1~RM-P4 — **로드맵 차수**. 지금 짓고 있는 제품 차수다
-  workstream: admin         # SLICE-010 승인/푸시 완료; SLICE-024 선행 구현·완료 경계 확인
+  workstream: admin         # SLICE-024 정의 관리 구현·필수 검증 완료, 사용자 G4 수락 대기
   # ↑ **축이 둘이고 글자가 같다.** 차수는 *무엇을 내는가*(00-charter/_index.yaml roadmap),
   #   단계는 *어디까지 만들었는가*(P0~P6)다. 한 차수가 P0~P6 을 한 바퀴 돈다.
   #   `trace-check` 가 이 값을 읽어 **뒤 차수의 결손을 오류가 아니라 경고로** 센다.
@@ -1074,7 +1074,7 @@ next_up:
   decided_at: "2026-11-09"
   choice: "admin 선행19화면/필수 공통 처리의 상세 설계·소유 G3·구현 → agent/디버그와 요구 기반 기록 모델 검증 → 후행 admin/제품 Portal"
   why: "사용자 요청으로 전체 admin 목업 합의 선행 조건을 해제했다. 감사·이력·품질의 현재 목업을 agent 설계 입력에서 제외하고 질의/응답 요구에서 턴 등 기록 모델을 만든 뒤 화면을 다시 설계한다."
-  first: "2026-11-14 SLICE-010 G4 승인 및 origin/main 푸시 완료(9c831286). SLICE-024 기존 정규화·중복 규칙을 먼저 구현하고 관련 단위3건 통과. CR-048의 관리 생산/후속 지식·검색 완료 경계 A/B/C 사용자 판정 대기. 답변 전 해당 계약/DB/API/화면 변경은 진행하지 않는다."
+  first: "SLICE-024 CR-048 A 범위 구현·필수 시험22건·브라우저 검증 완료. 사용자 G4 승인 대기. 승인 시 정의 관리·이력·연결 포트 범위로 완료 처리하고 다음 준비된 슬라이스를 선정한다. 실제 지식 연결·검색은 FEAT-014·agent 후속이다."
   then: "delivery_strategy.staged_delivery의 범위/순서와 소유 게이트를 따른다. 계획 승인만으로 G3·실행 검증·제품 구현을 승인하지 않는다. system 새 설정/이력 저장은 추가하지 않는다."
 
 # ── 미결 질문 (Open Questions) ─────────────────────────────────────
@@ -1130,7 +1130,7 @@ counters:
   SCR: 97    # 2026-11-11 Portal 비밀번호 찾기/재설정 독립 화면 SCR-116
   TC: 457    # admin G3: 관리 진입/저장 단위2건·혼재 기능 정상 저장12건의 계획 TC 추가
   JOB: 4    # 2026-11-09 정본 실물 집계; 계획 설계 포함
-  CR: 47    # CR-048 태그 관리/후속 소비 완료 경계 제안(판정 대기)
+  CR: 47    # CR-048 사용자 A 승인: 태그 관리/후속 소비 완료 경계
   RUN: 9      # 80-operations/_index.yaml의 현재 절차. RUN-202는 구현 전 계획 절차다
   ADR: 50    # CR-038 모듈 우선 API A 기록
   ASM: 0      # ADR-048 승인 기준 재판정으로 ASM-003 확인됨. 운영 API 수락은 별도 미실행
@@ -2833,7 +2833,7 @@ slices:
     testcases:
       - TC-0244
       - TC-0243
-    scope: 태그·동의어 정규화와 직접 연결
+    scope: 태그·동의어 정의 관리·이력·연결 포트 (CR-048 A)
     stage: P4
     status: in_progress
     started_at: "2026-11-14"
@@ -2845,15 +2845,57 @@ slices:
     implementation_entry:
       reviewed_at: "2026-11-14"
       approval_basis: SLICE-010 승인·푸시·다음 작업 진행 지시. admin G3 승인과040 완료 확인.
-      scope_pending: CR-048 A/B/C 사용자 판정 대기. 기존 정규화 규칙만 선행 구현하며 후속 소비와 완료 경계는 아직 변경하지 않는다.
+      scope_approved: 2026-11-14 CR-048 사용자 A 명시 승인. 정의 관리·이력·연결 포트 완료와 실제 지식 연결·검색 후속 검증을 분리한다.
       next_candidate: 015는 agent 소스 기반 용도 후보와 실제 모델 어댑터 계약 미구현으로 즉시 실제 검증 불가. 독립 관리 구현 가능한024를 다음으로 선택했다.
-    implementation_progress:
-      scope: SearchTagText의 NFKC·Unicode 앞뒤 공백·ASCII 소문자화, 입력200/정규화400 코드포인트 제한, 같은 부모 대표/동의어 중복 차단. 서로 다른 태그 동의어 일치는 허용한다.
-      tests: 미구현 클래스/메서드 컴파일 실패 확인 후 구현. SearchTagTextTest 고유3건 통과/skip0. 전체 백엔드/프런트/DB 시험은 실행하지 않았다.
-      static: "품질 중복2.55%·삼킴0·미태깅0, 하네스18·meta 위반0. trace 오류1/기존 경고72: 아직 구현하지 않은 정상 저장 TC-0244가 현재 슬라이스의 필수 결손이다. 단위시험으로 전체 저장 완료를 주장하지 않으며 G4 청구 전 실제 저장 시험으로 닫는다."
-      status: partial_not_g4_ready
-      next: 완료 경계 판정 후 소유 저장·권한·이력·삭제 참조·화면과 필수 DB/API/브라우저 시험으로 이어간다.
-      evidence: sources/build/slice024-text-red.log·slice024-duplicate-red.log·slice024-text-final.log·slice024-unicode-final.log·slice024-quality.log
+    implementation_review:
+      status: awaiting_user_g4
+      verified_at: "2026-11-14T17:05:02+09:00"
+      source_commit: 96103e50
+      prerequisite_commit: f4f88c84
+      change: CR-048
+      scope: 태그/소유 동의어 전체 정의 CRUD·사용 여부·원문/정규화·권한·현재/전체 HIST·동일 명령 재수신·정확 판 보호·참조 확인/저장 잠금 포트와 마스터/상세 화면.
+      test_first: SearchTagText 미구현 클래스/메서드와 SearchTagDefinition 미구현 클래스 RED 후 구현했다. 선행 정규화 근거는 sources/build/slice024-text-red.log·slice024-duplicate-red.log, 전체 입력 경계는 slice024-definition-red.log에 남긴다.
+      tests:
+        unique_passed: 22
+        skipped: 0
+        feature: SearchTagTextTest3·SearchTagDefinitionTest1·SearchTagLiveTest4·searchTagApi.test.ts2. 실제 DB/HTTP3건과 별도 신규 마이그레이션 롤백/재적용1건을 포함한다.
+        architecture: ApiOperationSummaryTest1·LayerDependencyTest7·ServiceConventionTest4.
+        evidence: sources/build/slice024-unit.log·slice024-live-final.log·slice024-front.log·slice024-seed-architecture.log.
+        fixes: CHAR 스키마 선언·ADMIN 메뉴 권한·SYS_SEQUENCE 누락을 해당 시험 실패로 찾아 보완했다. 이미 적용된 변경은 수정하지 않고016/017 보완 changeset을 추가했다.
+        reuse: 전체 백엔드·프런트·Redis 시험은 반복하지 않았다. 마지막 빈 상세 안내 문구 수정은 브라우저와 타입/lint만 확인하며 비영향 자동 시험 통과를 재사용한다.
+        contracts: TC-0243/0244의 승인된 정의 생산·소비 포트 범위. 실제 지식 원장 불변·agent 검색 완료는 통과로 세지 않는다.
+      browser: codex-review 시험 계정으로 localhost3006 로그인. 출고 현황/동의어 shipping status·사용Y 저장과 재조회, 미연결 검토 태그/사용N 저장, 조회 직후 삭제 잠금·상세가 빈 태그만 활성·동의어가 남은 태그 잠금, 지식 미연결 안내·탭 왕복, 미저장 행 전환 취소 후 선택/내용 보존을 확인했다. 임시 수정은 원상 복구했으며 콘솔 경고/오류0.
+      screenshot: sources/build/slice024-browser.jpg
+      review_server: localhost3006 / backend18006 / PostgreSQL group006_review. 원 관리자 비밀번호 변경 없음. 검토용 두 태그와 로그인된 화면·서버를 유지한다.
+      static: 타입/lint 오류0, 품질 중복2.53%·예외 삼킴0·미태깅0. 하네스18·meta 위반0·trace 오류0/기존 경고72. 도메인 ENT238·활성74테이블·732컬럼·38changelog 일치. doc-gen ID1622·장문18019 누락0·깨진 링크0. 요건 매핑/목업 통과. HTML 원본815·설계492/사용자23/운영9장 구조/자산 통과.
+      verification_limit: 실제 지식 저장자/검색 소비자는 미구현이다. 잠금·정확 판 포트의 실제 DB 시험을 해당 업무 통합 시험으로 확대 해석하지 않는다. 문서 HTML은 구조/자산/링크 검사 근거이며 브라우저 file URL 정책 제한을 우회하지 않았다.
+      gate_check:
+        pending_rechecks: 없음 — documents/project.state.yaml pending_rechecks.
+        testcases: 소유 TC-0243/0244의 CR-048 A 범위 필수 시험10건·규약12건 통과/skip0 — 위 tests.evidence.
+        counterexamples: 정규화 중복·다른 부모 자식 재귀속422, READ 저장/삭제403, 낡은 판409, HIST 실패503 무효과, 부분 설치/미확인 참조 삭제503, 소비 보호 없는 과거 판 거부, 연결 포트 잠금과 삭제 경쟁 — SearchTagLiveTest·SearchTagDefinitionTest·SearchTagTextTest.
+        quality: sources/build/slice024-quality-final.log 통과.
+        test_scope: current.verification_policy의 영향 시험 선정/통과 재사용을 적용했다.
+        migration: 014~017 신규 적용·롤백·재적용 실제 DB 시험 통과 — SearchTagLiveTest 및 slice024-live-final.log.
+        api: 50-api/013-admin-physical-apis.yaml·014-admin-physical-contracts.yaml·SearchTagController·생성 API/메뉴/권한 시드 정합 확인.
+        feat_tags: 품질 검사 신규 소스 미태깅0.
+        spec_errors: CR-048 A 승인으로 완료 경계를 분리했고 SCR-010·TC-0243/0244·ENT/물리 계약·화면 요건/매뉴얼에 반영했다.
+        demo: sources/build/slice024-browser.jpg·http://localhost:3006/admin/hub/knowledge-tag 제공. 기술 조건9/9, 직접 사용자 결과 수락 대기.
+      redteam:
+        - 참조 조회 실패를 빈 결과로 취급하면 사용 중인 태그를 삭제해 지식 연결이 깨진다. 전체 관련 테이블 부재를 입증한 미설치만 ABSENT로 판정하고 부분 설치/검사 실패는 UNKNOWN으로 막는다. 동의어 잔존409·참조 미확인503과 관계 보존을 실제 DB로 확인했다.
+        - 다른 태그 전환·늦은 상세 응답·일부 자식만 전송하면 동의어를 잘못 덮거나 잃는다. 전체 소유 자식 전송·revision 대조·요청 세대 확인·행 전환 취소 보호·부모 소유 자식 검증을 적용했다. 전송/실패 계약 시험과 브라우저 취소 후 선택/입력 유지로 확인했다.
+        - 현재값만 반영되거나 과거 검색 근거를 최신 태그로 대체하면 당시 판을 재현할 수 없다. 현재/전체 HIST/원 결과 원자 저장·동일 명령 응답 재현·소비자 등록/보호된 정확 과거 판 읽기를 검증했다. 실제 agent 검색과 연결 지식 불변 검증은 승인된 후속 소유에 남긴다.
+      unresolved_slice_assumptions: []
+      decision_card:
+        - 표시 원문을 보존하되 전각·앞뒤 공백·영문 대소문자 차이는 같은 검색 표현으로 취급한다. 변경 비용 중간.
+        - 같은 태그 안의 중복 동의어는 막고 서로 다른 태그에서 같은 동의어 사용은 허용한다. 변경 비용 중간.
+        - 저장된 동의어·지식 연결이 남아 있거나 참조를 확인하지 못하면 태그 삭제를 막고 관계를 자동 삭제하지 않는다. 변경 비용 중간.
+        - 이번 완료는 정의 관리·이력·연결 준비이며 실제 지식 연결·검색과 독립 이력 화면은 후속에서 검증한다. 현재 분리 비용 낮음, 소비자 연결 후 경계 변경 비용 높음.
+      reverse_question: 동의어가 남은 태그는 동의어 삭제를 먼저 저장한 뒤 태그를 삭제하게 했는데, 이 두 단계가 운영 흐름에 맞는지 사용자 의견을 요청한다.
+      followup:
+        - FEAT-014는 SearchTagReferences와 SearchTagService.requireExisting를 실제 지식 원장에 연결하고 매핑 저장/삭제 경합·권한별 투영·연결 불변을 검증한다.
+        - agent는 허용 지식에서 얻은 태그 ID만 SearchTagContent에 전달하고 실제 복수 태그 검색·OFF 제외·소비 당시 정확 판을 TC-0243/0244의 후속 범위에서 검증한다.
+        - FEAT-033은 SCR-047 독립 이력 검색/반출 화면을 구현한다.
+      acceptance: 미승인. 사용자 명시 G4 수락 전 status=done 또는 다음 슬라이스 구현으로 진행하지 않는다.
   - id: SLICE-023
     workstream: admin
     features:
@@ -2921,6 +2963,7 @@ slices:
     verification: 명시 TC의 정상/예외·규칙 반전과 현재 권한/원자성/재수신·소유 실제 저장/공개 포트를 검증한다. 사용자 화면 테스트를 기계 검사로 대신하지 않는다.
 
 verification_load:
+  - { slice: SLICE-024, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-048 A 완료 범위 고유22건/skip0. 기능10·규약12 및 실제 브라우저 저장/상세 삭제 보호/미저장 보존을 검증했다. 전체 반복은 미계측이며 비영향 시험은 재사용했다. 실제 지식 연결·agent 검색은 후속, 사용자 G4는 대기다." }
   - { slice: SLICE-010, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-047 완료 범위 고유24개 통과/skip0. 기능12·규약12와 실제 브라우저 저장/안전 표시/확대창을 검증했다. 비영향 통과 결과를 재사용하며 전체 시험은 반복하지 않았다. 독립 이력 화면·실제 Portal 소비는 후속이다. 전체 수정 횟수는 미계측이다." }
   - { slice: SLICE-303, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-045 공통 완료 범위 고유16개/skip0 통과. 변경 계약6·실제DB3·의존7이며 조립 보완 후 영향9개만 재검사했다. 자산 원장/고객 마스킹/최종 소비 검증은 후속으로 명시한다. 반복 전체 횟수는 미계측이다." }
   - { slice: SLICE-005, measured_at: "2026-11-14", fix_rounds: null, unverified_rules: 0, quality_fails: 0, spec_defects: 1, redteam_fixes: null, note: "CR-044 완료 경계에서 신규14·영향 회귀3 고유17개/skip0 통과. 실제 DB 적용/복구·권한·현재 접근 경합·원자성·암호 재수신과 브라우저 양방향 소속 저장을 검증했다. 전체 수정/레드팀 반복 수는 미계측이며 계측하지 않은 값을0으로 만들지 않는다. 실제 세션·고객 인증/인사 수신·대상 후보·배정은 후속 소유 범위다." }
